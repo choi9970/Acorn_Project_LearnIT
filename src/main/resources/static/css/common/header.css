@@ -52,51 +52,66 @@
    PC 드롭다운 메뉴 (강의목록)
 =========================== */
 
-/* 드롭다운 부모 */
+/* 드롭다운 부모: 강의목록 */
 .gnb-item.has-sub {
     position: relative;
-    display: flex;
+    display: inline-flex;
     align-items: center;
 }
 
-/* 초기엔 숨김 */
+/* 서브메뉴 박스 */
 .submenu {
     position: absolute;
-    top: 110%;
+    top: calc(100% + 1.2rem);   /* 강의목록 아래로 조금 띄우기 */
     left: 0;
     display: none;
-    flex-direction: column;
     background: #fff;
     border: 1px solid var(--border-light);
     border-radius: 0.6rem;
-    padding: 1rem 0;
+    padding: 0.6rem 0;
     min-width: 16rem;
     box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    z-index: 2000;
+    z-index: 9999;
 }
 
-/* 메뉴 항목 */
+/* 한 줄씩 딱딱 떨어지게 */
 .submenu a {
-    padding: 0.8rem 1.6rem;
+    display: block;                 /* ✅ 겹침 방지 */
+    padding: 0.7rem 1.6rem;
     font-size: 1.4rem;
+    line-height: 1.4;               /* ✅ 글자 겹침 방지 */
     color: var(--text-normal);
     white-space: nowrap;
 }
 
+/* hover 시 강조만 */
 .submenu a:hover {
     background: var(--bg-light);
     color: var(--text-strong);
 }
 
-/* Hover → 드롭다운 보이기 */
+/* 강의목록 위/아래 hover 시 서브메뉴 유지 */
 .gnb-item.has-sub:hover .submenu {
-    display: flex;
+    display: block;
 }
 
-/* 강의목록 hover 시 강조 (선택사항) */
-.gnb-item.has-sub:hover > a {
+/* 강의목록 텍스트 강조 (선택) */
+.gnb-item.has-sub:hover > .menu-link {
     color: var(--text-strong);
 }
+
+/* 메뉴와 서브메뉴 사이 hover 끊김 방지용 */
+.gnb-item.has-sub::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 1.2rem;   /* 위에서 띄운 간격과 맞추기 */
+    background: transparent;
+}
+
+
 
 /* 검색 */
 .header-search {
