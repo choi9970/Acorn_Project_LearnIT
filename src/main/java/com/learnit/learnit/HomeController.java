@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "home"; // templates/home.html 을 찾게 됨
+        return "mainContent"; // templates/home.html 을 찾게 됨
     }
 }
