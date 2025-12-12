@@ -40,6 +40,12 @@
     font-size: 1.3rem;
 }
 
+.user-id {
+    color: #8b8b8b;
+    font-size: 1.3rem;
+    margin-top: 0.4rem;
+}
+
 .mypage-nav ul {
     list-style: none;
     padding: 0;

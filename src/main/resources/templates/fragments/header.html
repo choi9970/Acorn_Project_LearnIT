@@ -49,3 +49,27 @@
 
     </div>
 </header>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- 상단 헤더 Fragment -->
+<div th:fragment="header">
+    <header class="main-header">
+        <div class="header-top-line"></div>
+        <div class="header-container">
+            <div class="header-left">
+                <div class="logo-icon">B</div>
+                <nav class="header-nav">
+                    <a href="/courses">강의목록</a>
+                    <a href="/quiz">퀴즈</a>
+                    <a href="/community">커뮤니티</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="login-btn">로그인/회원가입</button>
+            </div>
+        </div>
+    </header>
+</div>
+
+</html>

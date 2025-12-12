@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 | LearnIT</title>
+
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+
+<body>
+
+<div th:replace="fragments/header.html :: header"></div>
+
+<div class="layout-container">
+
+    <aside th:replace="fragments/mypage-navbar.html :: mypage-nav"></aside>
+
+    <main class="layout-content">
+        <div th:replace="mypage/main :: content"></div>
+    </main>
+
+</div>
+
+<div th:replace="fragments/footer.html :: footer"></div>
+
+</body>
+</html>

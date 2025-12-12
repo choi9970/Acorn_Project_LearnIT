@@ -1,0 +1,109 @@
+/* 레이아웃 컨테이너: 네비게이션 바와 메인 콘텐츠를 나란히 배치 */
+.layout-container {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+    display: flex;
+    gap: 2.4rem;
+    align-items: flex-start;
+}
+
+.layout-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.dashboard-title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 2.4rem;
+    color: #111;
+}
+
+.mypage-dashboard {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.4rem;
+}
+
+.card-large {
+    grid-column: span 2;
+}
+
+.card-small {
+    grid-column: span 1;
+}
+
+.card {
+    background: #fff;
+    padding: 2.4rem;
+    border-radius: 1.6rem;
+    border: 1px solid #d5dbe3;
+
+    box-shadow:
+        0 0.2rem 0.6rem rgba(10, 74, 122, 0.08),
+        0 0.8rem 2rem rgba(10, 74, 122, 0.12);
+
+    transition: 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-0.3rem);
+}
+
+.card h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.8rem 1.4rem;
+    background: #0A4A7A;
+    color: #fff;
+    border-radius: 0.8rem;
+    border: none;
+    cursor: pointer;
+    margin-top: 1.2rem;
+}
+
+.btn:hover {
+    background: #083b5e;
+}
+
+.chart-placeholder,
+.calendar-placeholder {
+    width: 100%;
+    height: 120px;
+    background: #f4f6fa;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #7c8a9a;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+    .layout-container {
+        flex-direction: column;
+        padding: 0 1.6rem;
+    }
+    
+    .dashboard-title {
+        font-size: 2rem;
+        margin-bottom: 1.6rem;
+    }
+    
+    .mypage-dashboard {
+        grid-template-columns: 1fr;
+        gap: 1.6rem;
+    }
+    
+    .card-large,
+    .card-small {
+        grid-column: span 1;
+    }
+}

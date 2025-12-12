@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- 마이페이지 네비 Fragment -->
+<div th:fragment="mypage-nav">
+
+    <aside class="mypage-sidebar">
+
+        <div class="profile-box">
+            <div class="photo">
+                <img src="/images/profile-default.png">
+            </div>
+            <p class="nickname">닉네임</p>
+            <p class="user-id">@아이디</p>
+        </div>
+
+        <nav class="mypage-nav">
+            <ul>
+                <li><a href="/mypage">대시보드</a></li>
+                <li><a href="/mypage/settings">개인정보 수정</a></li>
+                <li><a href="/mypage/courses">내 학습 강의</a></li>
+                <li><a href="/mypage/qa">강의 Q&A</a></li>
+                <li><a href="/mypage/purchase">구매 / 혜택</a></li>
+            </ul>
+        </nav>
+
+    </aside>
+
+</div>
+
+</html>
