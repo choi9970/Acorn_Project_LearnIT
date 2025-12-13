@@ -1,0 +1,12 @@
+.admin-sidebar{
+    width: 220px;
+    height: 600px;
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2.4rem 2rem;
+    border: 0.1rem solid #d5dbe3;
+}
+
+.sidebar-tabs ul li{
+    margin-bottom: 1rem;
+}
