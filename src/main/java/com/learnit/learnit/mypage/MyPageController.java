@@ -14,6 +14,6 @@ public class MyPageController {
         model.addAttribute("weeklyStudy", "총 5시간");
         model.addAttribute("certificateCount", 3);
 
-        return "layout/mypage-layout";
+        return "mypage/main";
     }
 }

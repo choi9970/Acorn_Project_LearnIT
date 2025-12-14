@@ -1,6 +1,6 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:fragment="layout(title, content)">
+      th:fragment="layout(title, content, css, script)">
 
 <head>
     <meta charset="UTF-8">
@@ -12,6 +12,10 @@
     <link rel="stylesheet" th:href="@{/css/common/base.css}">
     <link rel="stylesheet" th:href="@{/css/common/header.css}">
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
+
+    <!--페이지별 css-->
+    <th:block th:replace="${css}"></th:block>
+
 </head>
 
 <body>
@@ -26,6 +30,9 @@
 
 <!--공통 푸터-->
 <div th:replace="fragments/footer :: footer"></div>
+
+<!--페이지별 js-->
+<th:block th:replace="${script}"></th:block>
 
 </body>
 </html>

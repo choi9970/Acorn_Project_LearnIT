@@ -1,0 +1,27 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{
+        layout/admin-layout :: layout(
+          ~{::title},
+          ~{::content},
+          ~{::css},
+          ~{::script}
+        )
+      }">
+
+<head>
+  <title th:fragment="title">관리자 메인</title>
+
+  <th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/admin-navbar.css}">
+  </th:block>
+
+  <th:block th:fragment="script"></th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+
+</div>
+
+</body>

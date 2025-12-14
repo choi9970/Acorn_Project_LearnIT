@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/layout :: layout(~{::title}, ~{::content})}">
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
 
 <head>
   <!-- title fragment -->
   <title th:fragment="title">learnit main</title>
+
+  <th:block th:fragment="css"></th:block>
+
+  <th:block th:fragment="script"></th:block>
 </head>
 
 <body>
 
 <!-- content fragment -->
-<div th:fragment="content">
-  <h2>테스트 페이지</h2>
+<div th:fragment="content" class="container">
   <p>여기는 콘텐츠 영역입니다.</p>
 </div>
 

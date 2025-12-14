@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
-    @GetMapping("/")
+    @GetMapping("/home")
     public String home() {
-        return "mainContent"; // templates/home.html 을 찾게 됨
+        return "home/mainContent";
     }
 }
