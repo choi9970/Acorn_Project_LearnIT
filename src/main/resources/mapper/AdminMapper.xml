@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.mapper.AdminMapper">
+
+    <select id="countActiveCourses" resultType="int">
+        SELECT COUNT(*) FROM course WHERE status = 'ACTIVE'
+    </select>
+
+    <select id="countPendingQnas" resultType="int">
+        SELECT COUNT(*) FROM qna_question WHERE is_resolved = 'N'
+    </select>
+
+    <select id="countPendingReviews" resultType="int">
+        SELECT COUNT(*) FROM review WHERE comment_status = 'Active'
+    </select>
+
+    <select id="selectLatestNotices" resultType="com.learnit.learnit.admin.AdminHome$AdminNotice">
+        SELECT category,
+               title,
+               DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
+        FROM notice
+        ORDER BY created_at DESC
+            LIMIT 4
+    </select>
+
+    <select id="selectPendingCertificates" resultType="com.learnit.learnit.admin.AdminHome$AdminCertificate">
+        SELECT c.title as title, u.name as name
+        FROM certificate cert
+            JOIN enrollment e ON cert.enrollment_id = e.enrollment_id
+            JOIN course c ON e.course_id = c.course_id
+            JOIN users u ON e.user_id = u.user_id
+        WHERE cert.is_approved = 'N'
+        ORDER BY cert.issued_at DESC
+            LIMIT 4
+    </select>
+</mapper>

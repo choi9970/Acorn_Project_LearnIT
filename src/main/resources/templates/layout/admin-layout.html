@@ -1,34 +1,26 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:fragment="layout(title, content, css, script)">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, content, css)">
 <head>
-  <meta charset="UTF-8">
-  <title th:replace="${title}">Adming Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="${title}">관리자 페이지</title>
 
-  <link rel="stylesheet" th:href="@{/css/common/base.css}">
-  <link rel="stylesheet" th:href="@{/css/common/header.css}">
-  <link rel="stylesheet" th:href="@{/css/common/footer.css}">
-
-  <!--페이지별 css-->
-  <th:block th:replace="${css}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/common/base.css}">
+    <link rel="stylesheet" th:href="@{/css/common/header.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-navbar.css}">
+    <th:block th:replace="${css}"></th:block>
 </head>
 
 <body>
-
-<div th:replace="fragments/header :: site-header"></div>
-
-<div>
-  <aside th:replace="fragments/admin-navbar :: admin-navbar"></aside>
-
-  <main class="layout-content">
-    <div th:replace="${content}"></div>
-  </main>
+<div class="layout-wrapper">
+    <header th:replace="~{fragments/header :: site-header}"></header>
+    <div class="main-body">
+        <nav th:replace="~{fragments/admin-navbar :: admin-navbar}"></nav>
+        <main class="content">
+            <div th:replace="${content}"></div>
+        </main>
+    </div>
 </div>
-
-<div th:replace="fragments/footer :: footer"></div>
-
-
-<th:block th:replace="${script}"></th:block>
-
 </body>
 </html>

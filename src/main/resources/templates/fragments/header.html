@@ -8,7 +8,7 @@
 
         <!-- 로고 -->
         <div class="logo">
-            <a th:href="@{/}">
+            <a th:href="@{/home}">
                 <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="logo-img">
             </a>
         </div>
@@ -37,7 +37,7 @@
             </nav>
 
             <form class="header-search" th:action="@{/search}" method="get">
-                <input type="text" name="q" placeholder="Value" class="search-input">
+                <input type="text" name="keyword" placeholder="Value" class="search-input">
                 <button type="submit" class="search-btn">🔍</button>
             </form>
         </div>

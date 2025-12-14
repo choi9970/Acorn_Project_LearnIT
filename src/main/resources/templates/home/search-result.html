@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{})}">
+
+<head>
+  <title th:fragment="title">검색 결과</title>
+
+  <th:block th:fragment="css">
+    <style>
+    </style>
+  </th:block>
+</head>
+
+<body>
+<section th:fragment="content">
+  <div class="search-container">
+
+    <div class="search-header">
+      <h2>'<span class="keyword" th:text="${keyword}"></span>' 검색 결과</h2>
+      <p style="color:#888; margin-top:5px;">
+        총 <span th:text="${#lists.size(list)}">0</span>개의 강의가 검색되었습니다.
+      </p>
+    </div>
+
+    <ul class="result-list">
+      <li class="result-item" th:each="course : ${list}">
+        <span class="course-title" th:text="${course.title}">강의 제목</span>
+
+        <div class="course-desc"
+             th:text="${course.content != null && #strings.length(course.content) > 100 ? #strings.substring(course.content, 0, 100) + '...' : course.content}">
+          강의 설명
+        </div>
+      </li>
+    </ul>
+
+    <div th:if="${#lists.isEmpty(list)}" style="text-align: center; padding: 100px 0;">
+      <p style="font-size: 1.2rem; color: #999;">검색 결과가 없습니다.</p>
+      <a href="/home">홈으로 돌아가기</a>
+    </div>
+
+  </div>
+</section>
+</body>
+</html>
