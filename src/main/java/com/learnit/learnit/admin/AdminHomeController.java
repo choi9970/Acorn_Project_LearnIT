@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AdminHomeController {
     @GetMapping("/admin/home")
     public String adminHome() {
-        return "fragments/admin-navbar";
+        return "admin/admin-home";
     }
 }

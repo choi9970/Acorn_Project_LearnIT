@@ -4,9 +4,23 @@
     background: #fff;
     border-radius: 1rem;
     padding: 2.4rem 2rem;
+    margin: 2rem 2rem;
     border: 0.1rem solid #d5dbe3;
 }
 
 .sidebar-tabs ul li{
     margin-bottom: 1rem;
+}
+
+/*admin-layout용*/
+.main-body {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex: 1;
+}
+
+.content {
+    flex: 1;
+    padding: 30px;
 }

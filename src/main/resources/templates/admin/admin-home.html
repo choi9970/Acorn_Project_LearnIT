@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+  <title>관리자 대시보드 홈</title>
+</head>
+<body>
+  <section>
+    <div class="admin-dashboard">
+      <div class="dashboard-top">
+        <div class="stat-wrap">
+          <h3>강의 관리</h3>
+          <a href="/admin/course" class="adminMain-stat">
+            <div class="icon-wrap"><img src="/images/icon-admin-course-stat.png" class="stat-icon"> </div>
+            <div class="stat-info">
+              <h3 class="stat-number">100개의 강의</h3>
+              <p class="stat-label">공개중</p>
+            </div>
+          </a>
+        </div>
+
+        <div class="stat-wrap">
+          <h3>리뷰 관리</h3>
+          <a href="/admin/review" class="adminMain-stat">
+            <div class="icon-wrap"><img src="/images/icon-admin-review-stat.png" class="stat-icon"></div>
+            <div class="stat-info">
+              <h3 class="stat-number">100개</h3>
+              <p class="stat-label">리뷰 검사 대기</p>
+            </div>
+          </a>
+        </div>
+
+        <div class="stat-wrap">
+          <h3>Q&A 관리</h3>
+          <a href="/admin/qna" class="adminMain-stat">
+            <div class="icon-wrap"><img src="/images/icon-admin-qna-stat.png" class="stat-icon"></div>
+            <div class="stat-info">
+              <h3 class="stat-number">100개</h3>
+              <p class="stat-label">Q&A 답변 대기</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="dashboard-bottom">
+        <div class="notice-wrap">
+          <h3>최신 공지</h3>
+          <img src="/images/icon-admin-plus-btn.png" class="plus-btn">
+          <div class="list-container">
+            <div class="list-item">
+              <div class="item-header">
+                <span class="item-title">Title</span>
+                <img src="/images/icon-admin-down-arrow.png">
+              </div>
+              <p class="item-content"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="certificate-wrap">
+          <h3>수료증 수여 대기 강의</h3>
+          <img src="/images/icon-admin-plus-btn.png" class="plus-btn">
+          <div class="list-container">
+            <div class="list-item">
+              <span class="item-title">남과 여의 문화사</span>
+              <i class='bx bx-paperclip action-icon'></i>
+            </div>
+
+            <div class="list-item">
+              <span class="item-title">통계학 1</span>
+              <i class='bx bx-trash action-icon'></i>
+            </div>
+
+            <div class="list-item">
+              <span class="item-title">Title</span>
+              <i class='bx bx-chevron-down'></i>
+            </div>
+            <div class="list-item">
+              <span class="item-title">Title</span>
+              <i class='bx bx-chevron-down'></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+
+</html>
