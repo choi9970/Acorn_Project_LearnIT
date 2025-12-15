@@ -22,10 +22,10 @@
                     <div class="gnb-item has-sub">
                         <a th:href="@{/lecture/list}">강의목록</a>
                         <div class="submenu">
-                            <a th:href="@{/lecture/java}">Java 강의</a>
-                            <a th:href="@{/lecture/spring}">Spring 강의</a>
-                            <a th:href="@{/lecture/frontend}">Frontend 강의</a>
-                            <a th:href="@{/lecture/db}">Database 강의</a>
+                        <a th:each="cat : ${categories}"
+                           th:text="${cat.name}"
+                           th:href="@{'/course/' + ${cat.id}}">카테고리
+                        </a>
                         </div>
                     </div>
 
