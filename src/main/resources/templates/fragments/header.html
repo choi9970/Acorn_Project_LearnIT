@@ -1,75 +1,111 @@
-<header th:fragment="site-header" class="site-header">
-    <div class="container header-inner">
-
-        <!-- 모바일: 햄버거 버튼 -->
-        <button type="button" class="menu-toggle" aria-label="메뉴 열기">
-            ☰
-        </button>
-
-        <!-- 로고 -->
-        <div class="logo">
-            <a th:href="@{/home}">
-                <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="logo-img">
-            </a>
-        </div>
-
-        <!-- 가운데 메뉴 + 검색 -->
-        <div class="header-center">
-            <nav class="gnb">
-
-                <!-- ▼ 드롭다운 부모 -->
-                <div class="gnb-item has-sub">
-                    <a th:href="@{/lecture/list}">강의목록</a>
-
-                    <!-- ▼ 드롭다운 메뉴 -->
-                    <div class="submenu">
-                        <a th:href="@{/lecture/java}">Java 강의</a>
-                        <a th:href="@{/lecture/spring}">Spring 강의</a>
-                        <a th:href="@{/lecture/frontend}">Frontend 강의</a>
-                        <a th:href="@{/lecture/db}">Database 강의</a>
-                    </div>
-                </div>
-
-                <!-- 나머지 메뉴는 그대로 -->
-                <a th:href="@{/quiz}" class="gnb-item">퀴즈</a>
-                <a th:href="@{/community}" class="gnb-item">커뮤니티</a>
-
-            </nav>
-
-            <form class="header-search" th:action="@{/search}" method="get">
-                <input type="text" name="keyword" placeholder="Value" class="search-input">
-                <button type="submit" class="search-btn">🔍</button>
-            </form>
-        </div>
-
-        <!-- 오른쪽 로그인 버튼 -->
-        <div class="header-right">
-            <a th:href="@{/login}" class="login-btn">로그인/회원가입</a>
-        </div>
-
-    </div>
-</header>
-<!DOCTYPE html>
+<!-- src/main/resources/templates/fragments/header.html -->
 <html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="site-header" >
+    <header class="site-header">
+        <div class="container header-inner">
 
-<!-- 상단 헤더 Fragment -->
-<div th:fragment="header">
-    <header class="main-header">
-        <div class="header-top-line"></div>
-        <div class="header-container">
-            <div class="header-left">
-                <div class="logo-icon">B</div>
-                <nav class="header-nav">
-                    <a href="/courses">강의목록</a>
-                    <a href="/quiz">퀴즈</a>
-                    <a href="/community">커뮤니티</a>
+            <!-- 모바일: 햄버거 버튼 -->
+            <button type="button" class="menu-toggle" id="btn-menu" aria-label="메뉴 열기">
+                ☰
+            </button>
+
+            <!-- 로고 -->
+            <div class="logo">
+                <a th:href="@{/home}">
+                    <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="logo-img">
+                </a>
+            </div>
+
+            <!-- 가운데 메뉴 + 검색 -->
+            <div class="header-center">
+                <nav class="gnb">
+                    <div class="gnb-item has-sub">
+                        <a th:href="@{/lecture/list}">강의목록</a>
+                        <div class="submenu">
+                            <a th:href="@{/lecture/java}">Java 강의</a>
+                            <a th:href="@{/lecture/spring}">Spring 강의</a>
+                            <a th:href="@{/lecture/frontend}">Frontend 강의</a>
+                            <a th:href="@{/lecture/db}">Database 강의</a>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/quiz}" class="gnb-item">퀴즈</a>
+                    <a th:href="@{/community}" class="gnb-item">커뮤니티</a>
                 </nav>
+
+                <form class="header-search" th:action="@{/search}" method="get">
+                    <input type="text" name="q" placeholder="Value" class="search-input">
+                    <button type="submit" class="search-btn">🔍</button>
+                </form>
             </div>
+
+            <!-- 오른쪽 로그인 버튼 -->
             <div class="header-right">
-                <button class="login-btn">로그인/회원가입</button>
+                <a th:href="@{/login}" class="login-btn">로그인/회원가입</a>
             </div>
+
         </div>
     </header>
-</div>
 
-</html>
+    <!-- 모바일 사이드바(드로어) -->
+    <nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
+        <div class="mobile-nav__overlay" id="mobile-nav-overlay"></div>
+
+        <div class="mobile-nav__panel">
+            <div class="mobile-nav__header">
+                <div class="mobile-nav__logo-wrap">
+                    <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="mobile-nav__logo">
+                </div>
+
+                <div class="mobile-nav__header-actions">
+                    <button class="mobile-nav__login" type="button">로그인</button>
+                    <button class="mobile-nav__close" id="mobile-nav-close" aria-label="카테고리 닫기" type="button">
+                        &times;
+                    </button>
+                </div>
+            </div>
+
+            <ul class="mobile-nav__list">
+                <li class="mobile-nav__item">
+                    <button class="mobile-nav__item-header" type="button"><span>강의목록</span></button>
+                </li>
+                <li class="mobile-nav__item">
+                    <button class="mobile-nav__item-header" type="button"><span>퀴즈</span></button>
+                </li>
+                <li class="mobile-nav__item">
+                    <button class="mobile-nav__item-header" type="button"><span>커뮤니티</span></button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 인라인 JS -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener("DOMContentLoaded", function () {
+          const btnMenu   = document.getElementById("btn-menu");
+          const mobileNav = document.getElementById("mobile-nav");
+          const overlay   = document.getElementById("mobile-nav-overlay");
+          const btnClose  = document.getElementById("mobile-nav-close");
+
+          function openNav() {
+            if (!mobileNav) return;
+            mobileNav.classList.add("is-open");
+            mobileNav.setAttribute("aria-hidden", "false");
+          }
+
+          function closeNav() {
+            if (!mobileNav) return;
+            mobileNav.classList.remove("is-open");
+            mobileNav.setAttribute("aria-hidden", "true");
+          }
+
+          if (btnMenu)  btnMenu.addEventListener("click", openNav);
+          if (overlay)  overlay.addEventListener("click", closeNav);
+          if (btnClose) btnClose.addEventListener("click", closeNav);
+        });
+        /*]]>*/
+    </script>
+
+</th:block>
+

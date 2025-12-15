@@ -1,0 +1,151 @@
+.notice-page {
+  padding: 6rem 2rem;
+}
+
+.notice-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+}
+
+.notice-table-wrap {
+  background: #f3f4f6;
+  padding: 2.4rem;
+  border-radius: 1.2rem;
+}
+
+.notice-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 1.2rem; /* 행 사이 여백 */
+}
+
+.notice-table thead th {
+  font-size: 1.3rem;
+  color: #111;
+  font-weight: 700;
+  padding: 1.2rem 1.2rem;
+}
+
+.notice-table tbody tr {
+  background: #fff;
+}
+
+.notice-table tbody td {
+  padding: 1.6rem 1.2rem;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.notice-table .td-title {
+  text-align: left;
+}
+
+.notice-table .td-title a {
+  display: inline-block;
+  color: #111;
+}
+
+.notice-table .td-title a:hover {
+  text-decoration: underline;
+}
+
+.col-no { width: 10%; }
+.col-title { width: 55%; }
+.col-date { width: 20%; }
+.col-writer { width: 15%; }
+
+.empty-row {
+  height: 4.8rem;
+  background: #fff;
+}
+
+/* pagination */
+.pagination {
+  margin-top: 3.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.page-btn,
+.page-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 0.8rem;
+  font-size: 1.4rem;
+  color: #111;
+}
+
+.page-num.is-active {
+  background: #111;
+  color: #fff;
+}
+
+.page-dots {
+  color: #666;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .notice-page {
+    padding: 3.2rem 1.6rem;
+  }
+
+  .notice-table-wrap {
+    padding: 1.6rem;
+  }
+
+  .col-date, .col-writer { display: none; } /* 모바일에서 칼럼 줄이기 */
+}
+/* ===== 공지사항 상세 ===== */
+.notice-detail-wrap {
+  background: #f3f4f6;
+  padding: 2.4rem;
+  border-radius: 1.2rem;
+}
+
+.notice-detail-title {
+  background: #fff;
+  padding: 1.6rem;
+  border-radius: 0.8rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1.6rem;
+}
+
+.notice-detail-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 0.8rem;
+  min-height: 38rem; /* 피그마처럼 큰 박스 */
+  white-space: pre-line; /* \n 줄바꿈 보이게 */
+  font-size: 1.4rem;
+  line-height: 1.7;
+}
+
+.notice-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.6rem;
+}
+
+.notice-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.4rem;
+  border-radius: 0.8rem;
+  background: #e5e7eb;
+  color: #111;
+  font-size: 1.3rem;
+}
+
+.notice-back-btn:hover {
+  background: #d1d5db;
+}
+

@@ -1,0 +1,171 @@
+/* =========================================
+   mainnav.css
+   - 모바일 햄버거 버튼 클릭 시
+     왼쪽에서 슬라이드로 나오는 사이드바(드로어) 스타일
+   - JS에서 .is-open 클래스를 토글하는 구조 기준
+========================================= */
+
+/* ====== 드로어 전체 컨테이너 ====== */
+.mobile-nav {
+  position: fixed;
+  inset: 0;                 /* top/right/bottom/left: 0 */
+  z-index: 9999;
+
+  /* 기본은 숨김 */
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 열렸을 때만 활성화 */
+.mobile-nav.is-open {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ====== 오버레이(검은 배경) ====== */
+.mobile-nav__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.mobile-nav.is-open .mobile-nav__overlay {
+  opacity: 1;
+}
+
+/* ====== 실제 패널(왼쪽 슬라이드) ====== */
+.mobile-nav__panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: min(320px, 84vw);
+  height: 100%;
+  background: #fff;
+
+  /* 기본은 화면 밖 */
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  padding: 1.6rem; /* 16px */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+
+.mobile-nav.is-open .mobile-nav__panel {
+  transform: translateX(0);
+}
+
+/* ====== 상단(로고/로그인/X) ====== */
+.mobile-nav__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.mobile-nav__logo-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.mobile-nav__logo {
+  height: 9.7rem;
+  width: auto;
+  display: block;
+}
+
+.mobile-nav__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.0rem;
+}
+
+.mobile-nav__login {
+  padding: 0.7rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f8f9fa;
+  font-size: 1.3rem;
+  color: #111;
+}
+
+.mobile-nav__login:hover {
+  background: #eef1f4;
+}
+
+.mobile-nav__close {
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 0.8rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 2.6rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-nav__close:hover {
+  background: #f3f4f6;
+}
+
+/* ====== 메뉴 리스트 ====== */
+.mobile-nav__list {
+  margin-top: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.mobile-nav__item {
+  border: 1px solid #eef0f3;
+  border-radius: 1.2rem;
+  overflow: hidden;
+  background: #fff;
+}
+
+.mobile-nav__item-header {
+  width: 100%;
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111;
+
+  background: #fff;
+}
+
+.mobile-nav__item-header:hover {
+  background: #f8f9fb;
+}
+
+/* (선택) 항목 오른쪽 화살표 느낌 주고 싶으면 사용
+.mobile-nav__item-header::after {
+  content: "›";
+  font-size: 2.0rem;
+  color: #999;
+}
+*/
+
+/* ====== PC에서는 굳이 안 보이게 하고 싶으면(선택) ======
+   - 너희 header.css에서 768px 이하에 햄버거가 보이니까
+   - 사이드바도 모바일에서만 쓰게 하고 싶으면 아래 유지
+*/
+@media (min-width: 769px) {
+  .mobile-nav {
+    display: none;
+  }
+}
+----여기까지가 최종 코드

@@ -1,0 +1,191 @@
+.cart-page {
+  padding: 5rem 0;
+}
+
+.cart-head {
+  margin-bottom: 2rem;
+}
+
+.cart-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 2.6rem;
+  font-weight: 800;
+}
+
+.cart-icon {
+  font-size: 2.4rem;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2.4rem;
+  align-items: start;
+}
+
+/* 왼쪽 리스트 */
+.cart-list {
+  background: #fff;
+}
+
+.cart-list-top {
+  padding: 1.2rem 1.2rem 1.6rem;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-check-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.4rem;
+  color: #111;
+}
+
+.cart-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 88px 1fr auto 36px;
+  gap: 1.2rem;
+  align-items: center;
+
+  padding: 1.6rem 1.2rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-check input {
+  width: 16px;
+  height: 16px;
+}
+
+.cart-thumb .thumb-box {
+  width: 76px;
+  height: 56px;
+  border: 1px solid #ddd;
+  border-radius: 1rem;
+  background: #fafafa;
+}
+
+.cart-info {
+  min-width: 0;
+}
+
+.cart-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 0.8rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.6rem;
+  color: #111;
+}
+
+.cart-name {
+  font-size: 1.3rem;
+  color: #666;
+}
+
+.cart-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.cart-price .per {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.cart-remove {
+  width: 32px;
+  height: 32px;
+  border-radius: 0.8rem;
+  border: 1px solid #e5e7eb;
+  font-size: 2.2rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-remove:hover {
+  background: #f3f4f6;
+}
+
+/* 오른쪽 요약 카드 */
+.summary-card {
+  border: 2px solid #111;
+  border-radius: 1.2rem;
+  padding: 1.6rem;
+  background: #fff;
+}
+
+.summary-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 1.2rem;
+}
+
+.summary-lines {
+  display: grid;
+  gap: 0.8rem;
+  margin-bottom: 1.6rem;
+}
+
+.summary-lines .line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  color: #111;
+}
+
+.summary-btn {
+  width: 100%;
+  padding: 1.2rem 1.4rem;
+  border-radius: 0.8rem;
+  background: #111;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.summary-btn:hover {
+  opacity: 0.92;
+}
+
+/* 모바일: 오른쪽 카드가 아래로 내려가게 */
+@media (max-width: 768px) {
+  .cart-page {
+    padding: 3rem 0;
+  }
+
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-item {
+    grid-template-columns: 28px 76px 1fr 32px;
+    grid-template-areas:
+      "check thumb info remove"
+      "check thumb price remove";
+    align-items: center;
+  }
+
+  .cart-check { grid-area: check; }
+  .cart-thumb { grid-area: thumb; }
+  .cart-info  { grid-area: info; }
+  .cart-price { grid-area: price; }
+  .cart-remove { grid-area: remove; }
+
+  .cart-price {
+    font-size: 1.8rem;
+    margin-top: 0.4rem;
+  }
+
+  .summary-card {
+    border-width: 1px;
+  }
+}
