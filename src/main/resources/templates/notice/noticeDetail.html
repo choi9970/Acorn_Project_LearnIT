@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{})}">
+
+<th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/common/notice.css}">
+</th:block>
+    <head>
+        <title th:fragment="title">공지사항 상세</title>
+
+    </head>
+
+    <body>
+    <div th:fragment="content">
+
+
+        <section class="notice-page container">
+            <h1 class="notice-title">공지사항</h1>
+
+            <div class="notice-detail-wrap">
+                <div class="notice-detail-title" th:text="${noticeTitle}">
+                    공지사항 글제목
+                </div>
+
+                <div class="notice-detail-content" th:text="${noticeContent}">
+                    공지사항 글내용
+                </div>
+
+                <div class="notice-detail-actions">
+                    <a class="notice-back-btn" th:href="@{/notice}">목록 보기</a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    </body>
+    </html>

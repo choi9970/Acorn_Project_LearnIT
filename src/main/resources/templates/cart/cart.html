@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{})}">
+
+<th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/common/cart.css}">
+</th:block>
+<head>
+    <title th:fragment="title">장바구니</title>
+</head>
+
+<body>
+<div th:fragment="content">
+
+    <section class="cart-page container">
+
+        <div class="cart-head">
+            <h1 class="cart-title">
+                <span class="cart-icon">🛒</span>
+                장바구니
+            </h1>
+        </div>
+
+        <div class="cart-layout">
+
+            <!-- 왼쪽: 장바구니 리스트 -->
+            <div class="cart-list">
+
+                <!-- 상단: 전체선택 -->
+                <div class="cart-list-top">
+                    <label class="cart-check-all">
+                        <input type="checkbox" checked>
+                        <span>전체선택</span>
+                    </label>
+                </div>
+
+                <!-- 아이템 1 -->
+                <article class="cart-item">
+                    <label class="cart-check">
+                        <input type="checkbox" checked>
+                    </label>
+
+                    <div class="cart-thumb" aria-hidden="true">
+                        <div class="thumb-box"></div>
+                    </div>
+
+                    <div class="cart-info">
+                        <div class="cart-badge">Section 11</div>
+                        <div class="cart-name">List item</div>
+                    </div>
+
+                    <div class="cart-price">
+                        <strong>$50</strong><span class="per">/mo</span>
+                    </div>
+
+                    <button type="button" class="cart-remove" aria-label="삭제">×</button>
+                </article>
+
+                <!-- 아이템 2 -->
+                <article class="cart-item">
+                    <label class="cart-check">
+                        <input type="checkbox" checked>
+                    </label>
+
+                    <div class="cart-thumb" aria-hidden="true">
+                        <div class="thumb-box"></div>
+                    </div>
+
+                    <div class="cart-info">
+                        <div class="cart-badge">Section 34</div>
+                        <div class="cart-name">List item</div>
+                    </div>
+
+                    <div class="cart-price">
+                        <strong>$50</strong><span class="per">/mo</span>
+                    </div>
+
+                    <button type="button" class="cart-remove" aria-label="삭제">×</button>
+                </article>
+
+                <!-- 아이템 3 -->
+                <article class="cart-item">
+                    <label class="cart-check">
+                        <input type="checkbox">
+                    </label>
+
+                    <div class="cart-thumb" aria-hidden="true">
+                        <div class="thumb-box"></div>
+                    </div>
+
+                    <div class="cart-info">
+                        <div class="cart-badge">Section 7</div>
+                        <div class="cart-name">List item</div>
+                    </div>
+
+                    <div class="cart-price">
+                        <strong>$50</strong><span class="per">/mo</span>
+                    </div>
+
+                    <button type="button" class="cart-remove" aria-label="삭제">×</button>
+                </article>
+
+            </div>
+
+            <!-- 오른쪽: 결제 요약 -->
+            <aside class="cart-summary">
+                <div class="summary-card">
+                    <h2 class="summary-title">구매금액</h2>
+
+                    <dl class="summary-lines">
+                        <div class="line">
+                            <dt>상품금액</dt>
+                            <dd>80,000원</dd>
+                        </div>
+                        <div class="line">
+                            <dt>할인금액</dt>
+                            <dd>-3,000원</dd>
+                        </div>
+                    </dl>
+
+                    <button class="summary-btn" type="button">주문하기</button>
+                </div>
+            </aside>
+
+        </div>
+    </section>
+
+</div>
+</body>
+</html>
