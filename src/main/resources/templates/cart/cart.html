@@ -6,7 +6,6 @@
     <link rel="stylesheet" th:href="@{/css/common/cart.css}">
 </th:block>
 
-<!-- ✅ JS를 파일로 안 빼고, HTML 안에 넣기 -->
 <th:block th:fragment="script">
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -100,8 +99,16 @@
                         <div class="cart-name" th:text="${i.title}">강의명</div>
                     </div>
 
+                    <!-- ✅ 여기만 변경: 0원이면 '무료'로 -->
                     <div class="cart-price">
-                        <strong th:text="${#numbers.formatInteger(i.price, 3, 'COMMA')} + '원'">0원</strong>
+                        <!-- 유료 -->
+                        <strong th:if="${i.price != null and i.price > 0}"
+                                th:text="${#numbers.formatInteger(i.price, 3, 'COMMA')} + '원'">0원</strong>
+
+                        <!-- 무료 -->
+                        <strong th:if="${i.price == null or i.price == 0}"
+                                th:text="'무료'">무료</strong>
+
                         <span class="per">/1개</span>
                     </div>
 

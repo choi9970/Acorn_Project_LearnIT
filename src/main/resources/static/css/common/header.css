@@ -38,9 +38,20 @@
     font-size: 1.4rem;
 }
 
+/* ✅ PC 메뉴 글씨 톤 통일 */
 .gnb-item {
     color: var(--text-light);
     padding: 0.4rem 0;
+    font-weight: 400;
+}
+
+/* 강의목록 링크(PC) */
+.gnb-link {
+    color: var(--text-light);
+    font-weight: 400;
+    font-size: 1.4rem;
+    padding: 0.4rem 0;
+    display: inline-block;
 }
 
 .gnb-item.active {
@@ -51,18 +62,15 @@
 /* ===========================
    PC 드롭다운 메뉴 (강의목록)
 =========================== */
-
-/* 드롭다운 부모: 강의목록 */
 .gnb-item.has-sub {
     position: relative;
     display: inline-flex;
     align-items: center;
 }
 
-/* 서브메뉴 박스 */
 .submenu {
     position: absolute;
-    top: calc(100% + 1.2rem);   /* 강의목록 아래로 조금 띄우기 */
+    top: calc(100% + 1.2rem);
     left: 0;
     display: none;
     background: #fff;
@@ -74,44 +82,34 @@
     z-index: 9999;
 }
 
-/* 한 줄씩 딱딱 떨어지게 */
 .submenu a {
-    display: block;                 /* ✅ 겹침 방지 */
+    display: block;
     padding: 0.7rem 1.6rem;
     font-size: 1.4rem;
-    line-height: 1.4;               /* ✅ 글자 겹침 방지 */
+    line-height: 1.4;
     color: var(--text-normal);
     white-space: nowrap;
 }
 
-/* hover 시 강조만 */
 .submenu a:hover {
     background: var(--bg-light);
     color: var(--text-strong);
 }
 
-/* 강의목록 위/아래 hover 시 서브메뉴 유지 */
 .gnb-item.has-sub:hover .submenu {
     display: block;
 }
 
-/* 강의목록 텍스트 강조 (선택) */
-.gnb-item.has-sub:hover > .menu-link {
-    color: var(--text-strong);
-}
-
-/* 메뉴와 서브메뉴 사이 hover 끊김 방지용 */
+/* hover 끊김 방지 */
 .gnb-item.has-sub::after {
     content: "";
     position: absolute;
     top: 100%;
     left: 0;
     width: 100%;
-    height: 1.2rem;   /* 위에서 띄운 간격과 맞추기 */
+    height: 1.2rem;
     background: transparent;
 }
-
-
 
 /* 검색 */
 .header-search {
@@ -167,19 +165,15 @@
     cursor: pointer;
 }
 
-
 /* =============================
    반응형: 768px 이하
-   → 햄버거 + 가운데 로고만
 ============================= */
 @media (max-width: 768px) {
-
     .header-inner {
         position: relative;
-        justify-content: center; /* 로고 가운데 정렬 */
+        justify-content: center;
     }
 
-    /* 햄버거 버튼 보이기 + 왼쪽 고정 */
     .menu-toggle {
         display: flex;
         align-items: center;
@@ -191,95 +185,53 @@
         padding: 0 1.2rem;
     }
 
-    /* 가운데 메뉴/검색, 오른쪽 버튼 숨기기 */
     .header-center,
     .header-right {
         display: none;
     }
 }
+
 /* =============================
-   모바일 사이드바 - 아코디언(강의목록)
-   ✅ 기존 코드 유지 + 추가
+   모바일 사이드바 - 버튼/링크 통일
 ============================= */
-.mobile-nav__item-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* ✅ 오른쪽에 v(˅) 붙이기 */
-    padding: 1.4rem 1.6rem;
-    border-radius: 1.2rem;
-    border: 1px solid #eee;
-    background: #fff;
-    font-size: 1.4rem;
-}
-
-/* 오른쪽 v(˅) 아이콘 */
-.mobile-nav__item-header .chev {
-    display: inline-block;
-    transition: transform 0.2s ease;
-}
-
-/* 펼쳤을 때 화살표 회전 */
-.mobile-nav__item-header[aria-expanded="true"] .chev {
-    transform: rotate(180deg);
-}
-
-/* 카테고리 리스트 영역 */
-.mobile-nav__submenu {
-    margin-top: 0.8rem;
-    padding-left: 0.6rem;
-}
-
-/* 카테고리 링크 */
-.mobile-nav__submenu a {
-    display: block;
-    padding: 1.0rem 1.6rem;
-    border-radius: 1.0rem;
-    color: #333;
-}
-
-.mobile-nav__submenu a:hover {
-    background: #f5f7ff;
-}
-/* =============================
-   모바일 사이드바 - 공통 메뉴 버튼/링크 스타일
-============================= */
-
-/* 강의목록 버튼 + (퀴즈/커뮤니티 링크) 모양 통일 */
 .mobile-nav__item-header,
 .mobile-nav__link {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* ✅ 오른쪽 v */
+    justify-content: space-between;
     padding: 1.4rem 1.6rem;
     border-radius: 1.2rem;
     border: 1px solid #eee;
     background: #fff;
+
+    /* ✅ “강의목록만 강조” 방지: 폰트 완전 통일 */
     font-size: 1.4rem;
+    font-weight: 400;
     color: #111;
 }
 
-/* a 태그 기본 밑줄 제거 */
 .mobile-nav__link {
     text-decoration: none;
 }
 
-/* hover 느낌 */
 .mobile-nav__item-header:hover,
 .mobile-nav__link:hover {
     background: #f8f8f8;
 }
 
-/* 오른쪽 v(˅) 아이콘 */
-.mobile-nav__item-header .chev,
-.mobile-nav__link .chev {
+/* ✅ v 텍스트 대신 이미지 아이콘 */
+.chev-icon {
+    width: 18px;
+    height: 18px;
     display: inline-block;
-    transition: transform 0.2s ease;
+
+    /* ✅ 애니메이션 제거(즉시 전환) */
+    transition: none;
 }
 
-/* 강의목록: 펼쳤을 때만 회전 */
-.mobile-nav__item-header[aria-expanded="true"] .chev {
+/* ✅ 강의목록 펼쳤을 때만 즉시 180도 */
+.mobile-nav__item-header[aria-expanded="true"] .chev-icon {
     transform: rotate(180deg);
 }
 
@@ -298,4 +250,8 @@
 
 .mobile-nav__submenu a:hover {
     background: #f5f7ff;
+}
+.mobile-nav__item-header,
+.mobile-nav__link {
+  font-weight: 400 !important;
 }
