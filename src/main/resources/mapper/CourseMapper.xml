@@ -15,13 +15,14 @@
     <select id="selectPopularCourse" resultType="com.learnit.learnit.home.MainCourse">
         SELECT
             c.course_id AS courseId,
+            ct.name AS categoryName,
             c.title,
             c.price,
             c.thumbnail_url AS thumbnailUrl,
             c.status,
             count(pd.pay_detail_id) AS salesCount
-        FROM course c JOIN payment_detail pd
-                           ON c.course_id = pd.course_id
+        FROM course c JOIN payment_detail pd ON c.course_id = pd.course_id
+                      JOIN category ct ON c.category_id = ct.category_id
         WHERE c.delete_flg = 0 AND c.status = 'ACTIVE'
         GROUP BY c.course_id
         ORDER BY salesCount DESC
@@ -32,11 +33,13 @@
     <!--썸네일 배너용 최신 강의 불러오기(최대4개)-->
     <select id="selectBannerCourse" resultType="com.learnit.learnit.home.MainCourse">
         SELECT
-            course_id,
-            title,
-            thumbnail_url,
-            detail_img_url
-        FROM course
+            c.course_id,
+            c.title,
+            ct.name AS categoryName,
+            c.thumbnail_url,
+            c.detail_img_url
+        FROM course c JOIN category ct
+                           ON c.category_id = ct.category_id
         WHERE delete_flg = 0 AND status = 'ACTIVE'
         ORDER BY created_at DESC
             LIMIT #{limit}

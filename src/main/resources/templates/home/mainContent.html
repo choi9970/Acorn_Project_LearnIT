@@ -11,6 +11,7 @@
     <link rel="stylesheet" th:href="@{/css/home/home.css}">
     <link rel="stylesheet" th:href="@{/css/home/main_blog.css}">
     <link rel="stylesheet" th:href="@{/css/home/chatbot.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   </th:block>
 
   <!--main content js-->
@@ -39,6 +40,7 @@
         <div class="banner-item" th:each="b : ${bannerList}">
           <a th:href="@{/course/{id}(id=${b.courseId})}">
             <img th:src="${b.thumbnailUrl}" alt="강의 배너 이미지">
+            <span class="banner-category" th:text="${b.categoryName}"></span>
             <div class="banner-title" th:text="${b.title}"></div>
           </a>
         </div>
@@ -72,6 +74,7 @@
           <img th:src="${courseList[0].thumbnailUrl}">
           <span class="course-badge">🔥 인기 1위</span>
         </div>
+        <span class="course-category" th:text="${courseList[0].categoryName}"></span>
         <h4 th:text="${courseList[0].title}"></h4>
         <p th:text="${#numbers.formatInteger(courseList[0].price, 3, 'COMMA')} + '원'"></p>
       </a>
@@ -86,6 +89,7 @@
             <img th:src="${c.thumbnailUrl}">
             <span class="course-badge">모집중</span>
           </div>
+          <span class="course-category" th:text="${c.categoryName}"></span>
           <h4 th:text="${c.title}"></h4>
           <p th:text="${#numbers.formatInteger(c.price, 3, 'COMMA')} + '원'"></p>
         </a>
@@ -109,7 +113,10 @@
 
   <!--5. 챗봇-->
   <div id="chatbot">
-    <div id="chatbot-toggle">문의하기</div>
+    <div id="chatbot-toggle">
+      <i class="fa-solid fa-comment-dots"></i>
+      <span class="chatbot-text">문의하기</span>
+    </div>
     <div id="chatbot-window">
       <div id="chatbot-header">
         <strong>LearnIT 문의 상담</strong>
