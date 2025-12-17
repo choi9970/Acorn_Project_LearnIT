@@ -197,3 +197,105 @@
         display: none;
     }
 }
+/* =============================
+   모바일 사이드바 - 아코디언(강의목록)
+   ✅ 기존 코드 유지 + 추가
+============================= */
+.mobile-nav__item-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* ✅ 오른쪽에 v(˅) 붙이기 */
+    padding: 1.4rem 1.6rem;
+    border-radius: 1.2rem;
+    border: 1px solid #eee;
+    background: #fff;
+    font-size: 1.4rem;
+}
+
+/* 오른쪽 v(˅) 아이콘 */
+.mobile-nav__item-header .chev {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+/* 펼쳤을 때 화살표 회전 */
+.mobile-nav__item-header[aria-expanded="true"] .chev {
+    transform: rotate(180deg);
+}
+
+/* 카테고리 리스트 영역 */
+.mobile-nav__submenu {
+    margin-top: 0.8rem;
+    padding-left: 0.6rem;
+}
+
+/* 카테고리 링크 */
+.mobile-nav__submenu a {
+    display: block;
+    padding: 1.0rem 1.6rem;
+    border-radius: 1.0rem;
+    color: #333;
+}
+
+.mobile-nav__submenu a:hover {
+    background: #f5f7ff;
+}
+/* =============================
+   모바일 사이드바 - 공통 메뉴 버튼/링크 스타일
+============================= */
+
+/* 강의목록 버튼 + (퀴즈/커뮤니티 링크) 모양 통일 */
+.mobile-nav__item-header,
+.mobile-nav__link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* ✅ 오른쪽 v */
+    padding: 1.4rem 1.6rem;
+    border-radius: 1.2rem;
+    border: 1px solid #eee;
+    background: #fff;
+    font-size: 1.4rem;
+    color: #111;
+}
+
+/* a 태그 기본 밑줄 제거 */
+.mobile-nav__link {
+    text-decoration: none;
+}
+
+/* hover 느낌 */
+.mobile-nav__item-header:hover,
+.mobile-nav__link:hover {
+    background: #f8f8f8;
+}
+
+/* 오른쪽 v(˅) 아이콘 */
+.mobile-nav__item-header .chev,
+.mobile-nav__link .chev {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+/* 강의목록: 펼쳤을 때만 회전 */
+.mobile-nav__item-header[aria-expanded="true"] .chev {
+    transform: rotate(180deg);
+}
+
+/* 강의목록 카테고리 리스트 */
+.mobile-nav__submenu {
+    margin-top: 0.8rem;
+    padding-left: 0.6rem;
+}
+
+.mobile-nav__submenu a {
+    display: block;
+    padding: 1.0rem 1.6rem;
+    border-radius: 1.0rem;
+    color: #333;
+}
+
+.mobile-nav__submenu a:hover {
+    background: #f5f7ff;
+}

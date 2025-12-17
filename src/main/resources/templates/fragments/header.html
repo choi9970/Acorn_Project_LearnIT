@@ -22,10 +22,10 @@
                     <div class="gnb-item has-sub">
                         <a th:href="@{/lecture/list}">강의목록</a>
                         <div class="submenu">
-                        <a th:each="cat : ${categories}"
-                           th:text="${cat.name}"
-                           th:href="@{'/course/' + ${cat.id}}">카테고리
-                        </a>
+                            <a th:each="cat : ${categories}"
+                               th:text="${cat.name}"
+                               th:href="@{'/course/' + ${cat.id}}">카테고리
+                            </a>
                         </div>
                     </div>
 
@@ -66,20 +66,41 @@
             </div>
 
             <ul class="mobile-nav__list">
-                <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" type="button"><span>강의목록</span></button>
-                    <a th:each="cat : ${categories}"
-                       th:text="${cat.name}"
-                       th:href="@{'/course/' + ${cat.id}}">카테고리
-                    </a>
 
-                </li>
+                <!-- ✅ 강의목록: 아코디언 -->
                 <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" type="button"><span>퀴즈</span></button>
+                    <button class="mobile-nav__item-header js-accordion-btn"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="mobile-cat-list">
+                        <span>강의목록</span>
+                        <span class="chev" aria-hidden="true">˅</span>
+                    </button>
+
+                    <div class="mobile-nav__submenu" id="mobile-cat-list" hidden>
+                        <a th:each="cat : ${categories}"
+                           th:text="${cat.name}"
+                           th:href="@{'/course/' + ${cat.id}}">카테고리
+                        </a>
+                    </div>
                 </li>
+
+                <!-- ✅ 퀴즈: v 표시만 (내용 없음, 링크 이동) -->
                 <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" type="button"><span>커뮤니티</span></button>
+                    <a class="mobile-nav__link" th:href="@{/quiz}">
+                        <span>퀴즈</span>
+                        <span class="chev" aria-hidden="true">˅</span>
+                    </a>
                 </li>
+
+                <!-- ✅ 커뮤니티: v 표시만 (내용 없음, 링크 이동) -->
+                <li class="mobile-nav__item">
+                    <a class="mobile-nav__link" th:href="@{/community}">
+                        <span>커뮤니티</span>
+                        <span class="chev" aria-hidden="true">˅</span>
+                    </a>
+                </li>
+
             </ul>
         </div>
     </nav>
@@ -108,9 +129,21 @@
           if (btnMenu)  btnMenu.addEventListener("click", openNav);
           if (overlay)  overlay.addEventListener("click", closeNav);
           if (btnClose) btnClose.addEventListener("click", closeNav);
+
+          /* ✅ 강의목록만 아코디언 토글 */
+          const accBtn = document.querySelector(".js-accordion-btn");
+          if (accBtn) {
+            accBtn.addEventListener("click", function () {
+              const expanded = accBtn.getAttribute("aria-expanded") === "true";
+              const targetId = accBtn.getAttribute("aria-controls");
+              const target   = targetId ? document.getElementById(targetId) : null;
+
+              accBtn.setAttribute("aria-expanded", String(!expanded));
+              if (target) target.hidden = expanded;
+            });
+          }
         });
         /*]]>*/
     </script>
 
 </th:block>
-

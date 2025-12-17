@@ -2,15 +2,39 @@ package com.learnit.learnit.notice;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 public class NoticeController {
 
-    // 목록
+    private final NoticeService noticeService;
+
+    public NoticeController(NoticeService noticeService) {
+        this.noticeService = noticeService;
+    }
+
+    // 목록 (예: /notice?page=1)
     @GetMapping("/notice")
-    public String noticeList() {
+    public String noticeList(@RequestParam(name = "page", defaultValue = "1") int page,
+                             Model model) {
+
+        int totalPages = noticeService.getTotalPages();
+        int safePage = Math.max(1, Math.min(page, Math.max(totalPages, 1)));
+
+        List<Notice> notices = noticeService.getNotices(safePage);
+
+        // ✅ 페이지네이션: 1~5만 보여주기 (20개면 4페이지라 1~4)
+        int startPage = 1;
+        int endPage = Math.min(5, Math.max(totalPages, 1));
+
+        model.addAttribute("notices", notices);
+        model.addAttribute("currentPage", safePage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+
         return "notice/noticeList";
     }
 
@@ -18,11 +42,14 @@ public class NoticeController {
     @GetMapping("/notice/{id}")
     public String noticeDetail(@PathVariable("id") Long id, Model model) {
 
-        // ✅ 지금은 DB 없이 더미 데이터(나중에 DB 붙이면 서비스/mapper로 조회해서 넣으면 됨)
-        model.addAttribute("noticeId", id);
-        model.addAttribute("noticeTitle", "공지사항 글제목(" + id + ")");
-        model.addAttribute("noticeContent", "공지사항 글내용 영역입니다.\n여기에 내용이 들어갑니다.");
+        Notice notice = noticeService.getNotice(id);
 
+        // (선택) 없는 글 처리 - 일단 간단히 목록으로
+        if (notice == null) {
+            return "redirect:/notice";
+        }
+
+        model.addAttribute("notice", notice);
         return "notice/noticeDetail";
     }
 }
