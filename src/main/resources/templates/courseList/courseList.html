@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <!-- title fragment -->
+    <title th:fragment="title">CourseList</title>
+
+    <!--main content css-->
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/home/home.css}">
+        <link rel="stylesheet" th:href="@{/css/home/main_blog.css}">
+        <link rel="stylesheet" th:href="@{/css/home/chatbot.css}">
+        <link rel="stylesheet" th:href="@{/css/courselist/course-list.css}">
+    </th:block>
+
+    <!--main content js-->
+    <th:block th:fragment="script">
+        <script th:src="@{/js/banner.js}"></script>
+        <script th:src="@{/js/main_blog.js}"></script>
+        <script th:src="@{/js/chatbot.js}"></script>
+        <script th:src="@{/js/courselist/course-list.js}"></script>
+    </th:block>
+    <script th:inline="javascript">
+        const serverCategoryId = /*[[${selectedCategoryId}]]*/ null;
+    </script>
+
+</head>
+
+<body>
+
+<!-- content fragment -->
+<div th:fragment="content" class="home-container">
+    <!--<p th:text="'categories size = ' + ${#lists.size(categories)}"></p>-->
+    <section class="category-wrap">
+        <div class="category-strip">
+            <div class="category-row">
+                <a class="cat-item"
+                   th:each="cat : ${categories}"
+                   th:href="@{/CourseList(categoryId=${cat.categoryId})}"
+                   th:attr="data-category-id=${cat.categoryId}">
+                    <span class="cat-box">
+                         <img class="cat-icon"
+                              th:src="${cat.iconPath}"
+                              alt="">
+                    </span>
+                    <span class="cat-text" th:text="${cat.name}">카테고리</span>
+                </a>
+            </div>
+        </div>
+    </section>
+    <!--셀렉트-->
+    <section class="filter-wrap">
+        <div class="filter-bar">
+
+            <!-- 왼쪽 탭 -->
+            <div class="tabs" role="tablist" aria-label="필터 탭">
+                <a class="tab is-active" data-tab="all" href="#" role="tab" aria-selected="true">카테고리</a>
+                <!--<a class="tab" href="#" role="tab" aria-selected="false">왕초보</a>-->
+                <a class="tab" data-tab="free" href="#" role="tab" aria-selected="false">무료</a>
+                <!--<a class="tab" href="#" role="tab" aria-selected="false">할인</a>-->
+            </div>
+
+            <!-- 오른쪽 정렬 셀렉트 -->
+            <div class="sort">
+                <label class="sort-label" for="sortSelect">정렬</label>
+                <select id="sortSelect" name="sort" class="sort-select">
+                    <option value="popular">인기순</option>
+                    <option value="priceDesc">가격 높은순</option>
+                    <option value="priceAsc">가격 낮은순</option>
+                </select>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ✅ 본문(강의 카드 영역) -->
+    <main class="content">
+        <section id="courseGrid" class="course-grid">
+            <!-- 강의 카드들 -->
+        </section>
+    </main>
+
+    <!--5. 챗봇-->
+    <div id="chatbot">
+        <div id="chatbot-toggle">문의하기</div>
+        <div id="chatbot-window">
+            <div id="chatbot-header">
+                <strong>LearnIT 문의 상담</strong>
+                <span id="chatbot-close">✕</span>
+            </div>
+            <div id="chatbot-body">
+                <div class="bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
+            </div>
+            <div id="chatbot-input-area">
+                <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." />
+                <button id="chatbot-send">전송</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+</body>
+</html>
