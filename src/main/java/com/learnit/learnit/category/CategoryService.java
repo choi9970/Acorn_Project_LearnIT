@@ -1,7 +1,5 @@
-package com.learnit.learnit.course.service;
+package com.learnit.learnit.category;
 
-import com.learnit.learnit.course.dto.CategoryDTO;
-import com.learnit.learnit.course.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

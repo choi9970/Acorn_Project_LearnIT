@@ -1,7 +1,5 @@
-package com.learnit.learnit.course.controller;
+package com.learnit.learnit.category;
 
-import com.learnit.learnit.course.service.CategoryService;
-import com.learnit.learnit.course.dto.CategoryDTO; // 네 DTO 이름에 맞게
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;

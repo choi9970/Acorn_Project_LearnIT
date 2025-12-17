@@ -87,7 +87,7 @@
                     <div class="mobile-nav__submenu" id="mobile-cat-list" hidden>
                         <a th:each="cat : ${categories}"
                            th:text="${cat.name}"
-                           th:href="@{'/course/' + ${cat.id}}">카테고리</a>
+                           th:href="@{'/course/' + ${cat.categoryId}}">카테고리</a>
                     </div>
                 </li>
 

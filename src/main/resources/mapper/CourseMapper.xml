@@ -15,13 +15,14 @@
     <select id="selectPopularCourse" resultType="com.learnit.learnit.home.MainCourse">
         SELECT
             c.course_id AS courseId,
+            ct.name AS categoryName,
             c.title,
             c.price,
             c.thumbnail_url AS thumbnailUrl,
             c.status,
             count(pd.pay_detail_id) AS salesCount
-        FROM course c JOIN payment_detail pd
-                           ON c.course_id = pd.course_id
+        FROM course c JOIN payment_detail pd ON c.course_id = pd.course_id
+                      JOIN category ct ON c.category_id = ct.category_id
         WHERE c.delete_flg = 0 AND c.status = 'ACTIVE'
         GROUP BY c.course_id
         ORDER BY salesCount DESC
@@ -32,13 +33,85 @@
     <!--썸네일 배너용 최신 강의 불러오기(최대4개)-->
     <select id="selectBannerCourse" resultType="com.learnit.learnit.home.MainCourse">
         SELECT
-            course_id,
-            title,
-            thumbnail_url,
-            detail_img_url
-        FROM course
+            c.course_id,
+            c.title,
+            ct.name AS categoryName,
+            c.thumbnail_url,
+            c.detail_img_url
+        FROM course c JOIN category ct
+                           ON c.category_id = ct.category_id
         WHERE delete_flg = 0 AND status = 'ACTIVE'
         ORDER BY created_at DESC
             LIMIT #{limit}
     </select>
+
+    <!-- ✅ 무한스크롤(페이지) 목록 -->
+    <select id="selectCoursesPage" resultType="com.learnit.learnit.course.CourseDTO">
+        SELECT
+        c.course_id      AS courseId,
+        c.category_id    AS categoryId,
+        c.user_id        AS userId,
+        c.title          AS title,
+        c.description    AS description,
+        c.price          AS price,
+        c.thumbnail_url  AS thumbnailUrl,
+        c.detail_img_url AS detailImgUrl,
+        c.open_type      AS openType,
+        c.open_start     AS openStart,
+        c.open_end       AS openEnd,
+        c.status         AS status,
+        c.created_at     AS createdAt,
+        c.updated_at     AS updatedAt,
+        c.delete_flg     AS deleteFlg,
+        COALESCE(COUNT(pd.pay_detail_id), 0) AS salesCount
+        FROM course c
+        LEFT JOIN payment_detail pd
+        ON c.course_id = pd.course_id
+        WHERE c.delete_flg = 0
+        AND c.status = 'ACTIVE'
+        <if test="categoryId != null">
+            AND c.category_id = #{categoryId}
+        </if>
+
+        <if test="tab == 'free'">
+            AND c.price = 0
+        </if>
+
+        GROUP BY
+        c.course_id, c.category_id, c.user_id, c.title, c.description, c.price,
+        c.thumbnail_url, c.detail_img_url, c.open_type, c.open_start, c.open_end,
+        c.status, c.created_at, c.updated_at, c.delete_flg
+
+        <choose>
+            <when test="sort == 'popular'">
+                ORDER BY salesCount DESC, c.created_at DESC
+            </when>
+            <when test="sort == 'priceAsc'">
+                ORDER BY c.price ASC, c.created_at DESC
+            </when>
+            <when test="sort == 'priceDesc'">
+                ORDER BY c.price DESC, c.created_at DESC
+            </when>
+            <otherwise>
+                ORDER BY c.created_at DESC
+            </otherwise>
+        </choose>
+
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- ✅ 전체 개수 (페이지 계산용) -->
+    <select id="countCourses" resultType="long">
+        SELECT COUNT(*)
+        FROM course c
+        WHERE c.delete_flg = 0
+        AND c.status = 'ACTIVE'
+        <if test="categoryId != null">
+            AND c.category_id = #{categoryId}
+        </if>
+        <if test="tab == 'free'">
+            AND c.price = 0
+        </if>
+    </select>
+
 </mapper>

@@ -7,6 +7,7 @@ public class MainCourse {
 
     //메인 페이지 -> 인기강좌 리스트 출력용 DTO
     private Long courseId;
+    private String categoryName;
     private String title;
     private Integer price;
     private String thumbnailUrl;
