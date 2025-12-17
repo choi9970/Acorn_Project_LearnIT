@@ -5,33 +5,53 @@
 <th:block th:fragment="css">
     <link rel="stylesheet" th:href="@{/css/common/notice.css}">
 </th:block>
-    <head>
-        <title th:fragment="title">공지사항 상세</title>
 
-    </head>
+<head>
+    <title th:fragment="title">공지사항 상세</title>
+</head>
 
-    <body>
-    <div th:fragment="content">
+<body>
+<div th:fragment="content">
+
+    <section class="notice-page container">
+        <h1 class="notice-title">공지사항</h1>
+
+        <div class="notice-detail-wrap">
+            <div class="notice-detail-title" th:text="${notice.title}">
+                공지사항 글제목
+            </div>
+
+            <!-- 줄바꿈 보이게: th:text + CSS(white-space) 추천 -->
+            <div class="notice-detail-content" th:text="${notice.content}">
+                공지사항 글내용
+            </div>
 
 
-        <section class="notice-page container">
-            <h1 class="notice-title">공지사항</h1>
+            <!-- 첨부 링크(파일/이미지) -->
+            <div class="notice-attach" th:if="${notice.fileUrl != null and !#strings.isEmpty(notice.fileUrl)}">
+                <!-- 1) URL 그대로 표시 + 새창 링크 -->
+                <a class="notice-attach-link"
+                   th:href="${notice.fileUrl}"
+                   th:text="${notice.fileUrl}"
+                   target="_blank" rel="noopener">첨부 링크</a>
 
-            <div class="notice-detail-wrap">
-                <div class="notice-detail-title" th:text="${noticeTitle}">
-                    공지사항 글제목
-                </div>
-
-                <div class="notice-detail-content" th:text="${noticeContent}">
-                    공지사항 글내용
-                </div>
-
-                <div class="notice-detail-actions">
-                    <a class="notice-back-btn" th:href="@{/notice}">목록 보기</a>
+                <!-- 2) 이미지면 미리보기(확장자로 간단 판별) -->
+                <div class="notice-attach-preview"
+                     th:if="${#strings.endsWith(#strings.toLowerCase(notice.fileUrl), '.jpg')
+              or #strings.endsWith(#strings.toLowerCase(notice.fileUrl), '.jpeg')
+              or #strings.endsWith(#strings.toLowerCase(notice.fileUrl), '.png')
+              or #strings.endsWith(#strings.toLowerCase(notice.fileUrl), '.webp')
+              or #strings.contains(#strings.toLowerCase(notice.fileUrl), 'unsplash.com')}">
+                    <img th:src="${notice.fileUrl}" alt="첨부 이미지 미리보기">
                 </div>
             </div>
-        </section>
 
-    </div>
-    </body>
-    </html>
+            <div class="notice-detail-actions">
+                <a class="notice-back-btn" th:href="@{/notice}">목록 보기</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

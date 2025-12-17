@@ -1,6 +1,7 @@
 <!-- src/main/resources/templates/fragments/header.html -->
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:fragment="site-header" >
+<th:block th:fragment="site-header">
+
     <header class="site-header">
         <div class="container header-inner">
 
@@ -19,13 +20,14 @@
             <!-- 가운데 메뉴 + 검색 -->
             <div class="header-center">
                 <nav class="gnb">
+                    <!-- ✅ PC 강의목록도 gnb-item 느낌 동일하게 -->
                     <div class="gnb-item has-sub">
-                        <a th:href="@{/CourseList}">강의목록</a>
+                        <a th:href="@{/lecture/list}" class="gnb-link">강의목록</a>
+
                         <div class="submenu">
                             <a th:each="cat : ${categories}"
                                th:text="${cat.name}"
-                               th:href="@{/CourseList(categoryId=${cat.categoryId})}">
-                            </a>
+                               th:href="@{'/course/' + ${cat.categoryId}}">카테고리</a>
                         </div>
                     </div>
 
@@ -66,20 +68,51 @@
             </div>
 
             <ul class="mobile-nav__list">
-                <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" type="button"><span>강의목록</span></button>
-                    <a th:each="cat : ${categories}"
-                       th:text="${cat.name}"
-                       th:href="@{'/course/' + ${cat.id}}">카테고리
-                    </a>
 
-                </li>
+                <!-- ✅ 강의목록: 아코디언 -->
                 <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" type="button"><span>퀴즈</span></button>
+                    <button class="mobile-nav__item-header js-accordion-btn"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="mobile-cat-list">
+                        <span class="mobile-nav__label">강의목록</span>
+
+                        <!-- ✅ 텍스트 v 대신 이미지 -->
+                        <img class="chev-icon"
+                             th:src="@{/images/icon-admin-down-arrow.png}"
+                             alt=""
+                             aria-hidden="true">
+                    </button>
+
+                    <div class="mobile-nav__submenu" id="mobile-cat-list" hidden>
+                        <a th:each="cat : ${categories}"
+                           th:text="${cat.name}"
+                           th:href="@{'/course/' + ${cat.categoryId}}">카테고리</a>
+                    </div>
                 </li>
+
+                <!-- ✅ 퀴즈 -->
                 <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" type="button"><span>커뮤니티</span></button>
+                    <a class="mobile-nav__link" th:href="@{/quiz}">
+                        <span class="mobile-nav__label">퀴즈</span>
+                        <img class="chev-icon"
+                             th:src="@{/images/icon-admin-down-arrow.png}"
+                             alt=""
+                             aria-hidden="true">
+                    </a>
                 </li>
+
+                <!-- ✅ 커뮤니티 -->
+                <li class="mobile-nav__item">
+                    <a class="mobile-nav__link" th:href="@{/community}">
+                        <span class="mobile-nav__label">커뮤니티</span>
+                        <img class="chev-icon"
+                             th:src="@{/images/icon-admin-down-arrow.png}"
+                             alt=""
+                             aria-hidden="true">
+                    </a>
+                </li>
+
             </ul>
         </div>
     </nav>
@@ -108,9 +141,22 @@
           if (btnMenu)  btnMenu.addEventListener("click", openNav);
           if (overlay)  overlay.addEventListener("click", closeNav);
           if (btnClose) btnClose.addEventListener("click", closeNav);
+
+          /* ✅ 강의목록만 아코디언 토글 */
+          const accBtn = document.querySelector(".js-accordion-btn");
+          if (accBtn) {
+            accBtn.addEventListener("click", function () {
+              const expanded = accBtn.getAttribute("aria-expanded") === "true";
+              const targetId = accBtn.getAttribute("aria-controls");
+              const target   = targetId ? document.getElementById(targetId) : null;
+
+              accBtn.setAttribute("aria-expanded", String(!expanded));
+              if (target) target.hidden = expanded;
+            });
+          }
         });
         /*]]>*/
     </script>
 
 </th:block>
-
+</html>
