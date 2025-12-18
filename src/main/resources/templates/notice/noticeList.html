@@ -4,62 +4,57 @@
 <th:block th:fragment="css">
     <link rel="stylesheet" th:href="@{/css/common/notice.css}">
 </th:block>
-    <head>
-        <title th:fragment="title">공지사항</title>
+<head>
+    <title th:fragment="title">공지사항</title>
+</head>
 
-    </head>
+<body>
+<div th:fragment="content">
 
-    <body>
-    <div th:fragment="content">
+    <section class="notice-page container">
+        <h1 class="notice-title">공지사항</h1>
 
-        <section class="notice-page container">
-            <h1 class="notice-title">공지사항</h1>
+        <div class="notice-table-wrap">
+            <table class="notice-table">
+                <thead>
+                <tr>
+                    <!-- ✅ 번호 -> 구분 -->
+                    <th class="col-no">구분</th>
+                    <th class="col-title">제목</th>
+                    <th class="col-date">작성일자</th>
+                    <th class="col-writer">작성자</th>
+                </tr>
+                </thead>
 
-            <div class="notice-table-wrap">
-                <table class="notice-table">
-                    <thead>
-                    <tr>
-                        <th class="col-no">번호</th>
-                        <th class="col-title">제목</th>
-                        <th class="col-date">작성일자</th>
-                        <th class="col-writer">작성자</th>
-                    </tr>
-                    </thead>
+                <tbody>
+                <!-- ✅ DB 데이터 출력 -->
+                <tr th:each="n : ${notices}">
+                    <td th:text="${n.category}">일반</td>
 
-                    <tbody>
-                    <!-- ✅ 지금은 더미 데이터(나중에 DB 붙이면 th:each로 교체) -->
-                    <tr>
-                        <td>1</td>
-                        <td class="td-title">
-                            <a th:href="@{/notice/1}">제목 내용</a>
-                        </td>
-                        <td>날짜</td>
-                        <td>이름</td>
-                    </tr>
-                    <tr><td colspan="4" class="empty-row"></td></tr>
-                    <tr><td colspan="4" class="empty-row"></td></tr>
-                    <tr><td colspan="4" class="empty-row"></td></tr>
-                    <tr><td colspan="4" class="empty-row"></td></tr>
-                    </tbody>
-                </table>
-            </div>
+                    <td class="td-title">
+                        <a th:text="${n.title}"
+                           th:href="@{'/notice/' + ${n.noticeId}}">제목</a>
+                    </td>
 
-            <!-- 페이지네이션 -->
-            <nav class="pagination" aria-label="공지사항 페이지네이션">
-                <a class="page-btn" href="#" aria-label="이전">&lt;</a>
+                    <!-- 날짜 포맷 -->
+                    <td th:text="${#dates.format(n.createdAt, 'yyyy-MM-dd')}">2025-12-17</td>
+                    <td th:text="${n.userId == 4 ? '관리자' : n.userId}">관리자</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-                <a class="page-num is-active" href="#">1</a>
-                <a class="page-num" href="#">2</a>
-                <a class="page-num" href="#">3</a>
-                <span class="page-dots">…</span>
-                <a class="page-num" href="#">10</a>
-                <a class="page-num" href="#">11</a>
+        <!-- ✅ 페이지네이션: 1~5만, < > 제거 -->
+        <nav class="pagination" aria-label="공지사항 페이지네이션" th:if="${totalPages > 1}">
+            <a class="page-num"
+               th:each="p : ${#numbers.sequence(startPage, endPage)}"
+               th:classappend="${p == currentPage} ? ' is-active' : ''"
+               th:href="@{/notice(page=${p})}"
+               th:text="${p}">1</a>
+        </nav>
 
-                <a class="page-btn" href="#" aria-label="다음">&gt;</a>
-            </nav>
+    </section>
 
-        </section>
-
-    </div>
-    </body>
-    </html>
+</div>
+</body>
+</html>

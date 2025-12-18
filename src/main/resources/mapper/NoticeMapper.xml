@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learnit.learnit.notice.NoticeMapper">
+    <select id="findPage" resultType="com.learnit.learnit.notice.Notice">
+        SELECT notice_id, user_id, category, title, content, file_url, created_at, updated_at FROM notice ORDER BY created_at DESC LIMIT #{limit} OFFSET #{offset} </select>
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM notice </select>
+    <select id="findById" parameterType="long" resultType="com.learnit.learnit.notice.Notice">
+        SELECT notice_id, user_id, category, title, content, file_url, created_at, updated_at FROM notice WHERE notice_id = #{id} </select>
+</mapper>
