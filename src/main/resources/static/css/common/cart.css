@@ -33,6 +33,12 @@
 .cart-list-top {
   padding: 1.2rem 1.2rem 1.6rem;
   border-bottom: 1px solid #eee;
+
+  /* ✅ 추가 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .cart-check-all {
@@ -41,6 +47,29 @@
   gap: 0.8rem;
   font-size: 1.4rem;
   color: #111;
+}
+
+/* ✅ 전체삭제 버튼 */
+.cart-clear-form {
+  margin: 0;
+}
+
+.cart-clear-btn {
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.8rem;
+  border: 1px solid #e5e7eb;
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: #fff;
+}
+
+.cart-clear-btn:hover {
+  background: #f3f4f6;
+}
+
+.cart-clear-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .cart-item {
@@ -156,7 +185,7 @@
   opacity: 0.92;
 }
 
-/* 모바일: 오른쪽 카드가 아래로 내려가게 */
+/* 모바일 */
 @media (max-width: 768px) {
   .cart-page {
     padding: 3rem 0;
@@ -176,7 +205,7 @@
 
   .cart-check { grid-area: check; }
   .cart-thumb { grid-area: thumb; }
-  .cart-info  { grid-area: info; }
+  .cart-info  { grid-area: info; } /* ✅ 오타 수정 (isnfo -> info) */
   .cart-price { grid-area: price; }
   .cart-remove { grid-area: remove; }
 

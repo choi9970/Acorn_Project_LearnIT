@@ -1,10 +1,60 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{})}">
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
 
 <th:block th:fragment="css">
     <link rel="stylesheet" th:href="@{/css/common/cart.css}">
 </th:block>
+
+<th:block th:fragment="script">
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const checkAll = document.getElementById("checkAll");
+            const itemChecks = () => Array.from(document.querySelectorAll(".itemCheck"));
+
+            const totalText = document.getElementById("totalPriceText");
+            const discountText = document.getElementById("discountText");
+            const finalText = document.getElementById("finalPriceText");
+
+            function formatWon(n) {
+                return n.toLocaleString("ko-KR") + "원";
+            }
+
+            function calcSelectedTotal() {
+                return itemChecks()
+                    .filter(chk => chk.checked)
+                    .reduce((sum, chk) => sum + Number(chk.dataset.price || 0), 0);
+            }
+
+            function renderPrice() {
+                const total = calcSelectedTotal();
+                const discount = 0;
+                const final = total - discount;
+
+                if (totalText) totalText.textContent = formatWon(total);
+                if (discountText) discountText.textContent = "-" + formatWon(discount);
+                if (finalText) finalText.textContent = formatWon(final);
+
+                const all = itemChecks();
+                if (checkAll && all.length > 0) {
+                    checkAll.checked = all.every(chk => chk.checked);
+                }
+            }
+
+            if (checkAll) {
+                checkAll.addEventListener("change", () => {
+                    itemChecks().forEach(chk => (chk.checked = checkAll.checked));
+                    renderPrice();
+                });
+            }
+
+            itemChecks().forEach(chk => chk.addEventListener("change", renderPrice));
+
+            renderPrice();
+        });
+    </script>
+</th:block>
+
 <head>
     <title th:fragment="title">장바구니</title>
 </head>
@@ -23,86 +73,64 @@
 
         <div class="cart-layout">
 
-            <!-- 왼쪽: 장바구니 리스트 -->
             <div class="cart-list">
 
-                <!-- 상단: 전체선택 -->
                 <div class="cart-list-top">
                     <label class="cart-check-all">
-                        <input type="checkbox" checked>
+                        <input id="checkAll" type="checkbox" checked>
                         <span>전체선택</span>
                     </label>
+
+                    <!-- ✅ 전체삭제 버튼 -->
+                    <form th:action="@{/cart/clear}" method="post" class="cart-clear-form">
+                        <button type="submit" class="cart-clear-btn"
+                                th:disabled="${#lists.isEmpty(items)}"
+                                aria-label="장바구니 전체삭제"
+                                onclick="return confirm('장바구니를 전체 삭제할까요?');">
+                            전체삭제
+                        </button>
+                    </form>
                 </div>
 
-                <!-- 아이템 1 -->
-                <article class="cart-item">
+                <article class="cart-item" th:each="i : ${items}">
                     <label class="cart-check">
-                        <input type="checkbox" checked>
+                        <input class="itemCheck" type="checkbox" checked
+                               th:attr="data-price=${i.price}">
                     </label>
 
                     <div class="cart-thumb" aria-hidden="true">
-                        <div class="thumb-box"></div>
+                        <div class="thumb-box"
+                             th:style="${i.thumbnailUrl} != null ? 'background-image:url(' + i.thumbnailUrl + ');background-size:cover;background-position:center;' : ''">
+                        </div>
                     </div>
 
                     <div class="cart-info">
-                        <div class="cart-badge">Section 11</div>
-                        <div class="cart-name">List item</div>
+                        <div class="cart-badge" th:text="${i.categoryName}">카테고리</div>
+                        <div class="cart-name" th:text="${i.title}">강의명</div>
                     </div>
 
                     <div class="cart-price">
-                        <strong>$50</strong><span class="per">/mo</span>
+                        <strong th:if="${i.price != null and i.price > 0}"
+                                th:text="${#numbers.formatInteger(i.price, 3, 'COMMA')} + '원'">0원</strong>
+
+                        <strong th:if="${i.price == null or i.price == 0}"
+                                th:text="'무료'">무료</strong>
+
+                        <span class="per">/1개</span>
                     </div>
 
-                    <button type="button" class="cart-remove" aria-label="삭제">×</button>
+                    <form th:action="@{/cart/delete}" method="post">
+                        <input type="hidden" name="cartId" th:value="${i.cartId}">
+                        <button type="submit" class="cart-remove" aria-label="삭제">×</button>
+                    </form>
                 </article>
 
-                <!-- 아이템 2 -->
-                <article class="cart-item">
-                    <label class="cart-check">
-                        <input type="checkbox" checked>
-                    </label>
-
-                    <div class="cart-thumb" aria-hidden="true">
-                        <div class="thumb-box"></div>
-                    </div>
-
-                    <div class="cart-info">
-                        <div class="cart-badge">Section 34</div>
-                        <div class="cart-name">List item</div>
-                    </div>
-
-                    <div class="cart-price">
-                        <strong>$50</strong><span class="per">/mo</span>
-                    </div>
-
-                    <button type="button" class="cart-remove" aria-label="삭제">×</button>
-                </article>
-
-                <!-- 아이템 3 -->
-                <article class="cart-item">
-                    <label class="cart-check">
-                        <input type="checkbox">
-                    </label>
-
-                    <div class="cart-thumb" aria-hidden="true">
-                        <div class="thumb-box"></div>
-                    </div>
-
-                    <div class="cart-info">
-                        <div class="cart-badge">Section 7</div>
-                        <div class="cart-name">List item</div>
-                    </div>
-
-                    <div class="cart-price">
-                        <strong>$50</strong><span class="per">/mo</span>
-                    </div>
-
-                    <button type="button" class="cart-remove" aria-label="삭제">×</button>
-                </article>
+                <div th:if="${#lists.isEmpty(items)}" style="padding: 2rem; color:#666;">
+                    장바구니가 비어있습니다.
+                </div>
 
             </div>
 
-            <!-- 오른쪽: 결제 요약 -->
             <aside class="cart-summary">
                 <div class="summary-card">
                     <h2 class="summary-title">구매금액</h2>
@@ -110,11 +138,18 @@
                     <dl class="summary-lines">
                         <div class="line">
                             <dt>상품금액</dt>
-                            <dd>80,000원</dd>
+                            <dd id="totalPriceText"
+                                th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')} + '원'">0원</dd>
                         </div>
                         <div class="line">
                             <dt>할인금액</dt>
-                            <dd>-3,000원</dd>
+                            <dd id="discountText"
+                                th:text="'-' + ${#numbers.formatInteger(discountPrice, 3, 'COMMA')} + '원'">-0원</dd>
+                        </div>
+                        <div class="line">
+                            <dt>최종금액</dt>
+                            <dd id="finalPriceText"
+                                th:text="${#numbers.formatInteger(finalPrice, 3, 'COMMA')} + '원'">0원</dd>
                         </div>
                     </dl>
 
