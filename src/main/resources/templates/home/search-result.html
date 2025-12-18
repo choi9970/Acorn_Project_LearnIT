@@ -6,12 +6,13 @@
   <title th:fragment="title">검색 결과</title>
 
   <th:block th:fragment="css">
-    <style>
-    </style>
+    <link rel="stylesheet" th:href="@{/css/home/home.css}">
+    <link rel="stylesheet" th:href="@{/css/courselist/course-list.css}">
   </th:block>
 </head>
 
 <body>
+<div th:fragment="content" class="home-container">
 <section th:fragment="content">
   <div class="search-container">
 
@@ -22,23 +23,22 @@
       </p>
     </div>
 
-    <ul class="result-list">
-      <li class="result-item" th:each="course : ${list}">
-        <span class="course-title" th:text="${course.title}">강의 제목</span>
+    <!-- 검색 결과 -->
+    <main class="content">
+      <section id="courseGrid" class="course-grid"></section>
 
-        <div class="course-desc"
-             th:text="${course.content != null && #strings.length(course.content) > 100 ? #strings.substring(course.content, 0, 100) + '...' : course.content}">
-          강의 설명
-        </div>
-      </li>
-    </ul>
+      <!-- JS가 상태에 따라 보여줄 메시지 영역(선택) -->
+      <div id="searchMessage" style="text-align:center; padding:100px 0;"></div>
+    </main>
 
-    <div th:if="${#lists.isEmpty(list)}" style="text-align: center; padding: 100px 0;">
-      <p style="font-size: 1.2rem; color: #999;">검색 결과가 없습니다.</p>
-      <a href="/home">홈으로 돌아가기</a>
-    </div>
+    <script>
+      // 서버에서 내려준 keyword 사용 (SearchController에서 model.addAttribute("keyword", keyword); 했으니)
+      const serverKeyword = /*[[${keyword}]]*/ '';
+    </script>
+    <script src="/js/search/search-result.js"></script>
 
   </div>
 </section>
+</div>
 </body>
 </html>

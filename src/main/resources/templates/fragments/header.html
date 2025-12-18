@@ -70,7 +70,7 @@
                     <button class="mobile-nav__item-header" type="button"><span>강의목록</span></button>
                     <a th:each="cat : ${categories}"
                        th:text="${cat.name}"
-                       th:href="@{'/course/' + ${cat.id}}">카테고리
+                       th:href="@{'/course/' + ${cat.categoryId}}">카테고리
                     </a>
 
                 </li>
