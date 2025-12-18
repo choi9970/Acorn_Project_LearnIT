@@ -9,16 +9,12 @@
     <!--main content css-->
     <th:block th:fragment="css">
         <link rel="stylesheet" th:href="@{/css/home/home.css}">
-        <link rel="stylesheet" th:href="@{/css/home/main_blog.css}">
-        <link rel="stylesheet" th:href="@{/css/home/chatbot.css}">
         <link rel="stylesheet" th:href="@{/css/courselist/course-list.css}">
     </th:block>
 
     <!--main content js-->
     <th:block th:fragment="script">
         <script th:src="@{/js/banner.js}"></script>
-        <script th:src="@{/js/main_blog.js}"></script>
-        <script th:src="@{/js/chatbot.js}"></script>
         <script th:src="@{/js/courselist/course-list.js}"></script>
     </th:block>
     <script th:inline="javascript">
@@ -80,24 +76,6 @@
             <!-- 강의 카드들 -->
         </section>
     </main>
-
-    <!--5. 챗봇-->
-    <div id="chatbot">
-        <div id="chatbot-toggle">문의하기</div>
-        <div id="chatbot-window">
-            <div id="chatbot-header">
-                <strong>LearnIT 문의 상담</strong>
-                <span id="chatbot-close">✕</span>
-            </div>
-            <div id="chatbot-body">
-                <div class="bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
-            </div>
-            <div id="chatbot-input-area">
-                <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." />
-                <button id="chatbot-send">전송</button>
-            </div>
-        </div>
-    </div>
 
 </div>
 

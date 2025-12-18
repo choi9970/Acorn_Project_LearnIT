@@ -3,12 +3,31 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.learnit.learnit.mapper.CourseMapper">
-    <select id="searchCourses" resultType="com.learnit.learnit.course.Course">
-        SELECT title,
-               description AS content
-        FROM course
-        WHERE title LIKE CONCAT('%', #{keyword}, '%') OR
-              description LIKE CONCAT('%', #{keyword}, '%')
+    <select id="searchCourses"
+            resultType="com.learnit.learnit.course.CourseDTO">
+        SELECT
+            c.course_id      AS courseId,
+            c.category_id    AS categoryId,
+            c.user_id        AS userId,
+            c.title          AS title,
+            c.description    AS description,
+            c.price          AS price,
+            c.thumbnail_url  AS thumbnailUrl,
+            c.detail_img_url AS detailImgUrl,
+            c.open_type      AS openType,
+            c.open_start     AS openStart,
+            c.open_end       AS openEnd,
+            c.status         AS status,
+            c.created_at     AS createdAt,
+            c.updated_at     AS updatedAt,
+            c.delete_flg     AS deleteFlg
+        FROM course c
+        WHERE c.delete_flg = 0
+          AND (
+            c.title LIKE CONCAT('%', #{keyword}, '%')
+                OR c.description LIKE CONCAT('%', #{keyword}, '%')
+            )
+        ORDER BY c.course_id DESC
     </select>
 
     <!--인기강의 목록 불러오기 (최대5개)-->
