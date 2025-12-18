@@ -1,6 +1,6 @@
 <!-- src/main/resources/templates/fragments/header.html -->
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:fragment="site-header" >
+<th:block th:fragment="site-header">
     <header class="site-header">
         <div class="container header-inner">
 
@@ -19,9 +19,17 @@
             <!-- 가운데 메뉴 + 검색 -->
             <div class="header-center">
                 <nav class="gnb">
-                    <div class="gnb-item has-sub">
-                        <a th:href="@{/CourseList}">강의목록</a>
-                        <div class="submenu">
+
+                    <!-- ✅ 강의목록 (아이콘 클릭 토글) -->
+                    <div class="gnb-item has-sub" id="courseMenu">
+                        <a th:href="@{/CourseList}" class="menu-link">강의목록</a>
+
+                        <!-- ✅ 아이콘 버튼 (클릭하면 서브메뉴 열림/닫힘) -->
+                        <button type="button" class="submenu-toggle" id="courseMenuToggle" aria-label="강의목록 카테고리 열기">
+                            <img th:src="@{/images/category/icon-admin-down-arrow.png}" alt="열기" class="submenu-icon">
+                        </button>
+
+                        <div class="submenu" id="courseSubmenu">
                             <a th:each="cat : ${categories}"
                                th:text="${cat.name}"
                                th:href="@{/CourseList(categoryId=${cat.categoryId})}">
@@ -66,17 +74,27 @@
             </div>
 
             <ul class="mobile-nav__list">
-                <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" type="button"><span>강의목록</span></button>
-                    <a th:each="cat : ${categories}"
-                       th:text="${cat.name}"
-                       th:href="@{'/course/' + ${cat.categoryId}}">카테고리
-                    </a>
 
+                <!-- ✅ 모바일 강의목록도 토글로 열고 닫기 -->
+                <li class="mobile-nav__item">
+                    <button class="mobile-nav__item-header" id="mobileCourseToggle" type="button" aria-label="모바일 강의목록 열기">
+                        <span>강의목록</span>
+                        <img th:src="@{/images/icon-admin-down-arrow.png}" alt="열기" class="mobile-submenu-icon">
+                    </button>
+
+                    <!-- ✅ 기본은 닫힘 -->
+                    <div class="mobile-submenu" id="mobileCourseSubmenu">
+                        <a th:each="cat : ${categories}"
+                           th:text="${cat.name}"
+                           th:href="@{/CourseList(categoryId=${cat.categoryId})}">
+                        </a>
+                    </div>
                 </li>
+
                 <li class="mobile-nav__item">
                     <button class="mobile-nav__item-header" type="button"><span>퀴즈</span></button>
                 </li>
+
                 <li class="mobile-nav__item">
                     <button class="mobile-nav__item-header" type="button"><span>커뮤니티</span></button>
                 </li>
@@ -108,9 +126,46 @@
           if (btnMenu)  btnMenu.addEventListener("click", openNav);
           if (overlay)  overlay.addEventListener("click", closeNav);
           if (btnClose) btnClose.addEventListener("click", closeNav);
+
+          /* ============================
+             ✅ PC 강의목록 아이콘 토글
+          ============================ */
+          const courseMenu = document.getElementById("courseMenu");
+          const courseToggle = document.getElementById("courseMenuToggle");
+
+          function closeCourseMenu() {
+            if (!courseMenu) return;
+            courseMenu.classList.remove("is-open");
+          }
+
+          if (courseToggle && courseMenu) {
+            courseToggle.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              courseMenu.classList.toggle("is-open");
+            });
+          }
+
+          // 바깥 클릭하면 닫기
+          document.addEventListener("click", (e) => {
+            if (!courseMenu) return;
+            if (!courseMenu.contains(e.target)) closeCourseMenu();
+          });
+
+          /* ============================
+             ✅ 모바일 강의목록 토글
+          ============================ */
+          const mobileCourseToggle = document.getElementById("mobileCourseToggle");
+          const mobileCourseSubmenu = document.getElementById("mobileCourseSubmenu");
+
+          if (mobileCourseToggle && mobileCourseSubmenu) {
+            mobileCourseToggle.addEventListener("click", () => {
+              mobileCourseSubmenu.classList.toggle("is-open");
+              mobileCourseToggle.classList.toggle("is-open");
+            });
+          }
         });
         /*]]>*/
     </script>
 
 </th:block>
-

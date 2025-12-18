@@ -57,14 +57,45 @@
     position: relative;
     display: inline-flex;
     align-items: center;
+    gap: 0.6rem; /* ✅ 텍스트-아이콘 간격 */
+}
+
+/* ✅ 강의목록 링크 */
+.menu-link {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ✅ 아이콘 버튼 */
+.submenu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    padding: 0.2rem;
+    cursor: pointer;
+}
+
+.submenu-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    opacity: 0.7;
+}
+
+/* 열렸을 때 아이콘 회전(원하면) */
+.gnb-item.has-sub.is-open .submenu-icon {
+    transform: rotate(180deg);
+    transition: transform 0.15s ease;
 }
 
 /* 서브메뉴 박스 */
 .submenu {
     position: absolute;
-    top: calc(100% + 1.2rem);   /* 강의목록 아래로 조금 띄우기 */
+    top: calc(100% + 1.2rem);
     left: 0;
-    display: none;
+    display: none; /* ✅ 기본 숨김 */
     background: #fff;
     border: 1px solid var(--border-light);
     border-radius: 0.6rem;
@@ -74,44 +105,30 @@
     z-index: 9999;
 }
 
+/* ✅ 토글로 열기 */
+.gnb-item.has-sub.is-open .submenu {
+    display: block;
+}
+
 /* 한 줄씩 딱딱 떨어지게 */
 .submenu a {
-    display: block;                 /* ✅ 겹침 방지 */
+    display: block;
     padding: 0.7rem 1.6rem;
     font-size: 1.4rem;
-    line-height: 1.4;               /* ✅ 글자 겹침 방지 */
+    line-height: 1.4;
     color: var(--text-normal);
     white-space: nowrap;
 }
 
-/* hover 시 강조만 */
 .submenu a:hover {
     background: var(--bg-light);
     color: var(--text-strong);
 }
 
-/* 강의목록 위/아래 hover 시 서브메뉴 유지 */
+/* (기존 hover 열림은 원치 않으니 비활성화) */
 .gnb-item.has-sub:hover .submenu {
-    display: block;
+    display: none;
 }
-
-/* 강의목록 텍스트 강조 (선택) */
-.gnb-item.has-sub:hover > .menu-link {
-    color: var(--text-strong);
-}
-
-/* 메뉴와 서브메뉴 사이 hover 끊김 방지용 */
-.gnb-item.has-sub::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    height: 1.2rem;   /* 위에서 띄운 간격과 맞추기 */
-    background: transparent;
-}
-
-
 
 /* 검색 */
 .header-search {
@@ -167,19 +184,16 @@
     cursor: pointer;
 }
 
-
 /* =============================
    반응형: 768px 이하
-   → 햄버거 + 가운데 로고만
 ============================= */
 @media (max-width: 768px) {
 
     .header-inner {
         position: relative;
-        justify-content: center; /* 로고 가운데 정렬 */
+        justify-content: center;
     }
 
-    /* 햄버거 버튼 보이기 + 왼쪽 고정 */
     .menu-toggle {
         display: flex;
         align-items: center;
@@ -191,9 +205,43 @@
         padding: 0 1.2rem;
     }
 
-    /* 가운데 메뉴/검색, 오른쪽 버튼 숨기기 */
     .header-center,
     .header-right {
         display: none;
     }
+}
+
+/* =============================
+   ✅ 모바일 드로어 강의목록 토글
+   (mobile-nav 스타일이 다른 파일에 있어도,
+    아래만 추가하면 동작함)
+============================= */
+.mobile-nav__item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.mobile-submenu-icon {
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+}
+
+/* 기본 닫힘 */
+.mobile-submenu {
+    display: none;
+    padding: 0.6rem 0;
+}
+
+.mobile-submenu.is-open {
+    display: block;
+}
+
+/* 링크가 길어도 줄 겹치지 않게 */
+.mobile-submenu a {
+    display: block;
+    padding: 0.9rem 1.2rem;
+    line-height: 1.4;
 }
