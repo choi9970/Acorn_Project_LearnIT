@@ -34,7 +34,7 @@
 .gnb {
     display: flex;
     align-items: center;
-    gap: 1.6rem;
+    gap: 4rem;
     font-size: 1.4rem;
 }
 
@@ -111,8 +111,6 @@
     background: transparent;
 }
 
-
-
 /* 검색 */
 .header-search {
     flex: 1;
@@ -167,7 +165,6 @@
     cursor: pointer;
 }
 
-
 /* =============================
    반응형: 768px 이하
    → 햄버거 + 가운데 로고만
@@ -197,32 +194,68 @@
         display: none;
     }
 }
+
 /* =============================
    ✅ 모바일 드로어(사이드바) 전용
    PC 부분은 건드리지 않음
 ============================= */
 
-/* 강의목록 헤더(버튼) 안에 아이콘이 있으면 크기 고정 */
-.mobile-nav__item-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
+/* ✅ 모바일 강의목록 한 줄(링크 + 아이콘 버튼) */
+.mobile-course-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  padding: 1.2rem 1.6rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.2rem;
+  background:#fff;
 }
 
-/* ✅ 아이콘 크기/정렬 (너무 크게 보이는 문제 해결) */
-.mobile-nav__item-header .mobile-submenu-icon {
-  width: 18px;         /* 여기서 크기 조절 */
-  height: 18px;
-  flex: 0 0 18px;
-  object-fit: contain;
-  opacity: 0.7;
+/* ✅ 빨간 영역(강의목록): 링크처럼 동작 + 영역 넓게 */
+.mobile-course-link{
+  flex:1;
+  font-weight:700;
+  color:#111;
+  text-decoration:none;
 }
 
-/* ✅ 눌렀을 때 회전(원하면) */
-.mobile-nav__item-header.is-open .mobile-submenu-icon {
+/* ✅ 퀴즈/커뮤니티 링크도 동일한 박스 느낌 */
+.mobile-nav__link{
+  display:block;
+  width:100%;
+  padding: 1.2rem 1.6rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.2rem;
+  background:#fff;
+  color:#111;
+  font-weight:700;
+  text-decoration:none;
+  margin-top: 1.2rem;
+}
+
+/* ✅ 아이콘만 누르면 토글 */
+.mobile-course-toggle{
+  border:none;
+  background:transparent;
+  padding: 0.4rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* 아이콘 크기 */
+.mobile-course-toggle .mobile-submenu-icon{
+  width:18px;
+  height:18px;
+  object-fit:contain;
+  opacity:.7;
+}
+
+/* 눌렀을 때 회전(원하면) */
+.mobile-course-toggle.is-open .mobile-submenu-icon{
   transform: rotate(180deg);
-  transition: transform 0.15s ease;
+  transition: transform .15s ease;
 }
 
 /* ✅ 강의목록 카테고리 리스트: 기본 숨김 */
@@ -236,18 +269,13 @@
   display: block;
 }
 
-/* ✅ 카테고리 링크 스타일(줄 겹침/세로로) */
+/* ✅ 카테고리 링크 스타일 */
 .mobile-submenu a {
   display: block;
   padding: 0.9rem 1.2rem;
   line-height: 1.4;
-  word-break: keep-all;     /* 한글 끊김 줄이기 */
-}
-
-/* (선택) 너무 길면 말줄임 처리하고 싶으면 */
-.mobile-submenu a {
+  word-break: keep-all;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
