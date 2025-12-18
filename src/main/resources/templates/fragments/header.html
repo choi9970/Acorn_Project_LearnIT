@@ -16,20 +16,12 @@
                 </a>
             </div>
 
-            <!-- 가운데 메뉴 + 검색 -->
+            <!-- 가운데 메뉴 + 검색 (PC) -->
             <div class="header-center">
                 <nav class="gnb">
-
-                    <!-- ✅ 강의목록 (아이콘 클릭 토글) -->
-                    <div class="gnb-item has-sub" id="courseMenu">
-                        <a th:href="@{/CourseList}" class="menu-link">강의목록</a>
-
-                        <!-- ✅ 아이콘 버튼 (클릭하면 서브메뉴 열림/닫힘) -->
-                        <button type="button" class="submenu-toggle" id="courseMenuToggle" aria-label="강의목록 카테고리 열기">
-                            <img th:src="@{/images/category/icon-admin-down-arrow.png}" alt="열기" class="submenu-icon">
-                        </button>
-
-                        <div class="submenu" id="courseSubmenu">
+                    <div class="gnb-item has-sub">
+                        <a th:href="@{/CourseList}">강의목록</a>
+                        <div class="submenu">
                             <a th:each="cat : ${categories}"
                                th:text="${cat.name}"
                                th:href="@{/CourseList(categoryId=${cat.categoryId})}">
@@ -42,12 +34,12 @@
                 </nav>
 
                 <form class="header-search" th:action="@{/search}" method="get">
-                    <input type="text" name="keyword" placeholder="Value" class="search-input">
+                    <input type="text" name="keyword" placeholder="검색어를 입력하세요." class="search-input">
                     <button type="submit" class="search-btn">🔍</button>
                 </form>
             </div>
 
-            <!-- 오른쪽 로그인 버튼 -->
+            <!-- 오른쪽 로그인 버튼 (PC) -->
             <div class="header-right">
                 <a th:href="@{/login}" class="login-btn">로그인/회원가입</a>
             </div>
@@ -75,14 +67,22 @@
 
             <ul class="mobile-nav__list">
 
-                <!-- ✅ 모바일 강의목록도 토글로 열고 닫기 -->
+                <!-- ✅ 모바일 강의목록: 텍스트 영역 클릭=CourseList 이동 / 아이콘 클릭=토글 -->
                 <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" id="mobileCourseToggle" type="button" aria-label="모바일 강의목록 열기">
-                        <span>강의목록</span>
-                        <img th:src="@{/images/icon-admin-down-arrow.png}" alt="열기" class="mobile-submenu-icon">
-                    </button>
 
-                    <!-- ✅ 기본은 닫힘 -->
+                    <div class="mobile-course-row">
+                        <!-- 빨간 영역(강의목록 칸): 페이지 이동 -->
+                        <a class="mobile-course-link" th:href="@{/CourseList}">강의목록</a>
+
+                        <!-- 오른쪽 아이콘: 토글만 -->
+                        <button class="mobile-course-toggle" id="mobileCourseToggle"
+                                type="button" aria-label="모바일 강의목록 카테고리 열기">
+                            <!-- ⚠️ 아이콘 경로는 네 프로젝트 실제 위치에 맞춰 유지 -->
+                            <img th:src="@{/images/icon-admin-down-arrow.png}" alt="열기" class="mobile-submenu-icon">
+                        </button>
+                    </div>
+
+                    <!-- ✅ 기본은 닫힘 / 아이콘 눌렀을 때만 열림 -->
                     <div class="mobile-submenu" id="mobileCourseSubmenu">
                         <a th:each="cat : ${categories}"
                            th:text="${cat.name}"
@@ -91,12 +91,14 @@
                     </div>
                 </li>
 
+                <!-- 모바일 퀴즈: 클릭하면 이동 -->
                 <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" type="button"><span>퀴즈</span></button>
+                    <a class="mobile-nav__link" th:href="@{/quiz}">퀴즈</a>
                 </li>
 
+                <!-- 모바일 커뮤니티: 클릭하면 이동 -->
                 <li class="mobile-nav__item">
-                    <button class="mobile-nav__item-header" type="button"><span>커뮤니티</span></button>
+                    <a class="mobile-nav__link" th:href="@{/community}">커뮤니티</a>
                 </li>
             </ul>
         </div>
@@ -128,38 +130,15 @@
           if (btnClose) btnClose.addEventListener("click", closeNav);
 
           /* ============================
-             ✅ PC 강의목록 아이콘 토글
-          ============================ */
-          const courseMenu = document.getElementById("courseMenu");
-          const courseToggle = document.getElementById("courseMenuToggle");
-
-          function closeCourseMenu() {
-            if (!courseMenu) return;
-            courseMenu.classList.remove("is-open");
-          }
-
-          if (courseToggle && courseMenu) {
-            courseToggle.addEventListener("click", (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              courseMenu.classList.toggle("is-open");
-            });
-          }
-
-          // 바깥 클릭하면 닫기
-          document.addEventListener("click", (e) => {
-            if (!courseMenu) return;
-            if (!courseMenu.contains(e.target)) closeCourseMenu();
-          });
-
-          /* ============================
-             ✅ 모바일 강의목록 토글
+             ✅ 모바일 강의목록: 아이콘 클릭 시에만 토글
           ============================ */
           const mobileCourseToggle = document.getElementById("mobileCourseToggle");
           const mobileCourseSubmenu = document.getElementById("mobileCourseSubmenu");
 
           if (mobileCourseToggle && mobileCourseSubmenu) {
-            mobileCourseToggle.addEventListener("click", () => {
+            mobileCourseToggle.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
               mobileCourseSubmenu.classList.toggle("is-open");
               mobileCourseToggle.classList.toggle("is-open");
             });
@@ -169,3 +148,4 @@
     </script>
 
 </th:block>
+</html>
