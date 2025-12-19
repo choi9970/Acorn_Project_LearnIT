@@ -1,4 +1,4 @@
-package com.learnit.learnit.mypage.dashboard.dto;
+package com.learnit.learnit.dashboard;
 
 import lombok.Data;
 import java.time.LocalTime;

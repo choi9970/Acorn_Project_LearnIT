@@ -1,7 +1,5 @@
-package com.learnit.learnit.mypage.dashboard.service;
+package com.learnit.learnit.dashboard;
 
-import com.learnit.learnit.mypage.dashboard.dto.TodoDTO;
-import com.learnit.learnit.mypage.dashboard.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,14 +12,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TodoService {
 
-    private final TodoRepository todoRepository;
+    private final DashboardRepository dashboardRepository;
 
     /**
      * 날짜별 할일 목록 조회
      */
     public List<TodoDTO> getTodosByDate(Long userId, int year, int month, int day) {
         try {
-            List<TodoDTO> todos = todoRepository.selectTodosByDate(userId, year, month, day);
+            List<TodoDTO> todos = dashboardRepository.selectTodosByDate(userId, year, month, day);
             return todos != null ? todos : new java.util.ArrayList<>();
         } catch (Exception e) {
             // 로그 기록 후 빈 리스트 반환
@@ -56,7 +54,7 @@ public class TodoService {
                 
                 System.out.println("할일 저장 시작 - title: " + todo.getTitle() + ", targetDate: " + todo.getTargetDate() + ", userId: " + todo.getUserId());
                 
-                int result = todoRepository.insertTodo(todo);
+                int result = dashboardRepository.insertTodo(todo);
                 System.out.println("insertTodo 실행 결과: " + result + ", 생성된 todoId: " + todo.getTodoId());
                 
                 if (result == 0) {
@@ -74,7 +72,7 @@ public class TodoService {
                 
                 // 생성된 todoId로 다시 조회하여 완전한 데이터 가져오기
                 System.out.println("생성된 todoId로 조회 시도: " + generatedTodoId);
-                TodoDTO savedTodo = todoRepository.selectTodoById(generatedTodoId, todo.getUserId());
+                TodoDTO savedTodo = dashboardRepository.selectTodoById(generatedTodoId, todo.getUserId());
                 
                 if (savedTodo == null) {
                     System.err.println("저장된 할일을 조회할 수 없습니다. todoId: " + generatedTodoId);
@@ -93,8 +91,8 @@ public class TodoService {
                 return savedTodo;
             } else {
                 // 기존 할일 수정
-                todoRepository.updateTodo(todo);
-                TodoDTO updatedTodo = todoRepository.selectTodoById(todo.getTodoId(), todo.getUserId());
+                dashboardRepository.updateTodo(todo);
+                TodoDTO updatedTodo = dashboardRepository.selectTodoById(todo.getTodoId(), todo.getUserId());
                 if (updatedTodo == null) {
                     throw new RuntimeException("수정된 할일을 조회할 수 없습니다.");
                 }
@@ -112,7 +110,7 @@ public class TodoService {
      */
     @Transactional
     public TodoDTO completeTodo(Long todoId, Long userId, boolean isCompleted) {
-        TodoDTO todo = todoRepository.selectTodoById(todoId, userId);
+        TodoDTO todo = dashboardRepository.selectTodoById(todoId, userId);
         if (todo == null) {
             throw new RuntimeException("할일을 찾을 수 없습니다.");
         }
@@ -124,8 +122,8 @@ public class TodoService {
             todo.setCompletedAt(null);
         }
         
-        todoRepository.updateTodo(todo);
-        return todoRepository.selectTodoById(todoId, userId);
+        dashboardRepository.updateTodo(todo);
+        return dashboardRepository.selectTodoById(todoId, userId);
     }
 
     /**
@@ -133,7 +131,7 @@ public class TodoService {
      */
     @Transactional
     public void deleteTodo(Long todoId, Long userId) {
-        int result = todoRepository.deleteTodo(todoId, userId);
+        int result = dashboardRepository.deleteTodo(todoId, userId);
         if (result == 0) {
             throw new RuntimeException("할일을 찾을 수 없습니다.");
         }
@@ -154,9 +152,9 @@ public class TodoService {
                 todo.setIsCompleted(false);
             }
             if (todo.getTodoId() == null) {
-                todoRepository.insertTodo(todo);
+                dashboardRepository.insertTodo(todo);
             } else {
-                todoRepository.updateTodo(todo);
+                dashboardRepository.updateTodo(todo);
             }
         }
     }

@@ -1,7 +1,5 @@
-package com.learnit.learnit.mypage.dashboard.controller;
+package com.learnit.learnit.dashboard;
 
-import com.learnit.learnit.mypage.dashboard.dto.TodoDTO;
-import com.learnit.learnit.mypage.dashboard.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

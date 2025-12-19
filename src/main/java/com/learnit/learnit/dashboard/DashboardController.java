@@ -1,9 +1,5 @@
-package com.learnit.learnit.mypage.dashboard.controller;
+package com.learnit.learnit.dashboard;
 
-import com.learnit.learnit.mapper.UserMapper;
-import com.learnit.learnit.mypage.dashboard.dto.DashboardDTO;
-import com.learnit.learnit.mypage.dashboard.service.DashboardService;
-import com.learnit.learnit.mypage.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +11,12 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
     private final UserMapper userMapper;
+
+    @GetMapping("/mypage")
+    public String myPage() {
+        // 마이페이지 기본 라우팅: /mypage → 대시보드 호출
+        return "redirect:/mypage/dashboard";
+    }
 
     @GetMapping("/mypage/dashboard")
     public String dashboard(Model model) {

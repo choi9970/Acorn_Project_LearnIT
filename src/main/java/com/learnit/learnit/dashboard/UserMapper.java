@@ -1,6 +1,5 @@
-package com.learnit.learnit.mapper;
+package com.learnit.learnit.dashboard;
 
-import com.learnit.learnit.mypage.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,3 +9,4 @@ public interface UserMapper {
     
     UserDTO selectUserById(@Param("userId") Long userId);
 }
+

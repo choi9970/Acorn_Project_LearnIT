@@ -1,7 +1,5 @@
-package com.learnit.learnit.mypage.dashboard.service;
+package com.learnit.learnit.dashboard;
 
-import com.learnit.learnit.mypage.dashboard.dto.*;
-import com.learnit.learnit.mypage.dashboard.repository.DashboardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
