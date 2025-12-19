@@ -1,7 +1,5 @@
 package com.learnit.learnit.admin;
 
-import com.learnit.learnit.admin.AdminHome;
-import com.learnit.learnit.mapper.AdminMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
