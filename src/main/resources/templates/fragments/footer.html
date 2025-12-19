@@ -3,7 +3,7 @@
     <div class="footer-top container">
 
         <div class="footer-brand">
-            <img src="/images/logo.png" alt="LearnIT">
+            <img th:src="@{/images/logo.png}" alt="LearnIT">
             <p>배움의 시작을 더 쉽고, 더 가깝게.</p>
         </div>
 
@@ -11,7 +11,7 @@
 
             <div class="link-group">
                 <h4>고객지원</h4>
-                <a th:href="@{/notice}">공지사항</a>
+                <a href="#">공지사항</a>
                 <a href="#">고객센터</a>
                 <a href="#">Q&A</a>
             </div>
@@ -29,9 +29,9 @@
                 <p>Tel: 010-1234-5678</p>
 
                 <div class="sns-icons">
-                    <img src="/images/icon-instagram.png" class="sns-icon">
-                    <img src="/images/icon-youtube.png" class="sns-icon">
-                    <img src="/images/icon-blog.png" class="sns-icon">
+                    <img th:src="@{/images/icon-instagram.png}" class="sns-icon" alt="Instagram">
+                    <img th:src="@{/images/icon-youtube.png}" class="sns-icon" alt="YouTube">
+                    <img th:src="@{/images/icon-blog.png}" class="sns-icon" alt="Blog">
                 </div>
             </div>
 

@@ -1,0 +1,388 @@
+/*마이페이지 nav 데스크탑 버전*/
+.mypage-sidebar {
+    width: 220px;
+    min-width: 200px;
+    max-width: 220px;
+    background: #fff;
+    border-radius: 1.6rem;
+    padding: 2.4rem 2rem;
+    border: 0.1rem solid #d5dbe3;
+    box-shadow: 0 0.2rem 0.6rem rgba(10, 74, 122, 0.08), 0 0.8rem 2rem rgba(10, 74, 122, 0.12);
+    box-sizing: border-box;
+}
+
+.profile-box {
+    text-align: center;
+    margin-bottom: 3.6rem;
+    padding-bottom: 2rem;
+    border-bottom: 0.05rem solid #cbc5c5;
+    border-radius: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.photo {
+    width: 120px;
+    height: 120px;
+    max-width: 100%;
+    border-radius: 50%;
+    margin: 0 auto 1.2rem;
+    overflow: hidden;
+    border: 0.4rem solid #E6EEF5;
+    box-shadow: 0 0 0 0.6rem #fafafa;
+    box-sizing: border-box;
+}
+
+.photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.nickname {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 0.4rem;
+    word-wrap: break-word;
+}
+
+.role {
+    color: #8b8b8b;
+    font-size: 1.3rem;
+    margin-top: 0.4rem;
+}
+
+.user-id {
+    color: #8b8b8b;
+    font-size: 1.3rem;
+    margin-top: 0.4rem;
+    word-wrap: break-word;
+}
+
+.mypage-nav {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.mypage-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.mypage-nav ul li {
+    margin-bottom: 2.5rem;
+    width: 100%;
+}
+
+.mypage-nav ul li:last-child {
+    margin-bottom: 0;
+}
+
+.mypage-nav ul li a {
+    padding: 1rem 1.4rem;
+    font-size: 1.3rem;
+    color: #333;
+    text-decoration: none;
+    border-radius: 1rem;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    word-wrap: break-word;
+}
+
+.mypage-nav ul li a:hover {
+    background: #E6EEF5;
+    color: #0A4A7A;
+}
+
+/* 모바일 햄버거 메뉴 버튼 (데스크탑에서는 숨김) */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 7rem;
+    left: 1.6rem;
+    z-index: 1001;
+    background: #fff;
+    border: 1px solid #d5dbe3;
+    border-radius: 0.8rem;
+    width: 4.8rem;
+    height: 4.8rem;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 0.2rem 0.6rem rgba(10, 74, 122, 0.08);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle span {
+    display: block;
+    width: 2.4rem;
+    height: 0.3rem;
+    background: #333;
+    border-radius: 0.2rem;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+    background: #f4f6fa;
+}
+
+.mobile-menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(0.6rem, 0.6rem);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(0.6rem, -0.6rem);
+}
+
+/* 모바일 오버레이 */
+.mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* 모바일 닫기 버튼 (데스크탑에서는 숨김) */
+.mobile-menu-close {
+    display: none;
+    position: absolute;
+    top: 1.6rem;
+    right: 1.6rem;
+    background: none;
+    border: none;
+    font-size: 3.2rem;
+    color: #666;
+    cursor: pointer;
+    width: 4rem;
+    height: 4rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+    z-index: 1002;
+}
+
+.mobile-menu-close:hover {
+    background: #f4f6fa;
+    color: #111;
+}
+
+/* 모바일 상단 헤더 네비게이션 (데스크탑에서는 숨김) */
+.mobile-header-nav {
+    display: none;
+    width: 100%;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* 모바일 프로필 섹션 */
+.mobile-profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 2rem 1.6rem;
+    background: #fff;
+}
+
+.mobile-photo {
+    width: 8rem;
+    height: 8rem;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #f0f0f0;
+    border: none;
+}
+
+.mobile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.mobile-profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.mobile-nickname {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 0.4rem;
+    word-wrap: break-word;
+}
+
+.mobile-user-id {
+    font-size: 1.4rem;
+    color: #666;
+    word-wrap: break-word;
+}
+
+/* 모바일 가로 네비게이션 */
+.mypage-mobile-nav {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+}
+
+.mypage-mobile-nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 0;
+    padding: 0;
+    white-space: nowrap;
+    /* 스크롤바 숨기기 */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.mypage-mobile-nav ul::-webkit-scrollbar {
+    display: none;
+}
+
+.mypage-mobile-nav ul li {
+    flex-shrink: 0;
+    flex: 1;
+    text-align: center;
+}
+
+.mypage-mobile-nav ul li a {
+    display: block;
+    padding: 1.4rem 0.8rem;
+    font-size: 1.4rem;
+    color: #666;
+    text-decoration: none;
+    background: transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-weight: 400;
+    position: relative;
+    border-bottom: 2px solid transparent;
+}
+
+.mypage-mobile-nav ul li a.active {
+    color: #0A4A7A;
+    font-weight: 600;
+    border-bottom-color: #0A4A7A;
+}
+
+.mypage-mobile-nav ul li a:hover {
+    color: #0A4A7A;
+}
+
+/*마이페이지 nav 반응형 버전*/
+@media (max-width: 768px) {
+    /* 데스크탑 사이드바 숨김 */
+    .desktop-sidebar,
+    aside.mypage-sidebar,
+    .mypage-sidebar {
+        display: none !important;
+    }
+
+    /* 모바일 상단 헤더 네비게이션 표시 */
+    .mobile-header-nav {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 2rem !important;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.05);
+    }
+
+    /* 모바일 프로필 섹션 정렬 */
+    .mobile-profile-section {
+        padding: 2rem 1.6rem;
+        gap: 1.2rem;
+    }
+
+    .mobile-photo {
+        width: 8rem;
+        height: 8rem;
+    }
+
+    .mobile-nickname {
+        font-size: 1.8rem;
+    }
+
+    .mobile-user-id {
+        font-size: 1.4rem;
+    }
+
+    /* 모바일 네비게이션 정렬 */
+    .mypage-mobile-nav ul {
+        padding: 0;
+        gap: 0;
+    }
+
+    .mypage-mobile-nav ul li {
+        flex: 1;
+    }
+
+    .mypage-mobile-nav ul li a {
+        padding: 1.4rem 0.8rem;
+        font-size: 1.4rem;
+    }
+
+    /* 레이아웃 컨테이너 조정 */
+    .layout-container {
+        position: relative !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+        margin-top: 0 !important;
+        padding: 0 1.6rem !important;
+        max-width: 100% !important;
+    }
+
+    .layout-container aside {
+        display: none !important;
+    }
+
+    /* 메인 콘텐츠 전체 너비 사용 */
+    .layout-content {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .layout-content > div {
+        padding: 0 0 2rem;
+    }
+}

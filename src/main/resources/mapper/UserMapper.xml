@@ -10,4 +10,19 @@
         SELECT NOW()
     </select>
 
+    <!-- 사용자 정보 조회 -->
+    <select id="selectUserById" resultType="com.learnit.learnit.mypage.dto.UserDTO">
+        SELECT 
+            user_id AS userId,
+            nickname,
+            email,
+            CASE 
+                WHEN profile_img IS NULL OR profile_img = '' OR profile_img = 'profile-default.png' 
+                THEN NULL 
+                ELSE profile_img 
+            END AS profileImageUrl
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
 </mapper>

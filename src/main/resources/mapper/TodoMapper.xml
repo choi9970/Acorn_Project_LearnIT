@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.mypage.dashboard.repository.TodoRepository">
+
+    <!-- 날짜별 할일 조회 -->
+    <select id="selectTodosByDate" resultType="com.learnit.learnit.mypage.dashboard.dto.TodoDTO">
+        SELECT 
+            todo_id AS todoId,
+            user_id AS userId,
+            title,
+            description,
+            target_date AS targetDate,
+            CASE WHEN is_completed = 'Y' THEN true ELSE false END AS isCompleted,
+            completed_at AS completedAt,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM todo
+        WHERE user_id = #{userId}
+          AND DATE_FORMAT(target_date, '%Y-%m-%d') = CONCAT(#{year}, '-', LPAD(#{month}, 2, '0'), '-', LPAD(#{day}, 2, '0'))
+        ORDER BY is_completed ASC, created_at ASC
+    </select>
+
+    <!-- 할일 저장 -->
+    <insert id="insertTodo" parameterType="com.learnit.learnit.mypage.dashboard.dto.TodoDTO" 
+            useGeneratedKeys="true" keyProperty="todoId" keyColumn="todo_id">
+        INSERT INTO todo (
+            user_id,
+            title,
+            description,
+            target_date,
+            is_completed,
+            completed_at,
+            created_at
+        ) VALUES (
+            #{userId},
+            #{title},
+            #{description, jdbcType=VARCHAR},
+            #{targetDate},
+            CASE WHEN #{isCompleted} = true OR #{isCompleted} = 1 THEN 'Y' ELSE 'N' END,
+            #{completedAt, jdbcType=TIMESTAMP},
+            NOW()
+        )
+    </insert>
+
+    <!-- 할일 수정 -->
+    <update id="updateTodo" parameterType="com.learnit.learnit.mypage.dashboard.dto.TodoDTO">
+        UPDATE todo
+        SET 
+            title = #{title},
+            description = #{description},
+            is_completed = CASE WHEN #{isCompleted} = true OR #{isCompleted} = 1 THEN 'Y' ELSE 'N' END,
+            completed_at = #{completedAt},
+            updated_at = NOW()
+        WHERE todo_id = #{todoId}
+          AND user_id = #{userId}
+    </update>
+
+    <!-- 할일 삭제 -->
+    <delete id="deleteTodo">
+        DELETE FROM todo
+        WHERE todo_id = #{todoId}
+          AND user_id = #{userId}
+    </delete>
+
+    <!-- 할일 ID로 조회 -->
+    <select id="selectTodoById" resultType="com.learnit.learnit.mypage.dashboard.dto.TodoDTO">
+        SELECT 
+            todo_id AS todoId,
+            user_id AS userId,
+            title,
+            description,
+            target_date AS targetDate,
+            CASE WHEN is_completed = 'Y' THEN true ELSE false END AS isCompleted,
+            completed_at AS completedAt,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM todo
+        WHERE todo_id = #{todoId}
+          AND user_id = #{userId}
+    </select>
+
+</mapper>
+

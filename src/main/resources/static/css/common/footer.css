@@ -11,64 +11,130 @@
     padding-bottom: 3rem;
 }
 
+.footer-brand {
+    flex-shrink: 0;
+}
+
 .footer-brand img {
     width: 120px;
     margin-bottom: 1rem;
 }
 
+.footer-brand p {
+    font-size: 1.4rem;
+    color: #666;
+    line-height: 1.6;
+}
+
 .footer-links {
     display: flex;
     gap: 5rem;
+    flex: 1;
+    justify-content: flex-end;
 }
 
 .link-group h4 {
     font-size: 1.6rem;
-    margin-bottom: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    color: #111;
 }
 
 .link-group a {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
     font-size: 1.4rem;
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.link-group a:hover {
+    color: #0A4A7A;
+}
+
+.footer-contact p {
+    font-size: 1.4rem;
+    color: #666;
+    margin-bottom: 0.8rem;
+    line-height: 1.6;
 }
 
 .sns-icons {
     display: flex;
     gap: 1rem;
-    margin-top: 1rem;
+    margin-top: 1.2rem;
 }
 
 .sns-icon {
     width: 28px;
     height: 28px;
+    transition: opacity 0.2s ease;
+}
+
+.sns-icon:hover {
+    opacity: 0.7;
 }
 
 .footer-bottom {
     text-align: center;
-    padding: 1.5rem 0;
+    padding: 2rem 0;
     font-size: 1.3rem;
-    border-top: 1px solid #ddd;
+    color: #999;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* 태블릿 반응형 (1024px 이하) */
+@media (max-width: 1024px) {
+    .footer-top {
+        gap: 3rem;
+    }
+    
+    .footer-links {
+        gap: 3rem;
+    }
 }
 
 /* 모바일 반응형 (768px 이하) */
 @media (max-width: 768px) {
     .footer-wrapper {
-        margin-top: 3rem;
+        margin-top: 2.4rem;
         padding-top: 2.4rem;
     }
     
     .footer-top {
         flex-direction: column;
-        gap: 2.4rem;
+        gap: 1.6rem;
         padding-bottom: 2rem;
     }
     
+    .footer-top .container {
+        padding: 0 1.6rem;
+    }
+    
+    /* 모바일에서 링크 섹션 숨김 */
     .footer-links {
-        flex-direction: column;
-        gap: 2.4rem;
+        display: none !important;
+    }
+    
+    .footer-brand {
+        text-align: center;
     }
     
     .footer-brand img {
         width: 100px;
+        margin-bottom: 0.8rem;
+    }
+    
+    .footer-brand p {
+        font-size: 1.3rem;
+        color: #666;
+    }
+    
+    .footer-bottom {
+        padding: 1.6rem 1.6rem;
+        font-size: 1.2rem;
+        text-align: center;
+        border-top: 1px solid #e0e0e0;
     }
 }

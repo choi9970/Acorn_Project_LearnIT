@@ -1,0 +1,362 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{
+        layout/mypage-layout :: layout(
+          ~{::title},
+          ~{::content},
+          ~{::css},
+          ~{::script}
+        )
+      }">
+
+<head>
+    <title th:fragment="title">대시보드</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-navbar.css}">
+    </th:block>
+
+    <th:block th:fragment="script">
+        <!-- Thymeleaf 데이터를 JavaScript 변수로 전달 -->
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            window.dashboardCalendarData = /*[[${dashboard.calendarSummary}]]*/ null;
+            /*]]>*/
+        </script>
+        <!-- 대시보드 JavaScript 파일 -->
+        <script th:src="@{/js/mypage/dashboard.js}"></script>
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+
+    <h1 class="dashboard-title">대시보드</h1>
+
+    <div class="mypage-dashboard">
+        <!-- 최근 학습 강의 -->
+        <section class="card card-large recent-course-card">
+            <div class="card-header">
+            <h2>최근 학습 강의</h2>
+                <a th:href="@{/mypage/courses}" class="view-all-link">학습 목록 ></a>
+            </div>
+            <div class="recent-course-content" th:if="${dashboard.recentCourse}">
+                <div class="course-icon">
+                    <div class="play-icon">▶</div>
+                </div>
+                <div class="course-info">
+                    <h3 class="course-title" th:text="${dashboard.recentCourse != null ? dashboard.recentCourse.title : '학습 중인 강의 없음'}">스프링부트 입문</h3>
+                    <div class="course-progress">
+                        <span class="progress-text" th:if="${dashboard.recentCourse != null}">
+                            <span th:text="${dashboard.recentCourse.currentLecture != null ? dashboard.recentCourse.currentLecture : 0}">1</span>강 / 
+                            <span th:if="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}" 
+                                  th:text="${dashboard.recentCourse.totalLectures}">10</span>
+                            <span th:unless="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">-</span>강 
+                            <span th:if="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">
+                                (<span th:text="${dashboard.recentCourse.progressRate != null ? #numbers.formatDecimal(dashboard.recentCourse.progressRate, 1, 2) : '0.00'}">10.00</span>%)
+                            </span>
+                            <span th:unless="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">
+                                (-%)
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="recent-course-content" th:unless="${dashboard.recentCourse}">
+                <p class="empty-message">학습 중인 강의가 없습니다.</p>
+            </div>
+        </section>
+
+        <!-- 주간 학습 -->
+        <section class="card card-small weekly-learning-card">
+            <div class="card-header">
+            <h2>주간 학습</h2>
+                <button class="icon-btn" id="daily-goal-btn" title="일일 학습 목표 설정">
+                    <span class="gear-icon">⚙</span>
+                </button>
+            </div>
+            <div class="weekly-content" th:if="${dashboard.weeklyLearning}">
+                <div class="week-navigation">
+                    <button class="nav-btn prev-week" id="prev-week-btn">‹</button>
+                    <div class="week-label" id="week-label-display" th:text="${dashboard.weeklyLearning.weekLabel}">25년 12월 3주차</div>
+                    <button class="nav-btn next-week" id="next-week-btn">›</button>
+                </div>
+                <div class="weekly-calendar">
+                    <div class="day-item" th:each="daily, iterStat : ${dashboard.weeklyLearning.dailyLearnings}">
+                        <div class="day-name" th:text="${daily.dayOfWeek}">월</div>
+                        <div class="day-circle day-tooltip-trigger" 
+                             th:classappend="${daily.hasStudy} ? 'has-study' : ''"
+                             th:attr="data-day=${daily.day != null ? daily.day : 0},
+                                      data-day-of-week=${daily.dayOfWeek != null ? daily.dayOfWeek : ''},
+                                      data-lecture-count=${daily.lectureCount != null ? daily.lectureCount : 0},
+                                      data-study-minutes=${daily.studyMinutes != null ? daily.studyMinutes : 0},
+                                      data-note-count=${daily.noteCount != null ? daily.noteCount : 0}">
+                        </div>
+                        <!-- 날짜별 상세 정보 툴팁 -->
+                        <div class="day-tooltip">
+                            <div class="tooltip-date" 
+                                 th:text="${dashboard.weeklyLearning.year} + '. ' + ${dashboard.weeklyLearning.month} + '. ' + ${daily.day != null ? daily.day : 0} + '. ' + ${daily.dayOfWeek != null ? daily.dayOfWeek : ''}">
+                                2025. 12. 17. 수
+                            </div>
+                            <div class="tooltip-stats">
+                                <div class="tooltip-stat-item">
+                                    <span class="tooltip-icon purple">📝</span>
+                                    <span class="tooltip-label">노트</span>
+                                    <span class="tooltip-value" th:text="${daily.noteCount != null ? daily.noteCount : 0} + '개'">0개</span>
+                                </div>
+                                <div class="tooltip-stat-item">
+                                    <span class="tooltip-icon blue">📚</span>
+                                    <span class="tooltip-label">총 학습</span>
+                                    <span class="tooltip-value" th:text="${daily.studyMinutes != null ? daily.studyMinutes : 0} + '분'">0분</span>
+                                </div>
+                                <div class="tooltip-stat-item">
+                                    <span class="tooltip-icon teal">✅</span>
+                                    <span class="tooltip-label">완료 수업</span>
+                                    <span class="tooltip-value" th:text="${daily.lectureCount != null ? daily.lectureCount : 0} + '개'">0개</span>
+                                </div>
+                                <div class="tooltip-stat-item">
+                                    <span class="tooltip-icon orange">▶</span>
+                                    <span class="tooltip-label">재생 시간</span>
+                                    <span class="tooltip-value" th:text="${daily.studyMinutes != null ? daily.studyMinutes : 0} + '분'">0분</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="weekly-stats">
+                    <div class="stat-item">
+                        <span class="stat-icon">▶</span>
+                        <span class="stat-value" th:text="${dashboard.weeklyLearning.totalLectures}">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🕐</span>
+                        <span class="stat-value" th:text="${dashboard.weeklyLearning.totalMinutes} + '분'">0분</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">📄</span>
+                        <span class="stat-value" th:text="${dashboard.weeklyLearning.totalNotes}">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 일일 학습 목표 모달 -->
+        <div class="modal-overlay" id="daily-goal-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>일일 학습 목표</h2>
+                    <button class="modal-close" id="close-modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-info">
+                        설정한 일일 학습 목표는 이번 주부터 반영됩니다.<br>
+                        학습 목표는 언제든 변경할 수 있습니다.
+                    </p>
+
+                    <!-- 완료 수업 목표 -->
+                    <div class="goal-section">
+                        <div class="goal-header">
+                            <span class="goal-title">완료 수업 목표</span>
+                            <span class="goal-value" id="class-goal-value">하루 2개</span>
+                            <button class="goal-toggle" data-goal="class">
+                                <span class="toggle-icon">▼</span>
+                            </button>
+                        </div>
+                        <div class="goal-content" id="class-goal-content" style="display: none;">
+                            <div class="goal-controls">
+                                <div class="progress-circle">
+                                    <svg width="80" height="80">
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#e0e0e0" stroke-width="6"/>
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#0A4A7A" stroke-width="6" 
+                                                stroke-dasharray="220" stroke-dashoffset="110" class="progress-ring"/>
+                                    </svg>
+                                </div>
+                                <div class="goal-input-group">
+                                    <button class="input-btn minus-btn" data-goal="class">−</button>
+                                    <input type="number" class="goal-input" id="class-goal-input" value="2" min="1" max="10">
+                                    <button class="input-btn plus-btn" data-goal="class">+</button>
+                                </div>
+                            </div>
+                            <div class="goal-alert">
+                                <span class="alert-icon">⚠</span>
+                                <span>평소 학습량을 기준으로 도전적인 목표를 설정하세요.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="goal-divider">
+
+                    <!-- 학습시간 목표 -->
+                    <div class="goal-section">
+                        <div class="goal-header">
+                            <span class="goal-title">학습시간 목표</span>
+                            <span class="goal-value" id="time-goal-value">하루 10분</span>
+                            <button class="goal-toggle" data-goal="time">
+                                <span class="toggle-icon">▼</span>
+                            </button>
+                        </div>
+                        <div class="goal-content" id="time-goal-content" style="display: none;">
+                            <div class="goal-controls">
+                                <div class="progress-circle">
+                                    <svg width="80" height="80">
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#e0e0e0" stroke-width="6"/>
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#0A4A7A" stroke-width="6" 
+                                                stroke-dasharray="220" stroke-dashoffset="110" class="progress-ring"/>
+                                    </svg>
+                                </div>
+                                <div class="goal-input-group">
+                                    <button class="input-btn minus-btn" data-goal="time">−</button>
+                                    <input type="number" class="goal-input" id="time-goal-input" value="10" min="10" max="300" step="10">
+                                    <button class="input-btn plus-btn" data-goal="time">+</button>
+                                </div>
+                            </div>
+                            <div class="goal-alert">
+                                <span class="alert-icon">⚠</span>
+                                <span>학습 시간은 하루 최소 10분 이상을 권장합니다.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="goal-divider">
+
+                    <!-- 노트 작성 목표 -->
+                    <div class="goal-section">
+                        <div class="goal-header">
+                            <span class="goal-title">노트 작성 목표</span>
+                            <span class="goal-value" id="note-goal-value">하루 2개</span>
+                            <button class="goal-toggle" data-goal="note">
+                                <span class="toggle-icon">▼</span>
+                            </button>
+                        </div>
+                        <div class="goal-content" id="note-goal-content" style="display: none;">
+                            <div class="goal-controls">
+                                <div class="progress-circle">
+                                    <svg width="80" height="80">
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#e0e0e0" stroke-width="6"/>
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#9C27B0" stroke-width="6" 
+                                                stroke-dasharray="220" stroke-dashoffset="110" class="progress-ring"/>
+                                    </svg>
+                                </div>
+                                <div class="goal-input-group">
+                                    <button class="input-btn minus-btn" data-goal="note">−</button>
+                                    <input type="number" class="goal-input" id="note-goal-input" value="2" min="1" max="10">
+                                    <button class="input-btn plus-btn" data-goal="note">+</button>
+                                </div>
+                            </div>
+                            <div class="goal-alert">
+                                <span class="alert-icon">⚠</span>
+                                <span>기억에 의존하지 마세요. 필기도 습관입니다.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="save-btn" id="save-goals-btn">저장하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 수료증 -->
+        <section class="card card-small certificate-card">
+            <div class="card-header">
+            <h2>수료증</h2>
+                <a th:href="@{/mypage/certificates}" class="view-all-link">전체 보기 ></a>
+            </div>
+            <div class="certificate-content" th:if="${dashboard.latestCertificate}">
+                <div class="certificate-item">
+                    <div class="certificate-icon">📜</div>
+                    <div class="certificate-info">
+                        <div class="certificate-title" th:text="${dashboard.latestCertificate.courseTitle}">초보자를 위한 파워포인트</div>
+                        <div class="certificate-date" th:text="${#temporals.format(dashboard.latestCertificate.issuedDate, 'yyyy. MM. dd.')}">2024. 07. 30.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="certificate-content" th:unless="${dashboard.latestCertificate}">
+                <p class="empty-message">수료증이 없습니다.</p>
+            </div>
+        </section>
+
+        <!-- 캘린더 -->
+        <section class="card card-large calendar-card">
+            <div class="calendar-header-section">
+                <button class="calendar-nav-btn" id="calendar-prev-month-btn">‹</button>
+                <h2 id="calendar-month-display">12월</h2>
+                <button class="calendar-nav-btn" id="calendar-next-month-btn">›</button>
+            </div>
+            <div id="dashboard-calendar" 
+                 th:data-year="${dashboard.calendarSummary != null ? dashboard.calendarSummary.year : null}"
+                 th:data-month="${dashboard.calendarSummary != null ? dashboard.calendarSummary.month : null}">
+                <!-- 캘린더는 JavaScript로 렌더링 -->
+            </div>
+        </section>
+
+        <!-- 날짜 상세 모달 -->
+        <div class="modal-overlay" id="day-detail-modal">
+            <div class="modal-content day-detail-modal-content">
+                <div class="modal-header todo-header">
+                    <h2 id="day-detail-date">12월 12일 금요일</h2>
+                    <button class="modal-menu-btn" id="day-detail-menu-btn">⋮</button>
+                </div>
+                <div class="modal-body todo-body">
+                    <!-- 할일 추가 버튼 -->
+                    <button class="add-todo-btn" id="show-todo-input-btn">
+                        <span class="check-icon">✓</span>
+                        <span>할일 추가</span>
+                    </button>
+
+                    <!-- 할일 입력 영역 (초기에는 숨김) -->
+                    <div class="todo-input-section" id="todo-input-section" style="display: none;">
+                        <div class="todo-input-item">
+                            <input type="checkbox" class="todo-checkbox-input" id="new-todo-checkbox">
+                            <div class="todo-input-content">
+                                <input type="text" class="todo-title-input" id="new-todo-title" placeholder="제목">
+                                <div class="todo-details-row">
+                                    <span class="todo-details-icon">☰</span>
+                                    <span class="todo-details-text">세부정보</span>
+                                </div>
+                                <div class="todo-date-buttons">
+                                    <button class="todo-date-btn" data-date="today">오늘</button>
+                                    <button class="todo-date-btn" data-date="tomorrow">내일</button>
+                                    <button class="todo-date-btn" id="todo-calendar-btn">📅</button>
+                                    <button class="todo-reorder-btn">⇅</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 미완료 할일 목록 -->
+                    <div class="todo-pending-section">
+                        <div class="todo-list" id="pending-todo-list">
+                            <!-- 동적으로 추가됨 -->
+                        </div>
+                    </div>
+
+                    <!-- 완료된 할일 섹션 -->
+                    <div class="todo-completed-section">
+                        <div class="completed-header" id="completed-header">
+                            <span class="completed-toggle-icon">▼</span>
+                            <h3 class="completed-title">완료됨(<span id="completed-count">0</span>개)</h3>
+                        </div>
+                        <div class="completed-list" id="completed-todo-list" style="display: none;">
+                            <!-- 동적으로 추가됨 -->
+                        </div>
+                    </div>
+
+                    <!-- 오늘 수강한 강의 목록 -->
+                    <div class="daily-courses-section">
+                        <h3 class="courses-section-title">오늘 수강한 강의</h3>
+                        <div class="courses-list" id="daily-courses-list">
+                            <!-- 동적으로 추가됨 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
+

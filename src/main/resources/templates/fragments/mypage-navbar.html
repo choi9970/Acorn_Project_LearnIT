@@ -1,28 +1,56 @@
 <!-- 마이페이지 네비 Fragment -->
 <div th:fragment="mypage-nav">
 
+    <!-- 데스크탑 사이드바 -->
     <aside class="mypage-sidebar">
 
         <div class="profile-box">
             <div class="photo">
-                <img src="/images/profile-default.png">
+                <img th:src="${user != null && user.profileImageUrl != null ? user.profileImageUrl : '/images/logo_icon.png'}" 
+                     alt="프로필 이미지"
+                     onerror="this.src='/images/logo_icon.png'">
             </div>
-            <p class="nickname">닉네임</p>
-            <p class="user-id">@아이디</p>
+            <p class="nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>
+            <p class="user-id" th:text="${user != null && user.email != null ? user.email : '아이디'}">아이디</p>
         </div>
 
         <nav class="mypage-nav">
             <ul>
-                <li><a href="/mypage">대시보드</a></li>
-                <li><a href="/mypage/settings">개인정보 수정</a></li>
-                <li><a href="/mypage/courses">내 학습 강의</a></li>
-                <li><a href="/mypage/qa">강의 Q&A</a></li>
-                <li><a href="/mypage/purchase">구매 / 혜택</a></li>
+                <li><a th:href="@{/mypage}">대시보드</a></li>
+                <li><a th:href="@{/mypage/settings}">개인정보 수정</a></li>
+                <li><a th:href="@{/mypage/courses}">내 학습 강의</a></li>
+                <li><a th:href="@{/mypage/qa}">강의 Q&A</a></li>
+                <li><a th:href="@{/mypage/purchase}">구매 / 혜택</a></li>
             </ul>
         </nav>
 
     </aside>
 
-</div>
+    <!-- 모바일 헤더 네비게이션 -->
+    <div class="mobile-header-nav">
+        <!-- 프로필 섹션 -->
+        <div class="mobile-profile-section">
+            <div class="mobile-photo">
+                <img th:src="${user != null && user.profileImageUrl != null ? user.profileImageUrl : '/images/logo_icon.png'}" 
+                     alt="프로필 이미지"
+                     onerror="this.src='/images/logo_icon.png'">
+            </div>
+            <div class="mobile-profile-info">
+                <p class="mobile-nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>
+                <p class="mobile-user-id" th:text="${user != null && user.email != null ? user.email : '아이디'}">아이디</p>
+            </div>
+        </div>
 
-</html>
+        <!-- 가로 네비게이션 -->
+        <nav class="mypage-mobile-nav">
+            <ul>
+                <li><a th:href="@{/mypage}" class="nav-link" data-path="/mypage">대시보드</a></li>
+                <li><a th:href="@{/mypage/settings}" class="nav-link" data-path="/mypage/settings">개인정보 수정</a></li>
+                <li><a th:href="@{/mypage/courses}" class="nav-link" data-path="/mypage/courses">내 학습 강의</a></li>
+                <li><a th:href="@{/mypage/qa}" class="nav-link" data-path="/mypage/qa">강의 Q&A</a></li>
+                <li><a th:href="@{/mypage/purchase}" class="nav-link" data-path="/mypage/purchase">구매 / 혜택</a></li>
+            </ul>
+        </nav>
+    </div>
+
+</div>
