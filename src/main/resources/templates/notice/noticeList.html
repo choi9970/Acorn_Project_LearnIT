@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{})}">
 <th:block th:fragment="css">
-    <link rel="stylesheet" th:href="@{/css/common/notice.css}">
+    <link rel="stylesheet" th:href="@{/css/notice/notice.css}">
 </th:block>
 <head>
     <title th:fragment="title">공지사항</title>
@@ -29,7 +29,14 @@
                 <tbody>
                 <!-- ✅ DB 데이터 출력 -->
                 <tr th:each="n : ${notices}">
-                    <td th:text="${n.category}">일반</td>
+                    <td>
+                        <span class="col-category-text"
+                              th:text="${n.category}"
+                              th:classappend="${n.category == '긴급'} ? ' is-urgent' :
+                                              (${n.category == '이벤트'} ? ' is-event' : ' is-normal')
+                                              ">
+                        </span>
+                    </td>
 
                     <td class="td-title">
                         <a th:text="${n.title}"
@@ -37,8 +44,8 @@
                     </td>
 
                     <!-- 날짜 포맷 -->
-                    <td th:text="${#dates.format(n.createdAt, 'yyyy-MM-dd')}">2025-12-17</td>
-                    <td th:text="${n.userId == 4 ? '관리자' : n.userId}">관리자</td>
+                    <td class="col-date" th:text="${#dates.format(n.createdAt, 'yyyy-MM-dd')}">2025-12-17</td>
+                    <td class="col-writer" th:text="${n.userId == 4 ? '관리자' : n.userId}">관리자</td>
                 </tr>
                 </tbody>
             </table>

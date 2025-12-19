@@ -9,6 +9,8 @@
     <link rel="stylesheet" th:href="@{/css/common/header.css}">
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
     <link rel="stylesheet" th:href="@{/css/common/mainnav.css}">
+    <link rel="stylesheet" th:href="@{/css/home/chatbot.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!--페이지별 css-->
     <th:block th:replace="${css}"></th:block>
@@ -26,8 +28,13 @@
     </main>
 </div>
 
+<!-- 챗봇(모든 페이지 공통 요소) -->
+<div th:replace="fragments/chatbot :: chatbot"></div>
+
 <div th:replace="fragments/footer :: footer"></div>
 
+<!--챗봇 공통 js-->
+<script th:src="@{/js/home/chatbot.js}"></script>
 
 <th:block th:replace="${script}"></th:block>
 

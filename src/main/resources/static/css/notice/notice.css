@@ -1,0 +1,370 @@
+.notice-page {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.notice-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 3.2rem;
+  position: relative;
+  padding-bottom: 2.4rem;
+}
+
+/* 제목 밑 포인트 바 */
+.notice-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 1.2rem;
+  width: 4rem;
+  height: 4px;
+  border-radius: 2px;
+
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+}
+
+.notice-table-wrap {
+  background: #fcfcfd;
+  padding: 2rem 3.2rem;
+  border-radius: 1.6rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+}
+
+.notice-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.notice-table thead th {
+  font-size: 1.4rem;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 2rem 1.2rem;
+  border-bottom: 2px solid #f3f4f6;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.notice-table tbody tr {
+  background: transparent;
+  transition: background 0.2s ease;
+}
+.notice-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.notice-table tbody td {
+  padding: 2rem 1.2rem;
+  font-size: 1.5rem;
+  color: #374151;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.notice-table .td-title {
+  text-align: left;
+  padding-left: 2rem;
+}
+
+.notice-table .td-title a {
+  font-weight: 500;
+  color: #111;
+  transition: color 0.2s;
+}
+
+.notice-table .td-title a:hover {
+  color: #2563eb;
+}
+
+/* 컬럼 너비 설정 */
+.col-no { width: 15%; }
+.col-title { width: auto; }
+.col-date { width: 18%; }
+.col-writer { width: 15%; }
+
+
+.col-date, .col-writer {
+  color: #9ca3af;
+  font-size: 1.35rem;
+}
+
+/* 구분 */
+.col-category-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.2rem;
+  min-width: 5.6rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 2rem;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 일반 */
+.col-category-text.is-normal {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #e2e8f0;
+}
+
+/* 이벤트 */
+.col-category-text.is-event {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+/* 긴급 */
+.col-category-text.is-urgent {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.empty-row {
+  height: 4.8rem;
+  background: #fff;
+}
+
+/* pagination */
+.pagination {
+  margin-top: 11rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.page-btn,
+.page-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 0.8rem;
+  font-size: 1.4rem;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.page-num.is-active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+  font-weight: 600;
+}
+
+.page-dots {
+  color: #666;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .notice-page {
+    padding: 3.2rem 1.6rem;
+  }
+
+  .notice-table-wrap {
+    padding: 1.2rem;
+  }
+
+  /* 헤더/데이터 날짜와 작성자 숨김 */
+  .notice-table thead th:nth-child(3),
+  .notice-table thead th:nth-child(4),
+  .notice-table tbody td:nth-child(3),
+  .notice-table tbody td:nth-child(4) {
+    display: none;
+  }
+
+  .col-no { width: 80px; }
+
+  .notice-table tbody td {
+    padding: 1.6rem 0.8rem;
+    font-size: 1.4rem;
+  }
+
+  .notice-table .td-title {
+    padding-left: 0.8rem;
+  }
+}
+
+/* ===== 공지사항 상세 ===== */
+.notice-detail-wrap {
+  background: #fcfcfd;
+  padding: 3.2rem;
+  border-radius: 1.6rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+}
+
+.notice-detail-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.2rem;
+  margin-bottom: 2.4rem;
+}
+
+/* 제목 */
+.notice-detail-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 2rem;
+}
+
+/* 작성일자 */
+.notice-detail-meta {
+  font-size: 1.3rem;
+  color: #9ca3af;
+}
+
+.notice-detail-divider {
+  width: 100%;
+  height: 1px;
+  background: #e5e7eb;
+  margin: 2rem 0 2.4rem;
+}
+
+/* 본문 */
+.notice-detail-content {
+  font-size: 1.45rem;
+  line-height: 1.8;
+  color: #333;
+  white-space: pre-line;
+  min-height: 24rem;
+}
+
+/* ===== 첨부파일 ===== */
+
+.notice-attach {
+  margin-top: 3.2rem;
+  padding: 2rem;
+  border-radius: 0.8rem;
+  background-color: #f8f9fa;
+  border: 1px dashed #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+}
+
+.notice-attach-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  padding: 1.1rem 1.6rem;
+  font-size: 1.3rem;
+  font-weight: 500;
+
+  border-radius: 0.8rem;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #1e40af;
+
+  text-decoration: none;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notice-attach-link:hover {
+  background: #dbeafe;
+  box-shadow: 0 2px 6px rgba(105, 149, 248, 0.15);
+}
+
+/* 파일명 텍스트 부분 */
+.notice-attach-link span {
+  max-width: 400px; /* 파일명이 너무 길 때의 최대 너비 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 넘치는 글자 ... 처리 */
+  color: #727272;
+}
+
+/* ===== 하단 액션 ===== */
+
+.notice-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 3.2rem;
+}
+
+.notice-back-btn {
+  padding: 1rem 1.6rem;
+  border-radius: 0.8rem;
+  background: #111;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.notice-back-btn:hover {
+  background: #000;
+}
+
+
+/* ===== 모바일 ===== */
+@media (max-width: 768px) {
+  .notice-detail-wrap {
+    padding: 2rem;
+  }
+
+  .notice-detail-title {
+    font-size: 1.7rem;
+  }
+
+  .notice-detail-content {
+    font-size: 1.35rem;
+  }
+
+  .notice-attach {
+    margin-top: 2rem;
+    padding: 1.2rem;
+    gap: 0.8rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .notice-attach {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .notice-attach-link {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+    padding: 1rem;
+    margin: 0 auto;
+  }
+
+  .notice-attach span {
+    display: block;
+    width: 100%;
+    font-size: 1.2rem;
+    color: #666;
+    margin: 0;
+    word-break: break-all;
+    line-height: 1.4;
+  }
+}

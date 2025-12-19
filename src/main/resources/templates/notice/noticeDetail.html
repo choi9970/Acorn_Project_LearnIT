@@ -3,7 +3,7 @@
       th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{})}">
 
 <th:block th:fragment="css">
-    <link rel="stylesheet" th:href="@{/css/common/notice.css}">
+    <link rel="stylesheet" th:href="@{/css/notice/notice.css}">
 </th:block>
 
 <head>
@@ -17,9 +17,29 @@
         <h1 class="notice-title">공지사항</h1>
 
         <div class="notice-detail-wrap">
-            <div class="notice-detail-title" th:text="${notice.title}">
-                공지사항 글제목
+
+            <div class="notice-detail-header">
+                <!-- 카테고리 라벨 -->
+                <span class="col-category-text"
+                      th:text="${notice.category}"
+                      th:classappend="
+                                    ${notice.category == '긴급'} ? ' is-urgent' :
+                                    (${notice.category == '이벤트'} ? ' is-event' : ' is-normal')
+                                  ">
+                                일반
+                </span>
+
+                <div class="notice-detail-title" th:text="${notice.title}">
+                    공지사항 글제목
+                </div>
+
+                <div class="notice-detail-meta">
+                    <span th:text="${'작성일자 | ' + #dates.format(notice.createdAt, 'yyyy.MM.dd')}">
+                         2025.12.10
+                    </span>
+                </div>
             </div>
+            <div class="notice-detail-divider"></div>
 
             <!-- 줄바꿈 보이게: th:text + CSS(white-space) 추천 -->
             <div class="notice-detail-content" th:text="${notice.content}">
@@ -27,23 +47,19 @@
             </div>
 
 
-            <!-- 첨부 링크(파일/이미지) -->
-            <div class="notice-attach" th:if="${notice.fileUrl != null and !#strings.isEmpty(notice.fileUrl)}">
-                <!-- 1) URL 그대로 표시 + 새창 링크 -->
-                <a class="notice-attach-link"
-                   th:href="${notice.fileUrl}"
-                   th:text="${notice.fileUrl}"
-                   target="_blank" rel="noopener">첨부 링크</a>
+            <!-- 첨부파일 -->
+            <div class="notice-attach"
+                 th:if="${notice.fileUrl != null and !#strings.isEmpty(notice.fileUrl)}">
 
-                <!-- 2) 이미지면 미리보기(확장자로 간단 판별) -->
-                <div class="notice-attach-preview"
-                     th:if="${#strings.endsWith(#strings.toLowerCase(notice.fileUrl), '.jpg')
-              or #strings.endsWith(#strings.toLowerCase(notice.fileUrl), '.jpeg')
-              or #strings.endsWith(#strings.toLowerCase(notice.fileUrl), '.png')
-              or #strings.endsWith(#strings.toLowerCase(notice.fileUrl), '.webp')
-              or #strings.contains(#strings.toLowerCase(notice.fileUrl), 'unsplash.com')}">
-                    <img th:src="${notice.fileUrl}" alt="첨부 이미지 미리보기">
-                </div>
+                <a class="notice-attach-link"
+                   th:href="@{/notice/{id}/download(id=${notice.noticeId})}">
+                    첨부파일 다운로드
+                </a>
+
+                <span th:with="url=${notice.fileUrl}"
+                      th:text="${url.substring(url.lastIndexOf('/') + 1)}">
+                    파일명
+                </span>
             </div>
 
             <div class="notice-detail-actions">

@@ -1,9 +1,13 @@
 package com.learnit.learnit.notice;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 @Controller
@@ -51,5 +55,53 @@ public class NoticeController {
 
         model.addAttribute("notice", notice);
         return "notice/noticeDetail";
+    }
+
+
+    //공지사항 첨부파일 다운로드
+    @GetMapping("/notice/{id}/download")
+    public void downloadNotice(@PathVariable Long id, HttpServletResponse response){
+
+        try{
+            Notice notice = noticeService.getNotice(id);
+
+            if (notice == null || notice.getFileUrl() == null) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            //로컬 파일 경로
+            String fileUrl = notice.getFileUrl();
+            String filePath = "src/main/resources/static" + fileUrl;
+
+
+            File file = new File(filePath);
+            if (!file.exists()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            response.setContentType("application/octet-stream");
+            response.setHeader(
+                    "Content-Disposition",
+                    "attachment; filename=\"" + file.getName() + "\""
+            );
+
+            FileInputStream fis = new FileInputStream(file);
+            OutputStream os = response.getOutputStream();
+
+            byte[] buffer = new byte[1024];
+            int read;
+
+            while ((read = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, read);
+            }
+
+            fis.close();
+            os.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
