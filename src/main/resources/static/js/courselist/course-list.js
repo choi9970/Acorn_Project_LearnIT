@@ -116,7 +116,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (state.page === 0) grid.innerHTML = '';
             if (!content || content.length === 0) {
-                if (state.page === 0) grid.innerHTML = `<div class="empty">표시할 강의가 없어요.</div>`;
+                if (state.page === 0) grid.innerHTML = `
+                        <div class="course-empty">
+                            <h2>표시할 강의가 없어요.</h2>
+                            <p>
+                              선택하신 조건에 해당하는 강의를 찾을 수 없습니다.<br>
+                              다른 카테고리나 필터를 선택해보세요.
+                            </p>
+                            <a href="/CourseList" class="btn-home">전체 강의 보기</a>
+                          </div>
+                        `;
                 state.last = true;
                 return;
             }

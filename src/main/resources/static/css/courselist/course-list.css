@@ -250,6 +250,57 @@
     font-weight:700;
 }
 
+/*추가*/
+.course-empty {
+    grid-column: 1 / -1;       /* 그리드 전체 폭 */
+    min-height: 450px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.course-empty h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 10px;
+}
+
+.course-empty p {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.course-empty .btn-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 22px;
+    border-radius: 12px;
+
+    background: #111;
+    color: #fff;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.course-empty .btn-home:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
 
 /* =========================
    반응형 (768px 기준)
@@ -316,4 +367,21 @@
 
     .title{ font-size:13px; }
     .desc{ font-size:11px; }
+
+    /*추가*/
+    .course-empty {
+        min-height: 300px;
+    }
+
+    .course-empty .code {
+        font-size: 48px;
+    }
+
+    .course-empty h2 {
+        font-size: 18px;
+    }
+
+    .course-empty p {
+        font-size: 13px;
+    }
 }
