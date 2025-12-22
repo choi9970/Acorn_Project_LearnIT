@@ -1,154 +1,19 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>강의 타이틀</title>
+    <title th:text="${chapter.title}">강의 타이틀</title>
+
+    <link rel="stylesheet" th:href="@{/css/course/courseVideo.css}">
+
     <style>
-        /* [1] 초기화 및 전체 레이아웃 설정 */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f9f9f9;
-            height: 100vh; /* 화면 전체 높이 사용 */
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* 스크롤바 숨김 (앱 느낌) */
-        }
-
-        /* [2] 상단 헤더 (강의 타이틀 영역) */
-        .top-header {
-            height: 60px;
-            background-color: #ffffff;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-            padding: 0 30px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        /* [3] 메인 컨테이너 (좌측 영상 + 우측 사이드바) */
-        .main-container {
-            display: flex;
-            flex: 1; /* 남은 높이 모두 차지 */
-        }
-
-        /* --- [좌측] 영상 영역 --- */
-        .video-section {
-            flex: 1; /* 가변 너비 */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            background-color: #f5f5f5;
-        }
-
-        /* 영상 플레이어 박스 (16:9 비율 유지) */
-        .video-wrapper {
-            width: 100%;
-            max-width: 1100px; /* 너무 커지지 않게 제한 */
-            aspect-ratio: 16 / 9;
-            background-color: #dcdcdc; /* 회색 배경 (영상 없을 때) */
-            border-radius: 4px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            color: #777;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        /* 하단 네비게이션 버튼 (< >) */
-        .nav-controls {
-            display: flex;
-            gap: 100px;
-        }
-
-        .nav-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: none;
-            background-color: #e0e0e0;
-            color: #555;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: 0.2s;
-        }
-
-        .nav-btn:hover {
-            background-color: #d0d0d0;
-        }
-
-        /* --- [우측] 사이드바 메뉴 --- */
-        .right-sidebar {
-            width: 70px; /* 고정 너비 */
-            background-color: #ffffff;
-            border-left: 1px solid #ddd;
-            display: flex;
-            padding-top: 15px;
-            flex-direction: column;
-            align-items: center;
-            gap: 30px; /* 메뉴 간 간격 */
-        }
-
-        .menu-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #333;
-            cursor: pointer;
-        }
-
-        .menu-item:hover {
-            opacity: 0.7;
-        }
-
-        /* 아이콘 박스 (이미지 대신 CSS로 모양 잡음) */
-        .icon-wrap {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* font-size: 20px;  <- 이모지용 폰트 사이즈는 이미지에 영향 없으므로 주석 처리해도 됨 */
-        }
-
-        /* [추가된 CSS] 아이콘 이미지 크기 조절 */
-        .menu-icon {
-            width: 24px;       /* 40px 박스 안에 적당히 들어가는 크기 */
-            height: 24px;
-            object-fit: contain; /* 이미지 비율 유지 */
-            display: block;    /* 이미지 하단 공백 제거 */
-        }
-
-        .menu-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #555;
-        }
-
+        .video-wrapper iframe { width: 100%; height: 100%; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<header class="top-header">
+<header class="top-header" th:text="${chapter.title}">
     강의 타이틀
 </header>
 
@@ -156,40 +21,58 @@
 
     <main class="video-section">
         <div class="video-wrapper">
-            강의 영상
+            <div id="player"></div>
         </div>
 
         <div class="nav-controls">
-            <button class="nav-btn">&lt;</button>
-            <button class="nav-btn">&gt;</button>
+            <button class="nav-btn prev"
+                    th:if="${prevChapterId != null}"
+                    th:onclick="|location.href='@{/course/{cId}/video/{chId}(cId=${courseId}, chId=${prevChapterId})}'|">
+                <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전">
+            </button>
+            <button class="nav-btn prev disabled" th:if="${prevChapterId == null}" disabled>
+                <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전" style="opacity: 0.3;">
+            </button>
+
+
+            <button class="nav-btn next"
+                    th:if="${nextChapterId != null}"
+                    th:onclick="|location.href='@{/course/{cId}/video/{chId}(cId=${courseId}, chId=${nextChapterId})}'|">
+                <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+            </button>
+            <button class="nav-btn next disabled" th:if="${nextChapterId == null}" disabled>
+                <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음" style="opacity: 0.3;">
+            </button>
         </div>
     </main>
 
     <aside class="right-sidebar">
-
         <a href="#" class="menu-item">
-            <div class="icon-wrap"><img src="/images/course/icon-curriculum.png" class="menu-icon"></div>
+            <div class="icon-wrap"><img th:src="@{/images/course/icon-curriculum.png}" class="menu-icon"></div>
             <span class="menu-label">커리큘럼</span>
         </a>
-
         <a href="#" class="menu-item">
-            <div class="icon-wrap"><img src="/images/course/icon-interpreter.png" class="menu-icon"></div>
+            <div class="icon-wrap"><img th:src="@{/images/course/icon-interpreter.png}" class="menu-icon"></div>
             <span class="menu-label">인터프리터</span>
         </a>
-
         <a href="#" class="menu-item">
-            <div class="icon-wrap"><img src="/images/course/icon-qna.png" class="menu-icon"></div>
+            <div class="icon-wrap"><img th:src="@{/images/course/icon-qna.png}" class="menu-icon"></div>
             <span class="menu-label">Q&A</span>
         </a>
-
         <a href="#" class="menu-item">
-            <div class="icon-wrap"><img src="/images/course/icon-file-download.png" class="menu-icon"></div>
+            <div class="icon-wrap"><img th:src="@{/images/course/icon-file-download.png}" class="menu-icon"></div>
             <span class="menu-label">자료실</span>
         </a>
-
     </aside>
 
 </div>
+
+<input type="hidden" id="video-url" th:value="${chapter.videoUrl}">
+<input type="hidden" id="course-id" th:value="${courseId}">
+<input type="hidden" id="chapter-id" th:value="${chapter.chapterId}">
+
+<script th:src="@{/js/course/courseVideo.js}"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 </body>
 </html>
