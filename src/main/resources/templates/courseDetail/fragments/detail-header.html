@@ -16,21 +16,21 @@
 
             <div class="cd-hero__right">
                 <img class="cd-hero__img"
-                     th:src="${course.detailImgUrl != null ? course.detailImgUrl : '/images/no-image.png'}"
+                     th:src="${course.thumbnailUrl != null ? course.thumbnailUrl : '/images/no-image.png'}"
                      alt="">
             </div>
         </div>
     </section>
 
     <nav class="cd-tabs">
-        <a th:href="@{/CourseDetail/intro(courseId=${course.courseId})}"
-           th:classappend="${activeTab == 'intro'} ? 'is-active' : ''">강의 소개</a>
+        <a th:href="@{/CourseDetail(courseId=${course.courseId}, tab='intro')}"
+           th:classappend="${activeTab == 'intro'} ? ' is-active' : ''">강의 소개</a>
 
-        <a th:href="@{/CourseDetail/curriculum(courseId=${course.courseId})}"
-           th:classappend="${activeTab == 'curriculum'} ? 'is-active' : ''">커리큘럼</a>
+        <a th:href="@{/CourseDetail(courseId=${course.courseId}, tab='curriculum')}"
+           th:classappend="${activeTab == 'curriculum'} ? ' is-active' : ''">커리큘럼</a>
 
-        <a th:href="@{/CourseDetail/reviews(courseId=${course.courseId})}"
-           th:classappend="${activeTab == 'reviews'} ? 'is-active' : ''">수강평</a>
+        <a th:href="@{/CourseDetail(courseId=${course.courseId}, tab='reviews')}"
+           th:classappend="${activeTab == 'reviews'} ? ' is-active' : ''">수강평</a>
     </nav>
 
 </th:block>

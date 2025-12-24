@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <title th:fragment="title">강의 상세</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail.css}">
+    </th:block>
+</head>
+
+<body>
+<div th:fragment="content" class="cd-wrap container">
+
+    <!-- 상단(배너 + 탭) -->
+    <div th:replace="courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab})"></div>
+
+    <section class="cd-body">
+        <!-- 왼쪽(탭 내용) -->
+        <div class="cd-left">
+
+            <th:block th:switch="${activeTab}">
+
+                <th:block th:case="'intro'">
+                    <th:block th:replace="courseDetail/tabs/intro :: introFragment(${course})"></th:block>
+                </th:block>
+
+                <th:block th:case="'curriculum'">
+                    <th:block th:replace="courseDetail/tabs/curriculum :: curriculumFragment()"></th:block>
+                </th:block>
+
+                <th:block th:case="'reviews'">
+                    <th:block th:replace="courseDetail/tabs/reviews :: reviewsFragment(${reviews})"></th:block>
+                </th:block>
+
+                <!-- 예외: tab 값 이상하면 intro로 -->
+                <th:block th:case="*">
+                    <th:block th:replace="courseDetail/tabs/intro :: introFragment(${course})"></th:block>
+                </th:block>
+
+            </th:block>
+
+        </div>
+
+
+        <!-- 오른쪽(사이드바) -->
+        <div th:replace="courseDetail/fragments/detail-sidebar :: detailSidebar(${course}, ${false})"></div>
+    </section>
+
+</div>
+
+<th:block th:fragment="script">
+    <script th:src="@{/js/courseDetail/course-detail.js}"></script>
+</th:block>
+</body>
+</html>

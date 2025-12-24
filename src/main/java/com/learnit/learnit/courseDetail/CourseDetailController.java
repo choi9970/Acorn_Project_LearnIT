@@ -1,5 +1,6 @@
 package com.learnit.learnit.courseDetail;
 
+import com.learnit.learnit.course.CourseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,31 +13,27 @@ public class CourseDetailController {
 
     private final CourseDetailService courseDetailService;
 
-    // 강의 소개
-    @GetMapping("/CourseDetail/intro")
-    public String intro(@RequestParam("courseId") int courseId, Model model) {
-        model.addAttribute("course", courseDetailService.getCourse(courseId));
-        model.addAttribute("activeTab", "intro");
-        return "courseDetail/intro";
-    }
+    @GetMapping("/CourseDetail")
+    public String detail(
+            @RequestParam("courseId") int courseId,
+            @RequestParam(value = "tab", defaultValue = "intro") String tab,
+            Model model
+    ) {
+        CourseDTO course = courseDetailService.getCourse(courseId);
 
-    // 커리큘럼
-    @GetMapping("/CourseDetail/curriculum")
-    public String curriculum(@RequestParam("courseId") int courseId, Model model) {
-        model.addAttribute("course", courseDetailService.getCourse(courseId));
-        model.addAttribute("activeTab", "curriculum");
-        return "courseDetail/curriculum";
-    }
+        model.addAttribute("course", course);
+        model.addAttribute("activeTab", tab);
 
-    // 수강평
-    @GetMapping("/CourseDetail/reviews")
-    public String reviews(@RequestParam("courseId") int courseId, Model model) {
-        model.addAttribute("course", courseDetailService.getCourse(courseId));
-        model.addAttribute("activeTab", "reviews");
+        // 탭별로 필요한 데이터만 세팅
+        if ("reviews".equals(tab)) {
+            model.addAttribute("reviews", courseDetailService.getDummyReviews());
+        }
 
-        // ✅ 일단 3개 고정 더미 (DB 없으면 임시)
-        model.addAttribute("reviews", courseDetailService.getDummyReviews());
+        // 커리큘럼도 DB 붙기 전이면 더미로라도 model에 담아줄 수 있음
+        // if ("curriculum".equals(tab)) {
+        //     model.addAttribute("curriculumList", courseDetailService.getDummyCurriculum());
+        // }
 
-        return "courseDetail/reviews";
+        return "courseDetail/courseDetail.html";
     }
 }
