@@ -14,38 +14,21 @@
 <div th:fragment="content" class="cd-wrap container">
 
     <!-- 상단(배너 + 탭) -->
-    <div th:replace="courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab})"></div>
+    <div th:replace="courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab}, ${isLoggedIn})"></div>
 
     <section class="cd-body">
         <!-- 왼쪽(탭 내용) -->
         <div class="cd-left">
-
-            <th:block th:switch="${activeTab}">
-
-                <th:block th:case="'intro'">
-                    <th:block th:replace="courseDetail/tabs/intro :: introFragment(${course})"></th:block>
-                </th:block>
-
-                <th:block th:case="'curriculum'">
-                    <th:block th:replace="courseDetail/tabs/curriculum :: curriculumFragment()"></th:block>
-                </th:block>
-
-                <th:block th:case="'reviews'">
-                    <th:block th:replace="courseDetail/tabs/reviews :: reviewsFragment(${reviews})"></th:block>
-                </th:block>
-
-                <!-- 예외: tab 값 이상하면 intro로 -->
-                <th:block th:case="*">
-                    <th:block th:replace="courseDetail/tabs/intro :: introFragment(${course})"></th:block>
-                </th:block>
-
+            <th:block
+                    th:replace="${activeTab == 'curriculum'} ? ~{courseDetail/tabs/curriculum :: curriculumFragment(${chapters})}
+                     : (${activeTab == 'reviews'} ? ~{courseDetail/tabs/reviews :: reviewsFragment(${reviews})}
+                     : ~{courseDetail/tabs/intro :: introFragment(${course})})">
             </th:block>
-
         </div>
 
 
         <!-- 오른쪽(사이드바) -->
-        <div th:replace="courseDetail/fragments/detail-sidebar :: detailSidebar(${course}, ${false})"></div>
+        <div th:replace="courseDetail/fragments/detail-sidebar :: detailSidebar(${course}, ${isLoggedIn})"></div>
     </section>
 
 </div>

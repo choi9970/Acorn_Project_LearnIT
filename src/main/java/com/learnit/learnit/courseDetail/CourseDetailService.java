@@ -17,13 +17,33 @@ public class CourseDetailService {
         return courseDetailMapper.selectCourseDetail(courseId);
     }
 
-    // ✅ 커리큘럼 더미
-    public List<Map<String, Object>> getDummyCurriculum() {
-        return List.of(
-                Map.of("title", "1강. OT"),
-                Map.of("title", "2강. 기본 개념"),
-                Map.of("title", "3강. 실습")
-        );
+    // ✅ DB에 chapter 데이터 있으면 DB로, 없으면 더미로
+    public List<ChapterDTO> getChaptersOrDummy(int courseId) {
+        List<ChapterDTO> list = courseDetailMapper.selectChaptersByCourseId(courseId);
+        if (list == null || list.isEmpty()) {
+            return getDummyChapters(courseId);
+        }
+        return list;
+    }
+
+    // ✅ 더미 챕터
+    public List<ChapterDTO> getDummyChapters(int courseId) {
+        ChapterDTO c1 = new ChapterDTO();
+        c1.setCourseId(courseId);
+        c1.setOrderIndex(1);
+        c1.setTitle("강의소개");
+
+        ChapterDTO c2 = new ChapterDTO();
+        c2.setCourseId(courseId);
+        c2.setOrderIndex(2);
+        c2.setTitle("기본 개념");
+
+        ChapterDTO c3 = new ChapterDTO();
+        c3.setCourseId(courseId);
+        c3.setOrderIndex(3);
+        c3.setTitle("실습");
+
+        return List.of(c1, c2, c3);
     }
 
     // ✅ 수강평 더미

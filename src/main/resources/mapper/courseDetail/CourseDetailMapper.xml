@@ -26,4 +26,16 @@
         AND c.delete_flg = 0
     </select>
 
+    <!-- ✅ 커리큘럼(챕터) 조회 -->
+    <select id="selectChaptersByCourseId" resultType="com.learnit.learnit.courseDetail.ChapterDTO">
+        SELECT
+        chapter_id  AS chapterId,
+        course_id   AS courseId,
+        title       AS title,
+        order_index AS orderIndex
+        FROM chapter
+        WHERE course_id = #{courseId}
+        ORDER BY order_index ASC
+    </select>
+
 </mapper>

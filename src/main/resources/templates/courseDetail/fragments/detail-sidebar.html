@@ -6,15 +6,25 @@
             <span th:text="${course.price == 0 ? '무료' : #numbers.formatInteger(course.price, 0, 'COMMA') + '원'}">69,000원</span>
         </div>
 
+        <!-- ✅ 비로그인 -->
         <button class="cd-btn primary"
                 th:if="${!isLoggedIn}"
                 data-action="login">
             바로 수강신청 하기
         </button>
 
-        <div th:if="${isLoggedIn}" class="cd-btn-group">
-            <button class="cd-btn secondary" data-action="cart">장바구니</button>
-            <button class="cd-btn primary" data-action="buy">구매하기</button>
+        <!-- ✅ 로그인 가정 -->
+        <div th:if="${isLoggedIn}">
+            <!-- 위 2개 버튼: 반반 -->
+            <div class="cd-btn-row">
+                <button class="cd-btn primary half" data-action="enroll">바로 수강신청</button>
+                <button class="cd-btn secondary half" data-action="cartGo">장바구니 가기</button>
+            </div>
+
+            <!-- 아래 결제하기: 풀 -->
+            <button class="cd-btn primary" style="margin-top:1rem;" data-action="payGo">
+                결제하기
+            </button>
         </div>
 
         <div class="cd-info">

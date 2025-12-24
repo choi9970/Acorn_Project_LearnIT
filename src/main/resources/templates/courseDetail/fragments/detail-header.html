@@ -1,5 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:fragment="detailHeader(course, activeTab)">
+<th:block th:fragment="detailHeader(course, activeTab, isLoggedIn)">
 
     <section class="cd-hero">
         <div class="cd-hero__inner">
@@ -22,14 +22,21 @@
         </div>
     </section>
 
+    <!-- ✅ 로그인 여부에 따라 URL 유지 -->
     <nav class="cd-tabs">
-        <a th:href="@{/CourseDetail(courseId=${course.courseId}, tab='intro')}"
+        <a th:href="${isLoggedIn}
+                    ? @{/CourseDetailLogin(courseId=${course.courseId}, tab='intro')}
+                    : @{/CourseDetail(courseId=${course.courseId}, tab='intro')}"
            th:classappend="${activeTab == 'intro'} ? ' is-active' : ''">강의 소개</a>
 
-        <a th:href="@{/CourseDetail(courseId=${course.courseId}, tab='curriculum')}"
+        <a th:href="${isLoggedIn}
+                    ? @{/CourseDetailLogin(courseId=${course.courseId}, tab='curriculum')}
+                    : @{/CourseDetail(courseId=${course.courseId}, tab='curriculum')}"
            th:classappend="${activeTab == 'curriculum'} ? ' is-active' : ''">커리큘럼</a>
 
-        <a th:href="@{/CourseDetail(courseId=${course.courseId}, tab='reviews')}"
+        <a th:href="${isLoggedIn}
+                    ? @{/CourseDetailLogin(courseId=${course.courseId}, tab='reviews')}
+                    : @{/CourseDetail(courseId=${course.courseId}, tab='reviews')}"
            th:classappend="${activeTab == 'reviews'} ? ' is-active' : ''">수강평</a>
     </nav>
 

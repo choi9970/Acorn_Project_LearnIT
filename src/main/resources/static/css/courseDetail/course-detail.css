@@ -46,13 +46,64 @@
 .cd-btn { width:100%; padding: 1.2rem 1.4rem; border-radius: 1.2rem; font-weight:800; }
 .cd-btn.primary { background:#111; color:#fff; }
 .cd-btn.secondary { background:#f3f4f6; color:#111; }
-
-.cd-btn-group { display:flex; gap:1rem; }
-.cd-btn-group .cd-btn { flex:1; }
+.cd-btn.pay { background:#111; color:#fff; margin-top:1rem; }
 
 .cd-info { margin-top: 1.6rem; border-top:1px solid #eee; padding-top: 1.6rem; }
 .cd-info .row { display:flex; justify-content:space-between; padding:.8rem 0; color:#555; }
 .cd-info b { color:#111; }
+
+/* ✅ 로그인 가정: 반반 버튼 */
+.cd-btn-row { display:flex; gap:1rem; }
+.cd-btn.half { width: 50%; }
+
+/* ✅ intro 이미지 */
+.cd-intro-img { margin: 1.2rem 0 1.6rem; }
+.cd-intro-img img {
+  width: 100%;
+  border-radius: 1.2rem;
+  border: 1px solid #eee;
+  object-fit: cover;
+}
+.cd-desc { color:#333; line-height:1.7; }
+
+/* ✅ 커리큘럼(아코디언) */
+.cd-cur-top { display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.2rem; }
+.cd-cur-meta { color:#666; font-weight:700; }
+
+.cd-accordion details {
+  border: 1px solid #eee;
+  border-radius: 1.2rem;
+  overflow:hidden;
+}
+.cd-accordion summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.4rem 1.6rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#f9fafb;
+  font-weight: 800;
+}
+.cd-accordion summary::-webkit-details-marker { display:none; }
+
+.cd-lesson-list { padding: 0; margin: 0; }
+.cd-lesson {
+  display:flex;
+  gap: 1rem;
+  align-items:center;
+  padding: 1.2rem 1.6rem;
+  border-top: 1px solid #eee;
+}
+.lesson-num {
+  width: 2.6rem; height: 2.6rem;
+  display:flex; align-items:center; justify-content:center;
+  border-radius: 50%;
+  background:#111; color:#fff;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+.lesson-title { font-weight: 700; color:#222; }
 
 .review-card {
   border:1px solid #eee;
@@ -66,3 +117,53 @@
   .cd-body { grid-template-columns: 1fr; }
   .cd-hero__right { display:none; }
 }
+/* ✅ 로그인 가정 버튼 2개 반반 */
+.cd-btn-row { display:flex; gap:1rem; }
+.cd-btn.half { width: 50%; }
+
+/* ✅ 강의소개 상세 이미지 */
+.cd-detail-img-wrap { margin-top: 1.6rem; }
+.cd-detail-img {
+  width: 100%;
+  border-radius: 1.2rem;
+  border: 1px solid #eee;
+  display:block;
+}
+
+/* ✅ 커리큘럼 상단 */
+.cd-cur-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom: 1.2rem;
+}
+.cd-cur-meta { color:#666; font-size:1.4rem; }
+
+/* ✅ 인프런 느낌 아코디언 */
+.cd-accordion details {
+  border: 1px solid #eee;
+  border-radius: 1.2rem;
+  overflow:hidden;
+}
+.cd-accordion summary {
+  list-style:none;
+  cursor:pointer;
+  padding: 1.4rem 1.6rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#fafafa;
+  font-weight:800;
+}
+.cd-accordion summary::-webkit-details-marker { display:none; }
+
+.cd-lesson-list { padding: 0; margin:0; }
+.cd-lesson {
+  display:flex;
+  gap: 1.2rem;
+  align-items:center;
+  padding: 1.2rem 1.6rem;
+  border-top: 1px solid #eee;
+}
+.lesson-num { width: 2.4rem; font-weight:800; color:#111; }
+.lesson-title { color:#111; }
