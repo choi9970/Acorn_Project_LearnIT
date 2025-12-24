@@ -20,4 +20,6 @@ public interface CourseVideoMapper {
     int countTotalChapters(@Param("courseId") Long courseId);
 
     int countCompletedChapters(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
+    void updateChapterDuration(@Param("chapterId") Long chapterId, @Param("duration") int duration);
 }

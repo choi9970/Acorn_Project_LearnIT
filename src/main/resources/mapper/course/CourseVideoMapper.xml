@@ -61,4 +61,11 @@
           AND course_id = #{courseId}
           AND (studied_sec / (SELECT duration_sec FROM chapter WHERE chapter_id = study_log.chapter_id)) >= 0.95
     </select>
+
+    <update id="updateChapterDuration">
+        UPDATE chapter
+        SET duration_sec = #{duration}
+        WHERE chapter_id = #{chapterId}
+          AND (duration_sec IS NULL OR duration_sec = 0)
+    </update>
 </mapper>
