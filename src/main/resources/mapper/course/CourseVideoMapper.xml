@@ -49,4 +49,16 @@
                                  studied_sec = #{playTime},
                                  created_at = NOW()
     </insert>
+
+    <select id="countTotalChapters" resultType="int">
+        SELECT COUNT(*) FROM chapter WHERE course_id = #{courseId}
+    </select>
+
+    <select id="countCompletedChapters" resultType="int">
+        SELECT COUNT(*)
+        FROM study_log
+        WHERE user_id = #{userId}
+          AND course_id = #{courseId}
+          AND (studied_sec / (SELECT duration_sec FROM chapter WHERE chapter_id = study_log.chapter_id)) >= 0.95
+    </select>
 </mapper>

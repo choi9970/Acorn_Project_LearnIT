@@ -31,12 +31,14 @@ public class CourseVideoController {
         // 이전/다음 챕터 구하기
         Long prevChapterId = courseVideoService.getPrevChapterId(courseId, chapter.getOrderIndex());
         Long nextChapterId = courseVideoService.getNextChapterId(courseId, chapter.getOrderIndex());
+        int progressPercent = courseVideoService.getProgressPercent(1L, courseId);
 
         // 모델에 담기
         model.addAttribute("chapter", chapter);
         model.addAttribute("courseId", courseId);
         model.addAttribute("prevChapterId", prevChapterId);
         model.addAttribute("nextChapterId", nextChapterId);
+        model.addAttribute("progressPercent", progressPercent);
 
         return "course/courseVideo";
     }

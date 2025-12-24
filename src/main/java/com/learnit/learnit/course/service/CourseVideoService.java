@@ -25,4 +25,12 @@ public class CourseVideoService {
     public void saveStudyLog(Long userId, Long courseId, Long chapterId, Integer playTime) {
         courseVideoMapper.insertOrUpdateStudyLog(userId, courseId, chapterId, playTime);
     }
+
+    public int getProgressPercent(Long userId, Long courseId) {
+        int total = courseVideoMapper.countTotalChapters(courseId);
+        if (total == 0) return 0;
+        int completed = courseVideoMapper.countCompletedChapters(userId, courseId);
+
+        return (int) ((double) completed / total * 100);
+    }
 }

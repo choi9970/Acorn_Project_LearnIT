@@ -8,6 +8,15 @@
             <h3>커리큘럼</h3>
             <button onclick="closePanel()" class="close-btn">×</button>
         </div>
+        <div class="progress-area">
+            <div class="progress-info">
+                <span class="label">나의 학습 진도율</span>
+                <span class="percent" th:text="|${progressPercent}%|">0%</span>
+            </div>
+            <div class="progress-bg">
+                <div class="progress-fill" th:style="|width: ${progressPercent}%|"></div>
+            </div>
+        </div>
         <div class="panel-body">
             <ul class="chapter-list">
                 <li class="active"><a href="#"><span class="chapter-title">1강. HTML 기초</span></a></li>
