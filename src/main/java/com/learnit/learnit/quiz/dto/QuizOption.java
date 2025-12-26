@@ -1,5 +1,4 @@
 package com.learnit.learnit.quiz.dto;
-
 import lombok.Data;
 
 @Data

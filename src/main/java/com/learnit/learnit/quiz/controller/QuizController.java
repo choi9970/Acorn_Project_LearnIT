@@ -13,17 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/quiz")
 @RequiredArgsConstructor
 public class QuizController {
+
     private final QuizMapper quizMapper;
 
     @GetMapping
-    public ResponseEntity<Quiz> getQuiz(@RequestParam Long chapterId){
-        System.out.println("퀴즈 요청 들어옴 chapterId = " + chapterId);
-
+    public ResponseEntity<?> getQuiz(@RequestParam Long chapterId) {
         Quiz quiz = quizMapper.selectQuizByChapterId(chapterId);
-
-        if(quiz == null){
-            return ResponseEntity.notFound().build();
-        }
+        if (quiz == null) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(quiz);
     }
 }
