@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learnit.learnit.quiz.mapper.QuizMapper">
+
+    <resultMap id="QuizResultMap" type="com.learnit.learnit.quiz.dto.QuizDTO">
+        <id property="quizId" column="quiz_id"/>
+        <result property="title" column="quiz_title"/>
+
+        <collection property="questions" ofType="com.learnit.learnit.quiz.dto.QuestionDTO">
+            <id property="questionId" column="question_id"/>
+            <result property="content" column="question_content"/>
+
+            <collection property="options" ofType="com.learnit.learnit.quiz.dto.QuizOptionDTO">
+                <id property="optionId" column="option_id"/>
+                <result property="content" column="option_content"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="selectQuizByChapterId" resultMap="QuizResultMap">
+        SELECT
+            q.quiz_id,
+            q.title AS quiz_title,
+            qu.question_id,
+            qu.content AS question_content,
+            qo.option_id,
+            qo.content AS option_content
+        FROM quiz q
+                 JOIN question qu ON q.quiz_id = qu.quiz_id
+                 JOIN quiz_option qo ON qu.question_id = qo.question_id
+        WHERE q.chapter_id = #{chapterId}
+        ORDER BY qu.question_id ASC, qo.option_id ASC
+    </select>
+
+</mapper>

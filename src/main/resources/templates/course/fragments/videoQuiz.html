@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="quizContent" class="panel-inner quiz-container">
+
+    <div class="panel-header">
+        <h3>퀴즈</h3>
+        <button onclick="closePanel()" class="close-btn">×</button>
+    </div>
+
+    <div class="panel-body quiz-body">
+
+        <div id="quiz-step-start" class="quiz-step active centering-box">
+            <div style="text-align:center;">
+                <p style="margin-bottom:20px; color:#666;">이번 챕터의 핵심 내용을<br>퀴즈로 확인해보세요!</p>
+                <button onclick="startQuizLogic()" class="btn-start-circle">
+                    퀴즈 풀기
+                </button>
+            </div>
+        </div>
+
+        <div id="quiz-step-question" class="quiz-step" style="display:none; height:100%; position:relative;">
+
+            <div class="question-area">
+                <span class="q-badge">Q<span id="curr-q-idx">1</span></span>
+                <h3 id="question-content" class="q-text">문제가 여기에 표시됩니다.</h3>
+            </div>
+
+            <div id="options-container" class="options-area">
+            </div>
+
+            <div class="bottom-action-area">
+                <button id="btn-next-question" onclick="nextQuestion()" class="btn-submit-full" disabled>
+                    다음 문제
+                </button>
+            </div>
+        </div>
+
+        <div id="quiz-step-result" class="quiz-step" style="display:none; text-align:center; padding-top:40px;">
+            <div class="score-circle">
+                <span id="result-score">100</span>
+                <span class="unit">점</span>
+            </div>
+
+            <p id="result-msg" style="margin:20px 0; color:#555;">수고하셨습니다!</p>
+
+            <div id="review-list" class="review-simple-list"></div>
+
+            <div style="margin-top: 30px;">
+                <button onclick="goToNextChapter()" class="btn-next-lecture">
+                    다음 강의 듣기 ⏭️
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+</html>

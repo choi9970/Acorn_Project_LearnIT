@@ -160,6 +160,10 @@ function openPanel(tabName) {
         wrapper.classList.add('open');
     }
 
+    if (tabName === 'quiz') {
+        if(currentChapterId) loadQuiz(currentChapterId);
+    }
+
     currentActiveTab = tabName;
 
     if (tabName === 'interpreter' && monacoEditor){
@@ -217,8 +221,20 @@ require(['vs/editor/editor.main'], function () {
         value: "print('Hello, LearnIT!')",
         language: 'python',
         theme: 'vs-light',
+        lineNumbersMinChars: 3,
+        glyphMargin: false,
+        folding: false,
+        lineDecorationsWidth: 0,
+        overviewRulerBorder: false,
         minimap: { enabled: false },
-        automaticLayout: true
+        automaticLayout: true,
+        scrollBeyondLastLine: false,
+        scrollbar: {
+            vertical: 'auto',
+            horizontal: 'auto',
+            verticalScrollbarSize: 10,
+            horizontalScrollbarSize: 10
+        }
     });
 });
 
@@ -275,4 +291,176 @@ function runCode() {
             console.error(err);
             consoleDiv.innerText = "에러 발생: " + err;
         });
+}
+
+// 상태 변수들
+let quizData = null;      // 문제 데이터 (서버에서 받아옴)
+let userAnswers = [];     // 사용자가 선택한 답 [{questionId: 1, optionId: 3}]
+let currentQIndex = 0;    // 현재 몇 번 문제인지 (0부터 시작)
+
+// 1. 퀴즈 데이터 로드 (패널 열릴 때 호출)
+function loadQuiz(chapterId) {
+    // 로딩 중 표시 등 필요하면 추가
+    fetch(`/api/quiz?chapterId=${chapterId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data || data.questions.length === 0) {
+                alert("이 강의에는 아직 퀴즈가 없습니다.");
+                closePanel();
+                return;
+            }
+            quizData = data;
+
+            // 시작 화면 세팅
+            document.getElementById('display-quiz-title').innerText = data.title;
+            document.getElementById('display-total-count').innerText = data.questions.length;
+
+            // 화면 초기화
+            showStep('start');
+        })
+        .catch(err => {
+            console.error("퀴즈 로드 실패:", err);
+            alert("퀴즈 정보를 불러오지 못했습니다.");
+        });
+}
+
+// 2. [시작하기] 버튼 클릭
+function startQuizLogic() {
+    currentQIndex = 0;
+    userAnswers = [];
+    showStep('question');
+    renderQuestion();
+}
+
+// 3. 문제 렌더링 (현재 인덱스에 맞춰서)
+function renderQuestion() {
+    const question = quizData.questions[currentQIndex];
+    const total = quizData.questions.length;
+
+    // 진행 상태 업데이트
+    document.getElementById('curr-q-idx').innerText = currentQIndex + 1;
+    document.getElementById('total-q-idx').innerText = total;
+    document.getElementById('quiz-progress-fill').style.width = ((currentQIndex + 1) / total * 100) + '%';
+
+    // 질문 텍스트
+    document.getElementById('question-content').innerText = question.content;
+
+    // 보기 버튼 생성
+    const container = document.getElementById('options-container');
+    container.innerHTML = ''; // 기존 보기 비우기
+
+    question.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-item';
+        btn.innerText = opt.content;
+        btn.onclick = () => selectOption(btn, question.questionId, opt.optionId);
+        container.appendChild(btn);
+    });
+
+    // 다음 버튼 초기화
+    const nextBtn = document.getElementById('btn-next-question');
+    nextBtn.disabled = true;
+    nextBtn.innerText = (currentQIndex === total - 1) ? '제출하기' : '다음 문제';
+}
+
+// 4. 보기 선택 시
+function selectOption(btnElement, qId, oId) {
+    // 모든 버튼 선택 해제 스타일
+    document.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+
+    // 클릭한 버튼 선택 스타일
+    btnElement.classList.add('selected');
+
+    // 답안 기록 (이미 있으면 덮어쓰기)
+    const existing = userAnswers.find(a => a.questionId === qId);
+    if (existing) {
+        existing.optionId = oId;
+    } else {
+        userAnswers.push({ questionId: qId, optionId: oId });
+    }
+
+    // 다음 버튼 활성화
+    document.getElementById('btn-next-question').disabled = false;
+}
+
+// 5. [다음 문제] / [제출] 버튼 클릭
+function nextQuestion() {
+    // 마지막 문제라면 제출
+    if (currentQIndex === quizData.questions.length - 1) {
+        submitQuiz();
+    } else {
+        currentQIndex++;
+        renderQuestion();
+    }
+}
+
+// 6. 퀴즈 제출 (서버로 채점 요청)
+function submitQuiz() {
+    const payload = {
+        quizId: quizData.quizId,
+        answers: userAnswers
+    };
+
+    fetch('/api/quiz/submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getCsrfHeader() // CSRF 토큰 필수!
+        },
+        body: JSON.stringify(payload)
+    })
+        .then(res => res.json())
+        .then(result => {
+            renderResult(result);
+            showStep('result');
+        })
+        .catch(err => {
+            console.error("제출 실패:", err);
+            alert("채점 중 오류가 발생했습니다.");
+        });
+}
+
+// 7. 결과 화면 렌더링
+function renderResult(result) {
+    document.getElementById('result-score').innerText = result.score;
+
+    const badge = document.getElementById('result-badge');
+    const msg = document.getElementById('result-msg');
+
+    if (result.isPassed) {
+        badge.innerText = '합격';
+        badge.className = 'result-badge pass';
+        msg.innerText = "축하합니다! 이 섹션을 완벽하게 이해하셨군요.";
+        msg.style.color = "#00c471";
+    } else {
+        badge.innerText = '불합격';
+        badge.className = 'result-badge fail';
+        msg.innerText = "조금 더 학습이 필요합니다. 다시 도전해보세요!";
+        msg.style.color = "#ff4d4f";
+    }
+
+    // 오답 리스트 (리뷰)
+    const reviewBox = document.getElementById('review-list');
+    reviewBox.innerHTML = '';
+
+    result.reviewList.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = item.correct ? 'review-item correct' : 'review-item wrong';
+        div.innerHTML = `
+            <span class="review-q">Q${idx + 1}. ${item.questionContent}</span>
+            <span class="review-ans">
+                ${item.correct ? '✅ 정답' : `❌ 오답 (정답: ${item.correctAnswer})`}
+            </span>
+            ${!item.correct ? `<div style="margin-top:4px; color:#888;">💡 해설: ${item.explanation}</div>` : ''}
+        `;
+        reviewBox.appendChild(div);
+    });
+}
+
+// 유틸: 단계별 화면 전환
+function showStep(stepName) {
+    // 모든 단계 숨김
+    document.querySelectorAll('.quiz-step').forEach(el => el.style.display = 'none');
+    // 해당 단계만 표시
+    document.getElementById(`quiz-step-${stepName}`).style.display = 'block';
 }
