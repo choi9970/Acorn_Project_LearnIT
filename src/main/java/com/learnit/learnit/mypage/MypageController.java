@@ -1,5 +1,8 @@
 package com.learnit.learnit.mypage;
 
+import com.learnit.learnit.user.dto.UserDTO;
+import com.learnit.learnit.user.mapper.UserMapper;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,9 +22,14 @@ public class MypageController {
     }
 
     @GetMapping("/mypage/dashboard")
-    public String dashboard(Model model) {
-        // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
-        Long userId = 1L; // 임시로 1L 사용
+    public String dashboard(Model model, HttpSession session) {
+        // 세션에서 사용자 ID 가져오기
+        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        
+        if (userId == null) {
+            // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+            return "redirect:/login";
+        }
         
         DashboardDTO dashboard = dashboardService.getDashboardData(userId);
         model.addAttribute("dashboard", dashboard);

@@ -1,16 +1,24 @@
-package com.learnit.learnit.user;
+package com.learnit.learnit.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 @Getter
+@Setter
 @NoArgsConstructor
 public class User {
+
+    // 사용자 상태 상수
+    public static final String STATUS_SIGNUP_PENDING = "SIGNUP_PENDING";
+    public static final String STATUS_ACTIVE = "ACTIVE";
+    public static final String STATUS_BANNED = "BANNED";
+    public static final String STATUS_DELETE = "DELETE";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,4 +69,14 @@ public class User {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    /**
+     * 추가 정보 입력 완료 여부 확인
+     * 전화번호와 지역 정보가 모두 입력되었는지 확인
+     */
+    public boolean isAdditionalInfoCompleted() {
+        return phone != null && !phone.isEmpty() 
+            && region != null && !region.isEmpty();
+    }
 }
+

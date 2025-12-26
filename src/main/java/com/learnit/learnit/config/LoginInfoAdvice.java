@@ -1,4 +1,4 @@
-package com.learnit.learnit.auth;
+package com.learnit.learnit.config;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -37,3 +37,4 @@ public class LoginInfoAdvice {
         return (String) session.getAttribute("LOGIN_USER_ROLE");
     }
 }
+

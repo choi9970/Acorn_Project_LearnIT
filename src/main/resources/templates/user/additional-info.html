@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+  <!-- title fragment -->
+  <title th:fragment="title">추가 정보 입력 - LearnIT</title>
+
+  <!--main content css-->
+  <th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/login/login.css}">
+  </th:block>
+</head>
+
+<body>
+
+<!-- content fragment -->
+<div th:fragment="content" class="login-container">
+  <div class="login-box">
+    <h2>추가 정보 입력</h2>
+    <p style="text-align: center; color: #666; margin-bottom: 2rem; font-size: 0.95rem;">
+      서비스를 이용하기 위해 추가 정보를 입력해주세요.
+    </p>
+    
+    <div th:if="${error}" class="error-message" th:text="${error}"></div>
+
+    <!-- 추가 정보 입력 폼 -->
+    <form th:action="@{/user/additional-info}" method="post" class="login-form">
+      <div class="form-group">
+        <label for="phone">전화번호 <span class="required">*</span></label>
+        <input type="tel" id="phone" name="phone" placeholder="010-1234-5678" required>
+      </div>
+
+      <div class="form-group">
+        <label for="region">주 활동 지역 <span class="required">*</span></label>
+        <div class="select-wrapper">
+          <select id="region" name="region" class="form-select" required>
+            <option value="">활동 지역 선택</option>
+            <option value="서울">서울</option>
+            <option value="경기">경기</option>
+            <option value="인천">인천</option>
+            <option value="부산">부산</option>
+            <option value="대구">대구</option>
+            <option value="광주">광주</option>
+            <option value="대전">대전</option>
+            <option value="울산">울산</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-signin">완료</button>
+    </form>
+  </div>
+</div>
+
+<!--main content js-->
+<th:block th:fragment="script">
+</th:block>
+
+</body>
+</html>
+

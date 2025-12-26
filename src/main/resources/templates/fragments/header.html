@@ -41,7 +41,15 @@
 
             <!-- 오른쪽 로그인 버튼 (PC) -->
             <div class="header-right">
-                <a th:href="@{/login}" class="login-btn">로그인/회원가입</a>
+                <th:block th:if="${loginUserId == null}">
+                    <a th:href="@{/login}" class="login-btn">로그인/회원가입</a>
+                </th:block>
+                <th:block th:if="${loginUserId != null}">
+                    <a th:href="@{/mypage}" class="user-name" th:text="${loginUserName} + '님'"></a>
+                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                        <button type="submit" class="logout-btn">로그아웃</button>
+                    </form>
+                </th:block>
             </div>
 
         </div>
@@ -58,7 +66,15 @@
                 </div>
 
                 <div class="mobile-nav__header-actions">
-                    <button class="mobile-nav__login" type="button">로그인</button>
+                    <th:block th:if="${loginUserId == null}">
+                        <a th:href="@{/login}" class="mobile-nav__login">로그인</a>
+                    </th:block>
+                    <th:block th:if="${loginUserId != null}">
+                        <a th:href="@{/mypage}" class="mobile-nav__user-name" th:text="${loginUserName}"></a>
+                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                            <button type="submit" class="mobile-nav__logout">로그아웃</button>
+                        </form>
+                    </th:block>
                     <button class="mobile-nav__close" id="mobile-nav-close" aria-label="카테고리 닫기" type="button">
                         &times;
                     </button>

@@ -1,4 +1,4 @@
-package com.learnit.learnit.mypage;
+package com.learnit.learnit.user.dto;
 
 import lombok.Data;
 
