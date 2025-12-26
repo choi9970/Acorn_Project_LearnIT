@@ -8,4 +8,6 @@ import java.util.List;
 @Mapper
 public interface QuizMapper {
     Quiz selectQuizByChapterId(Long chapterId);
+
+    int countUnfinishedVideosInSection(Long userId, Long quizChapterId);
 }

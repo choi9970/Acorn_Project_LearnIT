@@ -1,17 +1,28 @@
-// HTML hidden input에서 정보 가져오기 (URL, CourseID, ChapterID)
+/* =========================================
+   1. 전역 변수 및 초기화
+   ========================================= */
 const videoInput = document.getElementById('video-url');
 const courseInput = document.getElementById('course-id');
 const chapterInput = document.getElementById('chapter-id');
 
 const dbVideoUrl = videoInput ? videoInput.value : null;
 const currentCourseId = courseInput ? courseInput.value : null;
-const currentChapterId = chapterInput ? chapterInput.value : null;
+// const currentChapterId = ... (아래에서 유동적으로 처리하기 위해 const 제거)
+let currentChapterId = chapterInput ? chapterInput.value : null;
 
 let monacoEditor = null;
+let player = null;
 
-// ID 추출 함수 (모든 유튜브 주소 형식 대응)
+// 퀴즈 관련 상태 변수 (중복 선언 방지용 통합)
+let quizData = null;
+let userAnswers = [];
+let currentQIndex = 0;
+
+/* =========================================
+   2. 유튜브 플레이어 로직
+   ========================================= */
 function getVideoId(url) {
-    if (!url) return null;
+    if (!url || url === 'QUIZ') return null; // 퀴즈일 경우 null 반환
     try {
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const match = url.match(regExp);
@@ -19,17 +30,15 @@ function getVideoId(url) {
         const urlObj = new URL(url);
         return urlObj.searchParams.get("v");
     } catch (e) {
-        console.error("URL 파싱 실패:", e);
+        // console.error("URL 파싱 실패:", e);
         return null;
     }
 }
 
 const currentVideoId = getVideoId(dbVideoUrl);
-const storageKey = "yt-time-" + currentVideoId;
-let player;
-
-// 저장된 시간 불러오기
+const storageKey = "yt-time-" + (currentVideoId || "default");
 let savedTime = 0;
+
 try {
     const time = localStorage.getItem(storageKey);
     savedTime = (time && !isNaN(time)) ? Number(time) : 0;
@@ -37,9 +46,9 @@ try {
     savedTime = 0;
 }
 
-// 유튜브 API 준비되면 실행 (window 전역 객체에 등록)
+// 유튜브 API 로드 시 실행
 window.onYouTubeIframeAPIReady = function() {
-    if (!currentVideoId) return;
+    if (!currentVideoId) return; // 비디오 ID가 없으면(퀴즈 등) 생성 안 함
 
     player = new YT.Player('player', {
         height: '100%',
@@ -57,7 +66,14 @@ window.onYouTubeIframeAPIReady = function() {
     });
 };
 
-// 상태 변화 감지
+function onPlayerReady(event) {
+    if(player && player.getDuration) {
+        const duration = Math.floor(player.getDuration());
+        if (duration > 0) saveDurationToServer(duration);
+    }
+    if(savedTime > 0) player.seekTo(savedTime);
+}
+
 function onPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PAUSED) {
         const currentTime = Math.floor(player.getCurrentTime());
@@ -69,15 +85,17 @@ function onPlayerStateChange(event) {
     }
 }
 
-// 로컬 스토리지에 시간 저장 (이어보기용)
-function saveCurrentTime(time) {    //추가
-    if(time === undefined && player) time = Math.floor(player.getCurrentTime());
-    localStorage.setItem(storageKey, time);
+function saveCurrentTime(time) {
+    if(time === undefined && player && typeof player.getCurrentTime === 'function') {
+        time = Math.floor(player.getCurrentTime());
+    }
+    if (time !== undefined) localStorage.setItem(storageKey, time);
 }
 
-// 서버로 진도율 전송 (DB 저장용)
 function saveProgressToServer(time) {
     if (!currentCourseId || !currentChapterId) return;
+    // 퀴즈 챕터일 때는 진도율 저장 스킵 (퀴즈는 제출 시 처리)
+    if (dbVideoUrl === 'QUIZ') return;
 
     const payload = { playTime: time };
     const url = `/course/log?courseId=${currentCourseId}&chapterId=${currentChapterId}`;
@@ -87,183 +105,155 @@ function saveProgressToServer(time) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         keepalive: true
-    })
-        .then(response => {
-            if (!response.ok) console.error("서버 저장 실패");
-        })
-        .catch(error => console.error("통신 에러:", error));
+    }).catch(error => console.error("통신 에러:", error));
 }
 
-// 자동 저장 (10초마다) - 로컬스토리지 & 서버 둘 다 저장
+function saveDurationToServer(duration) {
+    if (!currentChapterId || dbVideoUrl === 'QUIZ') return;
+    const url = `/course/log/duration?chapterId=${currentChapterId}&duration=${duration}`;
+    fetch(url, { method: 'POST' }).catch(error => console.error("영상 길이 저장 실패:", error));
+}
+
+// 자동 저장 인터벌
 setInterval(() => {
     if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
-        const currentTime = Math.floor(player.getCurrentTime());
-
-        // 1. 이어보기 저장
         saveCurrentTime();
-
-        // 2. 서버 DB로 진도율 전송
-        saveProgressToServer(currentTime);
+        saveProgressToServer(Math.floor(player.getCurrentTime()));
     }
 }, 10000);
 
+// 페이지 이탈 감지
 function handlePageExit() {
     if (player && typeof player.getCurrentTime === 'function') {
         const currentTime = Math.floor(player.getCurrentTime());
-
-        // 0초 이상일 때만 저장
         if (currentTime > 0) {
-            saveCurrentTime(currentTime);      // 로컬 스토리지 저장
-            saveProgressToServer(currentTime); // 서버 DB 저장
-            console.log("페이지 이탈 감지 저장:", currentTime);
+            saveCurrentTime(currentTime);
+            saveProgressToServer(currentTime);
         }
     }
 }
-
-// 브라우저 닫기, 새로고침, 탭 닫기 감지
 window.addEventListener('beforeunload', handlePageExit);
-
-// 모바일: 탭 전환, 최소화, 홈 화면 이동
 document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-        handlePageExit();
-    }
+    if (document.visibilityState === 'hidden') handlePageExit();
 });
 
-// API가 먼저 로드되었을 경우를 대비해 수동 실행
+// 유튜브 API 수동 트리거
 if (window.YT && window.YT.Player && typeof window.YT.Player === 'function') {
     window.onYouTubeIframeAPIReady();
 }
 
-// 현재 열린 탭 ID 기억
+
+/* =========================================
+   3. UI 제어 (패널, 에디터, 챕터 전환)
+   ========================================= */
+
 let currentActiveTab = null;
 
-// 패널 열기 & 탭 전환 함수
+// [패널 열기 함수]
 function openPanel(tabName) {
     const wrapper = document.getElementById('side-panel-wrapper');
     const contentId = 'content-' + tabName;
     const targetContent = document.getElementById(contentId);
 
+    // 이미 열려있고 같은 탭이면 닫기
     if (wrapper.classList.contains('open') && currentActiveTab === tabName) {
         closePanel();
         return;
     }
 
-    const allContents = document.querySelectorAll('.panel-content-box');
-    allContents.forEach(el => el.style.display = 'none');
+    // 모든 컨텐츠 숨기고 타겟만 표시
+    document.querySelectorAll('.panel-content-box').forEach(el => el.style.display = 'none');
+    if (targetContent) targetContent.style.display = 'flex';
 
-    if (targetContent) {
-        targetContent.style.display = 'flex'; // flex로 보여야 내부 레이아웃 유지됨
-    }
+    if (!wrapper.classList.contains('open')) wrapper.classList.add('open');
 
-    if (!wrapper.classList.contains('open')) {
-        wrapper.classList.add('open');
-    }
-
+    // 탭별 특수 동작
     if (tabName === 'quiz') {
         if(currentChapterId) loadQuiz(currentChapterId);
     }
+    if (tabName === 'interpreter' && monacoEditor){
+        setTimeout(() => monacoEditor.layout(), 100);
+    }
 
     currentActiveTab = tabName;
-
-    if (tabName === 'interpreter' && monacoEditor){
-        setTimeout(() => {
-            monacoEditor.layout();
-        }, 100);
-    }
 }
 
-// 패널 닫기 함수 (X 버튼용)
 function closePanel() {
-    const wrapper = document.getElementById('side-panel-wrapper');
-    wrapper.classList.remove('open');
-    currentActiveTab = null; // 상태 초기화
-}
-
-// 플레이어가 로딩되자마자 실행되는 함수
-function onPlayerReady(event) {
-    if(player && player.getDuration) {
-        const duration = Math.floor(player.getDuration());
-        if (duration > 0) {
-            saveDurationToServer(duration);
-        }
-    }
-
-    if(savedTime > 0) {
-        player.seekTo(savedTime);
-    }
-}
-
-// 서버로 전체 시간(duration) 전송 함수
-function saveDurationToServer(duration) {
-    if (!currentChapterId) return;
-
-    const url = `/course/log/duration?chapterId=${currentChapterId}&duration=${duration}`;
-
-    fetch(url, {
-        method: 'POST',
-    })
-        .then(response => {
-            if (response.ok) console.log("DB에 영상 길이 저장 완료");
-        })
-        .catch(error => console.error("영상 길이 저장 실패:", error));
+    document.getElementById('side-panel-wrapper').classList.remove('open');
+    currentActiveTab = null;
 }
 
 function toggleSection(headerElement) {
     headerElement.classList.toggle('collapsed');
 }
 
-// Monaco Editor 로드
-require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-
-require(['vs/editor/editor.main'], function () {
-    monacoEditor = monaco.editor.create(document.getElementById('monaco-editor-container'), {
-        value: "print('Hello, LearnIT!')",
-        language: 'python',
-        theme: 'vs-light',
-        lineNumbersMinChars: 3,
-        glyphMargin: false,
-        folding: false,
-        lineDecorationsWidth: 0,
-        overviewRulerBorder: false,
-        minimap: { enabled: false },
-        automaticLayout: true,
-        scrollBeyondLastLine: false,
-        scrollbar: {
-            vertical: 'auto',
-            horizontal: 'auto',
-            verticalScrollbarSize: 10,
-            horizontalScrollbarSize: 10
+// [핵심] 챕터 클릭 시 실행되는 함수 (HTML에서 th:onclick으로 호출)
+function playContent(chapterId, videoUrl) {
+    // 1. 퀴즈 챕터인 경우
+    if (videoUrl === 'QUIZ') {
+        // (1) 유튜브 플레이어 숨기기
+        const playerDiv = document.getElementById('player');
+        if (playerDiv) playerDiv.style.display = 'none'; // 숨김
+        if (player && typeof player.pauseVideo === 'function') {
+            player.pauseVideo();
         }
+
+        // (2) 퀴즈 영역 보여주기
+        const quizWrapper = document.getElementById('quiz-wrapper');
+        if (quizWrapper) quizWrapper.style.display = 'block'; // 표시
+
+        // (3) 전역 변수 업데이트 및 로드
+        currentChapterId = chapterId;
+        loadQuiz(chapterId); // 데이터 불러오기
+
+        return;
+    }
+
+    // 2. 일반 비디오인 경우
+    // (1) 퀴즈 영역 숨기고 플레이어 보이기 (혹시 퀴즈 보고 왔을 수 있으니)
+    const quizWrapper = document.getElementById('quiz-wrapper');
+    if (quizWrapper) quizWrapper.style.display = 'none';
+
+    const playerDiv = document.getElementById('player');
+    if (playerDiv) playerDiv.style.display = 'block';
+
+    // (2) 페이지 이동 (Spring Boot SSR)
+    const courseId = document.getElementById('course-id').value;
+    window.location.href = `/course/play?courseId=${courseId}&chapterId=${chapterId}`;
+}
+
+// [추가] 초기 로드 시 퀴즈 챕터인지 확인하는 로직 (페이지 로드될 때 실행)
+document.addEventListener('DOMContentLoaded', () => {
+    const initVideoUrl = document.getElementById('video-url').value;
+    const initChapterId = document.getElementById('chapter-id').value;
+
+    if (initVideoUrl === 'QUIZ') {
+        playContent(initChapterId, 'QUIZ');
+    }
+});
+
+const langSelector = document.getElementById('language-selector');
+if(langSelector) {
+    langSelector.addEventListener('change', function() {
+        const langId = this.value;
+        let langMode = 'python';
+        let sampleCode = "print('Hello, LearnIT!')";
+
+        if(langId === '62') { langMode = 'java'; sampleCode = 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Java!");\n    }\n}'; }
+        else if(langId === '63') { langMode = 'javascript'; sampleCode = "console.log('Hello, JS!');"; }
+        else if(langId === '54') { langMode = 'cpp'; sampleCode = '#include <iostream>\n\nint main() {\n    std::cout << "Hello, C++!";\n    return 0;\n}'; }
+
+        monaco.editor.setModelLanguage(monacoEditor.getModel(), langMode);
+        monacoEditor.setValue(sampleCode);
     });
-});
-
-// 언어 변경 시 에디터 언어 설정 변경
-document.getElementById('language-selector').addEventListener('change', function() {
-    const langId = this.value;
-    let langMode = 'python';
-    let sampleCode = "print('Hello, LearnIT!')";
-
-    if(langId === '62') { langMode = 'java'; sampleCode = 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Java!");\n    }\n}'; }
-    else if(langId === '63') { langMode = 'javascript'; sampleCode = "console.log('Hello, JS!');"; }
-    else if(langId === '54') { langMode = 'cpp'; sampleCode = '#include <iostream>\n\nint main() {\n    std::cout << "Hello, C++!";\n    return 0;\n}'; }
-
-    monaco.editor.setModelLanguage(monacoEditor.getModel(), langMode);
-    monacoEditor.setValue(sampleCode);
-});
+}
 
 function getCsrfHeader() {
     const headerMeta = document.querySelector('meta[name="_csrf_header"]');
     const tokenMeta = document.querySelector('meta[name="_csrf"]');
-
-    if (!headerMeta || !tokenMeta) {
-        return {};
-    }
-
-    return { [headerMeta.content]: tokenMeta.content };
+    return (headerMeta && tokenMeta) ? { [headerMeta.content]: tokenMeta.content } : {};
 }
 
-// 코드 실행 함수 (Ajax -> Spring Boot -> Judge0)
 function runCode() {
     const code = monacoEditor.getValue();
     const languageId = document.getElementById('language-selector').value;
@@ -271,121 +261,110 @@ function runCode() {
 
     consoleDiv.innerText = "실행 중입니다...";
 
-    // [중요] CSRF 토큰 (기존에 만든 getCsrfHeader 함수 사용)
     fetch('/api/interpreter/run', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getCsrfHeader() // CSRF 토큰 포함
-        },
-        body: JSON.stringify({
-            code: code,
-            languageId: languageId
-        })
+        headers: { 'Content-Type': 'application/json', ...getCsrfHeader() },
+        body: JSON.stringify({ code: code, languageId: languageId })
     })
         .then(res => res.json())
-        .then(data => {
-            consoleDiv.innerText = data.output;
-        })
-        .catch(err => {
-            console.error(err);
-            consoleDiv.innerText = "에러 발생: " + err;
-        });
+        .then(data => { consoleDiv.innerText = data.output; })
+        .catch(err => { console.error(err); consoleDiv.innerText = "에러 발생: " + err; });
 }
 
-// 상태 변수들
-let quizData = null;      // 문제 데이터 (서버에서 받아옴)
-let userAnswers = [];     // 사용자가 선택한 답 [{questionId: 1, optionId: 3}]
-let currentQIndex = 0;    // 현재 몇 번 문제인지 (0부터 시작)
 
-// 1. 퀴즈 데이터 로드 (패널 열릴 때 호출)
+/* =========================================
+   5. [퀴즈 시스템] 통합 로직 (수정됨)
+   ========================================= */
+
 function loadQuiz(chapterId) {
-    // 로딩 중 표시 등 필요하면 추가
+    console.log("퀴즈 로드 요청: " + chapterId);
+
     fetch(`/api/quiz?chapterId=${chapterId}`)
-        .then(res => res.json())
-        .then(data => {
-            if (!data || data.questions.length === 0) {
-                alert("이 강의에는 아직 퀴즈가 없습니다.");
-                closePanel();
-                return;
+        .then(response => {
+            // [중요] 403 Forbidden: 수강 미달 시
+            if (response.status === 403) {
+                return response.text().then(msg => { throw new Error(msg); });
             }
+            if (response.status === 204) {
+                alert("이 챕터에는 등록된 퀴즈가 없습니다.");
+                closePanel();
+                return null;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return;
+
             quizData = data;
 
-            // 시작 화면 세팅
-            document.getElementById('display-quiz-title').innerText = data.title;
-            document.getElementById('display-total-count').innerText = data.questions.length;
+            // HTML 업데이트 (제목 등)
+            const titleEl = document.getElementById('display-quiz-title');
+            if(titleEl) titleEl.innerText = data.title;
 
-            // 화면 초기화
+            // 상태 초기화
+            currentQIndex = 0;
+            userAnswers = [];
             showStep('start');
         })
-        .catch(err => {
-            console.error("퀴즈 로드 실패:", err);
-            alert("퀴즈 정보를 불러오지 못했습니다.");
+        .catch(error => {
+            console.warn("퀴즈 접근 불가:", error.message);
+            alert("⚠️ " + error.message);
+            closePanel();
         });
 }
 
-// 2. [시작하기] 버튼 클릭
 function startQuizLogic() {
-    currentQIndex = 0;
-    userAnswers = [];
+    if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+        alert("퀴즈 데이터가 없습니다.");
+        return;
+    }
     showStep('question');
     renderQuestion();
 }
 
-// 3. 문제 렌더링 (현재 인덱스에 맞춰서)
 function renderQuestion() {
     const question = quizData.questions[currentQIndex];
-    const total = quizData.questions.length;
+    const totalCount = quizData.questions.length;
 
-    // 진행 상태 업데이트
+    // UI 업데이트
     document.getElementById('curr-q-idx').innerText = currentQIndex + 1;
-    document.getElementById('total-q-idx').innerText = total;
-    document.getElementById('quiz-progress-fill').style.width = ((currentQIndex + 1) / total * 100) + '%';
-
-    // 질문 텍스트
     document.getElementById('question-content').innerText = question.content;
 
-    // 보기 버튼 생성
+    // 보기 생성
     const container = document.getElementById('options-container');
-    container.innerHTML = ''; // 기존 보기 비우기
+    container.innerHTML = '';
 
     question.options.forEach(opt => {
-        const btn = document.createElement('button');
+        const btn = document.createElement('div');
         btn.className = 'option-item';
         btn.innerText = opt.content;
         btn.onclick = () => selectOption(btn, question.questionId, opt.optionId);
         container.appendChild(btn);
     });
 
-    // 다음 버튼 초기화
+    // 버튼 초기화
     const nextBtn = document.getElementById('btn-next-question');
     nextBtn.disabled = true;
-    nextBtn.innerText = (currentQIndex === total - 1) ? '제출하기' : '다음 문제';
+    nextBtn.style.backgroundColor = "#ccc";
+    nextBtn.innerText = (currentQIndex === totalCount - 1) ? '제출 하기' : '다음 문제';
 }
 
-// 4. 보기 선택 시
 function selectOption(btnElement, qId, oId) {
-    // 모든 버튼 선택 해제 스타일
     document.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
-
-    // 클릭한 버튼 선택 스타일
     btnElement.classList.add('selected');
 
-    // 답안 기록 (이미 있으면 덮어쓰기)
+    // 답안 저장/수정
     const existing = userAnswers.find(a => a.questionId === qId);
-    if (existing) {
-        existing.optionId = oId;
-    } else {
-        userAnswers.push({ questionId: qId, optionId: oId });
-    }
+    if (existing) existing.optionId = oId;
+    else userAnswers.push({ questionId: qId, optionId: oId });
 
-    // 다음 버튼 활성화
-    document.getElementById('btn-next-question').disabled = false;
+    // 버튼 활성화
+    const nextBtn = document.getElementById('btn-next-question');
+    nextBtn.disabled = false;
+    nextBtn.style.backgroundColor = (currentQIndex === quizData.questions.length - 1) ? "#00c471" : "#333";
 }
 
-// 5. [다음 문제] / [제출] 버튼 클릭
 function nextQuestion() {
-    // 마지막 문제라면 제출
     if (currentQIndex === quizData.questions.length - 1) {
         submitQuiz();
     } else {
@@ -394,8 +373,12 @@ function nextQuestion() {
     }
 }
 
-// 6. 퀴즈 제출 (서버로 채점 요청)
 function submitQuiz() {
+    if (userAnswers.length < quizData.questions.length) {
+        alert("모든 문제를 풀어주세요.");
+        return;
+    }
+
     const payload = {
         quizId: quizData.quizId,
         answers: userAnswers
@@ -403,10 +386,7 @@ function submitQuiz() {
 
     fetch('/api/quiz/submit', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getCsrfHeader() // CSRF 토큰 필수!
-        },
+        headers: { 'Content-Type': 'application/json', ...getCsrfHeader() },
         body: JSON.stringify(payload)
     })
         .then(res => res.json())
@@ -415,52 +395,26 @@ function submitQuiz() {
             showStep('result');
         })
         .catch(err => {
-            console.error("제출 실패:", err);
+            console.error("제출 오류:", err);
             alert("채점 중 오류가 발생했습니다.");
         });
 }
 
-// 7. 결과 화면 렌더링
 function renderResult(result) {
-    document.getElementById('result-score').innerText = result.score;
+    const scoreEl = document.getElementById('result-score');
+    if(scoreEl) scoreEl.innerText = result.score;
 
-    const badge = document.getElementById('result-badge');
-    const msg = document.getElementById('result-msg');
-
-    if (result.isPassed) {
-        badge.innerText = '합격';
-        badge.className = 'result-badge pass';
-        msg.innerText = "축하합니다! 이 섹션을 완벽하게 이해하셨군요.";
-        msg.style.color = "#00c471";
-    } else {
-        badge.innerText = '불합격';
-        badge.className = 'result-badge fail';
-        msg.innerText = "조금 더 학습이 필요합니다. 다시 도전해보세요!";
-        msg.style.color = "#ff4d4f";
+    const msgEl = document.getElementById('result-msg');
+    if(msgEl) {
+        msgEl.innerText = result.isPassed ? "축하합니다! 합격입니다 🎉" : "아쉽네요. 다시 도전해보세요 💪";
+        msgEl.style.color = result.isPassed ? "#00c471" : "#ff4d4f";
     }
 
-    // 오답 리스트 (리뷰)
-    const reviewBox = document.getElementById('review-list');
-    reviewBox.innerHTML = '';
-
-    result.reviewList.forEach((item, idx) => {
-        const div = document.createElement('div');
-        div.className = item.correct ? 'review-item correct' : 'review-item wrong';
-        div.innerHTML = `
-            <span class="review-q">Q${idx + 1}. ${item.questionContent}</span>
-            <span class="review-ans">
-                ${item.correct ? '✅ 정답' : `❌ 오답 (정답: ${item.correctAnswer})`}
-            </span>
-            ${!item.correct ? `<div style="margin-top:4px; color:#888;">💡 해설: ${item.explanation}</div>` : ''}
-        `;
-        reviewBox.appendChild(div);
-    });
+    // 다음 강의 버튼 활성화 여부 등 처리 가능
 }
 
-// 유틸: 단계별 화면 전환
 function showStep(stepName) {
-    // 모든 단계 숨김
     document.querySelectorAll('.quiz-step').forEach(el => el.style.display = 'none');
-    // 해당 단계만 표시
-    document.getElementById(`quiz-step-${stepName}`).style.display = 'block';
+    const target = document.getElementById(`quiz-step-${stepName}`);
+    if(target) target.style.display = (stepName === 'question') ? 'block' : 'flex';
 }

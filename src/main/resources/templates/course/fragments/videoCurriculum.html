@@ -30,10 +30,16 @@
 
             <ul class="chapter-list">
                 <li th:each="item : ${section.chapters}"
-                    th:classappend="${item.chapterId == chapter.chapterId} ? 'active' : ''">
-                    <a th:href="@{/course/play(courseId=${courseId}, chapterId=${item.chapterId})}">
-                        <div class="chapter-info">
-                            <span class="chapter-idx" th:text="|${item.orderIndex}강.|">1강</span>
+                    th:classappend="${(item.chapterId == chapter.chapterId ? 'active ' : '') + (item.videoUrl == 'QUIZ' ? 'quiz-item' : '')}">
+
+                    <a href="javascript:void(0)"
+                       th:onclick="playContent([[${item.chapterId}]], [[${item.videoUrl}]])"
+                       style="cursor: pointer;">
+
+                        <div class="chapter-info" style="display: flex; align-items: center; gap: 8px;">
+
+                            <span class="chapter-idx" th:unless="${item.videoUrl == 'QUIZ'}"></span>
+
                             <span class="chapter-title" th:text="${item.title}">강의 제목</span>
                         </div>
                     </a>

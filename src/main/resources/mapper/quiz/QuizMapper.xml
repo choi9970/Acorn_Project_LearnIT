@@ -30,4 +30,16 @@
         ORDER BY qu.question_id ASC, qo.option_id ASC
     </select>
 
+    <select id="countUnfinishedVideosInSection" resultType="int">
+        SELECT COUNT(*)
+        FROM chapter c
+                 LEFT JOIN study_log sl
+                           ON c.chapter_id = sl.chapter_id
+                               AND sl.user_id = #{userId}
+        WHERE c.section_title = (SELECT section_title FROM chapter WHERE chapter_id = #{quizChapterId})
+          AND c.video_url != 'QUIZ'  AND (
+              sl.log_id IS NULL  OR
+              (sl.studied_sec / c.duration_sec) &lt; 0.95 )
+    </select>
+
 </mapper>

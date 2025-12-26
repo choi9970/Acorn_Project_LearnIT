@@ -1,56 +1,41 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
-<div th:fragment="quizContent" class="panel-inner quiz-container">
+<div th:fragment="quizContent" class="quiz-container" style="height: 100%; display: flex; flex-direction: column;">
 
-    <div class="panel-header">
-        <h3>퀴즈</h3>
-        <button onclick="closePanel()" class="close-btn">×</button>
-    </div>
+    <div class="panel-body quiz-body" style="flex: 1; position: relative;">
 
-    <div class="panel-body quiz-body">
-
-        <div id="quiz-step-start" class="quiz-step active centering-box">
-            <div style="text-align:center;">
-                <p style="margin-bottom:20px; color:#666;">이번 챕터의 핵심 내용을<br>퀴즈로 확인해보세요!</p>
-                <button onclick="startQuizLogic()" class="btn-start-circle">
-                    퀴즈 풀기
-                </button>
-            </div>
+        <div id="quiz-step-start" class="quiz-step active centering-box" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+            <h2 id="display-quiz-title" style="margin-bottom: 20px;">퀴즈 제목</h2>
+            <p style="margin-bottom: 30px; font-size: 18px; color: #666;">
+                학습한 내용을 점검해보세요!
+            </p>
+            <button onclick="startQuizLogic()" class="btn-start-circle" style="width: 150px; height: 150px; font-size: 20px;">
+                시작하기
+            </button>
         </div>
 
-        <div id="quiz-step-question" class="quiz-step" style="display:none; height:100%; position:relative;">
-
-            <div class="question-area">
-                <span class="q-badge">Q<span id="curr-q-idx">1</span></span>
-                <h3 id="question-content" class="q-text">문제가 여기에 표시됩니다.</h3>
+        <div id="quiz-step-question" class="quiz-step" style="display:none; height:100%; padding: 40px;">
+            <div class="question-area" style="margin-bottom: 30px;">
+                <span class="q-badge" style="font-size: 16px;">Q <span id="curr-q-idx">1</span></span>
+                <h2 id="question-content" class="q-text" style="margin-top: 10px;">문제 내용</h2>
             </div>
-
             <div id="options-container" class="options-area">
             </div>
-
-            <div class="bottom-action-area">
-                <button id="btn-next-question" onclick="nextQuestion()" class="btn-submit-full" disabled>
-                    다음 문제
-                </button>
+            <div class="bottom-action-area" style="position: absolute; bottom: 30px; left: 0; width: 100%; padding: 0 40px; border: none;">
+                <button id="btn-next-question" onclick="nextQuestion()" class="btn-submit-full" disabled>다음 문제</button>
             </div>
         </div>
 
-        <div id="quiz-step-result" class="quiz-step" style="display:none; text-align:center; padding-top:40px;">
-            <div class="score-circle">
-                <span id="result-score">100</span>
-                <span class="unit">점</span>
+        <div id="quiz-step-result" class="quiz-step" style="display:none; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+            <div class="score-circle" style="width: 150px; height: 150px; font-size: 40px;">
+                <span id="result-score">0</span><span class="unit" style="font-size: 18px;">점</span>
             </div>
+            <h3 id="result-msg" style="margin-top: 20px;">결과 메시지</h3>
 
-            <p id="result-msg" style="margin:20px 0; color:#555;">수고하셨습니다!</p>
-
-            <div id="review-list" class="review-simple-list"></div>
-
-            <div style="margin-top: 30px;">
-                <button onclick="goToNextChapter()" class="btn-next-lecture">
-                    다음 강의 듣기 ⏭️
-                </button>
-            </div>
+            <button onclick="location.reload()" class="btn-next-lecture" style="margin-top: 30px;">
+                다시 풀기
+            </button>
         </div>
 
     </div>

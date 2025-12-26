@@ -13,56 +13,62 @@
 
     <style>
         .video-wrapper iframe { width: 100%; height: 100%; border-radius: 4px; }
+
+        /* [추가] 퀴즈가 비디오 영역을 꽉 채우도록 설정 */
+        #quiz-wrapper {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            position: absolute; /* 비디오 위에 겹치기 */
+            top: 0;
+            left: 0;
+            z-index: 10; /* 비디오보다 위에 */
+            display: none; /* 기본은 숨김 */
+        }
     </style>
 </head>
 <body>
 
 <header class="top-header">
-
     <div class="header-left">
         <span class="course-title" th:text="${chapter.title}">강의 제목</span>
     </div>
-
     <div class="header-right">
-        <button class="header-nav-btn prev"
-                th:if="${prevChapterId != null}"
-                th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${prevChapterId})}'|">
-            <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전">
-            <span>이전</span>
+        <button class="header-nav-btn prev" th:if="${prevChapterId != null}" th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${prevChapterId})}'|">
+            <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전"><span>이전</span>
         </button>
         <button class="header-nav-btn prev disabled" th:if="${prevChapterId == null}" disabled>
-            <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전">
-            <span>이전</span>
+            <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전"><span>이전</span>
         </button>
 
         <div class="nav-divider"></div>
 
-        <button class="header-nav-btn next"
-                th:if="${nextChapterId != null}"
-                th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${nextChapterId})}'|">
-            <span>다음</span>
-            <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+        <button class="header-nav-btn next" th:if="${nextChapterId != null}" th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${nextChapterId})}'|">
+            <span>다음</span><img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
         </button>
         <button class="header-nav-btn next disabled" th:if="${nextChapterId == null}" disabled>
-            <span>다음</span>
-            <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+            <span>다음</span><img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
         </button>
     </div>
-
 </header>
 
 <div class="main-container">
 
     <main class="video-section">
-        <div class="video-wrapper">
+        <div class="video-wrapper" style="position: relative;">
+
             <div id="player"></div>
+
+            <div id="quiz-wrapper">
+                <div th:replace="~{course/fragments/videoQuiz :: quizContent}"></div>
+            </div>
+
         </div>
     </main>
 
     <div th:replace="~{course/fragments/sidePanels :: integratedPanel}"></div>
 
     <aside class="right-sidebar">
-
         <a href="javascript:void(0)" class="menu-item" onclick="openPanel('curriculum')">
             <div class="icon-wrap"><img th:src="@{/images/course/icon-curriculum.png}" class="menu-icon"></div>
             <span class="menu-label">커리큘럼</span>
