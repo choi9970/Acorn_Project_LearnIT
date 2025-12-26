@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+  <!-- title fragment -->
+  <title th:fragment="title">임시 로그인</title>
+
+  <!--main content css-->
+  <th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/home/home.css}">
+    <link rel="stylesheet" th:href="@{/css/courseList/course-list.css}">
+  </th:block>
+</head>
+
+<body>
+
+<!-- content fragment -->
+<div th:fragment="content" class="home-container">
+  <h2>로그인</h2>
+
+  <form th:action="@{/login}" method="post">
+    <div>
+      <label>Email</label>
+      <input type="text" name="email">
+    </div>
+
+    <div>
+      <label>Password</label>
+      <input type="password" name="password">
+    </div>
+
+    <button type="submit">로그인</button>
+  </form>
+
+  <p th:if="${error}" th:text="${error}" style="color:red"></p>
+
+</div>
+
+<!--main content js-->
+<th:block th:fragment="script">
+</th:block>
+
+</body>
+</html>
