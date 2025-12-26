@@ -68,4 +68,17 @@
         WHERE chapter_id = #{chapterId}
           AND (duration_sec IS NULL OR duration_sec = 0)
     </update>
+
+    <select id="selectChapterList" resultType="com.learnit.learnit.course.dto.CourseVideo">
+        SELECT
+            chapter_id,
+            course_id,
+            title,
+            order_index,
+            video_url,
+            duration_sec,
+            section_title  FROM chapter
+        WHERE course_id = #{courseId}
+        ORDER BY order_index ASC
+    </select>
 </mapper>

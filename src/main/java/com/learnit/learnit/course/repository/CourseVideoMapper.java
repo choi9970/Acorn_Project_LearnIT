@@ -4,6 +4,8 @@ import com.learnit.learnit.course.dto.CourseVideo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface CourseVideoMapper {
     CourseVideo findById(@Param("chapterId") Long chapterId);
@@ -22,4 +24,6 @@ public interface CourseVideoMapper {
     int countCompletedChapters(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
     void updateChapterDuration(@Param("chapterId") Long chapterId, @Param("duration") int duration);
+
+    List<CourseVideo> selectChapterList(@Param("courseId") Long courseId);
 }

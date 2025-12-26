@@ -1,12 +1,14 @@
 package com.learnit.learnit.course.controller;
 
 import com.learnit.learnit.course.dto.CourseVideo;
+import com.learnit.learnit.course.dto.CurriculumSection;
 import com.learnit.learnit.course.service.CourseVideoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -32,6 +34,7 @@ public class CourseVideoController {
         Long prevChapterId = courseVideoService.getPrevChapterId(courseId, chapter.getOrderIndex());
         Long nextChapterId = courseVideoService.getNextChapterId(courseId, chapter.getOrderIndex());
         int progressPercent = courseVideoService.getProgressPercent(1L, courseId);
+        List<CurriculumSection> curriculum = courseVideoService.getCurriculumGrouped(courseId);
 
         // 모델에 담기
         model.addAttribute("chapter", chapter);
@@ -39,6 +42,7 @@ public class CourseVideoController {
         model.addAttribute("prevChapterId", prevChapterId);
         model.addAttribute("nextChapterId", nextChapterId);
         model.addAttribute("progressPercent", progressPercent);
+        model.addAttribute("curriculum", curriculum);
 
         return "course/courseVideo";
     }

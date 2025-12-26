@@ -1,9 +1,16 @@
 package com.learnit.learnit.course.service;
 
 import com.learnit.learnit.course.dto.CourseVideo;
+import com.learnit.learnit.course.dto.CurriculumSection;
 import com.learnit.learnit.course.repository.CourseVideoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,5 +43,23 @@ public class CourseVideoService {
 
     public void updateChapterDuration(Long chapterId, int duration) {
         courseVideoMapper.updateChapterDuration(chapterId, duration);
+    }
+
+    public List<CurriculumSection> getCurriculumGrouped(Long courseId) {
+        List<CourseVideo> allChapters = courseVideoMapper.selectChapterList(courseId);
+
+        Map<String, List<CourseVideo>> grouped = allChapters.stream()
+                .collect(Collectors.groupingBy(
+                        ch -> ch.getSectionTitle() == null ? "기타" : ch.getSectionTitle(),
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+
+        List<CurriculumSection> result = new ArrayList<>();
+        for (Map.Entry<String, List<CourseVideo>> entry : grouped.entrySet()) {
+            result.add(new CurriculumSection(entry.getKey(), entry.getValue()));
+        }
+
+        return result;
     }
 }

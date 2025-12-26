@@ -7,6 +7,8 @@ const dbVideoUrl = videoInput ? videoInput.value : null;
 const currentCourseId = courseInput ? courseInput.value : null;
 const currentChapterId = chapterInput ? chapterInput.value : null;
 
+let monacoEditor = null;
+
 // ID 추출 함수 (모든 유튜브 주소 형식 대응)
 function getVideoId(url) {
     if (!url) return null;
@@ -142,28 +144,29 @@ function openPanel(tabName) {
     const contentId = 'content-' + tabName;
     const targetContent = document.getElementById(contentId);
 
-    // 1) 이미 열려있는 탭을 또 누르면 -> 닫기
     if (wrapper.classList.contains('open') && currentActiveTab === tabName) {
         closePanel();
         return;
     }
 
-    // 2) 모든 콘텐츠 숨기기 (초기화)
     const allContents = document.querySelectorAll('.panel-content-box');
     allContents.forEach(el => el.style.display = 'none');
 
-    // 3) 내가 누른 콘텐츠만 보여주기
     if (targetContent) {
         targetContent.style.display = 'flex'; // flex로 보여야 내부 레이아웃 유지됨
     }
 
-    // 4) 패널이 닫혀있다면 열기 (너비 확장)
     if (!wrapper.classList.contains('open')) {
         wrapper.classList.add('open');
     }
 
-    // 5) 현재 탭 갱신
     currentActiveTab = tabName;
+
+    if (tabName === 'interpreter' && monacoEditor){
+        setTimeout(() => {
+            monacoEditor.layout();
+        }, 100);
+    }
 }
 
 // 패널 닫기 함수 (X 버튼용)
@@ -175,15 +178,13 @@ function closePanel() {
 
 // 플레이어가 로딩되자마자 실행되는 함수
 function onPlayerReady(event) {
-    // 1. 영상 길이 가져오기 (재생 안 해도 가져올 수 있음!)
     if(player && player.getDuration) {
         const duration = Math.floor(player.getDuration());
         if (duration > 0) {
-            saveDurationToServer(duration); // 즉시 서버 전송
+            saveDurationToServer(duration);
         }
     }
 
-    // 2. (기존 로직) 저장된 시간부터 이어보기
     if(savedTime > 0) {
         player.seekTo(savedTime);
     }
@@ -193,7 +194,6 @@ function onPlayerReady(event) {
 function saveDurationToServer(duration) {
     if (!currentChapterId) return;
 
-    // Controller 주소와 파라미터가 맞는지 꼭 확인하세요!
     const url = `/course/log/duration?chapterId=${currentChapterId}&duration=${duration}`;
 
     fetch(url, {
@@ -203,4 +203,76 @@ function saveDurationToServer(duration) {
             if (response.ok) console.log("DB에 영상 길이 저장 완료");
         })
         .catch(error => console.error("영상 길이 저장 실패:", error));
+}
+
+function toggleSection(headerElement) {
+    headerElement.classList.toggle('collapsed');
+}
+
+// Monaco Editor 로드
+require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+
+require(['vs/editor/editor.main'], function () {
+    monacoEditor = monaco.editor.create(document.getElementById('monaco-editor-container'), {
+        value: "print('Hello, LearnIT!')",
+        language: 'python',
+        theme: 'vs-light',
+        minimap: { enabled: false },
+        automaticLayout: true
+    });
+});
+
+// 언어 변경 시 에디터 언어 설정 변경
+document.getElementById('language-selector').addEventListener('change', function() {
+    const langId = this.value;
+    let langMode = 'python';
+    let sampleCode = "print('Hello, LearnIT!')";
+
+    if(langId === '62') { langMode = 'java'; sampleCode = 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Java!");\n    }\n}'; }
+    else if(langId === '63') { langMode = 'javascript'; sampleCode = "console.log('Hello, JS!');"; }
+    else if(langId === '54') { langMode = 'cpp'; sampleCode = '#include <iostream>\n\nint main() {\n    std::cout << "Hello, C++!";\n    return 0;\n}'; }
+
+    monaco.editor.setModelLanguage(monacoEditor.getModel(), langMode);
+    monacoEditor.setValue(sampleCode);
+});
+
+function getCsrfHeader() {
+    const headerMeta = document.querySelector('meta[name="_csrf_header"]');
+    const tokenMeta = document.querySelector('meta[name="_csrf"]');
+
+    if (!headerMeta || !tokenMeta) {
+        return {};
+    }
+
+    return { [headerMeta.content]: tokenMeta.content };
+}
+
+// 코드 실행 함수 (Ajax -> Spring Boot -> Judge0)
+function runCode() {
+    const code = monacoEditor.getValue();
+    const languageId = document.getElementById('language-selector').value;
+    const consoleDiv = document.getElementById('output-console');
+
+    consoleDiv.innerText = "실행 중입니다...";
+
+    // [중요] CSRF 토큰 (기존에 만든 getCsrfHeader 함수 사용)
+    fetch('/api/interpreter/run', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getCsrfHeader() // CSRF 토큰 포함
+        },
+        body: JSON.stringify({
+            code: code,
+            languageId: languageId
+        })
+    })
+        .then(res => res.json())
+        .then(data => {
+            consoleDiv.innerText = data.output;
+        })
+        .catch(err => {
+            console.error(err);
+            consoleDiv.innerText = "에러 발생: " + err;
+        });
 }

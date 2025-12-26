@@ -10,4 +10,5 @@ public class CourseVideo {
     private Long orderIndex;
     private String videoUrl;
     private Long durationSec;
+    private String sectionTitle;
 }

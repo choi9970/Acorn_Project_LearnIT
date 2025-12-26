@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="interpreterContent" class="panel-inner" style="height:100%; display:flex; flex-direction:column;">
+
+    <div class="interpreter-header">
+
+        <h3>실습 에디터</h3>
+
+        <div class="header-controls">
+
+            <select id="language-selector" class="header-nav-btn lang-select">
+                <option value="71">Python (3.8.1)</option>
+                <option value="62">Java (OpenJDK 13)</option>
+                <option value="63">JS (Node.js)</option>
+                <option value="54">C++ (GCC 9.2)</option>
+            </select>
+
+            <button onclick="runCode()" class="header-nav-btn run-btn">
+                <span>▶</span>
+            </button>
+
+            <button onclick="closePanel()" class="close-btn" style="font-size: 24px;">×</button>
+        </div>
+    </div>
+
+    <div id="monaco-editor-container" style="flex: 2; width: 100%; border-bottom: 1px solid #ddd;"></div>
+
+    <div class="console-area" style="flex: 1; background-color: #1e1e1e; color: #fff; padding: 10px; overflow: auto; font-family: monospace;">
+        <div style="font-size: 12px; color: #aaa; margin-bottom: 5px;">실행 결과</div>
+        <pre id="output-console" style="margin: 0; white-space: pre-wrap;">결과가 여기에 표시됩니다...</pre>
+    </div>
+
+</div>
+</html>

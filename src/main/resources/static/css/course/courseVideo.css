@@ -317,6 +317,138 @@ body {
     transition: width 0.5s ease-in-out; /* 부드럽게 차오르는 애니메이션 */
 }
 
+/* ============================== */
+/* [추가] 계층형 커리큘럼 스타일 */
+/* ============================== */
+
+/* 섹션 헤더 */
+.section-header {
+    background-color: #f8f9fa;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+}
+.section-header:hover { background-color: #e9ecef; }
+
+/* 1. 기본 상태 (펼쳐짐 = Open) */
+.toggle-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    opacity: 0.5;
+    transition: transform 0.3s ease; /* 부드러운 회전 */
+
+    /* 원본 이미지가 '▼ (아래)' 입니다.
+       펼쳐져 있을 때는 '접기'를 의미하는 '▲ (위)'가 되어야 하므로
+       180도 뒤집어서 시작합니다.
+    */
+    transform: rotate(180deg);
+}
+
+/* 2. 섹션 헤더에 마우스 올렸을 때 */
+.section-header:hover .toggle-icon {
+    opacity: 1; /* 진하게 */
+}
+
+/* 3. 접힌 상태 (Collapsed = Closed) */
+/* -> 팀장님이 질문하신 코드 부분입니다 (유지!) */
+.section-header.collapsed .toggle-icon {
+    /* 접혀 있을 때는 '펼치기'를 의미하는 '▼ (아래)'가 되어야 하므로
+       회전을 0도로 되돌립니다 (원본 이미지 모양).
+    */
+    transform: rotate(0deg);
+}
+
+/* 4. 접혔을 때 리스트 숨기기 (유지!) */
+.section-header.collapsed + .chapter-list {
+    display: none;
+}
+
+/* 챕터 리스트 */
+.chapter-list { list-style: none; padding: 0; margin: 0; display: block; }
+.chapter-list li a {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px 12px 30px; /* 들여쓰기 */
+    text-decoration: none; color: #555; font-size: 13px;
+    border-bottom: 1px solid #f9f9f9;
+}
+.chapter-list li:hover a { background-color: #f8f9fa; color: #333; }
+
+/* 현재 재생 중인 강의 강조 */
+.chapter-list li.active a {
+    background-color: #e6f7ff; color: #007bff; font-weight: 600;
+    border-left: 3px solid #007bff; padding-left: 27px;
+}
+
+/* =========================================
+   [추가/수정] 실습 에디터 헤더 스타일 (CSS 분리)
+   ========================================= */
+
+/* 1. 패널 헤더 기본 (PC - 좁은 사이드바용 컴팩트 스타일) */
+.interpreter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;    /* 좁은 여백 */
+    gap: 5px;           /* 요소 간 간격 최소화 */
+    height: 50px;
+    border-bottom: 1px solid #eee;
+    background-color: #fff;
+}
+
+/* 제목 (절대 줄바꿈 금지 & 크기 고정) */
+.interpreter-header h3 {
+    margin: 0;
+    font-size: 15px;       /* 살짝 작게 */
+    font-weight: 700;
+    white-space: nowrap;   /* 줄바꿈 방지 */
+    flex-shrink: 0;        /* 공간 부족해도 찌그러지지 않음 (중요!) */
+}
+
+/* 오른쪽 컨트롤 그룹 (셀렉트박스 + 버튼들) */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;     /* 오른쪽 끝으로 밀기 */
+}
+
+/* 언어 선택 박스 */
+.lang-select {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 2px 0 6px;
+    width: 105px;          /* PC에서는 너비 강제 고정 (넘치지 않게) */
+}
+
+/* 실행 버튼 */
+.run-btn {
+    background-color: #00c471;
+    color: white;
+    border: none;
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+.run-btn:hover {
+    background-color: #00b368;
+}
+.run-btn span {
+    color: white;
+    font-weight: 600;
+}
+
 /* =========================================
    6. Responsive (Mobile <= 768px)
    ========================================= */
@@ -374,5 +506,26 @@ body {
 
     .icon-wrap {
         background-color: transparent; /* 모바일은 배경 제거 */
+    }
+
+    /* 모바일에서는 패널이 넓으므로 여백을 넉넉하게 복구 */
+    .interpreter-header {
+        padding: 0 20px; /* 원래 여백 */
+        gap: 10px;
+    }
+
+    .interpreter-header h3 {
+        font-size: 16px; /* 원래 폰트 크기 */
+    }
+
+    .lang-select {
+        width: auto;     /* 너비 제한 해제 (글자 길이에 맞춤) */
+        height: 32px;    /* 터치하기 편하게 조금 키움 */
+        font-size: 13px;
+    }
+
+    .run-btn {
+        height: 32px;    /* 버튼도 키움 */
+        padding: 0 14px;
     }
 }
