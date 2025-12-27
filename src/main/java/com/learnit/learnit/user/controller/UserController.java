@@ -77,12 +77,7 @@ public class UserController {
         request.setPhone(phone);
         request.setRegion(region);
 
-        // 비밀번호 확인 검증
-        if (passwordConfirm != null && !password.equals(passwordConfirm)) {
-            model.addAttribute("error", "비밀번호가 일치하지 않습니다.");
-            return "user/signup";
-        }
-
+        // 비즈니스 로직은 Service에서 처리
         try {
             userService.signup(request);
             return "redirect:/login?success=true";

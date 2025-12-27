@@ -59,6 +59,12 @@ public class UserService {
      */
     @Transactional
     public User signup(SignupRequestDTO request) {
+        // 비밀번호 확인 검증
+        if (request.getPasswordConfirm() == null || 
+            !request.getPassword().equals(request.getPasswordConfirm())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+        
         // 이메일 중복 체크
         User existingUser = userMapper.selectUserByEmail(request.getEmail());
         if (existingUser != null) {
