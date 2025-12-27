@@ -10,6 +10,5 @@ import java.util.List;
 public interface CourseDetailMapper {
     CourseDTO selectCourseDetail(@Param("courseId") int courseId);
 
-    // ✅ 커리큘럼(챕터) 조회 추가
     List<ChapterDTO> selectChaptersByCourseId(@Param("courseId") int courseId);
 }

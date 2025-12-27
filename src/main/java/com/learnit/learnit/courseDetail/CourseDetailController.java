@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -15,7 +17,6 @@ public class CourseDetailController {
 
     private final CourseDetailService courseDetailService;
 
-    // ✅ 1) 비로그인 상세
     @GetMapping("/CourseDetail")
     public String detail(@RequestParam("courseId") int courseId,
                          @RequestParam(value = "tab", defaultValue = "intro") String tab,
@@ -25,40 +26,34 @@ public class CourseDetailController {
         return "courseDetail/courseDetail.html";
     }
 
-    // ✅ 2) 로그인 상세 (미수강이면 enroll+cart / 수강중이면 study로)
     @GetMapping("/CourseDetailLogin")
     public String detailLogin(@RequestParam("courseId") int courseId,
                               @RequestParam(value = "tab", defaultValue = "intro") String tab,
                               Model model) {
 
-        Long userId = 5L; // ✅ 임시 고정
+        Long userId = 5L;
 
-        // ✅ 수강중이면 3번 상태로 보내기
         if (courseDetailService.isEnrolled(userId, courseId)) {
             return "redirect:/CourseDetailStudy?courseId=" + courseId + "&tab=" + tab;
         }
 
-        // ✅ 로그인 + 미수강
         setCommonModel(model, courseId, tab, true, false);
         return "courseDetail/courseDetail.html";
     }
 
-    // ✅ 3) 로그인 + 수강중 상세 (이어보기만)
     @GetMapping("/CourseDetailStudy")
     public String detailStudy(@RequestParam("courseId") int courseId,
                               @RequestParam(value = "tab", defaultValue = "intro") String tab,
                               Model model) {
 
-        Long userId = 5L; // ✅ 임시 고정
+        Long userId = 5L;
 
-        // ✅ 수강중 아니면 로그인 상세로 되돌림
         if (!courseDetailService.isEnrolled(userId, courseId)) {
             return "redirect:/CourseDetailLogin?courseId=" + courseId + "&tab=" + tab;
         }
 
-        // ✅ 로그인 + 수강중
         setCommonModel(model, courseId, tab, true, true);
-        return "courseDetail/courseDetailStudy.html";
+        return "courseDetail/CourseDetailStudy.html"; // ✅ 파일명 그대로(대소문자 주의)
     }
 
     private void setCommonModel(Model model, int courseId, String tab,
@@ -70,11 +65,17 @@ public class CourseDetailController {
         model.addAttribute("activeTab", tab);
 
         model.addAttribute("isLoggedIn", isLoggedIn);
-        model.addAttribute("isEnrolled", isEnrolled); // ✅ 핵심 플래그
+        model.addAttribute("isEnrolled", isEnrolled);
 
         model.addAttribute("userName", isLoggedIn ? "user" : null);
 
-        model.addAttribute("chapters", courseDetailService.getChaptersOrDummy(courseId));
+        List<ChapterDTO> chapters = courseDetailService.getChaptersOrDummy(courseId);
+        model.addAttribute("chapters", chapters);
+
+        // ✅ ✅ 3번 방식: 섹션별 map + 전체개수
+        Map<String, List<ChapterDTO>> sectionMap = courseDetailService.getCurriculumSectionMap(courseId);
+        model.addAttribute("sectionMap", sectionMap);
+        model.addAttribute("curriculumTotal", chapters.size());
 
         if ("reviews".equals(tab)) {
             model.addAttribute("reviews", courseDetailService.getDummyReviews());

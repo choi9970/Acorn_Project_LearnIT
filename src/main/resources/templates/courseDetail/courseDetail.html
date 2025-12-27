@@ -19,17 +19,19 @@
     <section class="cd-body">
         <div class="cd-left">
             <th:block
-                    th:replace="${activeTab == 'curriculum'} ? ~{courseDetail/tabs/curriculum :: curriculumFragment(${chapters})}
-                     : (${activeTab == 'reviews'} ? ~{courseDetail/tabs/reviews :: reviewsFragment(${reviews})}
-                     : ~{courseDetail/tabs/intro :: introFragment(${course})})">
+                    th:replace="${activeTab == 'curriculum'}
+                        ? ~{courseDetail/tabs/curriculum :: curriculumFragment(${sectionMap}, ${curriculumTotal})}
+                        : (${activeTab == 'reviews'}
+                            ? ~{courseDetail/tabs/reviews :: reviewsFragment(${reviews})}
+                            : ~{courseDetail/tabs/intro :: introFragment(${course})})">
             </th:block>
         </div>
 
-        <!-- ✅ 사이드바(3상태 분기) -->
+        <!-- 사이드바 -->
         <div th:replace="courseDetail/fragments/detail-sidebar :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled})"></div>
     </section>
 
-    <!-- ✅ [모달1] 장바구니 중복 -->
+    <!-- 모달들(너 기존 그대로) -->
     <div class="modal-backdrop" id="modal-cart-dup" style="display:none;">
         <div class="modal">
             <p class="modal-text">이미 담겨져있는 강의입니다.<br>장바구니로 이동하시겠습니까?</p>
@@ -40,7 +42,6 @@
         </div>
     </div>
 
-    <!-- ✅ [모달2] 이어보기(미완성) -->
     <div class="modal-backdrop" id="modal-incomplete" style="display:none;">
         <div class="modal">
             <p class="modal-text">아직 미완성입니다.</p>
@@ -49,7 +50,7 @@
             </div>
         </div>
     </div>
-    <!-- ✅ [모달3] 장바구니 신규 담김 -->
+
     <div class="modal-backdrop" id="modal-cart-added" style="display:none;">
         <div class="modal">
             <p class="modal-text">
