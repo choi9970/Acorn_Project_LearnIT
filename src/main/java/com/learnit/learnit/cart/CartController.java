@@ -30,28 +30,26 @@ public class CartController {
         return "cart/cart";
     }
 
-    // ✅ X 버튼 삭제
+    // ✅ 추가: 장바구니 담기
+    @PostMapping("/cart/add")
+    @ResponseBody
+    public String addToCart(@RequestParam("courseId") Long courseId) {
+        Long userId = 5L; // ✅ 임시 고정
+        boolean inserted = cartService.addToCart(userId, courseId);
+        return inserted ? "OK" : "DUP"; // 프론트에서 참고용
+    }
+
     @PostMapping("/cart/delete")
     public String deleteItem(@RequestParam("cartId") Long cartId) {
-        Long userId = 5L; // 임시 고정
+        Long userId = 5L;
         cartService.removeItem(userId, cartId);
         return "redirect:/cart";
     }
 
-    // ✅ 전체삭제 추가
     @PostMapping("/cart/clear")
     public String clearCart() {
-        Long userId = 5L; // 임시 고정
+        Long userId = 5L;
         cartService.clearCart(userId);
         return "redirect:/cart";
     }
-
-    @PostMapping("/cart/add")
-    @ResponseBody
-    public String addToCart(@RequestParam("courseId") Long courseId) {
-        Long userId = 5L; // 임시 고정
-        boolean added = cartService.addItemIfNotExists(userId, courseId);
-        return added ? "OK" : "DUP";
-    }
-
 }

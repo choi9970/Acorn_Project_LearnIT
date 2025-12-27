@@ -10,9 +10,12 @@ public interface CartMapper {
 
     int deleteByCartId(@Param("cartId") Long cartId, @Param("userId") Long userId);
 
-    // ✅ 전체삭제
     int deleteAllByUserId(@Param("userId") Long userId);
-    int insertCart(@Param("userId") Long userId, @Param("courseId") Long courseId);
-    int existsInCart(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
+    // ✅ 추가: 중복 체크
+    int exists(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
+    // ✅ 추가: 장바구니 담기
+    int insertCart(@Param("userId") Long userId, @Param("courseId") Long courseId);
 }
+

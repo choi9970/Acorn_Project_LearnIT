@@ -20,7 +20,6 @@ public class CartService {
         return cartMapper.deleteByCartId(cartId, userId);
     }
 
-    // ✅ 전체삭제
     public int clearCart(Long userId) {
         return cartMapper.deleteAllByUserId(userId);
     }
@@ -32,15 +31,13 @@ public class CartService {
         }
         return sum;
     }
-    public int addItem(Long userId, Long courseId) {
-        return cartMapper.insertCart(userId, courseId);
-    }
-    public boolean addItemIfNotExists(Long userId, Long courseId) {
-        int cnt = cartMapper.existsInCart(userId, courseId);
-        if (cnt > 0) return false;   // 이미 담김
+
+    // ✅ 추가: 중복 담기 방지 + 담기
+    public boolean addToCart(Long userId, Long courseId) {
+        int cnt = cartMapper.exists(userId, courseId);
+        if (cnt > 0) return false;          // 이미 담김
         cartMapper.insertCart(userId, courseId);
-        return true;                 // 새로 담음
+        return true;                         // 새로 담김
     }
-
-
 }
+

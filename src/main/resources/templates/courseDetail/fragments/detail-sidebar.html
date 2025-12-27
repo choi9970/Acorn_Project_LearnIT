@@ -1,4 +1,3 @@
-<!-- templates/courseDetail/fragments/detail-sidebar.html -->
 <th:block xmlns:th="http://www.thymeleaf.org" th:fragment="detailSidebar(course, isLoggedIn)">
 
     <aside class="cd-sidebar">
@@ -10,23 +9,32 @@
         <button class="cd-btn primary"
                 th:if="${!isLoggedIn}"
                 data-action="login">
-            바로 수강신청 하기
+             수강신청 하기
         </button>
 
-        <!-- ✅ 로그인: 버튼 2개만 -->
+        <!-- ✅ 로그인 -->
         <div th:if="${isLoggedIn}">
             <div class="cd-btn-row">
-                <button class="cd-btn primary half" data-action="enrollGo">수강신청 가기</button>
-                <button class="cd-btn secondary half" data-action="cartGo">장바구니 가기</button>
+                <!-- ✅ 텍스트 변경 -->
+                <button class="cd-btn primary half"
+                        data-action="enroll"
+                        th:attr="data-course-id=${course.courseId}">
+                    수강신청 하기
+                </button>
+
+                <!-- ✅ 텍스트 변경 + 담기 동작 -->
+                <button class="cd-btn secondary half"
+                        data-action="cartAdd"
+                        th:attr="data-course-id=${course.courseId}">
+                    장바구니 담기
+                </button>
             </div>
         </div>
 
         <div class="cd-info">
-            <div class="row"><span>지식공유자</span><b th:text="${course.instructorName}">Sonic AI</b></div>
-            <div class="row"><span>수강기간</span><b th:text="${course.periodText}">무제한</b></div>
-
-            <!-- ❌ 난이도 삭제 -->
-            <!-- <div class="row"><span>난이도</span><b>입문 · 초급 · 중급이상</b></div> -->
+            <div class="row"><span>지식공유자</span><b>Sonic AI</b></div>
+            <div class="row"><span>수강기간</span><b>무제한</b></div>
+            <!-- ✅ 난이도 삭제(팀장님 요구)면 이 row 통째로 제거 -->
         </div>
     </aside>
 
