@@ -36,6 +36,10 @@ public class PaymentCardController {
         List<Long> courseIds = request.getCourseIds();
         Long couponId = request.getCouponId();
 
+        /* [주의]
+        * 현재 카드 결제는 테스트 결제 환경으로 구성
+        * 고정 테스트 금액(100원)으로 결제 진행
+        * */
         int testAmount = 100; //테스트 실결제 금액
 
         PaymentPrepare prepare = paymentCardService.ready(userId, testAmount, courseIds, couponId);
@@ -56,11 +60,6 @@ public class PaymentCardController {
 
         String impUid = body.get("impUid");
         String orderNo = body.get("merchantUid");
-
-        System.out.println("===== CARD COMPLETE =====");
-        System.out.println("merchantUid(from PG) = " + orderNo);
-        System.out.println("impUid = " + impUid);
-
 
         //1. 포트원 승인 + 검증
         PaymentPrepare prepare = paymentCardService.approve(orderNo, impUid);

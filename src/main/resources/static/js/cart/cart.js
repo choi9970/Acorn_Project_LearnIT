@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+
     const checkAll = document.getElementById("checkAll");
     const itemChecks = () => Array.from(document.querySelectorAll(".itemCheck"));
 

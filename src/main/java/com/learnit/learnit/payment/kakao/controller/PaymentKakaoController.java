@@ -50,6 +50,10 @@ public class PaymentKakaoController {
         }
     }
 
+    /*
+    * 카카오페이 결제 취소 기능은 실제로 사용하지 않습니다.
+    * 실제 결제 취소 로직은 수행하지 않으며, 단순히 결제 실패 페이지로 리다이렉트 처리
+    * */
     @GetMapping("/payments/kakao/cancel")
     public String kakaoPayCancel(@RequestParam("orderNo") String orderNo) {
         paymentKakaoService.cancel(orderNo);

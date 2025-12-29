@@ -32,7 +32,6 @@ public class PaymentServiceImpl implements PaymentService{
             log.info("결제 처리 시작: 주문번호 {}", request.getOrderNo());
 
             //1. 사전 검증 : 결제 데이터가 들어가기 전에 예외 상황 체크
-
             //1-1. 쿠폰 검증
             UserCouponDTO userCoupon = null;
             if(request.getCouponId() != null){

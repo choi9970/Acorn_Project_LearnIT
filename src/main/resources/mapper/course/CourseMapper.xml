@@ -171,8 +171,7 @@
         c.updated_at     AS updatedAt,
         c.delete_flg     AS deleteFlg
         FROM course c
-        WHERE c.delete_flg = 0
-        AND c.course_id IN
+        WHERE c.course_id IN
         <foreach collection="courseIds" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
