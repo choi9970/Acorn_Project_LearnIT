@@ -119,19 +119,40 @@ function saveDurationToServer(duration) {
 /** @description 사이드 패널 열기/닫기 및 에디터 레이아웃 갱신 */
 function openPanel(tabName) {
     const wrapper = document.getElementById('side-panel-wrapper');
-    const targetContent = document.getElementById('content-' + tabName);
 
+    // 탭 이름에 맞춰 타겟 ID 결정 ('reference' -> 'content-reference')
+    // HTML ID가 'content-reference'이므로, 여기서 매핑을 맞춰줍니다.
+    const targetId = (tabName === 'reference') ? 'content-reference' : 'content-' + tabName;
+    const targetContent = document.getElementById(targetId);
+
+    // 이미 열려있는 탭을 누르면 닫기
     if (wrapper.classList.contains('open') && state.currentActiveTab === tabName) {
-        closePanel(); return;
+        closePanel();
+        return;
     }
 
+    // 다른 패널들은 숨기고 타겟 패널만 보이기
     document.querySelectorAll('.panel-content-box').forEach(el => el.style.display = 'none');
-    if (targetContent) targetContent.style.display = 'flex';
-    if (!wrapper.classList.contains('open')) wrapper.classList.add('open');
 
+    if (targetContent) {
+        targetContent.style.display = 'block'; // flex 대신 block 권장 (내부 디자인에 따라 다름)
+    }
+
+    // 사이드바 열기
+    if (!wrapper.classList.contains('open')) {
+        wrapper.classList.add('open');
+    }
+
+    // 모나코 에디터 레이아웃 갱신 (인터프리터 탭일 경우)
     if (tabName === 'interpreter' && state.monacoEditor) {
         setTimeout(() => state.monacoEditor.layout(), 100);
     }
+
+    // 자료실 탭을 열 때만 데이터 로딩 함수 실행
+    if (tabName === 'reference') {
+        loadResources();
+    }
+
     state.currentActiveTab = tabName;
 }
 
@@ -426,7 +447,75 @@ function goToNextChapter() {
         }
     } else {
         // [결과] 다음 리스트가 아예 없을 때만 이 메시지가 뜸
-        alert("축하합니다! 마지막 섹션까지 모두 완료하셨습니다. 👍");
+        alert("축하합니다! 마지막 섹션까지 모두 완료하셨습니다.");
     }
+}
+
+/* =========================================
+   자료실 기능
+   ========================================= */
+
+// 데이터 가져와서 그리기
+function loadResources() {
+    const listContainer = document.getElementById('resource-list');
+    const emptyMsg = document.getElementById('no-resource-msg');
+
+    // 초기화 (기존 목록 지우기)
+    listContainer.innerHTML = '';
+    emptyMsg.style.display = 'none';
+
+    // 현재 코스 ID로 요청
+    fetch(`/api/resources?courseId=${state.courseId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("자료실 로딩 실패");
+            return res.json();
+        })
+        .then(data => {
+            // 데이터가 없으면 '없음' 메시지 표시
+            if (!data || data.length === 0) {
+                emptyMsg.style.display = 'block';
+                return;
+            }
+
+            // 데이터가 있으면 리스트 만들기
+            data.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'resource-item';
+
+                // 1. 파일 타입 대문자로 통일 (DB에 'pdf', 'PDF' 섞여 있을 수 있으므로)
+                const typeStr = (item.fileType || 'FILE').toUpperCase();
+
+                // 2. 타입에 따라 적용할 클래스 결정
+                let badgeClass = 'badge-default'; // 기본값 (회색)
+
+                if (typeStr === 'PDF') {
+                    badgeClass = 'badge-pdf';     // 붉은색
+                } else if (typeStr === 'ZIP') {
+                    badgeClass = 'badge-zip';     // 푸른색
+                }
+
+                // 3. HTML 조립 (클래스 변수 적용)
+                li.innerHTML = `
+                    <div class="res-info">
+                        <div class="res-title">
+                            <span class="badge-type ${badgeClass}">${typeStr}</span>
+                            <span class="text-content">${item.title}</span>
+                        </div>
+                    </div>
+                    
+                    <a href="${item.fileUrl}" class="btn-download" download target="_blank" title="다운로드">
+                        <img src="/images/course/icon-file-download.png" alt="다운로드">
+                    </a>
+                `;
+                listContainer.appendChild(li);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            listContainer.innerHTML = '<li style="padding:15px; text-align:center;">자료를 불러오지 못했습니다.</li>';
+        });
 }
 

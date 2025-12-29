@@ -193,6 +193,26 @@ body {
 .menu-icon { width: 20px; height: 20px; object-fit: contain; }
 .menu-label { font-size: 11px; font-weight: 600; }
 
+/* =========================================
+   스크롤바 숨기기 (기능은 유지)
+   ========================================= */
+
+.panel-body {
+    /* IE and Edge */
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+
+    /* (참고) 스크롤이 되게 하려면 높이 제한과 overflow 설정이 있어야 합니다 */
+    overflow-y: auto;
+    /* height: calc(100vh - 150px);  <-- 높이는 기존에 잡혀있을 테니 확인만 하세요 */
+}
+
+/* Chrome, Safari, Opera */
+.panel-body::-webkit-scrollbar {
+    display: none;
+}
+
 /* ============================== */
 /* Curriculum Style */
 /* ============================== */
@@ -487,6 +507,109 @@ body {
     margin-top: 10px;
 }
 .btn-next-lecture:hover { background: #0056b3; }
+
+.resource-item {
+    display: flex;
+    justify-content: space-between; /* 내용은 왼쪽, 버튼은 오른쪽 끝 */
+    align-items: center;            /* 수직 중앙 정렬 */
+    padding: 15px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.resource-item:hover {
+    background-color: #f9f9f9; /* 마우스 올리면 살짝 회색 */
+}
+
+.res-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 80%; /* 버튼 자리를 위해 너비 제한 */
+}
+.res-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.5;
+}
+
+.res-badge {
+    display: inline-block; padding: 2px 6px; border-radius: 4px;
+    background: #f0f0f0; color: #666; font-size: 11px; margin-right: 5px;
+}
+
+.badge-type {
+    width: 35px;
+    text-align: center;
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 700;        /* 폰트 굵게 */
+    border-radius: 4px;
+    flex-shrink: 0;          /* 찌그러짐 방지 */
+    margin-top: 3px;         /* 텍스트 높이 맞춤 */
+    line-height: 1.2;
+}
+
+.badge-pdf {
+    background-color: #ffeef0; /* 배경: 연한 빨강 */
+    color: #f5222d;            /* 글자: 진한 빨강 */
+    border: 1px solid #ffa39e; /* 테두리 (선택사항) */
+}
+.badge-zip {
+    background-color: #e6f7ff; /* 배경: 연한 파랑 */
+    color: #1890ff;            /* 글자: 진한 파랑 */
+    border: 1px solid #91d5ff;
+}
+
+.badge-default {
+    background-color: #f5f5f5;
+    color: #666;
+    border: 1px solid #d9d9d9;
+}
+
+.text-content {
+    word-break: keep-all; /* 단어 단위로 줄바꿈 (한글 가독성 up) */
+}
+
+.btn-download {
+    display: flex;              /* 아이콘 중앙 정렬용 */
+    align-items: center;
+    justify-content: center;
+    width: 30px;               /* 버튼 크기 고정 */
+    height: 30px;
+    background-color: #fff;
+    border: 1px solid #ddd;    /* 테두리 */
+    border-radius: 8px;        /* 둥근 모서리 */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;     /* a태그 밑줄 제거 */
+    flex-shrink: 0;            /* 화면 줄어들어도 버튼 찌그러짐 방지 */
+}
+.btn-download img {
+    width: 15px;               /* 아이콘 크기 */
+    height: 15px;
+    object-fit: contain;
+    opacity: 0.7;              /* 살짝 흐리게 */
+    transition: opacity 0.2s;
+}
+
+/* 마우스 올렸을 때 효과 */
+.btn-download:hover {
+    background-color: #f0f0f0;
+    border-color: #bbb;
+}
+
+.btn-download:hover img {
+    opacity: 1; /* 아이콘 진하게 */
+}
+
+
 
 /* =========================================
    7. Responsive (Mobile <= 768px)

@@ -1,5 +1,6 @@
 package com.learnit.learnit.course.repository;
 
+import com.learnit.learnit.course.dto.CourseFile;
 import com.learnit.learnit.course.dto.CourseVideo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -26,4 +27,6 @@ public interface CourseVideoMapper {
     void updateChapterDuration(@Param("chapterId") Long chapterId, @Param("duration") int duration);
 
     List<CourseVideo> selectChapterList(@Param("courseId") Long courseId);
+
+    List<CourseFile> selectCourseResources(Long courseId);
 }

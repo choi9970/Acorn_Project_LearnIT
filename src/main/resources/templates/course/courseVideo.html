@@ -18,7 +18,10 @@
         <span class="course-title" th:text="${chapter.title}">강의 제목</span>
     </div>
     <div class="header-right">
-        <button class="header-nav-btn prev" th:if="${prevChapterId != null}" th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${prevChapterId})}'|">
+
+        <button class="header-nav-btn prev"
+                th:if="${prevChapterId != null}"
+                th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${prevChapterId})}'|">
             <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전"><span>이전</span>
         </button>
         <button class="header-nav-btn prev disabled" th:if="${prevChapterId == null}" disabled>
@@ -27,12 +30,26 @@
 
         <div class="nav-divider"></div>
 
-        <button class="header-nav-btn next" th:if="${nextChapterId != null}" th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${nextChapterId})}'|">
-            <span>다음</span><img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+        <button class="header-nav-btn next"
+                th:if="${nextIsQuiz}"
+                th:onclick="|playContent(${nextQuizId}, 'QUIZ')|">
+            <span>다음</span> <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
         </button>
-        <button class="header-nav-btn next disabled" th:if="${nextChapterId == null}" disabled>
-            <span>다음</span><img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+
+        <button class="header-nav-btn next"
+                th:if="${!nextIsQuiz && nextChapterId != null}"
+                th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${nextChapterId})}'|">
+            <span>다음</span>
+            <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
         </button>
+
+        <button class="header-nav-btn next disabled"
+                th:if="${!nextIsQuiz && nextChapterId == null}"
+                disabled>
+            <span>다음</span>
+            <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+        </button>
+
     </div>
 </header>
 
@@ -65,7 +82,7 @@
             <div class="icon-wrap"><img th:src="@{/images/course/icon-qna.png}" class="menu-icon"></div>
             <span class="menu-label">Q&A</span>
         </a>
-        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('file')">
+        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('reference')">
             <div class="icon-wrap"><img th:src="@{/images/course/icon-file-download.png}" class="menu-icon"></div>
             <span class="menu-label">자료실</span>
         </a>

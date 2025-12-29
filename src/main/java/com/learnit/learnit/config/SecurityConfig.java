@@ -25,7 +25,7 @@ public class SecurityConfig {
                     "/css/**", "/js/**", "/images/**", "/files/**", "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
                     "/api/user/check-email", "/api/courses", "/api/search/**", "/mypage/**",
                     "/oauth2/authorization/**", "/login/oauth2/code/**", "/api/quiz/**",
-                        "/api/interpreter/**").permitAll()
+                        "/api/interpreter/**", "/api/resources/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2

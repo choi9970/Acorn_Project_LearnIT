@@ -1,5 +1,6 @@
 package com.learnit.learnit.course.controller;
 
+import com.learnit.learnit.course.dto.CourseFile;
 import com.learnit.learnit.course.dto.CourseVideo;
 import com.learnit.learnit.course.dto.CurriculumSection;
 import com.learnit.learnit.course.service.CourseVideoService;
@@ -40,29 +41,9 @@ public class CourseVideoController {
         // 이전/다음 챕터 계산
         Long prevChapterId = courseVideoService.getPrevChapterId(courseId, chapter.getOrderIndex());
         Long nextChapterId = courseVideoService.getNextChapterId(courseId, chapter.getOrderIndex());
+        Long nextQuizId = courseVideoService.getNextQuizId(chapter, nextChapterId, quizMap);
 
-        // 다음 버튼이 퀴즈로 가야 하는지 판단
-        boolean nextIsQuiz = false;
-        Long nextQuizId = null;
-
-        // 현재 섹션에 해당하는 퀴즈가 있는지 확인
-        if (quizMap.containsKey(chapter.getSectionTitle())) {
-            // 조건 1: 다음 영상이 아예 없거나 (코스 끝)
-            // 조건 2: 다음 영상의 섹션이 현재와 다르다면 (섹션 끝)
-            if (nextChapterId == null) {
-                nextIsQuiz = true;
-            } else {
-                CourseVideo nextChapter = courseVideoService.getChapterDetail(nextChapterId);
-                if (nextChapter != null && !nextChapter.getSectionTitle().equals(chapter.getSectionTitle())) {
-                    nextIsQuiz = true;
-                }
-            }
-
-            // 퀴즈로 가야 한다면 퀴즈 ID 설정
-            if (nextIsQuiz) {
-                nextQuizId = quizMap.get(chapter.getSectionTitle()).getQuizId();
-            }
-        }
+        boolean nextIsQuiz = (nextQuizId != null);
 
         // 나머지 데이터
         int progressPercent = courseVideoService.getProgressPercent(userId, courseId);
@@ -94,6 +75,10 @@ public class CourseVideoController {
 
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
 
+        if (userId == null) {
+            return "login_required"; // 에러 내지 말고 문자열 반환
+        }
+
         Integer playTime = (Integer) payload.get("playTime");
         courseVideoService.saveStudyLog(userId, courseId, chapterId, playTime);
         return "ok";
@@ -103,5 +88,12 @@ public class CourseVideoController {
     @ResponseBody
     public void updateDuration(@RequestParam Long chapterId, @RequestParam int duration) {
         courseVideoService.updateChapterDuration(chapterId, duration);
+    }
+
+    // 자료실 리스트를 주는 API 추가
+    @GetMapping("/api/resources")
+    @ResponseBody
+    public List<CourseFile> getResources(@RequestParam("courseId") Long courseId) {
+        return courseVideoService.getCourseResources(courseId);
     }
 }

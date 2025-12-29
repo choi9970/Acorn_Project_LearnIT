@@ -1,8 +1,10 @@
 package com.learnit.learnit.course.service;
 
+import com.learnit.learnit.course.dto.CourseFile;
 import com.learnit.learnit.course.dto.CourseVideo;
 import com.learnit.learnit.course.dto.CurriculumSection;
 import com.learnit.learnit.course.repository.CourseVideoMapper;
+import com.learnit.learnit.quiz.dto.Quiz;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -61,5 +63,29 @@ public class CourseVideoService {
         }
 
         return result;
+    }
+
+    public List<CourseFile> getCourseResources(Long courseId) {
+        return courseVideoMapper.selectCourseResources(courseId);
+    }
+
+    public Long getNextQuizId(CourseVideo currentChapter, Long nextChapterId, Map<String, Quiz> quizMap) {
+
+        if (!quizMap.containsKey(currentChapter.getSectionTitle())) {
+            return null;
+        }
+        Quiz sectionQuiz = quizMap.get(currentChapter.getSectionTitle());
+
+        if (nextChapterId == null) {
+            return sectionQuiz.getQuizId();
+        }
+
+        CourseVideo nextChapter = this.getChapterDetail(nextChapterId);
+
+        if (nextChapter != null && !nextChapter.getSectionTitle().equals(currentChapter.getSectionTitle())) {
+            return sectionQuiz.getQuizId();
+        }
+
+        return null;
     }
 }

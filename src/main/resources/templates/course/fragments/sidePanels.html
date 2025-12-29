@@ -12,9 +12,6 @@
         <div class="panel-header"><h3>Q&A</h3><button onclick="closePanel()" class="close-btn">×</button></div>
         <div class="panel-body"><p style="padding:20px; text-align:center;">질문 내역이 없습니다.</p></div>
     </div>
-    <div id="content-file" class="panel-content-box" style="display:none;">
-        <div class="panel-header"><h3>강의 자료실</h3><button onclick="closePanel()" class="close-btn">×</button></div>
-        <div class="panel-body"><p style="padding:20px; text-align:center;">자료가 없습니다.</p></div>
-    </div>
+    <div th:replace="~{course/fragments/videoFile :: resourceContent}"></div>
 </div>
 </html>
