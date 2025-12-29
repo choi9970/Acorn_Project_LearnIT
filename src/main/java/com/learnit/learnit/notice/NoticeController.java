@@ -101,7 +101,7 @@ public class NoticeController {
             os.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            // 파일 다운로드 오류 처리
         }
     }
 }

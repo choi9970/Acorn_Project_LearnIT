@@ -1,0 +1,233 @@
+package com.learnit.learnit.user.controller;
+
+import com.learnit.learnit.user.dto.LoginRequestDTO;
+import com.learnit.learnit.user.entity.User;
+import com.learnit.learnit.user.service.EmailService;
+import com.learnit.learnit.user.service.SessionService;
+import com.learnit.learnit.user.service.UserService;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Controller
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
+    private final SessionService sessionService;
+    private final EmailService emailService;
+
+    @GetMapping("/login")
+    public String showLoginForm(@RequestParam(required = false) String error, Model model, HttpSession session) {
+        if (error != null) {
+            // OAuth 오류 메시지가 있으면 사용, 없으면 기본 메시지
+            String oauthError = (String) session.getAttribute("oauthError");
+            if (oauthError != null) {
+                model.addAttribute("error", oauthError);
+                session.removeAttribute("oauthError"); // 한 번만 표시
+            } else {
+                model.addAttribute("error", "로그인에 실패했습니다.");
+            }
+        }
+        return "user/login";
+    }
+
+    @PostMapping("/login")
+    public String doLogin(
+            @RequestParam String email,
+            @RequestParam String password,
+            HttpSession session,
+            Model model
+    ) {
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setEmail(email);
+        request.setPassword(password);
+
+        User user = userService.login(request);
+
+        if (user == null) {
+            model.addAttribute("error", "이메일 또는 비밀번호가 맞지 않습니다.");
+            return "user/login";
+        }
+
+        userService.setLoginSession(session, user);
+        return "redirect:/home";
+    }
+
+    @GetMapping("/signup")
+    public String showSignupForm() {
+        return "user/signup";
+    }
+
+    /**
+     * 이메일 중복 체크 API
+     */
+    @GetMapping("/api/user/check-email")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> checkEmail(@RequestParam String email) {
+        Map<String, Object> response = new HashMap<>();
+        
+        // 이메일 형식 검증
+        if (email == null || email.trim().isEmpty()) {
+            response.put("available", false);
+            response.put("message", "이메일을 입력해주세요.");
+            return ResponseEntity.ok(response);
+        }
+        
+        String emailPattern = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
+        if (!email.matches(emailPattern)) {
+            response.put("available", false);
+            response.put("message", "올바른 이메일 형식을 입력해주세요.");
+            return ResponseEntity.ok(response);
+        }
+        
+        // 이메일 중복 체크
+        boolean available = userService.isEmailAvailable(email);
+        if (available) {
+            response.put("available", true);
+            response.put("message", "사용 가능한 이메일입니다.");
+        } else {
+            response.put("available", false);
+            response.put("message", "이미 사용 중인 이메일입니다.");
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/signup")
+    public String doSignup(
+            @RequestParam String email,
+            @RequestParam String password,
+            @RequestParam(required = false) String passwordConfirm,
+            @RequestParam String name,
+            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String githubUrl,
+            Model model
+    ) {
+        // 비즈니스 로직은 Service에서 처리
+        try {
+            userService.signup(email, password, passwordConfirm, name, nickname, phone, region, githubUrl);
+            return "redirect:/login?success=true";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            return "user/signup";
+        }
+    }
+
+    @GetMapping("/user/additional-info")
+    public String showAdditionalInfoForm(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        
+        User user = userService.getUserById(userId);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        
+        // ACTIVE 상태면 이미 가입 완료된 사용자이므로 홈으로 리다이렉트
+        if (User.STATUS_ACTIVE.equals(user.getStatus())) {
+            return "redirect:/home";
+        }
+        
+        // SIGNUP_PENDING 상태만 추가 정보 입력 페이지 표시
+        return "user/additional-info";
+    }
+
+    @PostMapping("/user/additional-info")
+    public String submitAdditionalInfo(
+            @RequestParam String nickname,
+            @RequestParam String phone,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String githubUrl,
+            HttpSession session,
+            Model model
+    ) {
+        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        if (userId == null) {
+            return "redirect:/login";
+        }
+        
+        // 비즈니스 로직은 Service에서 처리
+        try {
+            // 추가 정보 업데이트 및 상태를 ACTIVE로 변경
+            userService.updateAdditionalInfo(userId, nickname, phone, region, githubUrl);
+            
+            // 업데이트된 사용자 정보 조회
+            User updatedUser = userService.getUserById(userId);
+            if (updatedUser == null) {
+                return "redirect:/login";
+            }
+            
+            // 세션 갱신 (ACTIVE 상태로 변경된 사용자 정보로)
+            sessionService.setLoginSession(session, updatedUser);
+            
+            return "redirect:/home";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            return "user/additional-info";
+        }
+    }
+
+    @GetMapping("/user/find-password")
+    public String showFindPasswordForm(Model model) {
+        // 초기값 설정 (템플릿에서 null 체크 오류 방지)
+        if (!model.containsAttribute("success")) {
+            model.addAttribute("success", null);
+        }
+        if (!model.containsAttribute("error")) {
+            model.addAttribute("error", null);
+        }
+        return "user/find-password";
+    }
+
+    @PostMapping("/user/find-password")
+    public String findPassword(
+            @RequestParam String email,
+            Model model
+    ) {
+        try {
+            // 비밀번호 찾기 처리
+            String tempPassword = userService.resetPassword(email);
+            
+            if (tempPassword != null) {
+                // 이메일 발송
+                try {
+                    emailService.sendTempPasswordEmail(email, tempPassword);
+                    model.addAttribute("success", 
+                        "임시 비밀번호가 이메일로 발송되었습니다. 이메일을 확인해주세요.");
+                } catch (Exception e) {
+                    model.addAttribute("error", 
+                        "이메일 발송에 실패했습니다. 관리자에게 문의해주세요.");
+                }
+            } else {
+                model.addAttribute("error", "등록되지 않은 이메일입니다.");
+            }
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            model.addAttribute("error", "비밀번호 찾기 중 오류가 발생했습니다.");
+        }
+        
+        return "user/find-password";
+    }
+
+    @PostMapping("/logout")
+    public String doLogout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/home";
+    }
+}
+

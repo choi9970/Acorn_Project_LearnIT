@@ -1,0 +1,434 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    padding: 4rem 2rem;
+    margin: 3rem 0;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 450px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 3.5rem 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin: 2rem 0;
+}
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    margin-top: 0;
+    color: #1a1a1a;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.login-form {
+    margin-bottom: 2.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: #333;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #2563eb;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.form-group .required {
+    color: #e74c3c;
+}
+
+/* 아이디 저장, 비밀번호 찾기 */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #4b5563;
+    transition: color 0.2s;
+}
+
+.checkbox-label:hover {
+    color: #6366f1;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    accent-color: #2563eb;
+}
+
+.forgot-password {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.forgot-password:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* Sign In 버튼 */
+.btn-signin {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-signin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+}
+
+.btn-signin:active {
+    transform: translateY(0);
+}
+
+/* 이메일 인증하기 버튼 */
+.form-group-with-button {
+    position: relative;
+}
+
+.input-with-button {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+.btn-verify {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-verify:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+}
+
+.btn-verify:active {
+    transform: translateY(0);
+}
+
+/* Select 드롭다운 */
+.select-wrapper {
+    position: relative;
+}
+
+.form-select {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 1rem;
+    background-color: #ffffff;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%232563eb' d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 3rem;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* 에러/성공 메시지 */
+.error-message {
+    background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+    color: #c33;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    border-left: 4px solid #e53e3e;
+    box-shadow: 0 2px 10px rgba(229, 62, 62, 0.1);
+}
+
+.success-message {
+    background: linear-gradient(135deg, #efe 0%, #dfd 100%);
+    color: #2d7d32;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    border-left: 4px solid #4caf50;
+    box-shadow: 0 2px 10px rgba(76, 175, 80, 0.1);
+}
+
+/* SNS 로그인 섹션 */
+.oauth-section {
+    margin: 2.5rem 0;
+}
+
+.divider {
+    text-align: center;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+.divider span {
+    background: white;
+    padding: 0 1.5rem;
+    color: #6b7280;
+    position: relative;
+    z-index: 1;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* SNS 버튼 */
+.oauth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-oauth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    color: #1a1a1a;
+}
+
+.btn-oauth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.btn-oauth:active {
+    transform: translateY(0);
+}
+
+.btn-oauth svg {
+    flex-shrink: 0;
+}
+
+.btn-kakao {
+    background-color: #FEE500;
+    color: #1a1a1a;
+}
+
+.btn-kakao:hover {
+    background-color: #FDD835;
+    box-shadow: 0 4px 15px rgba(253, 216, 53, 0.3);
+}
+
+.btn-google {
+    background-color: #4285F4;
+    color: white;
+}
+
+.btn-google:hover {
+    background-color: #357ae8;
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+}
+
+/* 회원가입 페이지 SNS 섹션 */
+.sns-section {
+    margin: 2.5rem 0;
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    border-radius: 12px;
+}
+
+.sns-question {
+    color: #4b5563;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.sns-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-sns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-sns:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.btn-sns svg {
+    flex-shrink: 0;
+}
+
+.btn-sns-google {
+    background-color: #4285F4;
+    color: white;
+}
+
+.btn-sns-google:hover {
+    background-color: #357ae8;
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+}
+
+.btn-sns-kakao {
+    background-color: #FEE500;
+    color: #1a1a1a;
+}
+
+.btn-sns-kakao:hover {
+    background-color: #FDD835;
+    box-shadow: 0 4px 15px rgba(253, 216, 53, 0.3);
+}
+
+/* 회원가입 링크 */
+.signup-link {
+    text-align: center;
+    margin-top: 2.5rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.signup-link a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    transition: all 0.2s;
+}
+
+.signup-link a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 2rem 1rem;
+        margin: 2rem 0;
+    }
+    
+    .login-box {
+        padding: 2.5rem 1.5rem;
+        border-radius: 12px;
+    }
+    
+    .login-box h2 {
+        font-size: 1.75rem;
+    }
+}

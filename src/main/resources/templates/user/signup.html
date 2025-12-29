@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+  <!-- title fragment -->
+  <title th:fragment="title">회원가입 - LearnIT</title>
+
+  <!--main content css-->
+  <th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/login/login.css}">
+  </th:block>
+</head>
+
+<body>
+
+<!-- content fragment -->
+<div th:fragment="content" class="login-container">
+  <div class="login-box">
+    <h2>회원가입</h2>
+    
+    <div th:if="${error}" class="error-message" th:text="${error}"></div>
+
+    <!-- 회원가입 폼 -->
+    <form th:action="@{/signup}" method="post" class="login-form">
+      <div class="form-group">
+        <label for="nickname">닉네임</label>
+        <input type="text" id="nickname" name="nickname" placeholder="닉네임을 입력하세요" autocomplete="nickname">
+      </div>
+
+      <div class="form-group form-group-with-button">
+        <label for="email">이메일</label>
+        <div class="input-with-button">
+          <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" autocomplete="email" required>
+          <button type="button" class="btn-verify">인증하기</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요 (최소 6자)" autocomplete="new-password" required minlength="6">
+      </div>
+
+      <div class="form-group">
+        <label for="passwordConfirm">비밀번호 확인</label>
+        <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" autocomplete="new-password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" placeholder="이름을 입력하세요" autocomplete="name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">전화번호</label>
+        <input type="tel" id="phone" name="phone" placeholder='01012341234("-"제외)' autocomplete="tel">
+      </div>
+
+      <div class="form-group">
+        <label for="region">주 활동 지역</label>
+        <div class="select-wrapper">
+          <select id="region" name="region" class="form-select" autocomplete="address-level1">
+            <option value="">활동 지역 선택(선택사항)</option>
+            <option value="서울">서울</option>
+            <option value="경기">경기</option>
+            <option value="인천">인천</option>
+            <option value="부산">부산</option>
+            <option value="대구">대구</option>
+            <option value="광주">광주</option>
+            <option value="대전">대전</option>
+            <option value="울산">울산</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-signin">회원가입</button>
+    </form>
+
+    <!-- SNS 계정 섹션 -->
+    <div class="sns-section">
+      <p class="sns-question">SNS 계정이 있으신가요?</p>
+      <div class="sns-buttons">
+        <a th:href="@{/oauth2/authorization/google}" class="btn-sns btn-sns-google">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.6 10.23c0-.82-.08-1.61-.22-2.36H10v4.48h5.4c-.28 1.41-1.08 2.6-2.28 3.4v2.85h3.69c2.16-1.99 3.4-4.9 3.4-8.37z" fill="#4285F4"/>
+            <path d="M10 20c2.7 0 4.96-.89 6.61-2.43l-3.69-2.85c-.9.6-2.05.96-3.32.96-2.55 0-4.7-1.66-5.47-3.9H1.07v2.94C2.72 17.07 6.09 20 10 20z" fill="#34A853"/>
+            <path d="M4.53 11.71c-.2-.6-.31-1.24-.31-1.9 0-.66.11-1.3.31-1.9V5.97H1.07C.38 7.24 0 8.6 0 10s.38 2.76 1.07 4.03l3.46-2.32z" fill="#FBBC05"/>
+            <path d="M10 3.98c1.44 0 2.73.49 3.74 1.45l2.78-2.78C14.96.99 12.7 0 10 0 6.09 0 2.72 2.93 1.07 7.07l3.46 2.35C5.3 5.64 7.45 3.98 10 3.98z" fill="#EA4335"/>
+          </svg>
+          <span>구글로 시작하기</span>
+        </a>
+        <a th:href="@{/oauth2/authorization/kakao}" class="btn-sns btn-sns-kakao">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 0C4.48 0 0 3.61 0 8.07c0 2.79 1.9 5.24 4.74 6.62l-.63 2.42c-.11.42.3.76.66.52l2.95-1.94c.49.07.99.1 1.48.1 5.52 0 10-3.61 10-8.07C20 3.61 15.52 0 10 0z" fill="#3C1E1E"/>
+          </svg>
+          <span>카카오로 시작하기</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 로그인 링크 -->
+    <div class="signup-link">
+      <span>이미 계정이 있으신가요? </span>
+      <a th:href="@{/login}">로그인</a>
+    </div>
+  </div>
+</div>
+
+<!--main content js-->
+<th:block th:fragment="script">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.login-form');
+    const passwordInput = document.getElementById('password');
+    const passwordConfirmInput = document.getElementById('passwordConfirm');
+    const emailInput = document.getElementById('email');
+    const nameInput = document.getElementById('name');
+    const verifyButton = document.querySelector('.btn-verify');
+    let isEmailVerified = false;
+    
+    // 이메일 인증하기 버튼 클릭 이벤트
+    if (verifyButton) {
+        verifyButton.addEventListener('click', function() {
+        const email = emailInput.value.trim();
+        
+        // 이메일 형식 검증
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+            alert('이메일을 입력해주세요.');
+            emailInput.focus();
+            return;
+        }
+        
+        if (!emailPattern.test(email)) {
+            alert('올바른 이메일 형식을 입력해주세요.');
+            emailInput.focus();
+            return;
+        }
+        
+        // 버튼 비활성화 및 로딩 표시
+        verifyButton.disabled = true;
+        verifyButton.textContent = '확인 중...';
+        
+        // AJAX로 이메일 중복 체크
+        fetch('/api/user/check-email?email=' + encodeURIComponent(email))
+            .then(response => response.json())
+            .then(data => {
+                if (data.available) {
+                    alert(data.message);
+                    isEmailVerified = true;
+                    emailInput.style.borderColor = '#10b981';
+                    verifyButton.textContent = '인증 완료';
+                    verifyButton.style.backgroundColor = '#10b981';
+                    verifyButton.style.color = '#fff';
+                    verifyButton.disabled = true;
+                } else {
+                    alert(data.message);
+                    isEmailVerified = false;
+                    emailInput.style.borderColor = '#ef4444';
+                    verifyButton.disabled = false;
+                    verifyButton.textContent = '인증하기';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('이메일 확인 중 오류가 발생했습니다. 다시 시도해주세요.');
+                verifyButton.disabled = false;
+                verifyButton.textContent = '인증하기';
+            });
+        });
+        
+        // 이메일 입력 시 인증 상태 초기화
+        emailInput.addEventListener('input', function() {
+            if (isEmailVerified) {
+                isEmailVerified = false;
+                emailInput.style.borderColor = '';
+                verifyButton.textContent = '인증하기';
+                verifyButton.style.backgroundColor = '';
+                verifyButton.style.color = '';
+                verifyButton.disabled = false;
+            }
+        });
+    }
+    
+    // 실시간 비밀번호 일치 확인
+    passwordConfirmInput.addEventListener('input', function() {
+        validatePasswordMatch();
+    });
+    
+    passwordInput.addEventListener('input', function() {
+        validatePasswordMatch();
+    });
+    
+    function validatePasswordMatch() {
+        const password = passwordInput.value;
+        const passwordConfirm = passwordConfirmInput.value;
+        
+        if (passwordConfirm && password !== passwordConfirm) {
+            passwordConfirmInput.setCustomValidity('비밀번호가 일치하지 않습니다.');
+            passwordConfirmInput.style.borderColor = '#ef4444';
+        } else {
+            passwordConfirmInput.setCustomValidity('');
+            passwordConfirmInput.style.borderColor = '';
+        }
+    }
+    
+    // 이메일 형식 검증
+    emailInput.addEventListener('input', function() {
+        const email = emailInput.value;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (email && !emailPattern.test(email)) {
+            emailInput.setCustomValidity('올바른 이메일 형식을 입력해주세요.');
+            emailInput.style.borderColor = '#ef4444';
+        } else {
+            emailInput.setCustomValidity('');
+            emailInput.style.borderColor = '';
+        }
+    });
+    
+    // 폼 제출 전 최종 검증
+    form.addEventListener('submit', function(e) {
+        const password = passwordInput.value;
+        const passwordConfirm = passwordConfirmInput.value;
+        const email = emailInput.value;
+        const name = nameInput.value.trim();
+        
+        // 이메일 인증 확인
+        if (verifyButton && !isEmailVerified) {
+            e.preventDefault();
+            alert('이메일 인증을 완료해주세요.');
+            verifyButton.focus();
+            return false;
+        }
+        
+        // 비밀번호 일치 검증
+        if (!passwordConfirm || password !== passwordConfirm) {
+            e.preventDefault();
+            alert('비밀번호가 일치하지 않습니다.');
+            passwordConfirmInput.focus();
+            return false;
+        }
+        
+        // 이메일 형식 검증
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            e.preventDefault();
+            alert('올바른 이메일 형식을 입력해주세요.');
+            emailInput.focus();
+            return false;
+        }
+        
+        // 이름 검증
+        if (!name || name.length < 2) {
+            e.preventDefault();
+            alert('이름을 2자 이상 입력해주세요.');
+            nameInput.focus();
+            return false;
+        }
+        
+        // 비밀번호 길이 검증
+        if (password.length < 6) {
+            e.preventDefault();
+            alert('비밀번호는 최소 6자 이상이어야 합니다.');
+            passwordInput.focus();
+            return false;
+        }
+    });
+});
+</script>
+</th:block>
+
+</body>
+</html>
+
