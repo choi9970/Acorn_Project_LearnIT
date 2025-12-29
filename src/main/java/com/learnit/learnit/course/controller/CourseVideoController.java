@@ -5,6 +5,7 @@ import com.learnit.learnit.course.dto.CurriculumSection;
 import com.learnit.learnit.course.service.CourseVideoService;
 import com.learnit.learnit.quiz.dto.Quiz;
 import com.learnit.learnit.quiz.service.QuizService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +24,7 @@ public class CourseVideoController {
     @GetMapping("/course/play")
     public String playCourseVideo(@RequestParam("courseId") Long courseId,
                                   @RequestParam("chapterId") Long chapterId,
+                                  HttpSession session,
                                   Model model) {
 
         // 현재 챕터 정보

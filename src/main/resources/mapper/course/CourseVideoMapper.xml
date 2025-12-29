@@ -77,7 +77,7 @@
             c.order_index AS orderIndex,
             c.video_url AS videoUrl,
             c.duration_sec AS durationSec,
-            c.section_title AS sectionTitle,
+            c.section_title AS sectionTitle
 
         FROM chapter c
         WHERE c.course_id = #{courseId}
