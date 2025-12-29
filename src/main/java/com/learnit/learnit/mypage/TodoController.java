@@ -60,8 +60,6 @@ public class TodoController {
             response.put("todo", savedTodo);
             return response;
         } catch (Exception e) {
-            System.err.println("할일 저장 컨트롤러 오류: " + e.getMessage());
-            e.printStackTrace();
             response.put("success", false);
             response.put("error", e.getMessage());
             return response;

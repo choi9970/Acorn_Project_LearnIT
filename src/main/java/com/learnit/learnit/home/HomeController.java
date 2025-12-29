@@ -11,6 +11,11 @@ public class HomeController {
 
     private final HomeService homeService;
 
+    @GetMapping("/")
+    public String root() {
+        return "redirect:/home";
+    }
+
     @GetMapping("/home")
     public String home(Model model) {
 

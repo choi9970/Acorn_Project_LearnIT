@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.user.mapper.UserMapper">
+
+    <!-- 단순 테스트용: 현재 시간 가져오기 -->
+    <select id="now" resultType="string">
+        SELECT NOW()
+    </select>
+
+    <!-- 사용자 정보 조회 (DTO) -->
+    <select id="selectUserById" resultType="com.learnit.learnit.user.dto.UserDTO">
+        SELECT 
+            user_id AS userId,
+            nickname,
+            email,
+            CASE 
+                WHEN profile_img IS NULL OR profile_img = '' OR profile_img = 'profile-default.png' 
+                THEN NULL 
+                ELSE profile_img 
+            END AS profileImageUrl
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 사용자 정보 조회 (Entity) - ID로 조회 -->
+    <select id="selectUserEntityById" resultType="com.learnit.learnit.user.entity.User">
+        SELECT 
+            user_id AS userId,
+            email,
+            password,
+            name,
+            nickname,
+            phone,
+            region,
+            github_url AS githubUrl,
+            role,
+            status,
+            provider,
+            provider_id AS providerId,
+            profile_img AS profileImg,
+            email_verified AS emailVerified,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 사용자 정보 조회 (Entity) - 이메일로 조회 -->
+    <select id="selectUserByEmail" resultType="com.learnit.learnit.user.entity.User">
+        SELECT 
+            user_id AS userId,
+            email,
+            password,
+            name,
+            nickname,
+            phone,
+            region,
+            github_url AS githubUrl,
+            role,
+            status,
+            provider,
+            provider_id AS providerId,
+            profile_img AS profileImg,
+            email_verified AS emailVerified,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM users
+        WHERE email = #{email}
+    </select>
+
+    <!-- 사용자 정보 조회 (Entity) - OAuth provider와 providerId로 조회 -->
+    <select id="selectUserByProviderAndProviderId" resultType="com.learnit.learnit.user.entity.User">
+        SELECT 
+            user_id AS userId,
+            email,
+            password,
+            name,
+            nickname,
+            phone,
+            region,
+            github_url AS githubUrl,
+            role,
+            status,
+            provider,
+            provider_id AS providerId,
+            profile_img AS profileImg,
+            email_verified AS emailVerified,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM users
+        WHERE provider = #{provider} AND provider_id = #{providerId}
+    </select>
+
+    <!-- 사용자 생성 -->
+    <insert id="insertUser" parameterType="com.learnit.learnit.user.entity.User" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO users (
+            email, password, name, nickname, phone, region,
+            github_url, role, status, provider, provider_id, profile_img,
+            email_verified, created_at, updated_at
+        ) VALUES (
+            #{email}, #{password}, #{name}, #{nickname}, #{phone}, #{region},
+            #{githubUrl}, #{role}, #{status}, #{provider}, #{providerId}, #{profileImg},
+            #{emailVerified}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <!-- 사용자 정보 업데이트 -->
+    <update id="updateUser" parameterType="com.learnit.learnit.user.entity.User">
+        UPDATE users
+        SET 
+            email = #{email},
+            password = #{password},
+            name = #{name},
+            nickname = #{nickname},
+            phone = #{phone},
+            region = #{region},
+            github_url = #{githubUrl},
+            role = #{role},
+            status = #{status},
+            provider = #{provider},
+            provider_id = #{providerId},
+            profile_img = #{profileImg},
+            email_verified = #{emailVerified},
+            updated_at = #{updatedAt}
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>
+
