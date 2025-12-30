@@ -18,9 +18,7 @@ public class CourseDTO {
     private String thumbnailUrl;     // 리스트용 썸네일
     private String detailImgUrl;     // 상세 페이지 이미지
 
-    private String openType;         // ALWAYS / PERIOD
-    private LocalDateTime openStart; // 제한 강의 시작일
-    private LocalDateTime openEnd;   // 제한 강의 종료일
+    private String openType;         // ALWAYS / PERIOD  (유지해도 되고, 화면에서는 periodText만 써도 됨)
 
     private String status;           // CLOSE / ACTIVE
 
@@ -28,8 +26,9 @@ public class CourseDTO {
     private LocalDateTime updatedAt; // 수정일
 
     private Integer deleteFlg;       // 삭제 플래그 (0:N, 1:Y)
-    private String instructorName; // 지식공유자
-    private String periodText;     // 수강기간(무제한 or 기간)
-    private String categoryName;   // 카테고리 태그
 
+    // 화면용(조인/가공값)
+    private String instructorName; // 지식공유자(강사명)
+    private String periodText;     // ✅ 수강기간(무제한 or 기간문구) -> 이걸로 판단
+    private String categoryName;   // 카테고리 태그
 }

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.learnit.learnit.courseDetail.CourseDetailMapper">
 
-    <select id="selectCourseDetail" resultType="com.learnit.learnit.course.CourseDTO">
+    <!-- 강의 상세 -->
+    <select id="selectCourseDetail" parameterType="int"
+            resultType="com.learnit.learnit.course.CourseDTO">
         SELECT
         c.course_id      AS courseId,
         c.category_id    AS categoryId,
@@ -15,39 +18,39 @@
         c.thumbnail_url  AS thumbnailUrl,
         c.detail_img_url AS detailImgUrl,
         c.open_type      AS openType,
-        c.open_start     AS openStart,
-        c.open_end       AS openEnd,
         c.status         AS status,
+        c.delete_flg     AS deleteFlg,
         c.created_at     AS createdAt,
         c.updated_at     AS updatedAt,
-        c.delete_flg     AS deleteFlg,
 
+        u.name           AS instructorName,
         cat.name         AS categoryName,
-        COALESCE(u.nickname, u.name) AS instructorName,
 
         CASE
         WHEN c.open_type = 'ALWAYS' THEN '무제한'
-        ELSE CONCAT(DATE_FORMAT(c.open_start, '%Y.%m.%d'), ' ~ ', DATE_FORMAT(c.open_end, '%Y.%m.%d'))
+        WHEN c.open_type = 'PERIOD'
+        THEN CONCAT(DATE_FORMAT(c.open_start, '%Y-%m-%d'), ' ~ ', DATE_FORMAT(c.open_end, '%Y-%m-%d'))
+        ELSE '무제한'
         END AS periodText
-
         FROM course c
-        LEFT JOIN category cat ON cat.category_id = c.category_id
-        LEFT JOIN users u ON u.user_id = c.user_id
+        LEFT JOIN users u ON c.user_id = u.user_id
+        LEFT JOIN category cat ON c.category_id = cat.category_id
         WHERE c.course_id = #{courseId}
         AND c.delete_flg = 0
     </select>
 
-    <!-- ✅ 커리큘럼(챕터) 조회 + section_title 포함 -->
-    <select id="selectChaptersByCourseId" resultType="com.learnit.learnit.courseDetail.ChapterDTO">
+    <!-- 커리큘럼(챕터) -->
+    <select id="selectChaptersByCourseId" parameterType="int"
+            resultType="com.learnit.learnit.courseDetail.ChapterDTO">
         SELECT
-        chapter_id     AS chapterId,
-        course_id      AS courseId,
-        title          AS title,
-        order_index    AS orderIndex,
-        section_title  AS sectionTitle
-        FROM chapter
-        WHERE course_id = #{courseId}
-        ORDER BY order_index ASC
+        ch.chapter_id    AS chapterId,
+        ch.course_id     AS courseId,
+        ch.title         AS title,
+        ch.order_index   AS orderIndex,
+        ch.section_title AS sectionTitle
+        FROM chapter ch
+        WHERE ch.course_id = #{courseId}
+        ORDER BY ch.order_index ASC
     </select>
 
 </mapper>
