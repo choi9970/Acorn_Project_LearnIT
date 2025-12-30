@@ -29,4 +29,6 @@ public interface CourseVideoMapper {
     List<CourseVideo> selectChapterList(@Param("courseId") Long courseId);
 
     List<CourseFile> selectCourseResources(Long courseId);
+
+    String selectEnrollmentStatus(@Param("userId") Long userId, @Param("courseId") Long courseId);
 }

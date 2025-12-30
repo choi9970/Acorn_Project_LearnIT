@@ -88,4 +88,10 @@ public class CourseVideoService {
 
         return null;
     }
+
+    public boolean isUserEnrolled(Long userId, Long courseId) {
+        String status = courseVideoMapper.selectEnrollmentStatus(userId, courseId);
+
+        return "ACTIVE".equals(status);
+    }
 }

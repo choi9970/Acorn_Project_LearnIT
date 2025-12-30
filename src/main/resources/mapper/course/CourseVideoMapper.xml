@@ -97,4 +97,11 @@
         ORDER BY c.order_index ASC, r.resource_id ASC
     </select>
 
+    <select id="selectEnrollmentStatus" resultType="String">
+        SELECT status
+        FROM enrollment
+        WHERE user_id = #{userId}
+          AND course_id = #{courseId}
+    </select>
+
 </mapper>

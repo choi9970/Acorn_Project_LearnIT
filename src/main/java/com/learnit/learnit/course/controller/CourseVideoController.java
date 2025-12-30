@@ -29,6 +29,14 @@ public class CourseVideoController {
                                   Model model) {
 
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        if (userId == null){
+            return "redirect:/login";
+        }
+
+        boolean isEnrolled = courseVideoService.isUserEnrolled(userId, courseId);
+        if (!isEnrolled){
+            return "redirect:/course/detail?courseId=" + courseId;
+        }
 
         // 현재 챕터 정보
         CourseVideo chapter = courseVideoService.getChapterDetail(chapterId);
