@@ -20,14 +20,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
-                    "/css/**", "/js/**", "/images/**", "/files/**", "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
-                    "/api/user/check-email", "/api/courses", "/api/search/**", "/mypage/**",
-                    "/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .oauth2Login(oauth2 -> oauth2
+                // SecurityConfig.java
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
+                                "/css/**", "/js/**", "/images/**", "/files/**",
+                                "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
+                                "/api/user/check-email", "/api/courses", "/api/search/**", "/mypage/**",
+                                "/oauth2/authorization/**", "/login/oauth2/code/**",
+
+                                // ✅ 추가: 세션 기반으로 컨트롤러에서 체크할 거라면 열어야 함
+                                "/cart/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+
+                .oauth2Login(oauth2 -> oauth2
                 .loginPage("/login")
                 .successHandler(oAuth2LoginSuccessHandler) // 커스텀 핸들러 사용 (SIGNUP_PENDING 체크 및 리다이렉트 처리)
                 .failureUrl("/login?error=true")

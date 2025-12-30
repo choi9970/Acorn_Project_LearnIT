@@ -1,0 +1,10 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="introFragment(course)">
+
+    <h2 class="cd-h2">강의 소개</h2>
+
+    <!-- ✅ 강의 상세 이미지 -->
+    <div class="cd-detail-img-wrap" th:if="${course.detailImgUrl != null}">
+        <img class="cd-detail-img" th:src="${course.detailImgUrl}" alt="강의 상세 이미지">
+    </div>
+
+</th:block>

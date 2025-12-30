@@ -1,0 +1,45 @@
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="detailHeader(course, activeTab, isLoggedIn)">
+
+    <div class="cd-top">
+
+        <div class="cd-hero">
+            <!-- 왼쪽: 텍스트 -->
+            <div class="cd-hero-left">
+                <h1 class="cd-title" th:text="${course.title}">강의 제목</h1>
+                <p class="cd-sub" th:text="${course.description}">강의 설명</p>
+
+                <span class="cd-badge"
+                      th:text="${course.categoryName != null ? course.categoryName : '카테고리'}">
+                    카테고리
+                </span>
+            </div>
+
+            <!-- 오른쪽: 배너 이미지 = thumbnailUrl -->
+            <div class="cd-hero-right">
+                <img class="cd-hero-img"
+                     th:src="${course.thumbnailUrl != null and !#strings.isEmpty(course.thumbnailUrl)}
+                            ? ${course.thumbnailUrl}
+                            : @{/images/sample/course_thumbnail.png}"
+                     alt="강의 썸네일">
+            </div>
+
+        </div>
+
+        <!-- 탭 -->
+        <div class="cd-tabs">
+            <a class="cd-tab"
+               th:href="@{/CourseDetail(courseId=${course.courseId}, tab='intro')}"
+               th:classappend="${activeTab == 'intro'} ? ' active' : ''">강의 소개</a>
+
+            <a class="cd-tab"
+               th:href="@{/CourseDetail(courseId=${course.courseId}, tab='curriculum')}"
+               th:classappend="${activeTab == 'curriculum'} ? ' active' : ''">커리큘럼</a>
+
+            <a class="cd-tab"
+               th:href="@{/CourseDetail(courseId=${course.courseId}, tab='reviews')}"
+               th:classappend="${activeTab == 'reviews'} ? ' active' : ''">수강평</a>
+        </div>
+
+    </div>
+</th:block>

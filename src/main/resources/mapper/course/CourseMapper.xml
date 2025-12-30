@@ -132,5 +132,16 @@
             AND c.price = 0
         </if>
     </select>
+    <select id="selectChaptersByCourseId" resultType="com.learnit.learnit.courseDetail.ChapterDTO">
+        SELECT
+        chapter_id     AS chapterId,
+        course_id      AS courseId,
+        title          AS title,
+        order_index    AS orderIndex,
+        section_title  AS sectionTitle
+        FROM chapter
+        WHERE course_id = #{courseId}
+        ORDER BY order_index ASC
+    </select>
 
 </mapper>

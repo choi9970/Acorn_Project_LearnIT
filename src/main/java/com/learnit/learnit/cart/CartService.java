@@ -16,11 +16,11 @@ public class CartService {
         return cartMapper.findByUserId(userId);
     }
 
-    public int removeItem(Long userId, Long cartId) {
-        return cartMapper.deleteByCartId(cartId, userId);
+    // ✅ 단일 삭제 (userId + cartId)
+    public void deleteItem(Long userId, Long cartId) {
+        cartMapper.deleteByUserIdAndCartId(userId, cartId);
     }
 
-    // ✅ 전체삭제
     public int clearCart(Long userId) {
         return cartMapper.deleteAllByUserId(userId);
     }
@@ -31,5 +31,13 @@ public class CartService {
             if (i.getPrice() != null) sum += i.getPrice();
         }
         return sum;
+    }
+
+    // ✅ 중복 담기 방지 + 담기
+    public boolean addToCart(Long userId, Long courseId) {
+        int cnt = cartMapper.exists(userId, courseId);
+        if (cnt > 0) return false;
+        cartMapper.insertCart(userId, courseId);
+        return true;
     }
 }

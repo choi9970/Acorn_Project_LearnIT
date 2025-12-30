@@ -1,0 +1,39 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="curriculumFragment(sectionMap, curriculumTotal)">
+
+    <div class="cd-cur-top">
+        <h2 class="cd-h2">커리큘럼</h2>
+
+        <div class="cd-cur-meta">
+            <span th:text="|전체 ${curriculumTotal}개|">전체 0개</span>
+        </div>
+    </div>
+
+    <div class="cd-accordion">
+
+        <!-- ✅ 비었을 때 -->
+        <div th:if="${sectionMap == null || sectionMap.isEmpty()}">
+            <ul class="cd-lesson-list">
+                <li class="cd-lesson">
+                    <span class="lesson-title">등록된 커리큘럼이 없습니다.</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ✅ 섹션별 출력 -->
+        <details th:each="entry : ${sectionMap}" open>
+            <summary>
+                <span class="sec-title" th:text="${entry.key}">섹션 1. HTML</span>
+                <span class="sec-count" th:text="|${#lists.size(entry.value)}개|">0개</span>
+            </summary>
+
+            <ul class="cd-lesson-list">
+                <li class="cd-lesson" th:each="ch : ${entry.value}">
+                    <span class="lesson-num" th:text="${ch.orderIndex}">1</span>
+                    <span class="lesson-title" th:text="${ch.title}">강의소개</span>
+                </li>
+            </ul>
+        </details>
+
+    </div>
+
+</th:block>

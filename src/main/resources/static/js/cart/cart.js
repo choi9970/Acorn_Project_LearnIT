@@ -42,3 +42,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderPrice();
 });
+async function addToCart(courseId) {
+  const res = await fetch('/cart/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ courseId })
+  });
+
+  const text = await res.text();
+
+  if (text === 'LOGIN_REQUIRED') {
+    alert('로그인이 필요합니다.');
+    location.href = '/login';
+    return;
+  }
+  if (text === 'DUPLICATE') {
+    alert('이미 장바구니에 담긴 강의입니다.');
+    return;
+  }
+  if (text === 'OK') {
+    alert('장바구니에 담았습니다!');
+    return;
+  }
+
+  console.log(text);
+  alert('처리 중 오류가 발생했습니다.');
+}

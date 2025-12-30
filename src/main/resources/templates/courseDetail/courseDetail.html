@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <title th:fragment="title">강의 상세</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail.css}">
+    </th:block>
+</head>
+
+<body>
+<div th:fragment="content" class="cd-wrap container">
+
+    <!-- ✅ 상단 헤더(배너+탭) -->
+    <div th:replace="~{courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab}, ${isLoggedIn})}"></div>
+
+    <section class="cd-body">
+        <!-- ✅ 왼쪽 탭 내용 -->
+        <div class="cd-left">
+            <th:block
+                    th:replace="${activeTab == 'curriculum'}
+                        ? ~{courseDetail/tabs/curriculum :: curriculumFragment(${sectionMap}, ${curriculumTotal})}
+                        : (${activeTab == 'reviews'}
+                            ? ~{courseDetail/tabs/reviews :: reviewsFragment(${reviews})}
+                            : ~{courseDetail/tabs/intro :: introFragment(${course})})">
+            </th:block>
+        </div>
+
+        <!-- ✅ 오른쪽 사이드바 -->
+        <div th:replace="~{courseDetail/fragments/detail-sidebar :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled})}"></div>
+    </section>
+
+    <!-- ✅ 모달: 중복 -->
+    <div class="modal-backdrop" id="modal-cart-dup" style="display:none;">
+        <div class="modal">
+            <p class="modal-text">이미 담겨져있는 강의입니다.<br>장바구니로 이동하시겠습니까?</p>
+            <div class="modal-actions">
+                <button type="button" class="btn modal-btn secondary" id="btn-cart-dup-no">아니오</button>
+                <button type="button" class="btn modal-btn" id="btn-cart-dup-yes">예</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ 모달: 신규 담김 -->
+    <div class="modal-backdrop" id="modal-cart-added" style="display:none;">
+        <div class="modal">
+            <p class="modal-text">
+                장바구니에 담았습니다.<br>
+                장바구니 페이지로 이동하시겠습니까?
+            </p>
+            <div class="modal-actions">
+                <button type="button" class="btn modal-btn secondary" id="btn-cart-added-no">아니오</button>
+                <button type="button" class="btn modal-btn" id="btn-cart-added-yes">예</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ 모달: 미완성(이어보기) -->
+    <div class="modal-backdrop" id="modal-incomplete" style="display:none;">
+        <div class="modal">
+            <p class="modal-text">아직 미완성입니다.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn modal-btn" id="btn-incomplete-ok">확인</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="script">
+    <script th:src="@{/js/courseDetail/course-detail.js}"></script>
+</th:block>
+</body>
+</html>
