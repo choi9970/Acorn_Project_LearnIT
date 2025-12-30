@@ -1,0 +1,145 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{
+        layout/mypage-layout :: layout(
+          ~{::title},
+          ~{::content},
+          ~{::css},
+          ~{::script}
+        )
+      }">
+
+<head>
+    <title th:fragment="title">개인정보 수정</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-navbar.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/profile-edit.css}">
+    </th:block>
+
+    <th:block th:fragment="script">
+        <script th:src="@{/js/mypage/profile-edit.js}"></script>
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+    <h1 class="page-title">개인정보 수정</h1>
+
+    <!-- 성공/에러 메시지 -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+    <div class="profile-edit-container">
+        <form id="profile-edit-form" th:action="@{/mypage/settings/update}" method="post" enctype="multipart/form-data">
+            <!-- 프로필 이미지 -->
+            <div class="form-group profile-image-group">
+                <label>프로필 이미지</label>
+                <div class="profile-image-upload">
+                    <div class="profile-image-preview">
+                        <img id="profile-image-preview" 
+                             th:src="${profile != null && profile.profileImageUrl != null ? profile.profileImageUrl : '/images/logo_icon.png'}" 
+                             alt="프로필 이미지 미리보기"
+                             onerror="this.src='/images/logo_icon.png'">
+                    </div>
+                    <div class="profile-image-actions">
+                        <input type="file" id="profile-image-input" name="profileImage" accept="image/*" style="display: none;">
+                        <button type="button" class="btn-upload" id="btn-upload-image">
+                            이미지 선택
+                        </button>
+                        <button type="button" class="btn-remove" id="btn-remove-image" style="display: none;">
+                            이미지 제거
+                        </button>
+                    </div>
+                    <small class="form-hint">JPG, PNG, GIF 파일만 업로드 가능합니다. (최대 5MB)</small>
+                </div>
+            </div>
+
+            <!-- 이름 -->
+            <div class="form-group">
+                <label for="name">이름</label>
+                <div class="input-group">
+                    <input type="text" id="name" name="name" class="form-input" 
+                           th:value="${profile != null ? profile.name : ''}" 
+                           placeholder="이름을 입력하세요">
+                    <button type="button" class="btn-edit" data-field="name">수정</button>
+                </div>
+            </div>
+
+            <!-- 비밀번호 -->
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-input" 
+                           placeholder="비밀번호를 입력하세요 (최소 8자)">
+                    <button type="button" class="btn-edit" data-field="password">수정</button>
+                </div>
+            </div>
+
+            <!-- 이메일 -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-group">
+                    <input type="email" id="email" name="email" class="form-input" 
+                           th:value="${profile != null ? profile.email : ''}" 
+                           placeholder="이메일을 입력하세요">
+                    <button type="button" class="btn-edit" data-field="email">수정</button>
+                </div>
+            </div>
+
+            <!-- 전화번호 -->
+            <div class="form-group">
+                <label for="phone">전화번호</label>
+                <div class="input-group">
+                    <input type="tel" id="phone" name="phone" class="form-input" 
+                           th:value="${profile != null ? profile.phone : ''}" 
+                           placeholder='01012341234("-"제외)'>
+                    <button type="button" class="btn-edit" data-field="phone">수정</button>
+                </div>
+            </div>
+
+            <!-- 깃허브 사용자명 -->
+            <div class="form-group">
+                <label for="githubUrl">GitHub 사용자명 (선택사항)</label>
+                <div class="input-group">
+                    <input type="text" id="githubUrl" name="githubUrl" class="form-input" 
+                           th:value="${profile != null && profile.githubUrl != null ? 
+                               (profile.githubUrl.contains('github.com/') ? 
+                                   profile.githubUrl.split('github.com/')[1].split('/')[0] : 
+                                   profile.githubUrl) : ''}" 
+                           placeholder="예: octocat">
+                    <button type="button" class="btn-edit" data-field="githubUrl">수정</button>
+                </div>
+                <small class="form-hint">GitHub 사용자명만 입력하세요. URL은 자동으로 생성됩니다.</small>
+            </div>
+
+            <!-- 주 활동 지역 -->
+            <div class="form-group">
+                <label for="region">주 활동 지역</label>
+                <div class="input-group">
+                    <select id="region" name="region" class="form-select">
+                        <option value="">활동 지역 선택</option>
+                        <option value="서울" th:selected="${profile != null && profile.region == '서울'}">서울</option>
+                        <option value="경기" th:selected="${profile != null && profile.region == '경기'}">경기</option>
+                        <option value="인천" th:selected="${profile != null && profile.region == '인천'}">인천</option>
+                        <option value="부산" th:selected="${profile != null && profile.region == '부산'}">부산</option>
+                        <option value="대구" th:selected="${profile != null && profile.region == '대구'}">대구</option>
+                        <option value="광주" th:selected="${profile != null && profile.region == '광주'}">광주</option>
+                        <option value="대전" th:selected="${profile != null && profile.region == '대전'}">대전</option>
+                        <option value="울산" th:selected="${profile != null && profile.region == '울산'}">울산</option>
+                        <option value="기타" th:selected="${profile != null && profile.region == '기타'}">기타</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">저장하기</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
+
