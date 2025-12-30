@@ -29,7 +29,7 @@ public class CourseDTO {
 
     // ✅ 화면용 가공값(문구) -> 이걸로 판단
     private String periodText;       // 수강기간(무제한 or 기간문구)
-
+     //하ㅜ
     // ❌ 제거(팀장님 지시)
     // private LocalDateTime openStart;
     // private LocalDateTime openEnd;
