@@ -5,7 +5,7 @@
 
 <mapper namespace="com.learnit.learnit.courseDetail.CourseDetailMapper">
 
-    <!-- 강의 상세 -->
+    <!-- ✅ 강의 상세: CourseDTO에 들어갈 컬럼만 SELECT -->
     <select id="selectCourseDetail" parameterType="int"
             resultType="com.learnit.learnit.course.CourseDTO">
         SELECT
@@ -21,25 +21,13 @@
         c.status         AS status,
         c.delete_flg     AS deleteFlg,
         c.created_at     AS createdAt,
-        c.updated_at     AS updatedAt,
-
-        u.name           AS instructorName,
-        cat.name         AS categoryName,
-
-        CASE
-        WHEN c.open_type = 'ALWAYS' THEN '무제한'
-        WHEN c.open_type = 'PERIOD'
-        THEN CONCAT(DATE_FORMAT(c.open_start, '%Y-%m-%d'), ' ~ ', DATE_FORMAT(c.open_end, '%Y-%m-%d'))
-        ELSE '무제한'
-        END AS periodText
+        c.updated_at     AS updatedAt
         FROM course c
-        LEFT JOIN users u ON c.user_id = u.user_id
-        LEFT JOIN category cat ON c.category_id = cat.category_id
         WHERE c.course_id = #{courseId}
         AND c.delete_flg = 0
     </select>
 
-    <!-- 커리큘럼(챕터) -->
+    <!-- ✅ 커리큘럼(챕터) -->
     <select id="selectChaptersByCourseId" parameterType="int"
             resultType="com.learnit.learnit.courseDetail.ChapterDTO">
         SELECT
@@ -51,6 +39,36 @@
         FROM chapter ch
         WHERE ch.course_id = #{courseId}
         ORDER BY ch.order_index ASC
+    </select>
+
+    <!-- ✅ 강사명: userId로 users.name 조회 -->
+    <select id="selectInstructorNameByUserId" parameterType="int" resultType="string">
+        SELECT u.name
+        FROM users u
+        WHERE u.user_id = #{userId}
+    </select>
+
+    <!-- ✅ periodText: openStart/openEnd를 DTO에 안 들고, 여기서 문자열로만 가공 -->
+    <select id="selectPeriodTextByCourseId" parameterType="int" resultType="string">
+        SELECT
+        CASE
+        WHEN c.open_type = 'ALWAYS' THEN '무제한'
+        WHEN c.open_type = 'PERIOD' THEN CONCAT(
+        DATE_FORMAT(c.open_start, '%Y-%m-%d'),
+        ' ~ ',
+        DATE_FORMAT(c.open_end, '%Y-%m-%d')
+        )
+        ELSE '무제한'
+        END AS periodText
+        FROM course c
+        WHERE c.course_id = #{courseId}
+    </select>
+
+    <!-- ✅ 카테고리명: categoryId로 category.name 조회 -->
+    <select id="selectCategoryNameByCategoryId" parameterType="int" resultType="string">
+        SELECT name
+        FROM category
+        WHERE category_id = #{categoryId}
     </select>
 
 </mapper>

@@ -14,10 +14,9 @@
 <div th:fragment="content" class="cd-wrap container">
 
     <!-- ✅ 상단 헤더(배너+탭) -->
-    <div th:replace="~{courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab}, ${isLoggedIn})}"></div>
+    <div th:replace="~{courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab}, ${isLoggedIn}, ${categoryName})}"></div>
 
     <section class="cd-body">
-        <!-- ✅ 왼쪽 탭 내용 -->
         <div class="cd-left">
             <th:block
                     th:replace="${activeTab == 'curriculum'}
@@ -28,11 +27,13 @@
             </th:block>
         </div>
 
-        <!-- ✅ 오른쪽 사이드바 -->
-        <div th:replace="~{courseDetail/fragments/detail-sidebar :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled})}"></div>
+        <!-- ✅ 오른쪽 사이드바 (⭐ 파라미터 5개로 반드시 맞추기) -->
+        <div th:replace="~{courseDetail/fragments/detail-sidebar
+            :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled}, ${instructorName}, ${periodText})}">
+        </div>
     </section>
 
-    <!-- ✅ 모달: 중복 -->
+    <!-- 모달들 -->
     <div class="modal-backdrop" id="modal-cart-dup" style="display:none;">
         <div class="modal">
             <p class="modal-text">이미 담겨져있는 강의입니다.<br>장바구니로 이동하시겠습니까?</p>
@@ -43,7 +44,6 @@
         </div>
     </div>
 
-    <!-- ✅ 모달: 신규 담김 -->
     <div class="modal-backdrop" id="modal-cart-added" style="display:none;">
         <div class="modal">
             <p class="modal-text">
@@ -57,7 +57,6 @@
         </div>
     </div>
 
-    <!-- ✅ 모달: 미완성(이어보기) -->
     <div class="modal-backdrop" id="modal-incomplete" style="display:none;">
         <div class="modal">
             <p class="modal-text">아직 미완성입니다.</p>

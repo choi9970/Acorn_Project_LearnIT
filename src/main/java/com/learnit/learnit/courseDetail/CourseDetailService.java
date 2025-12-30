@@ -22,26 +22,14 @@ public class CourseDetailService {
         return enrollmentMapper.countEnrollment(userId, courseId) > 0;
     }
 
-    /**
-     * ✅ 더미 제거: DB에서만 조회
-     * - 없으면 빈 리스트 반환
-     */
     public List<ChapterDTO> getChapters(int courseId) {
         List<ChapterDTO> list = courseDetailMapper.selectChaptersByCourseId(courseId);
         return (list == null) ? Collections.emptyList() : list;
     }
 
-    /**
-     * ✅ 섹션별 그룹핑 Map (DB 데이터 기반)
-     * - section_title 없으면 "섹션 1. 커리큘럼"으로 묶음
-     * - 챕터가 없으면 빈 Map 반환
-     */
     public Map<String, List<ChapterDTO>> getCurriculumSectionMap(int courseId) {
         List<ChapterDTO> chapters = getChapters(courseId);
-
-        if (chapters.isEmpty()) {
-            return Collections.emptyMap();
-        }
+        if (chapters.isEmpty()) return Collections.emptyMap();
 
         Map<String, List<ChapterDTO>> sectionMap = new LinkedHashMap<>();
         for (ChapterDTO ch : chapters) {
@@ -52,7 +40,18 @@ public class CourseDetailService {
         return sectionMap;
     }
 
-    public int getCurriculumTotalCount(int courseId) {
-        return getChapters(courseId).size();
+    // ✅ 추가: 화면용 값들 (DTO에 안 넣고 model로 주입)
+    public String getInstructorNameByUserId(Integer userId) {
+        if (userId == null) return null;
+        return courseDetailMapper.selectInstructorNameByUserId(userId);
+    }
+
+    public String getPeriodTextByCourseId(int courseId) {
+        return courseDetailMapper.selectPeriodTextByCourseId(courseId);
+    }
+
+    public String getCategoryNameByCategoryId(Integer categoryId) {
+        if (categoryId == null) return null;
+        return courseDetailMapper.selectCategoryNameByCategoryId(categoryId);
     }
 }
