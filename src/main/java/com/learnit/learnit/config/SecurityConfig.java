@@ -27,7 +27,6 @@ public class SecurityConfig {
                     "/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
                 .anyRequest().authenticated()
             )
-            )
             .oauth2Login(oauth2 -> oauth2
                     .loginPage("/login")
                     .successHandler(oAuth2LoginSuccessHandler) // 커스텀 핸들러 사용 (SIGNUP_PENDING 체크 및 리다이렉트 처리)
