@@ -1,5 +1,6 @@
-package com.learnit.learnit.mypage;
+package com.learnit.learnit.mypage.repository;
 
+import com.learnit.learnit.mypage.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

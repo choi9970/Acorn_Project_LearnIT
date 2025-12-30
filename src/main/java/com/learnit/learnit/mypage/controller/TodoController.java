@@ -1,5 +1,7 @@
-package com.learnit.learnit.mypage;
+package com.learnit.learnit.mypage.controller;
 
+import com.learnit.learnit.mypage.dto.TodoDTO;
+import com.learnit.learnit.mypage.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

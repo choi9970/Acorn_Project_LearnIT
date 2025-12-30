@@ -40,6 +40,25 @@
     display: block;
 }
 
+.nickname-link {
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.nickname-link:hover {
+    opacity: 0.7;
+}
+
+.nickname-link .nickname {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 0.4rem;
+    word-wrap: break-word;
+}
+
 .nickname {
     font-size: 1.6rem;
     font-weight: 600;
@@ -235,6 +254,25 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+}
+
+.mobile-nickname-link {
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.mobile-nickname-link:hover {
+    opacity: 0.7;
+}
+
+.mobile-nickname-link .mobile-nickname {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 0.4rem;
+    word-wrap: break-word;
 }
 
 .mobile-nickname {
