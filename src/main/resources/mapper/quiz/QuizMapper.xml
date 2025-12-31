@@ -7,9 +7,11 @@
         <id property="quizId" column="quiz_id"/>
         <result property="title" column="title"/>
         <result property="sectionTitle" column="section_title"/>
+        <result property="type" column="type"/>
         <collection property="questions" ofType="com.learnit.learnit.quiz.dto.Question">
             <id property="questionId" column="question_id"/>
             <result property="content" column="question_content"/>
+            <result property="explanation" column="explanation"/>
             <collection property="options" ofType="com.learnit.learnit.quiz.dto.QuizOption">
                 <id property="optionId" column="option_id"/>
                 <result property="content" column="option_content"/>
@@ -19,7 +21,11 @@
     </resultMap>
 
     <select id="selectQuizListByCourseId" resultType="com.learnit.learnit.quiz.dto.Quiz">
-        SELECT quiz_id AS quizId, title, section_title AS sectionTitle
+        SELECT
+            quiz_id AS quizId,
+            title,
+            section_title AS sectionTitle,
+            type
         FROM quiz
         WHERE course_id = #{courseId}
     </select>
@@ -31,6 +37,7 @@
             q.section_title,
             qu.question_id,
             qu.content AS question_content,
+            qu.explanation,
             qo.option_id,
             qo.content AS option_content,
             qo.is_correct

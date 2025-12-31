@@ -22,42 +22,39 @@ public class CourseVideoController {
     private final CourseVideoService courseVideoService;
     private final QuizService quizService; // 퀴즈 서비스 추가
 
+    //영상 화면
     @GetMapping("/course/play")
     public String playCourseVideo(@RequestParam("courseId") Long courseId,
                                   @RequestParam("chapterId") Long chapterId,
                                   HttpSession session,
                                   Model model) {
 
+        //로그인 및 수강 권한 체크
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
-        if (userId == null){
-            return "redirect:/login";
-        }
+        if (userId == null) return "redirect:/login";
 
         boolean isEnrolled = courseVideoService.isUserEnrolled(userId, courseId);
-        if (!isEnrolled){
-            return "redirect:/course/detail?courseId=" + courseId;
-        }
+        if (!isEnrolled) return "redirect:/course/detail?courseId=" + courseId;
 
-        // 현재 챕터 정보
+        // 현재 챕터 정보 로딩
         CourseVideo chapter = courseVideoService.getChapterDetail(chapterId);
 
-        // 퀴즈 정보 로딩 (섹션 제목을 키값으로 Map 생성)
-        List<Quiz> quizList = quizService.getQuizList(courseId);
-        Map<String, Quiz> quizMap = quizList.stream()
-                .collect(Collectors.toMap(Quiz::getSectionTitle, q -> q, (a, b) -> a));
+        // 퀴즈 정보 로딩
+        Map<String, Quiz> quizMap = quizService.getQuizSectionMap(courseId);
+        Long finalQuizId = quizService.getFinalQuizId(courseId);
 
-        // 이전/다음 챕터 계산
+        // 네비게이션 계산 (이전/다음)
         Long prevChapterId = courseVideoService.getPrevChapterId(courseId, chapter.getOrderIndex());
         Long nextChapterId = courseVideoService.getNextChapterId(courseId, chapter.getOrderIndex());
-        Long nextQuizId = courseVideoService.getNextQuizId(chapter, nextChapterId, quizMap);
 
+        // 다음 퀴즈 ID 계산 (중간 퀴즈용)
+        Long nextQuizId = courseVideoService.getNextQuizId(chapter, nextChapterId, quizMap);
         boolean nextIsQuiz = (nextQuizId != null);
 
-        // 나머지 데이터
+        // 기타 데이터 (진도율, 커리큘럼)
         int progressPercent = courseVideoService.getProgressPercent(userId, courseId);
         List<CurriculumSection> curriculum = courseVideoService.getCurriculumGrouped(courseId);
 
-        // 모델 담기
         model.addAttribute("chapter", chapter);
         model.addAttribute("courseId", courseId);
         model.addAttribute("prevChapterId", prevChapterId);
@@ -65,10 +62,10 @@ public class CourseVideoController {
         model.addAttribute("progressPercent", progressPercent);
         model.addAttribute("curriculum", curriculum);
 
-        // 퀴즈 관련 데이터
         model.addAttribute("quizMap", quizMap);
         model.addAttribute("nextIsQuiz", nextIsQuiz);
         model.addAttribute("nextQuizId", nextQuizId);
+        model.addAttribute("finalQuizId", finalQuizId);
 
         return "course/courseVideo";
     }

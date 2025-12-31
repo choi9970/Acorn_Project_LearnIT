@@ -26,10 +26,6 @@ public class InterpreterController {
         String sourceCode = payload.get("code");
         String languageId = payload.get("languageId");
 
-        System.out.println("언어 ID: " + languageId);
-        // 코드 내용은 너무 길 수 있으니 앞부분만 로그 출력
-        System.out.println("소스 코드(일부): " + (sourceCode.length() > 50 ? sourceCode.substring(0, 50) + "..." : sourceCode));
-
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -44,16 +40,12 @@ public class InterpreterController {
             ObjectMapper mapper = new ObjectMapper();
             String jsonBody = mapper.writeValueAsString(requestBody);
 
-            System.out.println("========== [2] 생성된 JSON 데이터 확인 ==========");
-            System.out.println(jsonBody); // 이 로그가 정상적으로 나오는지 확인하세요!
 
             // 문자열(jsonBody)을 담아서 보냅니다.
             HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
 
-            System.out.println("========== [3] Judge0 API 호출 시도 ==========");
             ResponseEntity<Map> response = restTemplate.postForEntity(JUDGE0_URL, entity, Map.class);
 
-            System.out.println("========== [4] Judge0 API 응답 성공 ==========");
             Map<String, Object> responseBody = response.getBody();
             Map<String, Object> result = new HashMap<>();
 
@@ -77,9 +69,6 @@ public class InterpreterController {
             return result;
 
         } catch (HttpClientErrorException e) {
-            System.out.println("========== [ERROR] API 호출 실패 (클라이언트 에러) ==========");
-            System.out.println("상태 코드: " + e.getStatusCode());
-            System.out.println("응답 본문: " + e.getResponseBodyAsString());
 
             Map<String, Object> error = new HashMap<>();
             error.put("output", "실행 실패 (" + e.getStatusCode() + "):\n" + e.getResponseBodyAsString());

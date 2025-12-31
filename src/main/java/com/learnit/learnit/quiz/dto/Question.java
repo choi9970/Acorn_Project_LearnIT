@@ -6,5 +6,6 @@ import java.util.List;
 public class Question {
     private Long questionId;
     private String content;
+    private String explanation;
     private List<QuizOption> options;
 }

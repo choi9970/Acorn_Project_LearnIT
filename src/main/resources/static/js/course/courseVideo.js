@@ -1,9 +1,3 @@
-/**
- * @file coursePlay.js
- * @description 온라인 강의 재생 화면 통합 제어 스크립트
- * @features 유튜브 플레이어 연동, 모나코 에디터 인터프리터, 동적 퀴즈 시스템
- */
-
 /* =========================================
    1. 전역 상태 및 데이터 관리
    ========================================= */
@@ -12,6 +6,7 @@ const state = {
     videoUrl: document.getElementById('video-url')?.value || null,
     courseId: document.getElementById('course-id')?.value || null,
     chapterId: document.getElementById('chapter-id')?.value || null,
+    nextChapterId: document.getElementById('next-chapter-id')?.value || null,
 
     // Player & Editor Instances
     player: null,
@@ -63,7 +58,7 @@ window.onYouTubeIframeAPIReady = function() {
     if (!currentVideoId) return;
     state.player = new YT.Player('player', {
         height: '100%', width: '100%', videoId: currentVideoId,
-        playerVars: { 'start': savedTime, 'rel': 0, 'autoplay': 0 },
+        playerVars: { 'start': 0, 'rel': 0, 'autoplay': 0 },
         events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
@@ -76,7 +71,18 @@ function onPlayerReady(event) {
         const duration = Math.floor(state.player.getDuration());
         if (duration > 0) saveDurationToServer(duration);
     }
-    if (savedTime > 0) state.player.seekTo(savedTime);
+    if (savedTime > 0) {
+        const min = Math.floor(savedTime / 60);
+        const sec = Math.floor(savedTime % 60);
+
+        const userSelectResume = confirm(`\"${min}분 ${sec}초\"까지 영상을 시청하셨습니다.\n이어보시겠습니까?`);
+
+        if(userSelectResume){
+            state.player.seekTo(savedTime);
+        }else{
+            state.player.seekTo(0);
+        }
+    };
 }
 
 function onPlayerStateChange(event) {
@@ -283,6 +289,10 @@ function renderQuestion() {
     document.getElementById('curr-q-idx').innerText = state.currentQIndex + 1;
     document.getElementById('question-content').innerText = question.content;
 
+    const expText = question.explanation ? question.explanation : "별도의 해설이 없습니다.";
+    document.getElementById('explanation-text').innerText = expText; // HTML 태그 허용하려면 innerHTML
+    document.getElementById('explanation-area').style.display = 'none'; // 숨김 상태로 시작
+
     const container = document.getElementById('options-container');
     container.innerHTML = '';
     container.classList.remove('graded');
@@ -322,7 +332,6 @@ function handleQuizAction() {
     else nextQuestion();
 }
 
-/** @description 실시간 채점 로직 (가장 강력한 비교 버전) */
 function checkAnswerLocally() {
     const question = state.quizData.questions[state.currentQIndex];
     const selectedBtn = document.querySelector('.option-item.selected');
@@ -364,6 +373,11 @@ function checkAnswerLocally() {
         }
     });
 
+    const explanationArea = document.getElementById('explanation-area');
+    if (explanationArea) {
+        explanationArea.style.display = 'block';
+    }
+
     // 버튼 텍스트 변경 (결과 보기 / 다음 문제)
     const nextBtn = document.getElementById('btn-next-question');
     const isLast = state.currentQIndex === state.quizData.questions.length - 1;
@@ -379,6 +393,31 @@ function nextQuestion() {
     }
 }
 
+function showQuizResultUI() {
+    const btn = document.querySelector('#quiz-step-result button'); // 결과 화면의 버튼
+
+    // HTML에 hidden input으로 박혀있는 파이널 퀴즈 ID 가져오기
+    const finalQuizIdElement = document.getElementById('final-quiz-id');
+    const finalQuizId = finalQuizIdElement ? finalQuizIdElement.value : null;
+
+    // 다음 챕터도 없고, 파이널 퀴즈가 대기 중이라면? (현재 푸는 게 파이널이 아님)
+    if (!state.nextChapterId && finalQuizId && state.quizData.type !== 'FINAL') {
+        btn.innerText = "파이널 퀴즈 풀기";
+        btn.style.backgroundColor = "#ff6b6b"; // 빨간색으로 강조
+    }
+    // 다음 챕터도 없고, (파이널 퀴즈도 없거나 OR 이미 파이널을 푼 경우) -> 완강
+    else if (!state.nextChapterId && (!finalQuizId || state.quizData.type === 'FINAL')) {
+        btn.innerText = "수강 완료 (메인으로)";
+        btn.style.backgroundColor = "#333";
+    }
+    // 다음 챕터가 있으면
+    else {
+        btn.innerText = "다음 강의 보기";
+        btn.style.backgroundColor = "#333";
+    }
+}
+
+
 /** @description 서버 기록 전송 및 100점 만점 결과 도출 */
 function submitQuizFinal() {
     fetch('/api/quiz/submit', {
@@ -391,6 +430,7 @@ function submitQuizFinal() {
             // 맞춘 개수 비율 기반 100점 만점 계산
             const ratioScore = Math.round((state.currentCorrectCount / state.quizData.questions.length) * 100);
             renderFinalResult(ratioScore, result.isPassed);
+            showQuizResultUI();
             showStep('result');
         })
         .catch(() => alert("결과 전송 중 오류 발생"));
@@ -408,48 +448,29 @@ function showStep(stepName) {
 
 /** @description 퀴즈 종료 후 다음 챕터로 이동 */
 function goToNextChapter() {
-    // 1. 현재 활성화된 리스트(ul.chapter-list) 찾기
-    const activeItem = document.querySelector('.chapter-list li.active');
-    if (!activeItem) {
-        console.error("현재 활성화된 강의 정보를 찾을 수 없습니다.");
+    // 이동할 경로 계산
+    const nextChapterId = state.nextChapterId;
+    const finalQuizIdElement = document.getElementById('final-quiz-id');
+    const finalQuizId = finalQuizIdElement ? finalQuizIdElement.value : null;
+
+    // 다음 영상(챕터)이 있으면 -> 영상으로 이동
+    if (nextChapterId) {
+        location.href = `/course/play?courseId=${state.courseId}&chapterId=${nextChapterId}`;
         return;
     }
 
-    const currentList = activeItem.closest('.chapter-list');
-
-    // 2. 전체 커리큘럼 영역 내에서 모든 섹션 헤더와 리스트를 가져옴
-    const allHeaders = Array.from(document.querySelectorAll('.section-header'));
-    const allLists = Array.from(document.querySelectorAll('.chapter-list'));
-
-    // 3. 현재 내가 몇 번째 리스트에 있는지 인덱스 파악
-    const currentListIdx = allLists.indexOf(currentList);
-
-    // 4. 다음 리스트가 존재하는지 확인
-    if (currentListIdx !== -1 && currentListIdx < allLists.length - 1) {
-        const nextChapterList = allLists[currentListIdx + 1];
-        const nextSectionHeader = allHeaders[currentListIdx + 1]; // 다음 섹션 헤더
-
-        // 5. 다음 리스트의 첫 번째 강의(a 태그) 찾기
-        const firstChapterLink = nextChapterList.querySelector('li a');
-
-        if (firstChapterLink) {
-            console.log(`${currentListIdx + 2}섹션의 첫 강의로 이동합니다.`);
-
-            // [추가 서비스] 다음 섹션이 닫혀있으면 열어줌
-            if (nextSectionHeader && nextSectionHeader.classList.contains('collapsed')) {
-                nextSectionHeader.click();
-            }
-
-            // 이동 실행
-            firstChapterLink.click();
-        } else {
-            alert("다음 섹션에 강의가 없습니다.");
-        }
-    } else {
-        // [결과] 다음 리스트가 아예 없을 때만 이 메시지가 뜸
-        alert("축하합니다! 마지막 섹션까지 모두 완료하셨습니다.");
+    // 다음 영상은 없는데, '파이널 퀴즈'가 있고, 지금 푸는 게 파이널이 아니라면?
+    if (finalQuizId && (!state.quizData || state.quizData.type !== 'FINAL')) {
+        playContent(finalQuizId, 'QUIZ');
+        return;
     }
-}
+
+    // 다음 영상도 없고, (파이널도 없거나 이미 다 품) -> 완강
+    if (!nextChapterId && (!finalQuizId || state.quizData?.type === 'FINAL')) {
+        alert("모든 강의와 평가를 완료했습니다! 수고하셨습니다. 🎉");
+        location.href = `/course/detail?courseId=${state.courseId}`;
+        return;
+    }
 
 /* =========================================
    자료실 기능
@@ -517,5 +538,6 @@ function loadResources() {
             console.error(err);
             listContainer.innerHTML = '<li style="padding:15px; text-align:center;">자료를 불러오지 못했습니다.</li>';
         });
+    }
 }
 
