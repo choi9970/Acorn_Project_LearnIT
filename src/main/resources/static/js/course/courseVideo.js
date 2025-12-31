@@ -35,6 +35,19 @@ function initApp() {
     }
 }
 
+function goBackOrHome() {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        history.back();
+    } else {
+        const courseId = document.getElementById('course-id')?.value;
+        if (courseId) {
+            location.href = '/course/detail?courseId=' + courseId;
+        } else {
+            location.href = '/'; // Fallback to home if courseId is missing
+        }
+    }
+}
+
 /* =========================================
    2. Helper Functions (API, Utils)
    ========================================= */

@@ -28,8 +28,10 @@
 
             <ul class="cd-lesson-list">
                 <li class="cd-lesson" th:each="ch : ${entry.value}">
-                    <span class="lesson-num" th:text="${ch.orderIndex}">1</span>
-                    <span class="lesson-title" th:text="${ch.title}">강의소개</span>
+                    <a th:href="@{/course/play(courseId=${ch.courseId}, chapterId=${ch.chapterId})}" class="lesson-link">
+                        <span class="lesson-num" th:text="${ch.orderIndex}">1</span>
+                        <span class="lesson-title" th:text="${ch.title}">강의소개</span>
+                    </a>
                 </li>
             </ul>
         </details>

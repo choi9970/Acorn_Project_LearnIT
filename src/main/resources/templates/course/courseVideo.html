@@ -15,6 +15,9 @@
 
 <header class="top-header">
     <div class="header-left">
+        <button class="header-nav-btn" onclick="goBackOrHome()">
+            <img th:src="@{/images/course/icon-left-arrow.png}" alt="뒤로가기">
+        </button>
         <span class="course-title" th:text="${chapter.title}">강의 제목</span>
     </div>
     <div class="header-right">

@@ -79,6 +79,12 @@ public class CourseDetailController {
 
         model.addAttribute("curriculumTotal", chapters.size());
 
+        // 이어보기 (수강 중일 때만)
+        if (isEnrolled) {
+            Long lastWatchedChapterId = courseDetailService.getLastWatchedChapterId(loginUserId, courseId);
+            model.addAttribute("lastWatchedChapterId", lastWatchedChapterId);
+        }
+
         // 리뷰(추후)
         model.addAttribute("reviews", Collections.emptyList());
     }

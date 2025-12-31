@@ -27,9 +27,9 @@
             </th:block>
         </div>
 
-        <!-- ✅ 오른쪽 사이드바 (⭐ 파라미터 5개로 반드시 맞추기) -->
+        <!-- ✅ 오른쪽 사이드바 (⭐ 파라미터 6개로 맞춤) -->
         <div th:replace="~{courseDetail/fragments/detail-sidebar
-            :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled}, ${instructorName}, ${periodText})}">
+            :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled}, ${instructorName}, ${periodText}, ${lastWatchedChapterId})}">
         </div>
     </section>
 

@@ -54,7 +54,7 @@
                             <img th:if="${i.thumbnailUrl != null}"
                                  th:src="${i.thumbnailUrl}"
                                  alt=""
-                                 style="width:100%;height:100%;object-fit:cover;border-radius:1rem;">
+                                 class="cart-img-style">
                         </div>
 
                     </div>
@@ -80,7 +80,7 @@
                     </form>
                 </article>
 
-                <div th:if="${#lists.isEmpty(items)}" style="padding: 2rem; color:#666;">
+                <div th:if="${#lists.isEmpty(items)}" class="cart-empty-msg">
                     장바구니가 비어있습니다.
                 </div>
 

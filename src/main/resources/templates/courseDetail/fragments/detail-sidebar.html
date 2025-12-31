@@ -1,5 +1,5 @@
 <th:block xmlns:th="http://www.thymeleaf.org"
-          th:fragment="detailSidebar(course, isLoggedIn, isEnrolled, instructorName, periodText)">
+          th:fragment="detailSidebar(course, isLoggedIn, isEnrolled, instructorName, periodText, lastWatchedChapterId)">
 
     <aside class="cd-sidebar">
         <div class="cd-price">
@@ -8,7 +8,8 @@
 
         <button type="button" class="cd-btn primary"
                 th:if="${isLoggedIn and isEnrolled}"
-                data-action="continue">
+                data-action="continue"
+                th:attr="data-course-id=${course.courseId}, data-chapter-id=${lastWatchedChapterId}">
             이어 보기
         </button>
 

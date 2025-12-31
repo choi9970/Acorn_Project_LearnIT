@@ -19,4 +19,6 @@ public interface CourseDetailMapper {
     String selectPeriodTextByCourseId(@Param("courseId") int courseId);
 
     String selectCategoryNameByCategoryId(@Param("categoryId") int categoryId);
+
+    Long selectLastWatchedChapterId(@Param("userId") Long userId, @Param("courseId") int courseId);
 }

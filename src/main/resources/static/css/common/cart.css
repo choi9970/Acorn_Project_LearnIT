@@ -218,3 +218,16 @@
     border-width: 1px;
   }
 }
+
+/* ✅ 인라인 스타일 대체 클래스 */
+.cart-img-style {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1rem;
+}
+
+.cart-empty-msg {
+  padding: 2rem;
+  color: #666;
+}

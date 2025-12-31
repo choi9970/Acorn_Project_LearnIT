@@ -54,4 +54,18 @@ public class CourseDetailService {
         if (categoryId == null) return null;
         return courseDetailMapper.selectCategoryNameByCategoryId(categoryId);
     }
+
+    public Long getLastWatchedChapterId(Long userId, int courseId) {
+        Long lastChapterId = courseDetailMapper.selectLastWatchedChapterId(userId, courseId);
+        if (lastChapterId != null) {
+            return lastChapterId;
+        }
+
+        // 만약 시청 기록이 없다면 첫 번째 챕터 반환
+        List<ChapterDTO> chapters = getChapters(courseId);
+        if (!chapters.isEmpty()) {
+            return chapters.get(0).getChapterId();
+        }
+        return null; // 챕터가 아예 없는 경우
+    }
 }

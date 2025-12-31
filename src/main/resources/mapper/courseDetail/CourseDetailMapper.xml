@@ -71,4 +71,14 @@
         WHERE category_id = #{categoryId}
     </select>
 
+    <!-- 마지막 학습 챕터 조회 -->
+    <select id="selectLastWatchedChapterId" resultType="Long">
+        SELECT chapter_id
+        FROM study_log
+        WHERE user_id = #{userId}
+          AND course_id = #{courseId}
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+
 </mapper>

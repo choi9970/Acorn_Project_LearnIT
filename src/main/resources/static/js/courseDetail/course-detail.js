@@ -90,7 +90,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 4) 수강중: 이어보기
       if (action === "continue") {
-        if (modalIncomplete) modalIncomplete.style.display = "flex";
+        const courseId = btn.dataset.courseId;
+        const chapterId = btn.dataset.chapterId;
+
+        if (courseId && chapterId) {
+            location.href = `/course/play?courseId=${courseId}&chapterId=${chapterId}`;
+        } else {
+            alert("학습 기록이 없거나 챕터 정보를 찾을 수 없습니다.");
+        }
         return;
       }
     });

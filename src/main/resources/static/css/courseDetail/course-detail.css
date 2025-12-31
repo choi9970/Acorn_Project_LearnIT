@@ -129,22 +129,7 @@
 .cd-accordion summary::-webkit-details-marker { display:none; }
 
 .cd-lesson-list { padding: 0; margin: 0; }
-.cd-lesson {
-  display:flex;
-  gap: 1rem;
-  align-items:center;
-  padding: 1.2rem 1.6rem;
-  border-top: 1px solid #eee;
-}
-.lesson-num {
-  width: 2.6rem; height: 2.6rem;
-  display:flex; align-items:center; justify-content:center;
-  border-radius: 50%;
-  background:#111; color:#fff;
-  font-weight: 900;
-  font-size: 1.2rem;
-}
-.lesson-title { font-weight: 700; color:#222; }
+
 
 .review-card {
   border:1px solid #eee;
@@ -200,11 +185,21 @@
 
 .cd-lesson-list { padding: 0; margin:0; }
 .cd-lesson {
-  display:flex;
-  gap: 1.2rem;
-  align-items:center;
-  padding: 1.2rem 1.6rem;
+  padding: 0; /* padding 제거 후 link에 padding 부여 */
   border-top: 1px solid #eee;
+}
+.lesson-link {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  width: 100%;
+  padding: 1.2rem 1.6rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s;
+}
+.lesson-link:hover {
+  background-color: #f9f9f9;
 }
 .lesson-num { width: 2.4rem; font-weight:800; color:#111; }
 .lesson-title { color:#111; }
