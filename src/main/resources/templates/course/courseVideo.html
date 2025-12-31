@@ -56,7 +56,7 @@
 <div class="main-container">
 
     <main class="video-section">
-        <div class="video-wrapper" style="position: relative;">
+        <div class="video-wrapper">
 
             <div id="player"></div>
 
@@ -95,6 +95,7 @@
 <input type="hidden" id="chapter-id" th:value="${chapter.chapterId}">
 <input type="hidden" id="next-chapter-id" th:value="${nextChapterId}">
 <input type="hidden" id="final-quiz-id" th:value="${finalQuizId}">
+<input type="hidden" id="is-final-submitted" th:value="${isFinalSubmitted}">
 
 <script th:src="@{/js/course/courseVideo.js}"></script>
 <script src="https://www.youtube.com/iframe_api"></script>

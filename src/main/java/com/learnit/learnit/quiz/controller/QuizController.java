@@ -6,8 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.learnit.learnit.quiz.dto.QuizSubmitRequest;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/quiz")
@@ -17,15 +20,28 @@ public class QuizController {
     private final QuizService quizService;
 
     @GetMapping
-    // JS에서 'chapterId'라는 파라미터 이름으로 보내지만, 실제 값은 quizId입니다.
-    // 헷갈림 방지를 위해 변수는 받아주되 서비스엔 quizId로 넘깁니다.
-    public ResponseEntity<?> getQuiz(@RequestParam("chapterId") Long quizId) {
-
-        Quiz quiz = quizService.getQuiz(quizId);
+    public ResponseEntity<?> getQuiz(@RequestParam("chapterId") Long quizId, HttpSession session) {
+        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Quiz quiz = quizService.getQuiz(quizId, userId);
 
         if (quiz == null) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(quiz);
+    }
+
+    @PostMapping("/submit")
+    public ResponseEntity<?> submitQuiz(@RequestBody QuizSubmitRequest request, HttpSession session) {
+        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        if (userId == null) {
+            return ResponseEntity.status(403).body("로그인이 필요합니다.");
+        }
+
+        quizService.submitQuiz(userId, request);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("isPassed", true); // 추후 채점 로직 추가 가능
+        
+        return ResponseEntity.ok(result);
     }
 }

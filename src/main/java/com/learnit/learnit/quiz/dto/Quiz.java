@@ -9,5 +9,6 @@ public class Quiz {
     private String title;
     private String sectionTitle;
     private String type;
+    private boolean isSubmitted;
     private List<Question> questions;
 }

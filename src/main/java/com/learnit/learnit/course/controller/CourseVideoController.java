@@ -51,6 +51,12 @@ public class CourseVideoController {
         Long nextQuizId = courseVideoService.getNextQuizId(chapter, nextChapterId, quizMap);
         boolean nextIsQuiz = (nextQuizId != null);
 
+        //파이널 퀴즈 응시 여부 확인
+        boolean isFinalSubmitted = false;
+        if (finalQuizId != null) {
+            isFinalSubmitted = quizService.isQuizSubmitted(userId, finalQuizId);
+        }
+
         // 기타 데이터 (진도율, 커리큘럼)
         int progressPercent = courseVideoService.getProgressPercent(userId, courseId);
         List<CurriculumSection> curriculum = courseVideoService.getCurriculumGrouped(courseId);
@@ -66,6 +72,7 @@ public class CourseVideoController {
         model.addAttribute("nextIsQuiz", nextIsQuiz);
         model.addAttribute("nextQuizId", nextQuizId);
         model.addAttribute("finalQuizId", finalQuizId);
+        model.addAttribute("isFinalSubmitted", isFinalSubmitted);
 
         return "course/courseVideo";
     }

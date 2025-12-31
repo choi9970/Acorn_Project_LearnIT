@@ -48,4 +48,16 @@
         ORDER BY qu.question_id ASC, qo.option_id ASC
     </select>
 
+    <select id="countUserQuizHistory" resultType="int">
+        SELECT COUNT(*)
+        FROM user_answer ua
+                 JOIN question q ON ua.question_id = q.question_id
+        WHERE ua.user_id = #{userId}
+          AND q.quiz_id = #{quizId}
+    </select>
+
+    <insert id="insertUserAnswer">
+        INSERT INTO user_answer (user_id, question_id, sel_option_id, is_correct, answered_at)
+        VALUES (#{userId}, #{questionId}, #{optionId}, #{isCorrect}, NOW())
+    </insert>
 </mapper>
