@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.mypage.mapper.ProfileMapper">
+
+    <!-- 사용자 프로필 조회 -->
+    <select id="selectProfileByUserId" resultType="com.learnit.learnit.mypage.dto.ProfileDTO">
+        SELECT 
+            user_id AS userId,
+            name,
+            nickname,
+            email,
+            phone,
+            region,
+            github_url AS githubUrl,
+            CASE 
+                WHEN profile_img IS NULL OR profile_img = '' OR profile_img = 'profile-default.png' 
+                THEN NULL 
+                ELSE profile_img 
+            END AS profileImageUrl
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 개인정보 수정 -->
+    <update id="updateProfile">
+        UPDATE users
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="githubUrl != null">
+                github_url = #{githubUrl},
+            </if>
+            <if test="region != null">
+                region = #{region},
+            </if>
+            <if test="profileImg != null">
+                profile_img = #{profileImg},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+    
+    <!-- 프로필 이미지 업데이트 -->
+    <update id="updateProfileImage">
+        UPDATE users
+        SET profile_img = #{profileImg},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- GitHub 분석 결과 조회 -->
+    <select id="selectGitHubAnalysisByUserId" resultType="com.learnit.learnit.mypage.dto.GitHubAnalysisDTO">
+        SELECT 
+            analysis_id AS analysisId,
+            user_id AS userId,
+            github_username AS username,
+            total_repos AS totalRepos,
+            total_commits AS totalCommits,
+            most_used_language AS mostUsedLanguage,
+            language_stats AS languageStatsJson,
+            skill_levels AS skillLevelsJson,
+            analysis_date AS analysisDate
+        FROM github_analysis
+        WHERE user_id = #{userId}
+        ORDER BY analysis_date DESC
+        LIMIT 1
+    </select>
+
+    <!-- GitHub 분석 결과 저장/업데이트 -->
+    <insert id="upsertGitHubAnalysis">
+        INSERT INTO github_analysis (
+            user_id, github_username, total_repos, total_commits, 
+            most_used_language, language_stats, skill_levels, analysis_date
+        ) VALUES (
+            #{userId}, #{githubUsername}, #{totalRepos}, #{totalCommits},
+            #{mostUsedLanguage}, #{languageStatsJson}, #{skillLevelsJson}, #{analysisDate}
+        )
+        ON DUPLICATE KEY UPDATE
+            total_repos = #{totalRepos},
+            total_commits = #{totalCommits},
+            most_used_language = #{mostUsedLanguage},
+            language_stats = #{languageStatsJson},
+            skill_levels = #{skillLevelsJson},
+            analysis_date = #{analysisDate},
+            updated_at = NOW()
+    </insert>
+
+</mapper>
+

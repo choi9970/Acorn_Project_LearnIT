@@ -1,0 +1,13 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="reviewsFragment(reviews)">
+
+    <h2 class="cd-h2">수강평</h2>
+
+    <div class="review-card" th:each="r : ${reviews}">
+        <div class="review-top">
+            <b th:text="${r.name}">dmax</b>
+            <span>★ <span th:text="${r.rating}">5.0</span></span>
+        </div>
+        <p th:text="${r.comment}">후기</p>
+    </div>
+
+</th:block>

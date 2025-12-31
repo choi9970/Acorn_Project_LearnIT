@@ -1,7 +1,7 @@
 package com.learnit.learnit.search;
 
-import com.learnit.learnit.course.dto.CourseDTO;
-import com.learnit.learnit.course.repository.CourseMapper;
+import com.learnit.learnit.course.CourseDTO;
+import com.learnit.learnit.course.CourseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

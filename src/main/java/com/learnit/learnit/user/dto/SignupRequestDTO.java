@@ -11,5 +11,6 @@ public class SignupRequestDTO {
     private String nickname;
     private String phone;
     private String region;
+    private String githubUrl;
 }
 

@@ -1,0 +1,145 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{
+        layout/mypage-layout :: layout(
+          ~{::title},
+          ~{::content},
+          ~{::css},
+          ~{::script}
+        )
+      }">
+
+<head>
+    <title th:fragment="title">마이페이지 프로필</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-navbar.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/profile.css}">
+    </th:block>
+
+    <th:block th:fragment="script">
+        <!-- Chart.js 라이브러리 -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <!-- Thymeleaf에서 전달된 데이터를 JavaScript로 전달 -->
+        <script th:if="${skillChart != null}">
+            window.savedSkillChart = {
+                skillNames: /*[[${skillChart.skillNames}]]*/ [],
+                skillLevels: /*[[${skillChart.skillLevels}]]*/ []
+            };
+            window.savedAnalysis = /*[[${githubAnalysis}]]*/ null;
+            console.log('Thymeleaf에서 전달된 skillChart:', window.savedSkillChart);
+            console.log('Thymeleaf에서 전달된 analysis:', window.savedAnalysis);
+        </script>
+        <!-- 프로필 페이지 JavaScript -->
+        <script th:src="@{/js/mypage/profile.js}"></script>
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+    <h1 class="page-title">마이페이지 프로필</h1>
+
+    <div class="profile-container">
+        <!-- 프로필 상세 섹션 -->
+        <section class="profile-section profile-detail-section">
+            <h2 class="section-title">프로필 상세</h2>
+            <div class="profile-detail-content">
+                <div class="profile-photo-large">
+                    <img th:src="${profile != null && profile.profileImageUrl != null ? profile.profileImageUrl : '/images/logo_icon.png'}" 
+                         alt="프로필 이미지"
+                         onerror="this.src='/images/logo_icon.png'">
+                </div>
+                <div class="profile-info">
+                    <p class="profile-nickname" th:text="${profile != null && profile.nickname != null ? profile.nickname : '닉네임'}">닉네임</p>
+                    <p class="profile-id" th:text="'@' + ${profile != null && profile.email != null ? profile.email : '아이디'}">@아이디</p>
+                    <div class="profile-details">
+                        <div class="detail-item" th:if="${profile != null && profile.name != null}">
+                            <span class="detail-label">이름 :</span>
+                            <span class="detail-value" th:text="${profile.name}">전희연</span>
+                        </div>
+                        <div class="detail-item" th:if="${profile != null && profile.email != null}">
+                            <span class="detail-label">이메일 :</span>
+                            <span class="detail-value" th:text="${profile.email}">heeyeon@naver.com</span>
+                        </div>
+                        <div class="detail-item" th:if="${profile != null && profile.region != null}">
+                            <span class="detail-label">지역 :</span>
+                            <span class="detail-value" th:text="${profile.region}">서울</span>
+                        </div>
+                        <div class="detail-item" th:if="${profile != null && profile.githubUrl != null}">
+                            <span class="detail-label">깃허브 링크 :</span>
+                            <a th:href="${profile.githubUrl}" target="_blank" class="detail-value github-link" th:text="${profile.githubUrl}">github.com/heeyeon</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 배지 섹션 -->
+        <section class="profile-section badge-section">
+            <h2 class="section-title">배지</h2>
+            <div class="badge-content">
+                <p class="empty-message">배지가 없습니다.</p>
+            </div>
+        </section>
+
+        <!-- GitHub 분석 결과 섹션 -->
+        <section class="profile-section github-analysis-section">
+            <div class="section-header">
+                <h2 class="section-title">GitHub 분석 결과</h2>
+                <button id="analyze-github-btn" class="btn-analyze" th:if="${profile != null && profile.githubUrl != null}">
+                    분석하기
+                </button>
+            </div>
+            <div class="github-analysis-content" id="github-analysis-content">
+                <div class="loading-message" id="github-loading" style="display: none;">
+                    <p>분석 중...</p>
+                </div>
+                <div class="analysis-result" id="github-analysis-result" style="display: none;">
+                    <div class="analysis-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">레포지토리</span>
+                            <span class="stat-value" id="stat-repos">0</span>
+                        </div>
+                        <div class="stat-item" style="position: relative;">
+                            <span class="stat-label">개발 활동</span>
+                            <span class="stat-value" id="stat-forks">0</span>
+                            <div class="activity-tooltip" id="activity-tooltip" style="display: none;">
+                                <div class="tooltip-content"></div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">주요 언어</span>
+                            <span class="stat-value" id="stat-language">-</span>
+                        </div>
+                    </div>
+                    <div class="language-list" id="language-list"></div>
+                </div>
+                <p class="empty-message" id="github-empty">GitHub URL을 등록하고 분석을 시작하세요.</p>
+            </div>
+        </section>
+
+        <!-- 기술 육각형 스킬 차트 섹션 -->
+        <section class="profile-section skill-chart-section">
+            <h2 class="section-title">기술 육각형 스킬 차트</h2>
+            <div class="skill-chart-content">
+                <div class="chart-container" id="skill-chart-container" style="display: none;">
+                    <canvas id="skill-chart"></canvas>
+                </div>
+                <p class="empty-message" id="skill-chart-empty">스킬 차트 데이터가 없습니다.</p>
+            </div>
+        </section>
+
+        <!-- 참여 / 완료 스터디 섹션 -->
+        <section class="profile-section study-section">
+            <h2 class="section-title">참여 / 완료 스터디</h2>
+            <div class="study-content">
+                <p class="empty-message">참여한 스터디가 없습니다.</p>
+            </div>
+        </section>
+    </div>
+</div>
+
+</body>
+</html>
+

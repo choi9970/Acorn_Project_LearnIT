@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.learnit.learnit.course.repository.CourseMapper">
+<mapper namespace="com.learnit.learnit.course.CourseMapper">
     <select id="searchCourses"
-            resultType="com.learnit.learnit.course.dto.CourseDTO">
+            resultType="com.learnit.learnit.course.CourseDTO">
         SELECT
             c.course_id      AS courseId,
             c.category_id    AS categoryId,
@@ -65,7 +65,7 @@
     </select>
 
     <!-- ✅ 무한스크롤(페이지) 목록 -->
-    <select id="selectCoursesPage" resultType="com.learnit.learnit.course.dto.CourseDTO">
+    <select id="selectCoursesPage" resultType="com.learnit.learnit.course.CourseDTO">
         SELECT
         c.course_id      AS courseId,
         c.category_id    AS categoryId,
@@ -131,6 +131,17 @@
         <if test="tab == 'free'">
             AND c.price = 0
         </if>
+    </select>
+    <select id="selectChaptersByCourseId" resultType="com.learnit.learnit.courseDetail.ChapterDTO">
+        SELECT
+        chapter_id     AS chapterId,
+        course_id      AS courseId,
+        title          AS title,
+        order_index    AS orderIndex,
+        section_title  AS sectionTitle
+        FROM chapter
+        WHERE course_id = #{courseId}
+        ORDER BY order_index ASC
     </select>
 
 </mapper>

@@ -1,0 +1,44 @@
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="detailSidebar(course, isLoggedIn, isEnrolled, instructorName, periodText)">
+
+    <aside class="cd-sidebar">
+        <div class="cd-price">
+            <span th:text="${course.price == 0 ? '무료' : #numbers.formatInteger(course.price, 0, 'COMMA') + '원'}">0원</span>
+        </div>
+
+        <button type="button" class="cd-btn primary"
+                th:if="${isLoggedIn and isEnrolled}"
+                data-action="continue">
+            이어 보기
+        </button>
+
+        <button type="button" class="cd-btn primary"
+                th:if="${!isLoggedIn}"
+                data-action="login">
+            수강신청 하기
+        </button>
+
+        <div th:if="${isLoggedIn and !isEnrolled}">
+            <div class="cd-btn-row">
+                <button type="button" class="cd-btn primary half"
+                        data-action="enroll"
+                        th:attr="data-course-id=${course.courseId}">
+                    수강신청 하기
+                </button>
+
+                <button type="button" class="cd-btn secondary half"
+                        data-action="cartAdd"
+                        th:attr="data-course-id=${course.courseId}">
+                    장바구니 담기
+                </button>
+            </div>
+        </div>
+
+        <!-- ✅ DTO말고 model 값 사용 -->
+        <div class="cd-info">
+            <div class="row"><span>지식공유자</span><b th:text="${instructorName}">강사</b></div>
+            <div class="row"><span>수강기간</span><b th:text="${periodText}">무제한</b></div>
+        </div>
+    </aside>
+
+</th:block>

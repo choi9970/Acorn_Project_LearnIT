@@ -10,7 +10,9 @@
                      alt="프로필 이미지"
                      onerror="this.src='/images/logo_icon.png'">
             </div>
-            <p class="nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>
+            <a th:href="@{/mypage/profile}" class="nickname-link">
+                <p class="nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>
+            </a>
             <p class="user-id" th:text="${user != null && user.email != null ? user.email : '아이디'}">아이디</p>
         </div>
 
@@ -36,7 +38,9 @@
                      onerror="this.src='/images/logo_icon.png'">
             </div>
             <div class="mobile-profile-info">
-                <p class="mobile-nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>
+                <a th:href="@{/mypage/profile}" class="mobile-nickname-link">
+                    <p class="mobile-nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>
+                </a>
                 <p class="mobile-user-id" th:text="${user != null && user.email != null ? user.email : '아이디'}">아이디</p>
             </div>
         </div>

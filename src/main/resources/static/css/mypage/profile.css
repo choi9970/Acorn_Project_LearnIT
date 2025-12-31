@@ -1,0 +1,323 @@
+/* 프로필 페이지 스타일 */
+.page-title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 2.4rem;
+    color: #111;
+}
+
+.profile-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.4rem;
+}
+
+.profile-section {
+    background: #fff;
+    padding: 2.4rem;
+    border-radius: 1.6rem;
+    border: 1px solid #d5dbe3;
+    box-shadow: 0 0.2rem 0.6rem rgba(10, 74, 122, 0.08),
+                0 0.8rem 2rem rgba(10, 74, 122, 0.12);
+}
+
+.profile-detail-section {
+    grid-column: span 1;
+}
+
+.badge-section {
+    grid-column: span 1;
+}
+
+.github-analysis-section {
+    grid-column: span 2;
+}
+
+.skill-chart-section,
+.study-section {
+    grid-column: span 1;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.6rem;
+    color: #111;
+}
+
+/* 프로필 상세 */
+.profile-detail-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.6rem;
+}
+
+.profile-photo-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #d5dbe3;
+}
+
+.profile-photo-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-info {
+    text-align: center;
+    width: 100%;
+}
+
+.profile-nickname {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: #111;
+}
+
+.profile-id {
+    font-size: 1.4rem;
+    color: #666;
+    margin-bottom: 1.6rem;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: left;
+}
+
+.detail-item {
+    display: flex;
+    gap: 0.8rem;
+    font-size: 1.4rem;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #666;
+    min-width: 80px;
+}
+
+.detail-value {
+    color: #111;
+}
+
+.github-link {
+    color: #0A4A7A;
+    text-decoration: none;
+}
+
+.github-link:hover {
+    text-decoration: underline;
+}
+
+/* 빈 상태 메시지 */
+.empty-message {
+    color: #999;
+    font-size: 1.4rem;
+    text-align: center;
+    padding: 3rem 0;
+}
+
+/* GitHub 분석 섹션 */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.6rem;
+}
+
+.btn-analyze {
+    padding: 0.8rem 1.6rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #0A4A7A;
+    border: none;
+    border-radius: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-analyze:hover:not(:disabled) {
+    background-color: #083d63;
+}
+
+.btn-analyze:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.loading-message {
+    text-align: center;
+    padding: 3rem 0;
+    color: #666;
+    font-size: 1.4rem;
+}
+
+.analysis-result {
+    padding: 1.6rem 0;
+}
+
+.analysis-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.6rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.stat-label {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0A4A7A;
+    position: relative;
+}
+
+.stat-value[title] {
+    cursor: help;
+}
+
+/* 활동량 툴팁 */
+.activity-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 1rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 1.2rem;
+    box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.15);
+    padding: 1.6rem;
+    z-index: 1000;
+    min-width: 24rem;
+    max-width: 32rem;
+    white-space: normal;
+}
+
+.activity-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: -0.8rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 0.8rem solid transparent;
+    border-right: 0.8rem solid transparent;
+    border-top: 0.8rem solid white;
+}
+
+.activity-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -0.9rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 0.9rem solid transparent;
+    border-right: 0.9rem solid transparent;
+    border-top: 0.9rem solid #e0e0e0;
+}
+
+.tooltip-content {
+    font-size: 1.3rem;
+    line-height: 1.6;
+    color: #111;
+}
+
+.tooltip-content .tooltip-title {
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+    color: #0A4A7A;
+}
+
+.tooltip-content .tooltip-detail {
+    color: #666;
+    margin-bottom: 0.4rem;
+}
+
+.tooltip-content .tooltip-factors {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid #e0e0e0;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.language-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.language-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 0.8rem;
+    font-size: 1.4rem;
+}
+
+.language-name {
+    font-weight: 600;
+    color: #111;
+}
+
+.language-size {
+    color: #666;
+}
+
+/* 스킬 차트 섹션 */
+.chart-container {
+    padding: 2rem;
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#skill-chart {
+    max-width: 100%;
+    max-height: 500px;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-detail-section,
+    .badge-section,
+    .github-analysis-section,
+    .skill-chart-section,
+    .study-section {
+        grid-column: span 1;
+    }
+}
+

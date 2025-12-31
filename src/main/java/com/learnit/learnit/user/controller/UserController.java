@@ -1,6 +1,7 @@
 package com.learnit.learnit.user.controller;
 
 import com.learnit.learnit.user.dto.LoginRequestDTO;
+import com.learnit.learnit.user.dto.SignupRequestDTO;
 import com.learnit.learnit.user.entity.User;
 import com.learnit.learnit.user.service.EmailService;
 import com.learnit.learnit.user.service.SessionService;
@@ -115,9 +116,19 @@ public class UserController {
             @RequestParam(required = false) String githubUrl,
             Model model
     ) {
+        SignupRequestDTO request = new SignupRequestDTO();
+        request.setEmail(email);
+        request.setPassword(password);
+        request.setPasswordConfirm(passwordConfirm);
+        request.setName(name);
+        request.setNickname(nickname);
+        request.setPhone(phone);
+        request.setRegion(region);
+        request.setGithubUrl(githubUrl);
+
         // 비즈니스 로직은 Service에서 처리
         try {
-            userService.signup(email, password, passwordConfirm, name, nickname, phone, region, githubUrl);
+            userService.signup(request);
             return "redirect:/login?success=true";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
@@ -150,7 +161,7 @@ public class UserController {
     public String submitAdditionalInfo(
             @RequestParam String nickname,
             @RequestParam String phone,
-            @RequestParam(required = false) String region,
+            @RequestParam String region,
             @RequestParam(required = false) String githubUrl,
             HttpSession session,
             Model model
@@ -199,16 +210,21 @@ public class UserController {
             Model model
     ) {
         try {
-            // 비밀번호 찾기 처리
-            String tempPassword = userService.resetPassword(email);
+            // 1. 사용자 검증 및 임시 비밀번호 생성 (비밀번호는 아직 변경하지 않음)
+            String tempPassword = userService.preparePasswordReset(email);
             
             if (tempPassword != null) {
-                // 이메일 발송
+                // 2. 이메일 발송 시도 (발송 성공 시에만 비밀번호 변경)
                 try {
                     emailService.sendTempPasswordEmail(email, tempPassword);
+                    
+                    // 3. 이메일 발송 성공 시에만 비밀번호 변경
+                    userService.resetPassword(email, tempPassword);
+                    
                     model.addAttribute("success", 
                         "임시 비밀번호가 이메일로 발송되었습니다. 이메일을 확인해주세요.");
                 } catch (Exception e) {
+                    // 이메일 발송 실패 시 비밀번호는 변경하지 않음 (롤백)
                     model.addAttribute("error", 
                         "이메일 발송에 실패했습니다. 관리자에게 문의해주세요.");
                 }

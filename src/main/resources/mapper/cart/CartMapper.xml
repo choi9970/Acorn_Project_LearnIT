@@ -19,16 +19,45 @@
         ORDER BY c.cart_id DESC
     </select>
 
-    <delete id="deleteByCartId">
+    <!-- ✅ 중복 체크 -->
+    <select id="exists" resultType="int">
+        SELECT COUNT(*)
+        FROM cart
+        WHERE user_id = #{userId}
+        AND course_id = #{courseId}
+    </select>
+
+    <!-- ✅ 담기 -->
+    <insert id="insertCart">
+        INSERT INTO cart (user_id, course_id)
+        VALUES (#{userId}, #{courseId})
+    </insert>
+
+    <!-- ✅ 전체 삭제 -->
+    <delete id="deleteAllByUserId">
+        DELETE FROM cart
+        WHERE user_id = #{userId}
+    </delete>
+
+    <!-- ✅ (기존 기능 유지) X 버튼 단일 삭제 -->
+    <delete id="deleteByUserIdAndCartId">
         DELETE FROM cart
         WHERE cart_id = #{cartId}
         AND user_id = #{userId}
     </delete>
 
-    <!-- ✅ 전체삭제 -->
-    <delete id="deleteAllByUserId">
+    <!-- ✅✅ 결제된 강의만 삭제 (userId + courseIds) -->
+    <delete id="deleteByUserIdAndCourseIds">
         DELETE FROM cart
         WHERE user_id = #{userId}
+        AND course_id IN
+        <foreach collection="courseIds"
+                 item="courseId"
+                 open="("
+                 close=")"
+                 separator=",">
+            #{courseId}
+        </foreach>
     </delete>
 
 </mapper>
