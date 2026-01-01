@@ -56,6 +56,22 @@ public class AuthInterceptor implements HandlerInterceptor {
             }
         }
         
+        // 관리자 페이지 접근 제어
+        if (requestURI.startsWith("/admin")) {
+            // 로그인하지 않은 경우
+            if (session == null || session.getAttribute("LOGIN_USER_ID") == null) {
+                response.sendRedirect("/login");
+                return false;
+            }
+            
+            // 관리자 권한 체크
+            String role = (String) session.getAttribute("LOGIN_USER_ROLE");
+            if (!"ADMIN".equals(role)) {
+                response.sendRedirect("/home?error=unauthorized");
+                return false;
+            }
+        }
+        
         // 마이페이지 접근 제어
         if (requestURI.startsWith("/mypage")) {
             // 일반 로그인 사용자(provider가 null 또는 "local")는 마이페이지 접근 허용

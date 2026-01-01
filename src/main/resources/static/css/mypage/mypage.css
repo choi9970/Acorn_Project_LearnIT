@@ -318,6 +318,24 @@
     color: #999;
 }
 
+.certificate-download-link {
+    padding: 0.6rem 1.2rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #0A4A7A;
+    border: none;
+    border-radius: 0.6rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.certificate-download-link:hover {
+    background-color: #083d63;
+}
+
 /* 캘린더 카드 */
 #dashboard-calendar {
     min-height: 30rem;

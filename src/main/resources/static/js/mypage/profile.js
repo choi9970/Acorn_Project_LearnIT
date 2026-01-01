@@ -85,12 +85,40 @@ async function analyzeGitHub() {
         } else {
             // Rate limit 오류인 경우 특별 처리
             if (data.errorType === 'RATE_LIMIT') {
-                alert('GitHub API 요청 한도가 초과되었습니다.\n\n잠시 후 다시 시도해주세요.\n(인증된 요청을 사용하면 더 높은 한도를 사용할 수 있습니다.)');
+                const errorHtml = `
+                    <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                        <h4 style="margin: 0 0 8px 0; color: #856404;">⚠️ GitHub API 요청 한도 초과</h4>
+                        <p style="margin: 0 0 12px 0; color: #856404; line-height: 1.6;">
+                            GitHub API 요청 한도가 초과되었습니다.<br>
+                            인증 없이 사용할 경우 시간당 60회 제한이 있습니다.
+                        </p>
+                        <details style="margin-top: 12px;">
+                            <summary style="cursor: pointer; color: #0A4A7A; font-weight: bold;">🔑 Personal Access Token 설정 방법 (클릭)</summary>
+                            <div style="margin-top: 12px; padding: 12px; background-color: #f8f9fa; border-radius: 4px; font-size: 13px; line-height: 1.8;">
+                                <ol style="margin: 0; padding-left: 20px;">
+                                    <li>GitHub 접속: <a href="https://github.com/settings/tokens" target="_blank" style="color: #0A4A7A;">https://github.com/settings/tokens</a></li>
+                                    <li>"Generate new token" > "Generate new token (classic)" 클릭</li>
+                                    <li>Note: "LearnIT GitHub Analysis" 입력</li>
+                                    <li>Expiration: 원하는 기간 선택 (예: 90 days)</li>
+                                    <li>Scopes: <strong>public_repo</strong> 체크</li>
+                                    <li>"Generate token" 클릭 후 생성된 토큰 복사 (ghp_로 시작)</li>
+                                    <li><code>application.properties</code> 파일에 <code>github.api.token=토큰값</code> 추가</li>
+                                    <li>애플리케이션 재시작</li>
+                                </ol>
+                                <p style="margin: 12px 0 0 0; color: #6c757d;">
+                                    <strong>참고:</strong> 토큰 설정 시 시간당 5,000회까지 요청 가능합니다.
+                                </p>
+                            </div>
+                        </details>
+                    </div>
+                `;
+                emptyEl.style.display = 'block';
+                emptyEl.innerHTML = errorHtml;
             } else {
                 alert('분석 실패: ' + (data.error || '알 수 없는 오류'));
+                emptyEl.style.display = 'block';
+                emptyEl.textContent = data.error || '분석에 실패했습니다.';
             }
-            emptyEl.style.display = 'block';
-            emptyEl.textContent = data.error || '분석에 실패했습니다.';
         }
     } catch (error) {
         console.error('GitHub 분석 오류:', error);
@@ -308,15 +336,31 @@ function displaySkillChart(skillChartData) {
         skillChart.destroy();
     }
     
-    // 새로운 차트 생성 (Radar Chart - 육각형)
+    // 항상 6개로 고정 (부족한 경우 빈 값으로 채우기)
+    const labels = [...skillChartData.skillNames];
+    const data = [...skillChartData.skillLevels];
+    
+    // 6개 미만이면 빈 값으로 채우기
+    while (labels.length < 6) {
+        labels.push('-');
+        data.push(0);
+    }
+    
+    // 6개를 초과하면 상위 6개만 사용
+    if (labels.length > 6) {
+        labels.splice(6);
+        data.splice(6);
+    }
+    
+    // 새로운 차트 생성 (Radar Chart - 육각형, 항상 6개 고정)
     const ctx = canvasEl.getContext('2d');
     skillChart = new Chart(ctx, {
         type: 'radar',
         data: {
-            labels: skillChartData.skillNames,
+            labels: labels,
             datasets: [{
                 label: '스킬 레벨',
-                data: skillChartData.skillLevels,
+                data: data,
                 backgroundColor: 'rgba(10, 74, 122, 0.2)',
                 borderColor: 'rgba(10, 74, 122, 1)',
                 borderWidth: 2,
@@ -329,24 +373,28 @@ function displaySkillChart(skillChartData) {
         options: {
             responsive: true,
             maintainAspectRatio: true,
+            aspectRatio: 1,
             scales: {
                 r: {
                     beginAtZero: true,
                     max: 100,
+                    min: 0,
                     ticks: {
                         stepSize: 20,
                         font: {
                             size: 12
-                        }
+                        },
+                        display: true
                     },
                     pointLabels: {
                         font: {
                             size: 14,
                             weight: 'bold'
+                        },
+                        // 빈 레이블("-")은 표시하지 않거나 회색으로 표시
+                        callback: function(label) {
+                            return label === '-' ? '' : label;
                         }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
                     }
                 }
             },
@@ -357,7 +405,15 @@ function displaySkillChart(skillChartData) {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
+                            // 빈 값("-")인 경우 툴팁 표시 안 함
+                            if (context.label === '-' || context.parsed.r === 0) {
+                                return null;
+                            }
                             return context.label + ': ' + context.parsed.r.toFixed(1) + '%';
+                        },
+                        filter: function(tooltipItem) {
+                            // 빈 값("-")인 경우 툴팁에서 제외
+                            return tooltipItem.label !== '-' && tooltipItem.parsed.r > 0;
                         }
                     }
                 }

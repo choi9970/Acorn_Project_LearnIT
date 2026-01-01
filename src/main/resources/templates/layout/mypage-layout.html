@@ -43,6 +43,7 @@
     <nav class="mypage-mobile-nav">
         <ul>
             <li><a th:href="@{/mypage}" class="nav-link" data-path="/mypage">대시보드</a></li>
+            <li><a th:href="@{/mypage/profile}" class="nav-link" data-path="/mypage/profile">마이 프로필</a></li>
             <li><a th:href="@{/mypage/settings}" class="nav-link" data-path="/mypage/settings">개인정보 수정</a></li>
             <li><a th:href="@{/mypage/courses}" class="nav-link" data-path="/mypage/courses">내 학습 강의</a></li>
             <li><a th:href="@{/mypage/qa}" class="nav-link" data-path="/mypage/qa">강의 Q&A</a></li>
@@ -67,11 +68,12 @@
         </div>
         <nav class="mypage-nav">
             <ul>
-                <li><a th:href="@{/mypage}">대시보드</a></li>
-                <li><a th:href="@{/mypage/settings}">개인정보 수정</a></li>
-                <li><a th:href="@{/mypage/courses}">내 학습 강의</a></li>
-                <li><a th:href="@{/mypage/qa}">강의 Q&A</a></li>
-                <li><a th:href="@{/mypage/purchase}">구매 / 혜택</a></li>
+                <li><a th:href="@{/mypage}" class="nav-link" data-path="/mypage">대시보드</a></li>
+                <li><a th:href="@{/mypage/profile}" class="nav-link" data-path="/mypage/profile">마이 프로필</a></li>
+                <li><a th:href="@{/mypage/settings}" class="nav-link" data-path="/mypage/settings">개인정보 수정</a></li>
+                <li><a th:href="@{/mypage/courses}" class="nav-link" data-path="/mypage/courses">내 학습 강의</a></li>
+                <li><a th:href="@{/mypage/qa}" class="nav-link" data-path="/mypage/qa">강의 Q&A</a></li>
+                <li><a th:href="@{/mypage/purchase}" class="nav-link" data-path="/mypage/purchase">구매 / 혜택</a></li>
             </ul>
         </nav>
     </aside>
@@ -93,12 +95,25 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const currentPath = window.location.pathname;
-        const navLinks = document.querySelectorAll('.mypage-mobile-nav .nav-link');
         
-        navLinks.forEach(link => {
+        // 모바일 네비게이션 활성화
+        const mobileNavLinks = document.querySelectorAll('.mypage-mobile-nav .nav-link');
+        mobileNavLinks.forEach(link => {
             const linkPath = link.getAttribute('data-path');
             // /mypage/dashboard 또는 /mypage로 접근 시 대시보드 활성화
-            if (linkPath === '/mypage' && (currentPath === '/mypage' || currentPath === '/mypage/')) {
+            if (linkPath === '/mypage' && (currentPath === '/mypage' || currentPath === '/mypage/' || currentPath === '/mypage/dashboard')) {
+                link.classList.add('active');
+            } else if (linkPath !== '/mypage' && currentPath.startsWith(linkPath)) {
+                link.classList.add('active');
+            }
+        });
+        
+        // 데스크탑 사이드바 네비게이션 활성화
+        const desktopNavLinks = document.querySelectorAll('.mypage-nav .nav-link');
+        desktopNavLinks.forEach(link => {
+            const linkPath = link.getAttribute('data-path');
+            // /mypage/dashboard 또는 /mypage로 접근 시 대시보드 활성화
+            if (linkPath === '/mypage' && (currentPath === '/mypage' || currentPath === '/mypage/' || currentPath === '/mypage/dashboard')) {
                 link.classList.add('active');
             } else if (linkPath !== '/mypage' && currentPath.startsWith(linkPath)) {
                 link.classList.add('active');

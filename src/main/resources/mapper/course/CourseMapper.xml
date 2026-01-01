@@ -39,13 +39,14 @@
             c.price,
             c.thumbnail_url AS thumbnailUrl,
             c.status,
-            count(pd.pay_detail_id) AS salesCount
-        FROM course c JOIN payment_detail pd ON c.course_id = pd.course_id
-                      JOIN category ct ON c.category_id = ct.category_id
+            COALESCE(COUNT(pd.pay_detail_id), 0) AS salesCount
+        FROM course c 
+        LEFT JOIN payment_detail pd ON c.course_id = pd.course_id
+        JOIN category ct ON c.category_id = ct.category_id
         WHERE c.delete_flg = 0 AND c.status = 'ACTIVE'
-        GROUP BY c.course_id
-        ORDER BY salesCount DESC
-            LIMIT #{limit}
+        GROUP BY c.course_id, ct.name, c.title, c.price, c.thumbnail_url, c.status
+        ORDER BY salesCount DESC, c.created_at DESC
+        LIMIT #{limit}
     </select>
 
 

@@ -54,4 +54,12 @@ public class CourseDetailService {
         if (categoryId == null) return null;
         return courseDetailMapper.selectCategoryNameByCategoryId(categoryId);
     }
+
+    /**
+     * 강의별 리뷰 조회 (승인된 리뷰만)
+     */
+    public List<ReviewDTO> getReviews(int courseId) {
+        List<ReviewDTO> reviews = courseDetailMapper.selectReviewsByCourseId(courseId);
+        return (reviews == null) ? Collections.emptyList() : reviews;
+    }
 }

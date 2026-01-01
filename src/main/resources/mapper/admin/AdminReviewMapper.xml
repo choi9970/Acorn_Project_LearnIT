@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- review 테이블 기반 SQL 정의(리스트, 상세, 상태변경, 삭제) -->
+<mapper namespace="com.learnit.learnit.admin.AdminReviewRepository">
+
+    <!-- 리뷰 목록 조회 -->
+    <select id="selectReviews" resultType="com.learnit.learnit.admin.AdminReviewDto">
+        SELECT 
+            r.review_id AS reviewId,
+            r.course_id AS courseId,
+            c.title AS courseTitle,
+            r.user_id AS userId,
+            u.name AS userName,
+            u.email AS userEmail,
+            r.rating,
+            r.content AS comment,
+            COALESCE(r.comment_status, 'Active') AS commentStatus,
+            r.created_at AS createdAt,
+            r.updated_at AS updatedAt
+        FROM review r
+        JOIN course c ON r.course_id = c.course_id
+        JOIN users u ON r.user_id = u.user_id
+        <where>
+            AND r.delete_flg = 0
+            <if test="status != null and status != ''">
+                AND COALESCE(r.comment_status, 'Active') = #{status}
+            </if>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND (
+                    c.title LIKE CONCAT('%', #{searchKeyword}, '%')
+                    OR u.name LIKE CONCAT('%', #{searchKeyword}, '%')
+                    OR r.content LIKE CONCAT('%', #{searchKeyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY r.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 리뷰 총 개수 조회 -->
+    <select id="countReviews" resultType="int">
+        SELECT COUNT(*)
+        FROM review r
+        JOIN course c ON r.course_id = c.course_id
+        JOIN users u ON r.user_id = u.user_id
+        <where>
+            AND r.delete_flg = 0
+            <if test="status != null and status != ''">
+                AND COALESCE(r.comment_status, 'Active') = #{status}
+            </if>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND (
+                    c.title LIKE CONCAT('%', #{searchKeyword}, '%')
+                    OR u.name LIKE CONCAT('%', #{searchKeyword}, '%')
+                    OR r.content LIKE CONCAT('%', #{searchKeyword}, '%')
+                )
+            </if>
+        </where>
+    </select>
+
+    <!-- 리뷰 상세 조회 -->
+    <select id="selectReviewById" resultType="com.learnit.learnit.admin.AdminReviewDto">
+        SELECT 
+            r.review_id AS reviewId,
+            r.course_id AS courseId,
+            c.title AS courseTitle,
+            r.user_id AS userId,
+            u.name AS userName,
+            u.email AS userEmail,
+            r.rating,
+            r.content AS comment,
+            COALESCE(r.comment_status, 'Active') AS commentStatus,
+            r.created_at AS createdAt,
+            r.updated_at AS updatedAt
+        FROM review r
+        JOIN course c ON r.course_id = c.course_id
+        JOIN users u ON r.user_id = u.user_id
+        WHERE r.review_id = #{reviewId} AND r.delete_flg = 0
+    </select>
+
+    <!-- 리뷰 승인 -->
+    <update id="approveReview">
+        UPDATE review
+        SET comment_status = 'Approved',
+            updated_at = NOW()
+        WHERE review_id = #{reviewId} AND delete_flg = 0
+    </update>
+
+    <!-- 리뷰 거부 -->
+    <update id="rejectReview">
+        UPDATE review
+        SET comment_status = 'Rejected',
+            updated_at = NOW()
+        WHERE review_id = #{reviewId} AND delete_flg = 0
+    </update>
+
+    <!-- 리뷰 상태 변경 -->
+    <update id="updateStatus">
+        UPDATE review
+        SET comment_status = #{status},
+            updated_at = NOW()
+        WHERE review_id = #{reviewId} AND delete_flg = 0
+    </update>
+
+    <!-- 리뷰 삭제 (소프트 삭제) -->
+    <update id="deleteReview">
+        UPDATE review
+        SET delete_flg = 1,
+            updated_at = NOW()
+        WHERE review_id = #{reviewId}
+    </update>
+
+</mapper>
+

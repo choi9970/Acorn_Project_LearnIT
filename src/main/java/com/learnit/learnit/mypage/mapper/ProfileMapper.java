@@ -1,9 +1,12 @@
 package com.learnit.learnit.mypage.mapper;
 
+import com.learnit.learnit.mypage.dto.CertificateDTO;
 import com.learnit.learnit.mypage.dto.GitHubAnalysisDTO;
 import com.learnit.learnit.mypage.dto.ProfileDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface ProfileMapper {
@@ -48,5 +51,10 @@ public interface ProfileMapper {
         @Param("skillLevelsJson") String skillLevelsJson,
         @Param("analysisDate") String analysisDate
     );
+    
+    /**
+     * 사용자 수료증 목록 조회
+     */
+    List<CertificateDTO> selectCertificatesByUserId(@Param("userId") Long userId);
 }
 

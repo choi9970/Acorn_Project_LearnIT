@@ -2,12 +2,18 @@
 
     <h2 class="cd-h2">수강평</h2>
 
-    <div class="review-card" th:each="r : ${reviews}">
-        <div class="review-top">
-            <b th:text="${r.name}">dmax</b>
-            <span>★ <span th:text="${r.rating}">5.0</span></span>
+    <div th:if="${reviews != null and !#lists.isEmpty(reviews)}">
+        <div class="review-card" th:each="r : ${reviews}">
+            <div class="review-top">
+                <b th:text="${r.name != null ? r.name : '익명'}">dmax</b>
+                <span>★ <span th:text="${r.rating != null ? r.rating : 0}">5.0</span></span>
+            </div>
+            <p th:text="${r.comment != null ? r.comment : '내용 없음'}">후기</p>
         </div>
-        <p th:text="${r.comment}">후기</p>
+    </div>
+
+    <div th:if="${reviews == null or #lists.isEmpty(reviews)}" class="empty-reviews">
+        <p>아직 등록된 수강평이 없습니다.</p>
     </div>
 
 </th:block>

@@ -61,6 +61,12 @@ public class UserController {
         }
 
         userService.setLoginSession(session, user);
+        
+        // 관리자 계정인 경우 관리자 페이지로 리다이렉트
+        if ("ADMIN".equals(user.getRole())) {
+            return "redirect:/admin/home";
+        }
+        
         return "redirect:/home";
     }
 
@@ -139,6 +145,7 @@ public class UserController {
     @GetMapping("/user/additional-info")
     public String showAdditionalInfoForm(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        
         if (userId == null) {
             return "redirect:/login";
         }
@@ -150,6 +157,10 @@ public class UserController {
         
         // ACTIVE 상태면 이미 가입 완료된 사용자이므로 홈으로 리다이렉트
         if (User.STATUS_ACTIVE.equals(user.getStatus())) {
+            // 관리자 계정인 경우 관리자 페이지로 리다이렉트
+            if ("ADMIN".equals(user.getRole())) {
+                return "redirect:/admin/home";
+            }
             return "redirect:/home";
         }
         
@@ -184,6 +195,11 @@ public class UserController {
             
             // 세션 갱신 (ACTIVE 상태로 변경된 사용자 정보로)
             sessionService.setLoginSession(session, updatedUser);
+            
+            // 관리자 계정인 경우 관리자 페이지로 리다이렉트
+            if ("ADMIN".equals(updatedUser.getRole())) {
+                return "redirect:/admin/home";
+            }
             
             return "redirect:/home";
         } catch (IllegalArgumentException e) {
@@ -222,7 +238,7 @@ public class UserController {
                     userService.resetPassword(email, tempPassword);
                     
                     model.addAttribute("success", 
-                        "임시 비밀번호가 이메일로 발송되었습니다. 이메일을 확인해주세요.");
+                        "임시 비밀번호가 이메일로 발송되었습니다. 이메일을 확인하신 후, 로그인 페이지에서 이메일과 임시 비밀번호를 입력하여 로그인해주세요.");
                 } catch (Exception e) {
                     // 이메일 발송 실패 시 비밀번호는 변경하지 않음 (롤백)
                     model.addAttribute("error", 

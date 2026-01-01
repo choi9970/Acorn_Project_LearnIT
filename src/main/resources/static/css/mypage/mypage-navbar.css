@@ -120,6 +120,31 @@
     color: #0A4A7A;
 }
 
+.mypage-nav ul li a.active {
+    background: #F0F7FF;
+    color: #0A4A7A;
+    font-weight: 600;
+    position: relative;
+    padding-left: 1.8rem;
+}
+
+.mypage-nav ul li a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.3rem;
+    height: 60%;
+    background: #0A4A7A;
+    border-radius: 0 0.2rem 0.2rem 0;
+}
+
+.mypage-nav ul li a.active:hover {
+    background: #E6EEF5;
+    color: #0A4A7A;
+}
+
 /* 모바일 햄버거 메뉴 버튼 (데스크탑에서는 숨김) */
 .mobile-menu-toggle {
     display: none;
@@ -339,6 +364,7 @@
     color: #0A4A7A;
     font-weight: 600;
     border-bottom-color: #0A4A7A;
+    border-bottom-width: 3px;
 }
 
 .mypage-mobile-nav ul li a:hover {

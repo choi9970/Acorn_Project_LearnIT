@@ -21,6 +21,7 @@ import java.util.Map;
 public class OAuthService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -242,6 +243,14 @@ public class OAuthService extends DefaultOAuth2UserService {
             throw new RuntimeException("사용자 저장 중 DB 제약 조건 위반: " + e.getMessage(), e);
         } catch (Exception e) {
             throw e;
+        }
+
+        // OAuth 회원가입 완료 이메일 발송
+        try {
+            emailService.sendWelcomeEmail(newUser.getEmail(), newUser.getName());
+        } catch (Exception e) {
+            // 이메일 발송 실패는 로깅만 하고 예외를 던지지 않음 (회원가입은 이미 완료되었으므로)
+            System.err.println("OAuth 회원가입 완료 이메일 발송 실패: " + e.getMessage());
         }
 
         return newUser;

@@ -69,7 +69,7 @@
             c.course_id AS courseId,
             c.title AS courseTitle,
             DATE(cert.issued_at) AS issuedDate,
-            CONCAT('/certificates/', cert.certificate_number, '.pdf') AS certificateUrl
+            CONCAT('/mypage/certificates/', cert.cert_id, '/download') AS certificateUrl
         FROM certificate cert
         JOIN enrollment e ON cert.enrollment_id = e.enrollment_id
         JOIN course c ON e.course_id = c.course_id

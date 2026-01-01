@@ -56,10 +56,11 @@
       <p>지금 가장 많은 수강생이 선택한 강의</p>
     </div>
 
-    <div class="course-feature-layout">
+    <div class="course-feature-layout" th:if="${courseList != null && !courseList.isEmpty()}">
 
       <!-- 🔥 인기 1위 -->
       <a class="course-card featured"
+         th:if="${courseList.size() > 0}"
          th:href="@{/course/{id}(id=${courseList[0].courseId})}">
         <div class="course-thumb">
           <img th:src="${courseList[0].thumbnailUrl}">
@@ -86,6 +87,11 @@
         </a>
       </div>
 
+    </div>
+    
+    <!-- 강의가 없을 때 -->
+    <div th:if="${courseList == null || courseList.isEmpty()}" class="empty-course-message">
+      <p>등록된 강의가 없습니다.</p>
     </div>
   </section>
 

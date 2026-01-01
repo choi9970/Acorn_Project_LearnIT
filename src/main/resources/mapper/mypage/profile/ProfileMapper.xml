@@ -99,5 +99,22 @@
             updated_at = NOW()
     </insert>
 
+    <!-- 사용자 수료증 목록 조회 -->
+    <select id="selectCertificatesByUserId" resultType="com.learnit.learnit.mypage.dto.CertificateDTO">
+        SELECT 
+            cert.cert_id AS certificateId,
+            c.course_id AS courseId,
+            c.title AS courseTitle,
+            DATE(cert.issued_at) AS issuedDate,
+            CONCAT('/mypage/certificates/', cert.cert_id, '/download') AS certificateUrl,
+            cert.certificate_number AS certificateNumber
+        FROM certificate cert
+        JOIN enrollment e ON cert.enrollment_id = e.enrollment_id
+        JOIN course c ON e.course_id = c.course_id
+        WHERE e.user_id = #{userId}
+          AND cert.is_approved = 'Y'
+        ORDER BY cert.issued_at DESC
+    </select>
+
 </mapper>
 

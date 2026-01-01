@@ -93,9 +93,11 @@ public class GitHubAnalysisService {
 
             // 사용자 정보 조회
             String userUrl = GITHUB_API_BASE + "/users/" + username;
+            log.info("GitHub API 요청 시작: {}", userUrl);
             ResponseEntity<String> userResponse = null;
             try {
                 userResponse = restTemplate.getForEntity(userUrl, String.class);
+                log.info("GitHub API 응답 상태: {}", userResponse.getStatusCode());
                 
                 if (userResponse.getStatusCode().is2xxSuccessful()) {
                     JsonNode userNode = objectMapper.readTree(userResponse.getBody());
@@ -105,15 +107,24 @@ public class GitHubAnalysisService {
                 log.error("GitHub API 연결 타임아웃: {}", userUrl, e);
                 throw new RuntimeException("GitHub API 연결이 타임아웃되었습니다. 잠시 후 다시 시도해주세요.", e);
             } catch (HttpClientErrorException e) {
+                log.error("GitHub API 클라이언트 오류 (사용자 정보 조회): 상태코드={}, 응답={}", e.getStatusCode(), e.getResponseBodyAsString());
                 if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                     log.warn("GitHub 사용자를 찾을 수 없음: {}", username);
                     throw new IllegalArgumentException("GitHub 사용자를 찾을 수 없습니다: " + username);
                 } else if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
                     String responseBody = e.getResponseBodyAsString();
+                    log.error("GitHub API 403 Forbidden 응답: {}", responseBody);
                     if (responseBody != null && responseBody.contains("rate limit exceeded")) {
                         log.error("GitHub API rate limit 초과: {}", username);
                         throw new RuntimeException("GitHub API 요청 한도가 초과되었습니다. 잠시 후 다시 시도해주세요. (인증된 요청을 사용하면 더 높은 한도를 사용할 수 있습니다.)", e);
+                    } else {
+                        // 403 오류지만 rate limit이 아닌 경우 (권한 문제 등)
+                        log.error("GitHub API 403 오류 (rate limit 아님): {}", responseBody);
+                        throw new RuntimeException("GitHub API 접근이 거부되었습니다. 토큰 권한을 확인해주세요. 응답: " + (responseBody != null ? responseBody.substring(0, Math.min(200, responseBody.length())) : "알 수 없음"), e);
                     }
+                } else if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                    log.error("GitHub API 401 Unauthorized: 토큰이 유효하지 않거나 만료되었습니다.");
+                    throw new RuntimeException("GitHub API 인증에 실패했습니다. 토큰이 유효한지 확인해주세요.", e);
                 }
                 throw e;
             } catch (HttpServerErrorException e) {
@@ -124,11 +135,12 @@ public class GitHubAnalysisService {
                 throw e;
             }
 
-            // 레포지토리 목록 조회 (최대 100개)
+            // 레포지토리 목록 조회 (최대 100개) - 개인 레포지토리와 fork된 레포지토리 모두 포함
             Map<String, Integer> languageStats = new HashMap<>();
             int totalCommits = 0;
 
-            String reposUrl = GITHUB_API_BASE + "/users/" + username + "/repos?per_page=100&sort=updated";
+            // 개인 레포지토리 조회
+            String reposUrl = GITHUB_API_BASE + "/users/" + username + "/repos?per_page=100&sort=updated&type=all";
             ResponseEntity<String> reposResponse = null;
             
             try {
@@ -161,6 +173,15 @@ public class GitHubAnalysisService {
                     JsonNode reposArray = objectMapper.readTree(reposResponse.getBody());
                     
                     if (reposArray.isArray()) {
+                        // 실제 레포지토리 배열 크기로 totalRepos 업데이트 (더 정확함)
+                        int actualReposCount = reposArray.size();
+                        int previousReposCount = analysis.getTotalRepos();
+                        if (actualReposCount > 0) {
+                            analysis.setTotalRepos(actualReposCount);
+                            log.info("실제 레포지토리 수로 업데이트: {}개 (이전 값: {}개)", 
+                                actualReposCount, previousReposCount);
+                        }
+                        
                         // 전체 레포지토리 분석 (Personal Access Token 사용 시 Rate Limit 충분)
                         // 레포지토리 목록 조회 시 per_page=100으로 설정되어 있으므로 최대 100개까지 분석 가능
                         int maxRepos = reposArray.size();
@@ -340,43 +361,52 @@ public class GitHubAnalysisService {
     }
 
     /**
-     * 스킬 차트 데이터 생성 (상위 6개 언어)
+     * 스킬 차트 데이터 생성 (항상 6개 꼭짓점으로 고정)
      */
     public SkillChartDTO generateSkillChart(GitHubAnalysisDTO analysis) {
         SkillChartDTO chart = new SkillChartDTO();
         
-        if (analysis.getSkillLevels() == null || analysis.getSkillLevels().isEmpty()) {
-            log.warn("skillLevels가 null이거나 비어있음");
-            return chart;
-        }
-
-        log.info("차트 생성 시작 - 전체 skillLevels: {}", analysis.getSkillLevels());
-
-        // 상위 6개 언어 선택
-        List<Map.Entry<String, Double>> topSkills = analysis.getSkillLevels().entrySet().stream()
-            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-            .limit(6)
-            .collect(Collectors.toList());
-
-        log.info("선택된 상위 6개 언어: {}", topSkills.stream()
-            .map(e -> e.getKey() + ":" + e.getValue())
-            .collect(Collectors.joining(", ")));
-
         Map<String, Double> skills = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
         List<Double> levels = new ArrayList<>();
+        
+        // 기본 6개 항목 (데이터가 없어도 육각형 모양 유지)
+        final int TARGET_COUNT = 6;
+        
+        if (analysis.getSkillLevels() != null && !analysis.getSkillLevels().isEmpty()) {
+            log.info("차트 생성 시작 - 전체 skillLevels: {}", analysis.getSkillLevels());
 
-        for (Map.Entry<String, Double> entry : topSkills) {
-            skills.put(entry.getKey(), entry.getValue());
-            names.add(entry.getKey());
-            levels.add(entry.getValue());
+            // 상위 6개 언어 선택
+            List<Map.Entry<String, Double>> topSkills = analysis.getSkillLevels().entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .limit(TARGET_COUNT)
+                .collect(Collectors.toList());
+
+            log.info("선택된 상위 언어: {}", topSkills.stream()
+                .map(e -> e.getKey() + ":" + e.getValue())
+                .collect(Collectors.joining(", ")));
+
+            // 실제 데이터 추가
+            for (Map.Entry<String, Double> entry : topSkills) {
+                skills.put(entry.getKey(), entry.getValue());
+                names.add(entry.getKey());
+                levels.add(entry.getValue());
+            }
+        }
+
+        // 항상 6개가 되도록 빈 항목으로 채우기
+        while (names.size() < TARGET_COUNT) {
+            String emptyLabel = "-";
+            names.add(emptyLabel);
+            levels.add(0.0);
+            skills.put(emptyLabel, 0.0);
         }
 
         chart.setSkills(skills);
         chart.setSkillNames(names.toArray(new String[0]));
         chart.setSkillLevels(levels.toArray(new Double[0]));
 
-        log.info("차트 데이터 생성 완료 - skillNames: {}, skillLevels: {}", 
+        log.info("차트 데이터 생성 완료 (항상 6개 고정) - skillNames: {}, skillLevels: {}", 
             Arrays.toString(chart.getSkillNames()), Arrays.toString(chart.getSkillLevels()));
 
         return chart;

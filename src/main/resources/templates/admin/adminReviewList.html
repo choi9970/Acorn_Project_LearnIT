@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(
+        ~{::title},
+        ~{::content},
+        ~{::css}
+      )}">
+
+<th:block th:fragment="css">
+  <link rel="stylesheet" th:href="@{/css/admin/review.css}">
+</th:block>
+
+<head>
+  <title>리뷰 관리</title>
+</head>
+<body>
+<section th:fragment="content">
+  <div class="admin-review-container">
+    <h2>리뷰 관리</h2>
+
+    <!-- 성공/에러 메시지 -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+    <!-- 검색 및 필터 -->
+    <div class="review-filters">
+      <form method="get" action="/admin/review" class="filter-form">
+        <select name="status" class="filter-select">
+          <option value="">전체 상태</option>
+          <option value="Active" th:selected="${currentStatus == 'Active'}">대기</option>
+          <option value="Approved" th:selected="${currentStatus == 'Approved'}">승인</option>
+          <option value="Rejected" th:selected="${currentStatus == 'Rejected'}">거부</option>
+        </select>
+        <input type="text" name="search" placeholder="강의명, 사용자명, 내용 검색" 
+               th:value="${searchKeyword}" class="search-input">
+        <button type="submit" class="btn-search">검색</button>
+        <a href="/admin/review" class="btn-reset">초기화</a>
+      </form>
+    </div>
+
+    <!-- 리뷰 목록 -->
+    <div class="review-list">
+      <table class="review-table">
+        <thead>
+          <tr>
+            <th>리뷰번호</th>
+            <th>강좌ID</th>
+            <th>강좌명</th>
+            <th>작성자</th>
+            <th>평점</th>
+            <th>댓글 상태</th>
+            <th>요약</th>
+            <th>등록일</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="review : ${reviews}">
+            <td th:text="${review.reviewId}">1</td>
+            <td th:text="${review.courseId}">1</td>
+            <td>
+              <a th:href="@{'/admin/review/' + ${review.reviewId}}" class="course-link" 
+                 th:text="${review.courseTitle != null ? review.courseTitle : '강의명 없음'}">강의명</a>
+            </td>
+            <td th:text="${review.userName != null ? review.userName : '작성자 없음'}">작성자</td>
+            <td>
+              <span class="rating" th:text="'★ ' + ${review.rating != null ? review.rating : 0}">★ 5</span>
+            </td>
+            <td>
+              <form th:action="@{'/admin/review/' + ${review.reviewId} + '/update-status'}" 
+                    method="post" style="display: inline-block;">
+                <select name="status" class="status-select" 
+                        th:onchange="'this.form.submit()'"
+                        style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px;">
+                  <option value="Active" th:selected="${review.commentStatus == 'Active'}">대기</option>
+                  <option value="Approved" th:selected="${review.commentStatus == 'Approved'}">승인</option>
+                  <option value="Rejected" th:selected="${review.commentStatus == 'Rejected'}">거부</option>
+                </select>
+              </form>
+            </td>
+            <td class="comment-cell">
+              <span th:text="${review.comment != null ? #strings.abbreviate(review.comment, 50) : '내용 없음'}">리뷰 내용...</span>
+            </td>
+            <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd') : '-'}">2024-01-01</td>
+            <td class="action-cell">
+              <div class="action-buttons">
+                <form th:action="@{'/admin/review/' + ${review.reviewId} + '/delete'}" 
+                      method="post" style="display: inline;"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                  <button type="submit" class="btn-delete">삭제</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <tr th:if="${reviews == null or #lists.isEmpty(reviews)}">
+            <td colspan="9" class="empty-message">등록된 리뷰가 없습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 페이징 -->
+    <div class="pagination" th:if="${totalPages > 1}">
+      <a th:if="${currentPage > 1}" 
+         th:href="@{/admin/review(page=${currentPage - 1}, status=${currentStatus}, search=${searchKeyword})}" 
+         class="page-link">이전</a>
+      <span th:each="i : ${#numbers.sequence(1, totalPages)}" class="page-number">
+        <a th:if="${i != currentPage}" 
+           th:href="@{/admin/review(page=${i}, status=${currentStatus}, search=${searchKeyword})}" 
+           th:text="${i}">1</a>
+        <strong th:if="${i == currentPage}" th:text="${i}">1</strong>
+      </span>
+      <a th:if="${currentPage < totalPages}" 
+         th:href="@{/admin/review(page=${currentPage + 1}, status=${currentStatus}, search=${searchKeyword})}" 
+         class="page-link">다음</a>
+    </div>
+
+    <div class="review-summary">
+      <p>총 <strong th:text="${totalCount}">0</strong>개의 리뷰</p>
+    </div>
+  </div>
+</section>
+</body>
+</html>
+

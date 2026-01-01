@@ -79,7 +79,8 @@ public class CourseDetailController {
 
         model.addAttribute("curriculumTotal", chapters.size());
 
-        // 리뷰(추후)
-        model.addAttribute("reviews", Collections.emptyList());
+        // 리뷰 조회 (승인된 리뷰만 표시)
+        List<ReviewDTO> reviews = courseDetailService.getReviews(courseId);
+        model.addAttribute("reviews", reviews != null ? reviews : Collections.emptyList());
     }
 }

@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
                     "/css/**", "/js/**", "/images/**", "/files/**", "/uploads/**", "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
                     "/api/user/check-email", "/api/courses", "/api/search/**", "/api/mypage/github/**", "/mypage/**",
-                    "/oauth2/authorization/**", "/login/oauth2/code/**","/cart/**").permitAll()
+                    "/oauth2/authorization/**", "/login/oauth2/code/**","/cart/**", "/admin/**").permitAll()
                 .anyRequest().authenticated()
             )
 

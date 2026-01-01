@@ -9,7 +9,7 @@
       }">
 
 <head>
-    <title th:fragment="title">마이페이지 프로필</title>
+    <title th:fragment="title">마이 프로필</title>
 
     <th:block th:fragment="css">
         <link rel="stylesheet" th:href="@{/css/mypage/mypage.css}">
@@ -38,7 +38,7 @@
 <body>
 
 <div th:fragment="content">
-    <h1 class="page-title">마이페이지 프로필</h1>
+    <h1 class="page-title">마이 프로필</h1>
 
     <div class="profile-container">
         <!-- 프로필 상세 섹션 -->
@@ -75,11 +75,23 @@
             </div>
         </section>
 
-        <!-- 배지 섹션 -->
-        <section class="profile-section badge-section">
-            <h2 class="section-title">배지</h2>
-            <div class="badge-content">
-                <p class="empty-message">배지가 없습니다.</p>
+        <!-- 수료증 섹션 -->
+        <section class="profile-section certificate-section">
+            <h2 class="section-title">수료증</h2>
+            <div class="certificate-content">
+                <div th:if="${certificates != null && !certificates.isEmpty()}" class="certificate-list">
+                    <div th:each="cert : ${certificates}" class="certificate-item">
+                        <div class="certificate-icon">📜</div>
+                        <div class="certificate-info">
+                            <div class="certificate-title" th:text="${cert.courseTitle}">강의명</div>
+                            <div class="certificate-date" th:text="${#temporals.format(cert.issuedDate, 'yyyy. MM. dd.')}">2024. 01. 01.</div>
+                        </div>
+                        <a th:href="@{${cert.certificateUrl}}" class="certificate-download-btn" download>
+                            다운로드
+                        </a>
+                    </div>
+                </div>
+                <p th:if="${certificates == null || certificates.isEmpty()}" class="empty-message">수료증이 없습니다.</p>
             </div>
         </section>
 

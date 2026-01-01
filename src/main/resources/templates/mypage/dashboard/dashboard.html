@@ -270,6 +270,11 @@
                         <div class="certificate-title" th:text="${dashboard.latestCertificate.courseTitle}">초보자를 위한 파워포인트</div>
                         <div class="certificate-date" th:text="${#temporals.format(dashboard.latestCertificate.issuedDate, 'yyyy. MM. dd.')}">2024. 07. 30.</div>
                     </div>
+                    <a th:href="@{'/mypage/certificates/' + ${dashboard.latestCertificate.certificateId} + '/download'}" 
+                       class="certificate-download-link" 
+                       download>
+                        다운로드
+                    </a>
                 </div>
             </div>
             <div class="certificate-content" th:unless="${dashboard.latestCertificate}">
