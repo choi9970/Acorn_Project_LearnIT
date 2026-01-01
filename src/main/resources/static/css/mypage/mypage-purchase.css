@@ -1,0 +1,434 @@
+/* =========================================================
+   마이페이지 - 구매 / 혜택 공통 (탭)
+   ========================================================= */
+
+.mypage-tabs {
+    display: flex;
+    gap: 2.4rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.mypage-tabs .tab {
+    padding-bottom: 1.2rem;
+    font-size: 1.6rem;
+    color: #666;
+    text-decoration: none;
+    position: relative;
+}
+
+.mypage-tabs .tab.active {
+    color: #111;
+    font-weight: 700;
+}
+
+.mypage-tabs .tab.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 2px;
+    background: #0A4A7A;
+}
+
+
+/* =========================================================
+   구매 내역 리스트
+   ========================================================= */
+
+.payment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.empty-message {
+    padding: 4rem 0;
+    text-align: center;
+    font-size: 1.5rem;
+    color: #999;
+}
+
+.payment-card {
+    background: #fff;
+    border: 1px solid #d5dbe3;
+    border-radius: 1.6rem;
+    padding: 2.4rem;
+    box-shadow:
+            0 0.2rem 0.6rem rgba(10, 74, 122, 0.08),
+            0 0.8rem 2rem rgba(10, 74, 122, 0.12);
+}
+
+.payment-date {
+    font-size: 1.3rem;
+    color: #888;
+    margin-bottom: 0.8rem;
+}
+
+.payment-divider {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin-bottom: 2rem;
+}
+
+.payment-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 3rem;
+}
+
+.payment-left {
+    flex: 1;
+}
+
+.payment-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.payment-status {
+    padding: 0.4rem 1.2rem;
+    border-radius: 999px;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.payment-status.SUCCESS,
+.payment-status.success {
+    background: #e6f7ee;
+    color: #16a34a;
+}
+
+.payment-status.CANCEL,
+.payment-status.cancel {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.order-no {
+    font-size: 1.4rem;
+    color: #666;
+}
+
+.course-title {
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: #111;
+    line-height: 1.4;
+}
+
+.payment-right {
+    width: 260px;
+    border: 1px solid #e5e7eb;
+    border-radius: 1.2rem;
+    padding: 1.6rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+}
+
+.price-info {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.price-info li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.4rem;
+    color: #555;
+    margin-bottom: 0.6rem;
+}
+
+.price-info li.total {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e0e0e0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111;
+}
+
+.receipt-btn {
+    margin-top: auto;
+    align-self: flex-end;
+    padding: 0.8rem 1.6rem;
+    font-size: 1.4rem;
+    border-radius: 0.8rem;
+}
+
+
+/* =========================================================
+   쿠폰함
+   ========================================================= */
+
+.coupon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+}
+
+.coupon-card {
+    display: flex;
+    justify-content: space-between;
+    padding: 2.4rem;
+    background: #fff;
+    border: 1px solid #d5dbe3;
+    border-radius: 1.6rem;
+}
+
+.coupon-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.coupon-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.coupon-condition,
+.coupon-expire {
+    font-size: 1.3rem;
+    color: #666;
+}
+
+.coupon-right {
+    text-align: right;
+}
+
+.discount {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0A4A7A;
+    display: block;
+    margin-bottom: 0.8rem;
+}
+
+.coupon-badge {
+    padding: 0.4rem 1.2rem;
+    border-radius: 999px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.coupon-badge.usable {
+    background: #e6f7ee;
+    color: #16a34a;
+}
+
+
+/* =========================================================
+   영수증 모달
+   ========================================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.receipt-modal {
+    width: 520px;
+    max-width: calc(100% - 3rem);
+    background: #fff;
+    border-radius: 1.6rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: modalFadeIn 0.25s ease;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 2.4rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 2.4rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.modal-body {
+    padding: 2.4rem;
+    font-size: 1.4rem;
+    color: #222;
+}
+
+.modal-footer {
+    padding: 1.6rem 2.4rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/* =========================================================
+   영수증 상세
+   ========================================================= */
+
+.receipt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+}
+
+.receipt-header .status {
+    padding: 0.4rem 1.2rem;
+    border-radius: 999px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    background: #e6f7ee;
+    color: #16a34a;
+}
+
+.receipt-date,
+.receipt-method {
+    font-size: 1.3rem;
+    color: #666;
+    margin-bottom: 0.6rem;
+}
+
+.receipt-courses,
+.receipt-prices {
+    list-style: none;
+    padding: 0;
+    margin: 1.6rem 0;
+}
+
+.receipt-courses li,
+.receipt-prices li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.4rem;
+    padding: 0.6rem 0;
+}
+
+.receipt-prices li.total {
+    margin-top: 1.2rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid #e5e7eb;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   PDF 전용
+   ========================================================= */
+
+.pdf-target {
+    width: 700px;
+    padding: 32px;
+    font-size: 14px;
+}
+
+.pdf-target .modal-close,
+.pdf-target .modal-footer {
+    display: none !important;
+}
+
+.pdf-target h2 {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 24px;
+}
+
+
+/* =========================================================
+   반응형
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .payment-main {
+        flex-direction: column;
+    }
+
+    .payment-right {
+        width: 100%;
+    }
+
+    .receipt-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .receipt-modal {
+        width: 100%;
+        max-width: calc(100% - 2rem);
+        border-radius: 1.2rem;
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .receipt-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .receipt-courses li,
+    .receipt-prices li {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        font-size: 1.3rem;
+    }
+
+    .receipt-courses li span {
+        flex: 1;
+        word-break: keep-all;
+        line-height: 1.4;
+    }
+
+    .receipt-courses li strong,
+    .receipt-prices li strong {
+        white-space: nowrap;
+        text-align: right;
+    }
+
+    .receipt-prices li.total {
+        font-size: 1.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+
+    .modal-footer {
+        padding: 1.2rem 1.5rem;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+}

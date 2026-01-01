@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/mypage-layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <!-- title -->
+    <title th:fragment="title">마이페이지 - 구매 / 혜택</title>
+
+    <!-- page css -->
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-dashboard.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-purchase.css}">
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+
+    <div th:replace="mypage/payments/payment-header :: mypage-header('coupons')"></div>
+
+    <div class="coupon-list">
+
+        <div class="empty-message"
+             th:if="${#lists.isEmpty(coupons)}">
+            보유한 쿠폰이 없습니다.
+        </div>
+
+        <div class="coupon-card"
+             th:each="coupon : ${coupons}">
+
+            <div class="coupon-left">
+                <span class="coupon-name"
+                      th:text="${coupon.name}"></span>
+
+                <p class="coupon-condition"
+                   th:text="'최소 결제 ' + ${#numbers.formatInteger(coupon.minPrice, 3, 'COMMA')} + '원'">
+                </p>
+
+                <p class="coupon-expire"
+                   th:text="'만료일 · ' + ${#temporals.format(coupon.expireDate, 'yyyy.MM.dd')}">
+                </p>
+            </div>
+
+            <div class="coupon-right">
+                <span class="discount"
+                      th:text="${coupon.discountAmount} + '원'"></span>
+
+                <span class="coupon-badge usable">사용 가능</span>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<th:block th:fragment="script"></th:block>
+
+</body>
+</html>

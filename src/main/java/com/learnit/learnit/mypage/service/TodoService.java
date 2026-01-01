@@ -2,6 +2,8 @@ package com.learnit.learnit.mypage.service;
 
 import com.learnit.learnit.mypage.dto.TodoDTO;
 import com.learnit.learnit.mypage.repository.DashboardRepository;
+import com.learnit.learnit.mypage.repository.DashboardRepository;
+import com.learnit.learnit.mypage.dto.TodoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -45,6 +45,7 @@
                     <a th:href="@{/login}" class="login-btn">로그인/회원가입</a>
                 </th:block>
                 <th:block th:if="${loginUserId != null}">
+                    <a th:href="@{/cart}" class="cart-btn" aria-label="장바구니"><img th:src="@{/images/cart-icon.png}" class="cart-icon"></a>
                     <a th:href="@{/mypage}" class="user-name" th:text="${loginUserName} + '님'"></a>
                     <form th:action="@{/logout}" method="post" style="display: inline;">
                         <button type="submit" class="logout-btn">로그아웃</button>
@@ -70,6 +71,7 @@
                         <a th:href="@{/login}" class="mobile-nav__login">로그인</a>
                     </th:block>
                     <th:block th:if="${loginUserId != null}">
+                        <a th:href="@{/cart}" class="mobile-nav__cart"><img th:src="@{/images/cart-icon.png}" class="cart-icon"></a>
                         <a th:href="@{/mypage}" class="mobile-nav__user-name" th:text="${loginUserName}"></a>
                         <form th:action="@{/logout}" method="post" style="display: inline;">
                             <button type="submit" class="mobile-nav__logout">로그아웃</button>

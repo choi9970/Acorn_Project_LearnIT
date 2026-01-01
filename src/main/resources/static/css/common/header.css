@@ -198,6 +198,30 @@
     cursor: pointer;
 }
 
+/*장바구니 버튼*/
+.cart-btn {
+    margin-right: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+}
+.cart-icon {
+    width: 22px;
+    height: 22px;
+    vertical-align: middle;
+}
+
+.cart-btn:hover {
+    opacity: 0.8;
+}
+
+.mobile-nav__cart {
+    display: block;
+    margin-top: 0.8rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
 /* =============================
    반응형: 768px 이하
    → 햄버거 + 가운데 로고만

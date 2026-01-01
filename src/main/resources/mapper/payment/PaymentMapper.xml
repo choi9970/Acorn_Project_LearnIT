@@ -43,12 +43,7 @@
     </insert>
 
 
-    <!--4. 결제 내역 조회(마이페이지)-->
-    <select id="findPaymentByUserId">
-
-    </select>
-
-    <!--5. 주문번호로 조회-->
+    <!--4. 주문번호로 조회-->
     <select id="findOrderByOrderNo" resultType="OrderDTO">
         SELECT
             order_id,
@@ -62,7 +57,7 @@
           AND user_id = #{userId}
     </select>
 
-    <!--6. 주문아이디로 조회-->
+    <!--5. 주문아이디로 조회-->
     <select id="findPaymentByOrderId" resultType="PaymentDTO">
         SELECT
             payment_id,

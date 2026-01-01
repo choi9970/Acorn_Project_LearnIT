@@ -1,0 +1,17 @@
+<div th:fragment="mypage-header(activeTab)">
+    <h1 class="dashboard-title">구매 / 혜택</h1>
+
+    <div class="mypage-tabs">
+        <a th:href="@{/mypage/purchase}"
+           class="tab"
+           th:classappend="${activeTab == 'purchase'} ? 'active'">
+            구매 내역
+        </a>
+
+        <a th:href="@{/mypage/coupons}"
+           class="tab"
+           th:classappend="${activeTab == 'coupons'} ? 'active'">
+            쿠폰함
+        </a>
+    </div>
+</div>

@@ -2,12 +2,12 @@ package com.learnit.learnit.payment.common.controller;
 
 import com.learnit.learnit.course.CourseDTO;
 import com.learnit.learnit.course.CourseMapper;
+import com.learnit.learnit.enroll.EnrollmentMapper;
 import com.learnit.learnit.payment.common.LoginRequiredException;
 import com.learnit.learnit.payment.common.PaymentException;
 import com.learnit.learnit.payment.common.dto.OrderDTO;
 import com.learnit.learnit.payment.common.dto.PaymentDTO;
 import com.learnit.learnit.payment.common.repository.CouponMapper;
-import com.learnit.learnit.payment.common.repository.EnrollmentMapper;
 import com.learnit.learnit.payment.common.repository.PaymentMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

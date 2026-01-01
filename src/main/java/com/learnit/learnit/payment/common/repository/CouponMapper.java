@@ -15,6 +15,10 @@ public interface CouponMapper {
     //쿠폰 사용 상태 변경
     void useCoupon(Long userCouponId);
 
-    //유저 보유 쿠폰 목록
-    List<UserCouponDTO> findUsableCoupons(Long userId);
+    //결제 페이지 유저 보유 쿠폰 목록
+    List<UserCouponDTO> findUsableCoupons(@Param("userId") Long userId);
+
+    //마이페이지 쿠폰함
+    List<UserCouponDTO> findMyCoupons(@Param("userId") Long userId);
+
 }

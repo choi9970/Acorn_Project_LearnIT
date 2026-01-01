@@ -11,4 +11,22 @@
         AND course_id = #{courseId}
     </select>
 
+    <!--수강 여부 확인-->
+    <select id="existsEnrollment" resultType="boolean">
+
+        SELECT COUNT(*) > 0
+        FROM enrollment
+        WHERE user_id = #{userId}
+        AND course_id = #{courseId}
+
+    </select>
+
+    <!--결제 성공 시 수강 권한 부여-->
+    <insert id="insertEnrollment">
+
+        INSERT INTO enrollment (user_id, course_id, status, created_at)
+        VALUES (#{userId}, #{courseId}, 'ACTIVE', NOW())
+
+    </insert>
+
 </mapper>

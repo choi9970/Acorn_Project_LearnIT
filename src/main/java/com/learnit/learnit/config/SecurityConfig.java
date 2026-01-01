@@ -19,30 +19,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
-                    "/css/**", "/js/**", "/images/**", "/files/**", "/uploads/**", "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
-                    "/api/user/check-email", "/api/courses", "/api/search/**", "/api/mypage/github/**", "/mypage/**",
-                    "/oauth2/authorization/**", "/login/oauth2/code/**","/cart/**").permitAll()
-                .anyRequest().authenticated()
-            )
-
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
+                                "/css/**", "/js/**", "/images/**", "/files/**", "/uploads/**",
+                                "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
+                                "/api/user/check-email", "/api/courses", "/api/search/**",
+                                "/api/mypage/github/**", "/mypage/**",
+                                "/oauth2/authorization/**", "/login/oauth2/code/**",
+                                "/cart/**", "/payment/**", "/payments/**").permitAll()
+                        .anyRequest().authenticated()
+                )
             .oauth2Login(oauth2 -> oauth2
-                    .loginPage("/login")
-                    .successHandler(oAuth2LoginSuccessHandler) // 커스텀 핸들러 사용 (SIGNUP_PENDING 체크 및 리다이렉트 처리)
-                    .failureUrl("/login?error=true")
-                    .userInfoEndpoint(userInfo -> userInfo
-                            .userService(oAuthService)
-                    )
+                .loginPage("/login")
+                .successHandler(oAuth2LoginSuccessHandler) // 커스텀 핸들러 사용 (SIGNUP_PENDING 체크 및 리다이렉트 처리)
+                .failureUrl("/login?error=true")
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(oAuthService)
+                )
             )
             .logout(logout -> logout
-                    .logoutUrl("/logout")
-                    .logoutSuccessUrl("/home")
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID")
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/home")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
             );
 
         return http.build();
     }
 }
+

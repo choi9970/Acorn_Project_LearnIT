@@ -51,5 +51,28 @@
 
     </select>
 
+    <!--마이페이지 쿠폰함 조회-->
+    <select id="findMyCoupons"
+            resultType="com.learnit.learnit.payment.common.dto.UserCouponDTO">
+
+        SELECT
+            uc.user_coupon_id AS userCouponId,
+            uc.user_id        AS userId,
+            uc.coupon_id      AS couponId,
+            uc.is_used        AS isUsed,
+            uc.used_at        AS usedAt,
+            c.name            AS name,
+            c.discount_amount AS discountAmount,
+            c.min_price       AS minPrice,
+            c.expire_date     AS expireDate
+        FROM user_coupon uc JOIN coupon c
+        ON uc.coupon_id = c.coupon_id
+        WHERE uc.user_id = #{userId}
+        ORDER BY
+            uc.is_used ASC,
+            c.expire_date ASC
+
+    </select>
+
 
 </mapper>

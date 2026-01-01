@@ -33,12 +33,6 @@
         VALUES (#{userId}, #{courseId})
     </insert>
 
-    <!-- ✅ 전체 삭제 -->
-    <delete id="deleteAllByUserId">
-        DELETE FROM cart
-        WHERE user_id = #{userId}
-    </delete>
-
     <!-- ✅ (기존 기능 유지) X 버튼 단일 삭제 -->
     <delete id="deleteByUserIdAndCartId">
         DELETE FROM cart
