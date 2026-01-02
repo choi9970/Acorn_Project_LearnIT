@@ -1,6 +1,6 @@
 package com.learnit.learnit.mypage.controller;
 
-import com.learnit.learnit.auth.AuthUtil;
+import com.learnit.learnit.user.util.SessionUtils;
 import com.learnit.learnit.mypage.dto.ProfileDTO;
 import com.learnit.learnit.mypage.dto.ProfileUpdateDTO;
 import com.learnit.learnit.mypage.service.ProfileService;
@@ -169,11 +169,11 @@ public class ProfileController {
      */
     @PostMapping("/mypage/settings/withdraw")
     public String withdrawUser(HttpSession session) {
-        // 세션과 AuthUtil 모두 시도 (OAuth 사용자 대응)
+        // 세션과 SessionUtils 모두 시도 (OAuth 사용자 대응)
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
         
         if (userId == null) {
-            userId = AuthUtil.getLoginUserId();
+            userId = SessionUtils.getLoginUserId();
         }
         
         log.info("회원 탈퇴 요청 - userId: {}", userId);
