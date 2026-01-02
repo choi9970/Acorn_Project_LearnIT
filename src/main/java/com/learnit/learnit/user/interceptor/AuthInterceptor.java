@@ -22,6 +22,23 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         HttpSession session = request.getSession(false);
+        String requestURI = request.getRequestURI();
+        
+        // 관리자 페이지 접근 제어 (가장 먼저 체크)
+        if (requestURI.startsWith("/admin")) {
+            // 로그인하지 않은 경우
+            if (session == null || session.getAttribute("LOGIN_USER_ID") == null) {
+                response.sendRedirect("/login");
+                return false;
+            }
+            
+            // 관리자 권한 체크
+            String role = (String) session.getAttribute("LOGIN_USER_ROLE");
+            if (role == null || !"ADMIN".equals(role)) {
+                response.sendRedirect("/home?error=unauthorized");
+                return false;
+            }
+        }
         
         // 세션이 없거나 로그인 정보가 없으면 통과 (Spring Security가 처리)
         if (session == null || session.getAttribute("LOGIN_USER_ID") == null) {
@@ -35,10 +52,14 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
         
-        String requestURI = request.getRequestURI();
-        
         // SIGNUP_PENDING 상태 사용자는 추가 정보 입력 페이지로만 접근 가능
+        // 단, 관리자는 관리자 페이지 접근 허용
         if (User.STATUS_SIGNUP_PENDING.equals(user.getStatus())) {
+            // 관리자 페이지는 SIGNUP_PENDING 상태여도 접근 허용
+            if (requestURI.startsWith("/admin")) {
+                return true;
+            }
+            
             // 추가 정보 입력 페이지, 정적 리소스, 로그인/로그아웃 페이지는 제외
             if (!requestURI.equals("/user/additional-info") 
                 && !requestURI.startsWith("/css/")
@@ -52,22 +73,6 @@ public class AuthInterceptor implements HandlerInterceptor {
                 && !requestURI.equals("/home")
                 && !requestURI.equals("/")) {
                 response.sendRedirect("/user/additional-info");
-                return false;
-            }
-        }
-        
-        // 관리자 페이지 접근 제어
-        if (requestURI.startsWith("/admin")) {
-            // 로그인하지 않은 경우
-            if (session == null || session.getAttribute("LOGIN_USER_ID") == null) {
-                response.sendRedirect("/login");
-                return false;
-            }
-            
-            // 관리자 권한 체크
-            String role = (String) session.getAttribute("LOGIN_USER_ROLE");
-            if (!"ADMIN".equals(role)) {
-                response.sendRedirect("/home?error=unauthorized");
                 return false;
             }
         }
