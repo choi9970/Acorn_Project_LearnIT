@@ -273,15 +273,32 @@
             
             if (classInput && timeInput && noteInput) {
                 const goals = {
-                    class: parseInt(classInput.value) || 2,
-                    time: parseInt(timeInput.value) || 10,
-                    note: parseInt(noteInput.value) || 2
+                    classGoal: parseInt(classInput.value) || 2,
+                    timeGoal: parseInt(timeInput.value) || 10,
+                    noteGoal: parseInt(noteInput.value) || 2
                 };
                 
-                // TODO: 서버에 저장하는 API 호출
-                console.log('저장할 목표:', goals);
-                alert('일일 학습 목표가 저장되었습니다.');
-                dailyGoalModal.style.display = 'none';
+                // 서버에 저장하는 API 호출
+                fetch('/api/mypage/daily-goals', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(goals)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('일일 학습 목표가 저장되었습니다.');
+                        dailyGoalModal.style.display = 'none';
+                    } else {
+                        alert('목표 저장에 실패했습니다: ' + (data.error || '알 수 없는 오류'));
+                    }
+                })
+                .catch(error => {
+                    console.error('목표 저장 실패:', error);
+                    alert('목표 저장에 실패했습니다. 나중에 다시 시도해주세요.');
+                });
             }
         });
     }
@@ -324,14 +341,35 @@
         
         const year = startOfWeek.getFullYear();
         const month = startOfWeek.getMonth() + 1;
-        const weekNumber = Math.ceil(startOfWeek.getDate() / 7);
+        const startDateStr = `${year}-${String(month).padStart(2, '0')}-${String(startOfWeek.getDate()).padStart(2, '0')}`;
         
-        const weekLabelEl = document.getElementById('week-label-display');
-        if (weekLabelEl) {
-            weekLabelEl.textContent = `${year}년 ${month}월 ${weekNumber}주차`;
-        }
-        
-        updateWeeklyCalendar(startOfWeek);
+        // 서버에서 주간 학습 데이터 가져오기
+        fetch(`/api/mypage/weekly-learning?year=${year}&month=${month}&startDate=${startDateStr}`)
+            .then(response => response.json())
+            .then(data => {
+                const weekLabelEl = document.getElementById('week-label-display');
+                if (weekLabelEl && data.weekLabel) {
+                    weekLabelEl.textContent = data.weekLabel;
+                }
+                
+                // 주간 통계 업데이트
+                const weeklyStats = document.querySelector('.weekly-stats');
+                if (weeklyStats && data.dailyLearnings) {
+                    const statItems = weeklyStats.querySelectorAll('.stat-value');
+                    if (statItems.length >= 3) {
+                        statItems[0].textContent = data.totalLectures || 0;
+                        statItems[1].textContent = (data.totalMinutes || 0) + '분';
+                        statItems[2].textContent = data.totalNotes || 0;
+                    }
+                }
+                
+                updateWeeklyCalendarFromData(startOfWeek, data);
+            })
+            .catch(error => {
+                console.error('주간 학습 데이터 로드 실패:', error);
+                // 에러 시 기본 업데이트
+                updateWeeklyCalendar(startOfWeek);
+            });
     }
 
     function updateWeeklyCalendar(startOfWeek) {
@@ -346,11 +384,11 @@
             const day = date.getDate();
             const dayOfWeek = dayNames[i];
             
-            // TODO: 서버에서 해당 날짜의 학습 데이터 가져오기
-            const hasStudy = i === 1;
-            const lectureCount = hasStudy ? 2 : 0;
-            const studyMinutes = hasStudy ? 45 : 0;
-            const noteCount = hasStudy ? 1 : 0;
+            // 기본값 (서버 데이터가 없을 경우)
+            const hasStudy = false;
+            const lectureCount = 0;
+            const studyMinutes = 0;
+            const noteCount = 0;
             
             html += `
                 <div class="day-item">
@@ -364,6 +402,69 @@
                     </div>
                     <div class="day-tooltip">
                         <div class="tooltip-date">${startOfWeek.getFullYear()}. ${startOfWeek.getMonth() + 1}. ${day}. ${dayOfWeek}</div>
+                        <div class="tooltip-stats">
+                            <div class="tooltip-stat-item">
+                                <span class="tooltip-icon purple">📝</span>
+                                <span class="tooltip-label">노트</span>
+                                <span class="tooltip-value">${noteCount}개</span>
+                            </div>
+                            <div class="tooltip-stat-item">
+                                <span class="tooltip-icon blue">📚</span>
+                                <span class="tooltip-label">총 학습</span>
+                                <span class="tooltip-value">${studyMinutes}분</span>
+                            </div>
+                            <div class="tooltip-stat-item">
+                                <span class="tooltip-icon teal">✅</span>
+                                <span class="tooltip-label">완료 수업</span>
+                                <span class="tooltip-value">${lectureCount}개</span>
+                            </div>
+                            <div class="tooltip-stat-item">
+                                <span class="tooltip-icon orange">▶</span>
+                                <span class="tooltip-label">재생 시간</span>
+                                <span class="tooltip-value">${studyMinutes}분</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        weeklyCalendar.innerHTML = html;
+        bindTooltipEvents();
+    }
+    
+    function updateWeeklyCalendarFromData(startOfWeek, data) {
+        const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
+        const weeklyCalendar = document.querySelector('.weekly-calendar');
+        if (!weeklyCalendar) return;
+        
+        let html = '';
+        const dailyLearnings = data.dailyLearnings || [];
+        
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(startOfWeek);
+            date.setDate(startOfWeek.getDate() + i);
+            const day = date.getDate();
+            const dayOfWeek = dayNames[i];
+            
+            // 서버 데이터에서 해당 일자의 데이터 찾기
+            const dailyData = dailyLearnings[i] || {};
+            const hasStudy = dailyData.hasStudy || false;
+            const lectureCount = dailyData.lectureCount || 0;
+            const studyMinutes = dailyData.studyMinutes || 0;
+            const noteCount = dailyData.noteCount || 0;
+            
+            html += `
+                <div class="day-item">
+                    <div class="day-name">${dayOfWeek}</div>
+                    <div class="day-circle day-tooltip-trigger ${hasStudy ? 'has-study' : ''}" 
+                         data-day="${dailyData.day || day}"
+                         data-day-of-week="${dailyData.dayOfWeek || dayOfWeek}"
+                         data-lecture-count="${lectureCount}"
+                         data-study-minutes="${studyMinutes}"
+                         data-note-count="${noteCount}">
+                    </div>
+                    <div class="day-tooltip">
+                        <div class="tooltip-date">${data.year || startOfWeek.getFullYear()}. ${data.month || startOfWeek.getMonth() + 1}. ${dailyData.day || day}. ${dailyData.dayOfWeek || dayOfWeek}</div>
                         <div class="tooltip-stats">
                             <div class="tooltip-stat-item">
                                 <span class="tooltip-icon purple">📝</span>
@@ -448,22 +549,17 @@
         };
     }
 
-    // 서버에서 캘린더 데이터 가져오기 (또는 더미 데이터 사용)
+    // 서버에서 캘린더 데이터 가져오기
     function loadCalendarData(year, month) {
-        // TODO: 서버 API 호출
-        // fetch(`/api/mypage/calendar?year=${year}&month=${month}`)
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         renderCalendar(data);
-        //     })
-        //     .catch(error => {
-        //         console.error('캘린더 데이터 로드 실패:', error);
-        //         renderCalendar(generateDummyCalendarData(year, month));
-        //     });
-        
-        // 현재는 더미 데이터 사용
-        const calendarData = generateDummyCalendarData(year, month);
-        renderCalendar(calendarData);
+        fetch(`/api/mypage/calendar?year=${year}&month=${month}`)
+            .then(response => response.json())
+            .then(data => {
+                renderCalendar(data);
+            })
+            .catch(error => {
+                console.error('캘린더 데이터 로드 실패:', error);
+                renderCalendar(generateDummyCalendarData(year, month));
+            });
     }
 
     // 전달 버튼

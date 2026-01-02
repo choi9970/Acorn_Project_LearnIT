@@ -60,16 +60,17 @@ public class DashboardService {
         return dashboard;
     }
 
-    private WeeklyLearningDTO getWeeklyLearningData(Long userId, int year, int month) {
-        LocalDate now = LocalDate.now();
-        LocalDate startOfWeek = now.minusDays(now.getDayOfWeek().getValue() - 1);
+    public WeeklyLearningDTO getWeeklyLearningDataByStartDate(Long userId, int year, int month, LocalDate startOfWeek) {
         LocalDate endOfWeek = startOfWeek.plusDays(6);
-
+        
         WeeklyLearningDTO weeklyLearning = new WeeklyLearningDTO();
-        weeklyLearning.setYear(year);
-        weeklyLearning.setMonth(month);
-        weeklyLearning.setWeekNumber((startOfWeek.getDayOfMonth() - 1) / 7 + 1);
-        weeklyLearning.setWeekLabel(String.format("%d년 %d월 %d주차", year, month, weeklyLearning.getWeekNumber()));
+        weeklyLearning.setYear(startOfWeek.getYear());
+        weeklyLearning.setMonth(startOfWeek.getMonthValue());
+        
+        // 주차 계산
+        int weekNumber = (startOfWeek.getDayOfMonth() - 1) / 7 + 1;
+        weeklyLearning.setWeekNumber(weekNumber);
+        weeklyLearning.setWeekLabel(String.format("%d년 %d월 %d주차", startOfWeek.getYear(), startOfWeek.getMonthValue(), weekNumber));
 
         try {
             String startDateStr = startOfWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -104,7 +105,13 @@ public class DashboardService {
         return weeklyLearning;
     }
 
-    private CalendarSummaryDTO getCalendarData(Long userId, int year, int month) {
+    private WeeklyLearningDTO getWeeklyLearningData(Long userId, int year, int month) {
+        LocalDate now = LocalDate.now();
+        LocalDate startOfWeek = now.minusDays(now.getDayOfWeek().getValue() - 1);
+        return getWeeklyLearningDataByStartDate(userId, year, month, startOfWeek);
+    }
+
+    public CalendarSummaryDTO getCalendarData(Long userId, int year, int month) {
         CalendarSummaryDTO calendar = new CalendarSummaryDTO();
         calendar.setYear(year);
         calendar.setMonth(month);

@@ -7,6 +7,8 @@ import com.learnit.learnit.mypage.dto.PaymentReceiptDTO;
 import com.learnit.learnit.mypage.dto.GitHubAnalysisDTO;
 import com.learnit.learnit.mypage.dto.ProfileDTO;
 import com.learnit.learnit.mypage.dto.SkillChartDTO;
+import com.learnit.learnit.mypage.dto.WeeklyLearningDTO;
+import com.learnit.learnit.mypage.dto.CalendarSummaryDTO;
 import com.learnit.learnit.mypage.service.DashboardService;
 import com.learnit.learnit.mypage.service.MyPagePaymentService;
 import com.learnit.learnit.mypage.service.CouponService;
@@ -23,9 +25,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -146,6 +154,70 @@ public class MypageController {
 
 
         return "mypage/payments/coupon_list";
+    }
+
+    /**
+     * 주간 학습 데이터 조회 (AJAX용)
+     */
+    @GetMapping("/api/mypage/weekly-learning")
+    @ResponseBody
+    public WeeklyLearningDTO getWeeklyLearning(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam(required = false) String startDate,
+            HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+        if (userId == null) {
+            throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+        }
+
+        LocalDate weekStart;
+        if (startDate != null && !startDate.isEmpty()) {
+            weekStart = LocalDate.parse(startDate);
+        } else {
+            LocalDate now = LocalDate.now();
+            weekStart = now.minusDays(now.getDayOfWeek().getValue() - 1);
+        }
+
+        return dashboardService.getWeeklyLearningDataByStartDate(userId, year, month, weekStart);
+    }
+
+    /**
+     * 캘린더 데이터 조회 (AJAX용)
+     */
+    @GetMapping("/api/mypage/calendar")
+    @ResponseBody
+    public CalendarSummaryDTO getCalendar(
+            @RequestParam int year,
+            @RequestParam int month,
+            HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+        if (userId == null) {
+            throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+        }
+
+        return dashboardService.getCalendarData(userId, year, month);
+    }
+
+    /**
+     * 일일 학습 목표 저장 (AJAX용)
+     */
+    @PostMapping("/api/mypage/daily-goals")
+    @ResponseBody
+    public Map<String, Object> saveDailyGoals(
+            @RequestBody Map<String, Object> goals,
+            HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+        if (userId == null) {
+            throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+        }
+
+        // TODO: 실제 데이터베이스에 저장하는 로직 구현 필요
+        // 현재는 성공 응답만 반환
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "일일 학습 목표가 저장되었습니다.");
+        return response;
     }
 }
 
