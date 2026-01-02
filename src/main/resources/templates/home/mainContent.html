@@ -29,7 +29,7 @@
 
       <div class="banner-track">
         <div class="banner-item" th:each="b : ${bannerList}">
-          <a th:href="@{/course/{id}(id=${b.courseId})}">
+          <a th:href="@{/templates/courseVideo/{id}(id=${b.courseId})}">
             <img th:src="${b.thumbnailUrl}" alt="강의 배너 이미지">
             <span class="banner-category" th:text="${b.categoryName}"></span>
             <div class="banner-title" th:text="${b.title}"></div>
@@ -61,7 +61,7 @@
       <!-- 🔥 인기 1위 -->
       <a class="course-card featured"
          th:if="${courseList.size() > 0}"
-         th:href="@{/course/{id}(id=${courseList[0].courseId})}">
+         th:href="@{/templates/courseVideo/{id}(id=${courseList[0].courseId})}">
         <div class="course-thumb">
           <img th:src="${courseList[0].thumbnailUrl}">
           <span class="course-badge">🔥 인기 1위</span>
@@ -76,7 +76,7 @@
         <a class="course-card"
            th:each="c, stat : ${courseList}"
            th:if="${stat.index > 0}"
-           th:href="@{/course/{id}(id=${c.courseId})}">
+           th:href="@{/templates/courseVideo/{id}(id=${c.courseId})}">
           <div class="course-thumb">
             <img th:src="${c.thumbnailUrl}">
             <span class="course-badge">모집중</span>

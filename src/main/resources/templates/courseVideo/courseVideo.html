@@ -64,13 +64,13 @@
             <div id="player"></div>
 
             <div id="quiz-wrapper">
-                <div th:replace="~{course/fragments/videoQuiz :: quizContent}"></div>
+                <div th:replace="~{courseVideo/fragments/videoQuiz :: quizContent}"></div>
             </div>
 
         </div>
     </main>
 
-    <div th:replace="~{course/fragments/sidePanels :: integratedPanel}"></div>
+    <div th:replace="~{courseVideo/fragments/sidePanels :: integratedPanel}"></div>
 
     <aside class="right-sidebar">
         <a href="javascript:void(0)" class="menu-item" onclick="openPanel('curriculum')">
@@ -100,7 +100,7 @@
 <input type="hidden" id="final-quiz-id" th:value="${finalQuizId}">
 <input type="hidden" id="is-final-submitted" th:value="${isFinalSubmitted}">
 
-<script th:src="@{/js/course/courseVideo.js}"></script>
+<script th:src="@{/js/courseVideo/courseVideo.js}"></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 
 </body>
