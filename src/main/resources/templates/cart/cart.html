@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+
+<head>
+    <title th:fragment="title">장바구니</title>
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/cart/cart.css}">
+    </th:block>
+</head>
+
+<body>
+<div th:fragment="content">
+
+    <section class="cart-page container">
+
+        <div class="cart-head">
+            <h1 class="cart-title">
+                <span class="cart-icon">🛒</span>
+                장바구니
+            </h1>
+        </div>
+
+        <div class="cart-layout">
+
+            <div class="cart-list">
+
+                <div class="cart-list-top">
+                    <label class="cart-check-all">
+                        <input id="checkAll" type="checkbox" checked>
+                        <span>전체선택</span>
+                    </label>
+
+                    <!-- ✅ 전체삭제 버튼 -->
+                    <form th:action="@{/cart/clear}" method="post" class="cart-clear-form">
+                        <button type="submit" class="cart-clear-btn"
+                                th:disabled="${#lists.isEmpty(items)}"
+                                aria-label="장바구니 전체삭제"
+                                onclick="return confirm('장바구니를 전체 삭제할까요?');">
+                            전체삭제
+                        </button>
+                    </form>
+                </div>
+
+                <article class="cart-item" th:each="i : ${items}">
+                    <input type="hidden" name="courseId" th:value="${i.courseId}">
+                    <label class="cart-check">
+                        <input class="itemCheck" type="checkbox" checked
+                               th:attr="data-price=${i.price}, data-course-id=${i.courseId}">
+                    </label>
+
+                    <div class="cart-thumb" aria-hidden="true">
+                        <div class="thumb-box">
+                            <img th:if="${i.thumbnailUrl != null}"
+                                 th:src="${i.thumbnailUrl}"
+                                 alt=""
+                                 style="width:100%;height:100%;object-fit:cover;border-radius:1rem;">
+                        </div>
+
+                    </div>
+
+                    <div class="cart-info">
+                        <div class="cart-badge" th:text="${i.categoryName}">카테고리</div>
+                        <div class="cart-name" th:text="${i.title}">강의명</div>
+                    </div>
+
+                    <div class="cart-price">
+                        <strong th:if="${i.price != null and i.price > 0}"
+                                th:text="${#numbers.formatInteger(i.price, 3, 'COMMA')} + '원'">0원</strong>
+
+                        <strong th:if="${i.price == null or i.price == 0}"
+                                th:text="'무료'">무료</strong>
+
+                        <span class="per">/1개</span>
+                    </div>
+
+                    <form th:action="@{/cart/delete}" method="post">
+                        <input type="hidden" name="cartId" th:value="${i.cartId}">
+                        <button type="submit" class="cart-remove" aria-label="삭제">×</button>
+                    </form>
+                </article>
+
+
+                <div class="cart-empty" th:if="${#lists.isEmpty(items)}">
+                    <p class="cart-empty-text">장바구니에 담긴 강의가 없습니다.</p>
+                    <a th:href="@{/CourseList}" class="cart-empty-link">인기 강의 보러가기</a>
+                </div>
+
+            </div>
+
+            <aside class="cart-summary">
+                <div class="summary-card">
+                    <h2 class="summary-title">구매금액</h2>
+
+                    <dl class="summary-lines">
+                        <div class="line">
+                            <dt>상품금액</dt>
+                            <dd id="totalPriceText"
+                                th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')} + '원'">0원</dd>
+                        </div>
+                        <div class="line">
+                            <dt>할인금액</dt>
+                            <dd id="discountText"
+                                th:text="'-' + ${#numbers.formatInteger(discountPrice, 3, 'COMMA')} + '원'">-0원</dd>
+                        </div>
+                        <div class="line">
+                            <dt>최종금액</dt>
+                            <dd id="finalPriceText"
+                                th:text="${#numbers.formatInteger(finalPrice, 3, 'COMMA')} + '원'">0원</dd>
+                        </div>
+                    </dl>
+
+                    <button class="summary-btn" type="button">
+                        결제하기
+                    </button>
+
+                </div>
+            </aside>
+
+        </div>
+    </section>
+
+</div>
+<!--main content js-->
+<th:block th:fragment="script">
+    <script th:src="@{/js/cart/cart.js}"></script>
+</th:block>
+</body>
+</html>
+
