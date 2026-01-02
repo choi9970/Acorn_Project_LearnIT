@@ -1,7 +1,5 @@
 package com.learnit.learnit.admin;
 
-import com.learnit.learnit.admin.AdminHome;
-import com.learnit.learnit.admin.AdminHomeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

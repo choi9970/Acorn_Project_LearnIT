@@ -1,6 +1,6 @@
 package com.learnit.learnit.cart;
 
-import com.learnit.learnit.auth.AuthUtil;
+import com.learnit.learnit.user.util.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +17,7 @@ public class CartController {
     // ✅ 장바구니 페이지
     @GetMapping("/cart")
     public String cartPage(Model model) {
-        Long userId = AuthUtil.requireLoginUserId();
+        Long userId = SessionUtils.requireLoginUserId();
         if (userId == null) return "redirect:/login";
 
         List<CartItem> items = cartService.getCartItems(userId);
@@ -35,7 +35,7 @@ public class CartController {
     @PostMapping("/cart/add")
     @ResponseBody
     public String addToCart(@RequestParam("courseId") Long courseId) {
-        Long userId = AuthUtil.requireLoginUserId();
+        Long userId = SessionUtils.requireLoginUserId();
         if (userId == null) return "LOGIN_REQUIRED";
 
         boolean inserted = cartService.addToCart(userId, courseId);
@@ -45,7 +45,7 @@ public class CartController {
     // ✅ X 버튼 삭제
     @PostMapping("/cart/delete")
     public String deleteItem(@RequestParam("cartId") Long cartId) {
-        Long userId = AuthUtil.requireLoginUserId();
+        Long userId = SessionUtils.requireLoginUserId();
         if (userId == null) return "redirect:/login";
 
         cartService.deleteItem(userId, cartId);
@@ -55,7 +55,7 @@ public class CartController {
     // ✅ 전체 삭제
     @PostMapping("/cart/clear")
     public String clearCart() {
-        Long userId = AuthUtil.requireLoginUserId();
+        Long userId = SessionUtils.requireLoginUserId();
         if (userId == null) return "redirect:/login";
 
         cartService.clearCart(userId);
@@ -67,7 +67,7 @@ public class CartController {
     @PostMapping("/cart/delete-paid")
     @ResponseBody
     public String deletePaid(@RequestParam("courseIds") List<Long> courseIds) {
-        Long userId = AuthUtil.requireLoginUserId();
+        Long userId = SessionUtils.requireLoginUserId();
         if (userId == null) return "LOGIN_REQUIRED";
 
         int deleted = cartService.deletePaidCourses(userId, courseIds);

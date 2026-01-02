@@ -21,6 +21,15 @@
     
     <div th:if="${error}" class="error-message" th:text="${error}"></div>
     <div th:if="${param.success}" class="success-message">회원가입이 완료되었습니다. 로그인해주세요.</div>
+    
+    <!-- 임시 비밀번호 입력 안내 -->
+    <div th:if="${param.tempPasswordSent}" class="info-message" style="background-color: #f0f7ff; border: 1px solid #0A4A7A; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <p style="margin: 0; color: #0A4A7A; font-size: 14px; line-height: 1.6;">
+        <strong>🔑 임시 비밀번호로 로그인</strong><br>
+        이메일로 발송된 <strong>임시 비밀번호</strong>를 아래 비밀번호 입력란에 입력해주세요.<br>
+        로그인 후에는 반드시 비밀번호를 변경해주세요.
+      </p>
+    </div>
 
     <!-- 일반 로그인 폼 -->
     <form th:action="@{/login}" method="post" class="login-form">

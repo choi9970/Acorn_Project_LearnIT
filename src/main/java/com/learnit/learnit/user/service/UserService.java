@@ -20,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SessionService sessionService;
+    private final EmailService emailService;
 
     /**
      * 로그인 처리
@@ -110,6 +111,15 @@ public class UserService {
         newUser.setUpdatedAt(LocalDateTime.now());
 
         newUser = userRepository.save(newUser);
+        
+        // 회원가입 완료 이메일 발송
+        try {
+            emailService.sendWelcomeEmail(newUser.getEmail(), newUser.getName());
+        } catch (Exception e) {
+            // 이메일 발송 실패는 로깅만 하고 예외를 던지지 않음 (회원가입은 이미 완료되었으므로)
+            System.err.println("회원가입 완료 이메일 발송 실패: " + e.getMessage());
+        }
+        
         return newUser;
     }
 

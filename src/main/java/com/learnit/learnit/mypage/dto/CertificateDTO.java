@@ -10,5 +10,7 @@ public class CertificateDTO {
     private String courseTitle;
     private LocalDate issuedDate;
     private String certificateUrl;
+    private String userName;
+    private String certificateNumber;
 }
 

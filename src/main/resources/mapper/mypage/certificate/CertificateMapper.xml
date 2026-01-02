@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.mypage.mapper.CertificateMapper">
+
+    <!-- 수료증 상세 조회 -->
+    <select id="selectCertificateById" resultType="com.learnit.learnit.mypage.dto.CertificateDTO">
+        SELECT 
+            cert.cert_id AS certificateId,
+            c.course_id AS courseId,
+            c.title AS courseTitle,
+            DATE(cert.issued_at) AS issuedDate,
+            u.name AS userName,
+            cert.certificate_number AS certificateNumber
+        FROM certificate cert
+        JOIN enrollment e ON cert.enrollment_id = e.enrollment_id
+        JOIN course c ON e.course_id = c.course_id
+        JOIN users u ON e.user_id = u.user_id
+        WHERE cert.cert_id = #{certificateId}
+          AND e.user_id = #{userId}
+          AND cert.is_approved = 'Y'
+    </select>
+
+</mapper>
+

@@ -25,7 +25,7 @@
     grid-column: span 1;
 }
 
-.badge-section {
+.certificate-section {
     grid-column: span 1;
 }
 
@@ -306,6 +306,73 @@
     max-height: 500px;
 }
 
+/* 수료증 섹션 */
+.certificate-content {
+    min-height: 8rem;
+}
+
+.certificate-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.certificate-item {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.2rem;
+    background: #f8f9fa;
+    border-radius: 0.8rem;
+    transition: background-color 0.2s;
+}
+
+.certificate-item:hover {
+    background: #e9ecef;
+}
+
+.certificate-icon {
+    font-size: 2.4rem;
+    flex-shrink: 0;
+}
+
+.certificate-info {
+    flex: 1;
+}
+
+.certificate-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 0.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.certificate-date {
+    font-size: 1.3rem;
+    color: #999;
+}
+
+.certificate-download-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #0A4A7A;
+    border: none;
+    border-radius: 0.6rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.certificate-download-btn:hover {
+    background-color: #083d63;
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
     .profile-container {
@@ -313,7 +380,7 @@
     }
 
     .profile-detail-section,
-    .badge-section,
+    .certificate-section,
     .github-analysis-section,
     .skill-chart-section,
     .study-section {

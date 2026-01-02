@@ -1,6 +1,6 @@
 package com.learnit.learnit.courseDetail;
 
-import com.learnit.learnit.auth.AuthUtil;
+import com.learnit.learnit.user.util.SessionUtils;
 import com.learnit.learnit.course.CourseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -24,7 +24,7 @@ public class CourseDetailController {
                          Model model) {
 
         try {
-            Long loginUserId = AuthUtil.getLoginUserId();
+            Long loginUserId = SessionUtils.getLoginUserId();
             boolean isLoggedIn = (loginUserId != null);
             boolean isEnrolled = isLoggedIn && courseDetailService.isEnrolled(loginUserId, courseId);
 
@@ -79,7 +79,8 @@ public class CourseDetailController {
 
         model.addAttribute("curriculumTotal", chapters.size());
 
-        // 리뷰(추후)
-        model.addAttribute("reviews", Collections.emptyList());
+        // 리뷰 조회 (승인된 리뷰만 표시)
+        List<ReviewDTO> reviews = courseDetailService.getReviews(courseId);
+        model.addAttribute("reviews", reviews != null ? reviews : Collections.emptyList());
     }
 }

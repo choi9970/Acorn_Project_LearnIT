@@ -1,4 +1,4 @@
-/*마이페이지 - 대시보드 전용 css*/
+/* 대시보드 전용 스타일 */
 .dashboard-title {
     font-size: 2.4rem;
     font-weight: 700;
@@ -19,103 +19,6 @@
 
 .card-small {
     grid-column: span 1;
-}
-
-.card {
-    background: #fff;
-    padding: 2.4rem;
-    border-radius: 1.6rem;
-    border: 1px solid #d5dbe3;
-
-    box-shadow:
-        0 0.2rem 0.6rem rgba(10, 74, 122, 0.08),
-        0 0.8rem 2rem rgba(10, 74, 122, 0.12);
-
-    transition: 0.2s ease;
-}
-
-.card:hover {
-    transform: translateY(-0.3rem);
-}
-
-.card h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 1.2rem;
-}
-
-.btn {
-    display: inline-block;
-    padding: 0.8rem 1.4rem;
-    background: #0A4A7A;
-    color: #fff;
-    border-radius: 0.8rem;
-    border: none;
-    cursor: pointer;
-    margin-top: 1.2rem;
-}
-
-.btn:hover {
-    background: #083b5e;
-}
-
-.chart-placeholder,
-.calendar-placeholder {
-    width: 100%;
-    height: 120px;
-    background: #f4f6fa;
-    border-radius: 1rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #7c8a9a;
-}
-
-/* 카드 헤더 스타일 */
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.6rem;
-    gap: 1rem;
-}
-
-.card-header h2 {
-    margin: 0;
-    padding: 0;
-    line-height: 1;
-    flex-shrink: 0;
-}
-
-.view-all-link {
-    font-size: 1.4rem;
-    color: #0A4A7A;
-    text-decoration: none;
-    font-weight: 500;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.view-all-link:hover {
-    text-decoration: underline;
-}
-
-.icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.6rem;
-    color: #7c8a9a;
-    padding: 0.4rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    line-height: 1;
-}
-
-.icon-btn:hover {
-    color: #0A4A7A;
 }
 
 /* 최근 학습 강의 카드 */
@@ -160,13 +63,6 @@
 
 .progress-text {
     color: #666;
-}
-
-.empty-message {
-    color: #999;
-    text-align: center;
-    padding: 2rem 0;
-    font-size: 1.4rem;
 }
 
 /* 주간 학습 카드 */
@@ -304,6 +200,23 @@
     color: #999;
 }
 
+.certificate-download-link {
+    padding: 0.6rem 1.2rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #0A4A7A;
+    border: none;
+    border-radius: 0.6rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.certificate-download-link:hover {
+    background-color: #083d63;
+}
 /* 캘린더 카드 */
 #dashboard-calendar {
     min-height: 30rem;
@@ -573,6 +486,7 @@
     color: #666;
 }
 
+<<<<<<< HEAD
 /* 모바일 반응형 */
 @media (max-width: 768px) {
     .calendar-header-section {
@@ -599,6 +513,8 @@
 }
 
 
+=======
+>>>>>>> origin/main
 .day-tooltip {
     display: none;
     position: absolute;
@@ -1014,7 +930,6 @@
     cursor: pointer;
 }
 
-
 /* 할일 관리 모달 스타일 */
 .todo-header {
     display: flex;
@@ -1293,6 +1208,7 @@
     font-size: 1.4rem;
 }
 
+<<<<<<< HEAD
 /* 태블릿 반응형 (1024px 이하) */
 @media (max-width: 1024px) {
     .layout-container {
@@ -1306,15 +1222,42 @@
     .card {
         padding: 2rem;
     }
+=======
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .calendar-header-section {
+        gap: 1rem;
+    }
+
+    .calendar-header-section h2 {
+        font-size: 1.6rem;
+        min-width: 6rem;
+    }
+
+    .calendar-nav-btn {
+        font-size: 2rem;
+        padding: 0.2rem 0.8rem;
+    }
+
+    .plan-input-area {
+        flex-direction: column;
+    }
+
+    .add-plan-btn {
+        width: 100%;
+    }
+}
+
+/* 태블릿 반응형 (1024px 이하) */
+@media (max-width: 1024px) {
+    .mypage-dashboard {
+        gap: 2rem;
+    }
+>>>>>>> origin/main
 }
 
 /* 모바일 반응형 (768px 이하) */
 @media (max-width: 768px) {
-    .layout-container {
-        padding: 0 1.6rem;
-        margin: 2rem auto;
-    }
-    
     .dashboard-title {
         font-size: 2rem;
         margin-bottom: 1.6rem;
@@ -1335,29 +1278,6 @@
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
-    }
-    
-    .card {
-        padding: 1.6rem;
-        border-radius: 1.2rem;
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-        overflow: hidden;
-    }
-    
-    .card h2 {
-        font-size: 1.6rem;
-    }
-    
-    .card-header {
-        margin-bottom: 1.2rem;
-        gap: 0.8rem;
-        flex-wrap: wrap;
-    }
-    
-    .view-all-link {
-        font-size: 1.3rem;
     }
     
     /* 최근 학습 강의 카드 반응형 */
@@ -1571,11 +1491,6 @@
 
 /* 작은 모바일 (600px 이하) */
 @media (max-width: 600px) {
-    .layout-container {
-        padding: 0 1.2rem;
-        margin: 1.5rem auto;
-    }
-    
     .dashboard-title {
         font-size: 1.8rem;
         margin-bottom: 1.2rem;
@@ -1583,23 +1498,6 @@
     
     .mypage-dashboard {
         gap: 1.2rem;
-    }
-    
-    .card {
-        padding: 1.2rem;
-        border-radius: 1rem;
-    }
-    
-    .card h2 {
-        font-size: 1.5rem;
-    }
-    
-    .card-header {
-        margin-bottom: 1rem;
-    }
-    
-    .view-all-link {
-        font-size: 1.2rem;
     }
     
     /* 최근 학습 강의 카드 */

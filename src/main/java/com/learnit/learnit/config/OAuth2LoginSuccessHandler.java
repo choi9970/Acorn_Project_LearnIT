@@ -55,7 +55,27 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 response.sendRedirect("/login?error=true");
                 return;
             }
-
+            
+            // DELETE 상태 사용자는 재가입 처리
+            if (User.STATUS_DELETE.equals(user.getStatus())) {
+                // 상태를 SIGNUP_PENDING으로 변경하여 재가입 처리
+                user.setStatus(User.STATUS_SIGNUP_PENDING);
+                user.setUpdatedAt(java.time.LocalDateTime.now());
+                
+                // OAuth 정보 업데이트 (provider/providerId는 이미 있지만, 최신 정보로 업데이트)
+                String name = oAuth2User.getAttribute("name");
+                if (name != null) {
+                    user.setName((String) name);
+                }
+                
+                String picture = oAuth2User.getAttribute("picture");
+                if (picture != null) {
+                    user.setProfileImg((String) picture);
+                }
+                
+                userRepository.save(user);
+            }
+            
             // Step 4: 세션 저장
             HttpSession session = request.getSession(true);
             sessionService.setLoginSession(session, user);
@@ -64,7 +84,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             if (User.STATUS_SIGNUP_PENDING.equals(user.getStatus())) {
                 getRedirectStrategy().sendRedirect(request, response, "/user/additional-info");
             } else {
-                getRedirectStrategy().sendRedirect(request, response, "/home");
+                // 관리자 계정인 경우 관리자 페이지로 리다이렉트
+                if ("ADMIN".equals(user.getRole())) {
+                    getRedirectStrategy().sendRedirect(request, response, "/admin/home");
+                } else {
+                    getRedirectStrategy().sendRedirect(request, response, "/home");
+                }
             }
 
         } catch (Exception e) {

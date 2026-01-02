@@ -13,7 +13,9 @@
     </select>
 
     <select id="countPendingReviews" resultType="int">
-        SELECT COUNT(*) FROM review WHERE comment_status = 'Active'
+        SELECT COUNT(*) FROM review 
+        WHERE delete_flg = 0 
+        AND (comment_status = 'Active' OR comment_status IS NULL)
     </select>
 
     <select id="selectLatestNotices" resultType="com.learnit.learnit.admin.AdminHome$AdminNotice">

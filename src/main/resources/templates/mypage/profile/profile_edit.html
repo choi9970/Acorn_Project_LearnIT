@@ -31,6 +31,22 @@
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
+    <!-- 탈퇴 확인 모달 -->
+    <div id="withdraw-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>회원 탈퇴 확인</h3>
+            <p>정말로 탈퇴하시겠습니까? 탈퇴하시면 모든 정보가 삭제되며 복구할 수 없습니다.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="btn-cancel-withdraw">취소</button>
+                <button type="button" class="btn-confirm" id="btn-confirm-withdraw">탈퇴하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 탈퇴 요청용 숨겨진 폼 -->
+    <form id="withdraw-form" method="post" action="/mypage/settings/withdraw" style="display: none;">
+    </form>
+
     <div class="profile-edit-container">
         <form id="profile-edit-form" th:action="@{/mypage/settings/update}" method="post" enctype="multipart/form-data">
             <!-- 프로필 이미지 -->
@@ -67,12 +83,22 @@
                 </div>
             </div>
 
-            <!-- 비밀번호 -->
-            <div class="form-group">
-                <label for="password">비밀번호</label>
+            <!-- 비밀번호 변경 (일반 로그인 사용자만 표시) -->
+            <div th:if="${isSocialLogin == null || !isSocialLogin}" class="form-group">
+                <label for="currentPassword">현재 비밀번호</label>
+                <div class="input-group">
+                    <input type="password" id="currentPassword" name="currentPassword" class="form-input" 
+                           placeholder="현재 비밀번호를 입력하세요">
+                </div>
+                <small class="form-hint">비밀번호를 변경하려면 현재 비밀번호를 입력해주세요.</small>
+            </div>
+
+            <!-- 새 비밀번호 (일반 로그인 사용자만 표시) -->
+            <div th:if="${isSocialLogin == null || !isSocialLogin}" class="form-group">
+                <label for="password">새 비밀번호</label>
                 <div class="input-group">
                     <input type="password" id="password" name="password" class="form-input" 
-                           placeholder="비밀번호를 입력하세요 (최소 8자)">
+                           placeholder="새 비밀번호를 입력하세요 (최소 8자)">
                     <button type="button" class="btn-edit" data-field="password">수정</button>
                 </div>
             </div>
@@ -137,6 +163,13 @@
                 <button type="submit" class="btn-submit">저장하기</button>
             </div>
         </form>
+        
+        <!-- 탈퇴 섹션 -->
+        <div class="withdraw-section">
+            <h3 class="withdraw-title">회원 탈퇴</h3>
+            <p class="withdraw-description">탈퇴하시면 모든 정보가 삭제되며 복구할 수 없습니다.</p>
+            <button type="button" class="btn-withdraw" id="btn-withdraw">회원 탈퇴</button>
+        </div>
     </div>
 </div>
 

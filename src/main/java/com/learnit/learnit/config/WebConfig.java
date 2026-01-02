@@ -20,7 +20,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
@@ -51,6 +53,10 @@ public class WebConfig implements WebMvcConfigurer {
         
         // GitHub API 토큰이 있으면 헤더에 추가
         if (StringUtils.hasText(githubToken)) {
+            log.info("GitHub API 토큰이 설정되었습니다. (토큰 길이: {}자, 타입: {})", 
+                githubToken.length(), 
+                githubToken.startsWith("github_pat_") ? "Fine-grained" : "Classic");
+            
             List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
             interceptors.add(new ClientHttpRequestInterceptor() {
                 @Override
@@ -63,14 +69,18 @@ public class WebConfig implements WebMvcConfigurer {
                         // Fine-grained token (github_pat_) 또는 Classic token (ghp_) 모두 지원
                         if (githubToken.startsWith("github_pat_")) {
                             headers.set("Authorization", "Bearer " + githubToken);
+                            log.debug("GitHub API 요청에 Bearer 토큰 추가: {}", request.getURI());
                         } else {
                             headers.set("Authorization", "token " + githubToken);
+                            log.debug("GitHub API 요청에 token 토큰 추가: {}", request.getURI());
                         }
                     }
                     return execution.execute(request, body);
                 }
             });
             restTemplate.setInterceptors(interceptors);
+        } else {
+            log.warn("GitHub API 토큰이 설정되지 않았습니다. 시간당 60회 제한이 적용됩니다.");
         }
         
         return restTemplate;

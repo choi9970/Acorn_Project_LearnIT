@@ -19,4 +19,9 @@ public interface CourseDetailMapper {
     String selectPeriodTextByCourseId(@Param("courseId") int courseId);
 
     String selectCategoryNameByCategoryId(@Param("categoryId") int categoryId);
+
+    /**
+     * 강의별 리뷰 조회 (승인된 리뷰만)
+     */
+    List<ReviewDTO> selectReviewsByCourseId(@Param("courseId") int courseId);
 }
