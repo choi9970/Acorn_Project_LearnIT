@@ -53,7 +53,13 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
         
         // SIGNUP_PENDING 상태 사용자는 추가 정보 입력 페이지로만 접근 가능
+        // 단, 관리자는 관리자 페이지 접근 허용
         if (User.STATUS_SIGNUP_PENDING.equals(user.getStatus())) {
+            // 관리자 페이지는 SIGNUP_PENDING 상태여도 접근 허용
+            if (requestURI.startsWith("/admin")) {
+                return true;
+            }
+            
             // 추가 정보 입력 페이지, 정적 리소스, 로그인/로그아웃 페이지는 제외
             if (!requestURI.equals("/user/additional-info") 
                 && !requestURI.startsWith("/css/")
