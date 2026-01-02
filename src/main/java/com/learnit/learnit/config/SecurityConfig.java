@@ -19,16 +19,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
-                    "/css/**", "/js/**", "/images/**", "/files/**", "/uploads/**", "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
-                    "/api/user/check-email", "/api/courses", "/api/search/**", "/api/mypage/github/**", "/mypage/**",
-                    "/oauth2/authorization/**", "/login/oauth2/code/**","/cart/**").permitAll()
-                .requestMatchers("/admin/**").authenticated()  // 관리자 페이지는 최소한 로그인 필요 (실제 role 체크는 AuthInterceptor에서 처리)
-                .anyRequest().authenticated()
-            )
-
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
+                                "/css/**", "/js/**", "/images/**", "/files/**", "/uploads/**",
+                                "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
+                                "/api/user/check-email", "/api/courses", "/api/search/**",
+                                "/api/mypage/github/**", "/mypage/**",
+                                "/oauth2/authorization/**", "/login/oauth2/code/**",
+                                "/cart/**", "/payment/**", "/payments/**",
+                                "/admin/**").permitAll() // Security는 통과시키고, 실제 검증은 AuthInterceptor에게 위임
+                        .anyRequest().authenticated()
+                )
             .oauth2Login(oauth2 -> oauth2
                     .loginPage("/login")
                     .successHandler(oAuth2LoginSuccessHandler) // 커스텀 핸들러 사용 (SIGNUP_PENDING 체크 및 리다이렉트 처리)
