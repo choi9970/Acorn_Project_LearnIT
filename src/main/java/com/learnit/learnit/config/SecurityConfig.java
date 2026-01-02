@@ -24,7 +24,8 @@ public class SecurityConfig {
                 .requestMatchers("/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
                     "/css/**", "/js/**", "/images/**", "/files/**", "/uploads/**", "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
                     "/api/user/check-email", "/api/courses", "/api/search/**", "/api/mypage/github/**", "/mypage/**",
-                    "/oauth2/authorization/**", "/login/oauth2/code/**","/cart/**", "/admin/**").permitAll()
+                    "/oauth2/authorization/**", "/login/oauth2/code/**","/cart/**").permitAll()
+                .requestMatchers("/admin/**").authenticated()  // 관리자 페이지는 최소한 로그인 필요 (실제 role 체크는 AuthInterceptor에서 처리)
                 .anyRequest().authenticated()
             )
 
