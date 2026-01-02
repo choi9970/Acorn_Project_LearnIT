@@ -1,4 +1,8 @@
 /* 대시보드 전용 스타일 */
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 .dashboard-title {
     font-size: 2.4rem;
     font-weight: 700;
@@ -217,6 +221,10 @@
 .certificate-download-link:hover {
     background-color: #083d63;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 /* 캘린더 카드 */
 #dashboard-calendar {
     min-height: 30rem;
@@ -487,6 +495,7 @@
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* 모바일 반응형 */
 @media (max-width: 768px) {
     .calendar-header-section {
@@ -513,6 +522,8 @@
 }
 
 
+=======
+>>>>>>> origin/main
 =======
 >>>>>>> origin/main
 .day-tooltip {
@@ -1209,6 +1220,7 @@
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* 태블릿 반응형 (1024px 이하) */
 @media (max-width: 1024px) {
     .layout-container {
@@ -1223,6 +1235,8 @@
         padding: 2rem;
     }
 =======
+=======
+>>>>>>> origin/main
 /* 모바일 반응형 */
 @media (max-width: 768px) {
     .calendar-header-section {
@@ -1253,6 +1267,9 @@
     .mypage-dashboard {
         gap: 2rem;
     }
+<<<<<<< HEAD
+>>>>>>> origin/main
+=======
 >>>>>>> origin/main
 }
 
@@ -1666,3 +1683,7 @@
         height: 70px;
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main

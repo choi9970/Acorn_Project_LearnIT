@@ -5,7 +5,6 @@ import com.learnit.learnit.mypage.dto.ProfileDTO;
 import com.learnit.learnit.mypage.dto.ProfileUpdateDTO;
 import com.learnit.learnit.mypage.service.ProfileService;
 import com.learnit.learnit.user.dto.UserDTO;
-import com.learnit.learnit.user.util.SessionUtils;
 import com.learnit.learnit.user.entity.User;
 import com.learnit.learnit.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
