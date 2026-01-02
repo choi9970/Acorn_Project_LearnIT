@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learnit.learnit.cart.CartMapper">
+
+    <select id="findByUserId" resultType="com.learnit.learnit.cart.CartItem">
+        SELECT
+        c.cart_id AS cartId,
+        co.course_id AS courseId,
+        ca.name AS categoryName,
+        co.title AS title,
+        co.price AS price,
+        co.thumbnail_url AS thumbnailUrl
+        FROM cart c
+        JOIN course co ON co.course_id = c.course_id
+        LEFT JOIN category ca ON ca.category_id = co.category_id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.cart_id DESC
+    </select>
+
+    <!-- ✅ 중복 체크 -->
+    <select id="exists" resultType="int">
+        SELECT COUNT(*)
+        FROM cart
+        WHERE user_id = #{userId}
+        AND course_id = #{courseId}
+    </select>
+
+    <!-- ✅ 담기 -->
+    <insert id="insertCart">
+        INSERT INTO cart (user_id, course_id)
+        VALUES (#{userId}, #{courseId})
+    </insert>
+
+    <!-- ✅ (기존 기능 유지) X 버튼 단일 삭제 -->
+    <delete id="deleteByUserIdAndCartId">
+        DELETE FROM cart
+        WHERE cart_id = #{cartId}
+        AND user_id = #{userId}
+    </delete>
+
+    <!-- ✅ 전체삭제 -->
+    <delete id="deleteAllByUserId">
+        DELETE FROM cart
+        WHERE user_id = #{userId}
+    </delete>
+
+    <!-- ✅✅ 결제된 강의만 삭제 (userId + courseIds) -->
+    <delete id="deleteByUserIdAndCourseIds">
+        DELETE FROM cart
+        WHERE user_id = #{userId}
+        AND course_id IN
+        <foreach collection="courseIds"
+                 item="courseId"
+                 open="("
+                 close=")"
+                 separator=",">
+            #{courseId}
+        </foreach>
+    </delete>
+
+</mapper>
