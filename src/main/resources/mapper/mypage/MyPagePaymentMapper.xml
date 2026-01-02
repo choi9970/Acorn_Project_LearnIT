@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learnit.learnit.mypage.repository.MyPagePaymentMapper">
+
+    <!--1. 결제 내역 조회(마이페이지)-->
+    <select id="findPaymentHistories" parameterType="long" resultType="com.learnit.learnit.mypage.dto.PaymentHistoryDTO">
+
+        SELECT
+            p.payment_id      AS paymentId,
+            o.order_no        AS orderId,
+            p.method          AS paymentMethod,
+            o.status          AS paymentStatus,
+            o.total_price     AS originAmount,
+            (o.total_price - p.final_price) AS discountAmount,
+            p.final_price     AS totalAmount,
+            p.created_at      AS paidAt
+        FROM payment p
+                 JOIN orders o ON p.order_id = o.order_id
+        WHERE o.user_id = #{userId}
+        ORDER BY p.created_at DESC;
+
+    </select>
+    
+    
+    <!--2. 결제 건별 강의명 목록 조회(요약)-->
+    <select id="findCourseTitlesByPaymentId" parameterType="long" resultType="String">
+        SELECT c.title
+        FROM payment_detail pd
+        JOIN course c ON pd.course_id = c.course_id
+        WHERE pd.payment_id = #{paymentId}
+
+    </select>
+
+    <!--3. 영수증 조회-->
+    <select id="findPaymentReceipt"
+            resultType="com.learnit.learnit.mypage.dto.PaymentReceiptDTO">
+
+        SELECT
+            p.payment_id        AS paymentId,
+            o.order_no          AS orderNo,
+            o.status            AS paymentStatus,
+            p.method            AS paymentMethod,
+            o.total_price       AS originAmount,
+            (o.total_price - p.final_price) AS discountAmount,
+            p.final_price       AS totalAmount,
+            p.created_at        AS paidAt
+        FROM payment p JOIN orders o
+        ON p.order_id = o.order_id
+        WHERE p.payment_id = #{paymentId} AND o.user_id = #{userId}
+    </select>
+
+    <!--4. 영수증 강의 조회-->
+    <select id="findReceiptCourses"
+            resultType="com.learnit.learnit.mypage.dto.ReceiptCourseDTO">
+
+        SELECT
+            c.course_id    AS courseId,
+            c.title        AS courseTitle,
+            pd.price       AS price
+        FROM payment_detail pd JOIN course c
+        ON pd.course_id = c.course_id
+        WHERE pd.payment_id = #{paymentId}
+    </select>
+
+</mapper>

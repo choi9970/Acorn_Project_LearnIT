@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/mypage-layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <!-- title -->
+    <title th:fragment="title">마이페이지 - 구매 / 혜택</title>
+
+    <!-- page css -->
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-dashboard.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-purchase.css}">
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+    <div th:replace="mypage/payments/payment-header :: mypage-header('purchase')"></div>
+
+    <div class="payment-list">
+        <div class="empty-message" th:if="${#lists.isEmpty(payments)}">
+            결제 내역이 없습니다.
+        </div>
+
+        <div class="payment-card" th:each="payment : ${payments}">
+            <div class="payment-date" th:text="${#temporals.format(payment.paidAt, 'yyyy.MM.dd HH:mm')}"></div>
+            <hr class="payment-divider">
+
+            <div class="payment-main">
+                <div class="payment-left">
+                    <div class="payment-header">
+                        <span class="payment-status"
+                              th:text="${payment.paymentStatus.description}"
+                              th:classappend="${payment.paymentStatus.name() == 'PAID'} ? 'success' : 'cancel'">
+                        </span>
+                        <span class="order-no" th:text="'주문번호 · ' + ${payment.orderId}"></span>
+                    </div>
+                    <p class="course-title" th:text="${payment.courseSummary ?: '강의 정보 없음'}"></p>
+                </div>
+
+                <div class="payment-right">
+                    <ul class="price-info">
+                        <li>
+                            <span>금액</span>
+                            <strong th:text="${#numbers.formatInteger(payment.originAmount, 3, 'COMMA')} + '원'"></strong>
+                        </li>
+                        <li>
+                            <span>할인</span>
+                            <strong th:text="${payment.discountAmount == 0 ? '0원' : '- ' + #numbers.formatInteger(payment.discountAmount, 3, 'COMMA') + '원'}"></strong>
+                        </li>
+                        <li class="total">
+                            <span>합계</span>
+                            <strong th:text="${#numbers.formatInteger(payment.totalAmount, 3, 'COMMA')} + '원'"></strong>
+                        </li>
+                    </ul>
+
+                    <button type="button" th:data-id="${payment.paymentId}" class="btn receipt-btn">영수증</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="receiptModal" class="modal-overlay">
+        <div class="modal-content receipt-modal">
+            <div class="modal-header">
+                <h2>결제 영수증</h2>
+                <button class="modal-close" onclick="closeReceipt()">×</button>
+            </div>
+            <div class="modal-body" id="receiptBody"></div>
+            <div class="modal-footer">
+                <button class="btn" onclick="downloadReceipt()">다운로드</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:fragment="script">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script th:src="@{/js/mypage/receipt.js}"></script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <title th:fragment="title">결제 완료</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/payment/payment-result.css}">
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+    <section class="payment-result container">
+
+        <div class="result-card">
+
+            <div class="result-icon success">
+                <i class="fa-solid fa-check"></i>
+            </div>
+
+            <h1 class="result-title">결제가 완료되었습니다</h1>
+            <p class="result-desc">
+                결제가 정상적으로 처리되었으며<br>
+                바로 강의를 수강하실 수 있습니다.
+            </p>
+
+            <!-- 주문 요약 -->
+            <div class="result-summary">
+                <dl>
+                    <dt>주문번호</dt>
+                    <dd th:text="${order.orderNo}">ORDER_XXXX</dd>
+                </dl>
+                <dl>
+                    <dt>결제 금액</dt>
+                    <dd th:text="${#numbers.formatInteger(order.totalPrice,3,'COMMA')} + '원'">0원</dd>
+                </dl>
+                <dl>
+                    <dt>결제 수단</dt>
+                    <dd th:text="${payment.method.description}">카카오페이</dd>
+                </dl>
+
+                <dl>
+                    <dt>결제 상태</dt>
+                    <dd th:text="${payment.status.description}"></dd>
+                </dl>
+            </div>
+
+            <!-- CTA -->
+            <div class="result-actions">
+                <a href="/mypage/courses" class="btn primary">
+                    수강하러 가기
+                </a>
+                <a href="/home" class="btn outline">
+                    홈으로
+                </a>
+            </div>
+
+        </div>
+
+    </section>
+</div>
+
+<th:block th:fragment="script"></th:block>
+
+</body>
+</html>

@@ -1,8 +1,4 @@
 /* 대시보드 전용 스타일 */
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
 .dashboard-title {
     font-size: 2.4rem;
     font-weight: 700;
@@ -224,7 +220,10 @@
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
 >>>>>>> origin/main
+=======
+>>>>>>> origin/251230_rin_payment_history
 /* 캘린더 카드 */
 #dashboard-calendar {
     min-height: 30rem;
@@ -496,6 +495,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* 모바일 반응형 */
 @media (max-width: 768px) {
     .calendar-header-section {
@@ -526,6 +526,8 @@
 >>>>>>> origin/main
 =======
 >>>>>>> origin/main
+=======
+>>>>>>> origin/251230_rin_payment_history
 .day-tooltip {
     display: none;
     position: absolute;
@@ -1221,6 +1223,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* 태블릿 반응형 (1024px 이하) */
 @media (max-width: 1024px) {
     .layout-container {
@@ -1237,6 +1240,8 @@
 =======
 =======
 >>>>>>> origin/main
+=======
+>>>>>>> origin/251230_rin_payment_history
 /* 모바일 반응형 */
 @media (max-width: 768px) {
     .calendar-header-section {
@@ -1268,9 +1273,12 @@
         gap: 2rem;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/main
 =======
 >>>>>>> origin/main
+=======
+>>>>>>> origin/251230_rin_payment_history
 }
 
 /* 모바일 반응형 (768px 이하) */
@@ -1684,6 +1692,10 @@
     }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> origin/main
+=======
+
+>>>>>>> origin/251230_rin_payment_history

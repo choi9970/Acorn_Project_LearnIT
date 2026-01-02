@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learnit.learnit.payment.common.repository.PaymentMapper">
+
+    <!--1. 주문 생성-->
+    <insert id="insertOrder" parameterType="com.learnit.learnit.payment.common.dto.OrderDTO"
+            useGeneratedKeys="true" keyProperty="orderId">
+
+        INSERT INTO orders(order_no, user_id, total_price, status)
+        VALUES (#{orderNo}, #{userId}, #{totalPrice}, #{status})
+
+    </insert>
+
+    <!--1.1 주문 상태 변경-->
+    <update id="updateOrderStatus">
+
+        UPDATE orders
+        SET status = #{status}
+        WHERE order_id = #{orderId}
+
+    </update>
+
+
+    <!--2. 결제-->
+    <insert id="insertPayment" parameterType="com.learnit.learnit.payment.common.dto.PaymentDTO"
+            useGeneratedKeys="true" keyProperty="paymentId">
+
+        INSERT INTO payment (
+            order_id, final_price, method, status, coupon_id
+        ) VALUES (
+            #{orderId}, #{finalPrice}, #{method}, #{status}, #{couponId}
+        )
+
+    </insert>
+
+
+    <!--3. 결제 상세-->
+    <insert id="insertPaymentDetail">
+        INSERT INTO payment_detail (payment_id, course_id, price)
+        VALUES (#{paymentId}, #{courseId}, #{price})
+    </insert>
+
+
+    <!--4. 주문번호로 조회-->
+    <select id="findOrderByOrderNo" resultType="OrderDTO">
+        SELECT
+            order_id,
+            order_no,
+            user_id,
+            total_price,
+            status,
+            created_at
+        FROM orders
+        WHERE order_no = #{orderNo}
+          AND user_id = #{userId}
+    </select>
+
+    <!--5. 주문아이디로 조회-->
+    <select id="findPaymentByOrderId" resultType="PaymentDTO">
+        SELECT
+            payment_id,
+            order_id,
+            final_price,
+            method,
+            status,
+            coupon_id,
+            created_at
+        FROM payment
+        WHERE order_id = #{orderId}
+    </select>
+
+</mapper>

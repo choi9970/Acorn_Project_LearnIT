@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learnit.learnit.payment.common.repository.CouponMapper">
+
+    <!--쿠폰 검증-->
+    <select id="findValidUserCoupon" resultType="com.learnit.learnit.payment.common.dto.UserCouponDTO">
+        SELECT
+            uc.user_coupon_id,
+            uc.user_id,
+            uc.coupon_id,
+            uc.is_used,
+            c.discount_amount,
+            c.min_price,
+            c.expire_date
+        FROM user_coupon uc
+                 JOIN coupon c ON uc.coupon_id = c.coupon_id
+        WHERE uc.user_id = #{userId}
+          AND uc.coupon_id = #{couponId}
+          AND uc.is_used = 'N'
+          AND (c.expire_date IS NULL OR c.expire_date > NOW())
+    </select>
+
+    <!--쿠폰 사용 처리-->
+    <update id="useCoupon">
+        UPDATE user_coupon
+        SET is_used = 'Y',
+            used_at = NOW()
+        WHERE user_coupon_id = #{userCouponId}
+    </update>
+
+    <!-- 결제 페이지용: 사용 가능한 쿠폰 목록 -->
+    <select id="findUsableCoupons"
+            resultType="com.learnit.learnit.payment.common.dto.UserCouponDTO">
+
+        SELECT
+            uc.user_coupon_id AS userCouponId,
+            uc.user_id        AS userId,
+            uc.coupon_id      AS couponId,
+            uc.is_used        AS isUsed,
+            c.name            AS name,
+            c.discount_amount AS discountAmount,
+            c.min_price       AS minPrice,
+            c.expire_date     AS expireDate
+        FROM user_coupon uc JOIN coupon c
+        ON uc.coupon_id = c.coupon_id
+        WHERE uc.user_id = #{userId} AND uc.is_used = 'N'
+                AND (c.expire_date IS NULL OR c.expire_date > NOW())
+        ORDER BY c.discount_amount DESC
+
+    </select>
+
+    <!--마이페이지 쿠폰함 조회-->
+    <select id="findMyCoupons"
+            resultType="com.learnit.learnit.payment.common.dto.UserCouponDTO">
+
+        SELECT
+            uc.user_coupon_id AS userCouponId,
+            uc.user_id        AS userId,
+            uc.coupon_id      AS couponId,
+            uc.is_used        AS isUsed,
+            uc.used_at        AS usedAt,
+            c.name            AS name,
+            c.discount_amount AS discountAmount,
+            c.min_price       AS minPrice,
+            c.expire_date     AS expireDate
+        FROM user_coupon uc JOIN coupon c
+        ON uc.coupon_id = c.coupon_id
+        WHERE uc.user_id = #{userId}
+        ORDER BY
+            uc.is_used ASC,
+            c.expire_date ASC
+
+    </select>
+
+
+</mapper>

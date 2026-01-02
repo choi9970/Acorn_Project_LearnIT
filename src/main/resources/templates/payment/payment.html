@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <!-- title fragment -->
+    <title th:fragment="title">결제하기</title>
+
+    <!-- page css -->
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/payment/payment.css}">
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+
+    <section class="payment-page container" id="paymentContainer"
+             th:data-user-id="${userId}"
+             th:data-course-ids="${courseIds}"
+             th:data-base-price="${totalPrice}">
+
+        <h1 class="payment-title">결제하기</h1>
+
+        <!--결제 강의 목록 -->
+        <div class="payment-layout">
+            <!-- LEFT -->
+            <div class="payment-left">
+
+                <!-- 결제 강의 -->
+                <section class="card">
+                    <h2 class="card-title">결제 강의</h2>
+
+                    <div th:each="course : ${courses}" class="course-row">
+                        <img th:src="${course.thumbnailUrl}" alt="강의 썸네일">
+                        <div class="course-info">
+                            <p class="title" th:text="${course.title}">강의명</p>
+                            <p class="price"
+                               th:text="${#numbers.formatInteger(course.price, 3, 'COMMA')} + '원'">
+                                0원
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 쿠폰 -->
+                <section class="card">
+                    <h2 class="card-title">쿠폰 사용</h2>
+
+                    <select id="couponSelect" class="coupon-select">
+                        <option value="">쿠폰 선택 안 함</option>
+                        <option th:each="coupon : ${coupons}"
+                                th:value="${coupon.userCouponId}"
+                                th:data-discount="${coupon.discountAmount}"
+                                th:data-min-price="${coupon.minPrice}"
+                                th:text="${coupon.name + ' (-' + coupon.discountAmount + '원)'}">
+                        </option>
+                    </select>
+
+                    <p id="couponWarning"></p>
+                </section>
+            </div>
+
+            <!-- RIGHT -->
+            <aside class="payment-right">
+                <div class="summary-box">
+                    <h2 class="summary-title">결제 금액</h2>
+
+                    <div class="summary-line">
+                        <span>상품 금액</span>
+                        <strong id="totalPriceText">0원</strong>
+                    </div>
+
+                    <div class="summary-line discount">
+                        <span>쿠폰 할인</span>
+                        <strong id="discountText">-0원</strong>
+                    </div>
+
+                    <div class="summary-final">
+                        <span>최종 결제 금액</span>
+                        <strong id="finalPriceText">0원</strong>
+                    </div>
+
+                    <button type="button" id="kakaoPayBtn" class="pay-btn kakao">
+                        카카오페이로 결제
+                    </button>
+
+                    <button type="button" id="cardPayBtn" class="pay-btn card">
+                        일반 카드 결제
+                    </button>
+                </div>
+            </aside>
+        </div>
+
+    </section>
+</div>
+
+<th:block th:fragment="script">
+    <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+    <script th:src="@{/js/payment/payment.js}"></script>
+</th:block>
+
+</body>
+</html>
