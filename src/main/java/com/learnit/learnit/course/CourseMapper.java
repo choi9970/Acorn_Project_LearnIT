@@ -1,10 +1,10 @@
 package com.learnit.learnit.course;
 
-import com.learnit.learnit.home.MainCourse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface CourseMapper {
@@ -13,10 +13,10 @@ public interface CourseMapper {
 
     //메인 페이지
     //인기 강의 목록 불러오기
-    List<MainCourse> selectPopularCourse(int limit);
+    List<Map<String, Object>> selectPopularCourse(int limit);
 
     //썸네일배너 강의 불러오기
-    List<MainCourse> selectBannerCourse(int limit);
+    List<Map<String, Object>> selectBannerCourse(int limit);
 
     // ✅ 목록 필터/정렬(ajax용)
     // 기존(필요하면 유지)
