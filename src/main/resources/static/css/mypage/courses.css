@@ -1,0 +1,201 @@
+/* 내 학습 강의 그리드 및 카드 */
+.course-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2.4rem;
+    width: 100%;
+}
+
+.course-card-horizontal {
+    display: flex;
+    flex-direction: row; /* 가로 배치 */
+    padding: 2.4rem;
+    gap: 2.4rem;
+    align-items: stretch;
+}
+
+.card:hover {
+    transform: none;
+}
+
+.course-thumbnail-wrapper {
+    width: 240px;
+    flex-shrink: 0;
+    border-radius: 1.2rem;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #f0f0f0;
+}
+
+.course-thumbnail-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.course-content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+}
+
+.course-header-row {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
+}
+
+.course-status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.4rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.badge-active {
+    background-color: #0A4A7A;
+}
+
+.badge-completed {
+    background-color: #4CAF50;
+}
+
+/* 필터 뱃지 스타일 */
+.filter-badges {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 2.4rem;
+}
+
+.filter-badge {
+    cursor: pointer;
+    background-color: #f1f3f5;
+    color: #868e96;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s;
+    padding: 0.4rem 1rem;
+    border-radius: 0.4rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.filter-badge:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.filter-badge.active {
+    color: #fff;
+    box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
+}
+
+.filter-badge.active {
+    background-color: #7c8a9a;
+    border-color: #7c8a9a;
+}
+
+.course-title-large {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.3;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.course-bottom-section {
+    margin-top: auto;
+}
+
+/* Progress Bar */
+.progress-area {
+    margin-bottom: 1.6rem;
+}
+
+.progress-info {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 0.8rem; 
+    font-size: 1.4rem; 
+    font-weight: 600; 
+    color: #444;
+}
+
+.progress-info .percent { 
+    color: #00c471; 
+    font-weight: 700; 
+}
+
+.progress-bg {
+    width: 100%; 
+    height: 0.8rem; 
+    background-color: #eee;
+    border-radius: 0.4rem; 
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%; 
+    background-color: #00c471;
+    border-radius: 0.4rem; 
+    transition: width 0.5s ease-in-out;
+}
+
+.btn-watch {
+    display: block;
+    width: 100%;
+    padding: 1.4rem;
+    background-color: #0A4A7A;
+    color: #fff;
+    text-align: center;
+    border-radius: 0.8rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.btn-watch:hover {
+    background-color: #083b5e;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 4rem;
+    color: #7c8a9a;
+    font-size: 1.6rem;
+}
+
+.dashboard-title{
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 2.4rem;
+    color: #111;
+}
+
+@media (max-width: 768px) {
+    .course-card-horizontal {
+        flex-direction: column;
+        gap: 1.6rem;
+    }
+    
+    .course-thumbnail-wrapper {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+    }
+    
+    .course-title-large {
+        font-size: 1.8rem;
+    }
+}

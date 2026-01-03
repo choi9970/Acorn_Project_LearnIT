@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="quizContent" class="quiz-container">
+
+    <div class="panel-body quiz-body">
+
+        <div id="quiz-step-start" class="quiz-step active centering-box">
+            <h2 id="display-quiz-title" class="quiz-title-text">퀴즈 제목</h2>
+            <p class="quiz-desc-text">
+                학습한 내용을 점검해보세요!
+            </p>
+            <button onclick="startQuizLogic()" class="btn-start-circle">
+                시작하기
+            </button>
+        </div>
+
+        <div id="quiz-step-question" class="quiz-step question-step" style="display:none;">
+            <div class="question-area">
+                <span class="q-badge"><span id="current-q-num">0</span> / <span id="total-q-count">1</span></span>
+                <h2 id="question-content" class="q-text">문제 내용</h2>
+            </div>
+
+            <div id="options-container" class="options-area">
+            </div>
+
+            <div id="explanation-area" class="explanation-box" style="display: none;">
+                <div class="exp-title">정답 해설</div>
+                <p id="explanation-text" class="exp-content">해설 내용이 여기에 나옵니다.</p>
+            </div>
+
+            <div class="bottom-action-area">
+                <button id="btn-next-question" onclick="handleQuizAction()" class="btn-submit-full" disabled>
+                    제출하기
+                </button>
+            </div>
+        </div>
+
+        <div id="quiz-step-result" class="quiz-step" style="display: none;">
+            <div class="score-circle">
+                <span id="result-score">0</span><span class="unit">점</span>
+            </div>
+
+            <button onclick="goToNextChapter()" class="btn-start-circle" style="max-width: 300px; height: 54px; margin-top: 20px;">
+                다음 강의 보기
+            </button>
+        </div>
+
+    </div>
+</div>
+</html>

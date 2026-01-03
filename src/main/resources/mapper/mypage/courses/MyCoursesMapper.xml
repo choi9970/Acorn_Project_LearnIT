@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.mypage.mapper.MyCoursesMapper">
+
+    <!-- 내 학습 강의 목록 조회 -->
+    <select id="selectMyCourses" resultType="com.learnit.learnit.mypage.dto.CourseSummaryDTO">
+        SELECT 
+            c.course_id AS courseId,
+            c.title,
+            c.thumbnail_url AS thumbnailUrl,
+            COALESCE(MAX(ch.order_index), 0) AS currentLecture,
+            COALESCE((SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id), 0) AS totalLectures,
+            CASE 
+                WHEN (SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id) > 0 
+                THEN ROUND(
+                    (SELECT COUNT(*) 
+                     FROM study_log sl_sub 
+                     JOIN chapter ch_sub ON sl_sub.chapter_id = ch_sub.chapter_id 
+                     WHERE sl_sub.user_id = e.user_id 
+                       AND sl_sub.course_id = c.course_id 
+                       AND ch_sub.duration_sec > 0
+                       AND (sl_sub.studied_sec / ch_sub.duration_sec) >= 0.95
+                    ) * 100.0 / (SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id), 0)
+                ELSE 0
+            END AS progressRate,
+            e.enrollment_id AS enrollmentId,
+            (SELECT sl_inner.chapter_id 
+             FROM study_log sl_inner 
+             WHERE sl_inner.user_id = e.user_id AND sl_inner.course_id = c.course_id 
+             ORDER BY sl_inner.created_at DESC LIMIT 1) AS lastChapterId
+        FROM enrollment e
+        JOIN course c ON e.course_id = c.course_id
+        LEFT JOIN study_log sl ON e.user_id = sl.user_id AND e.course_id = sl.course_id
+        LEFT JOIN chapter ch ON sl.chapter_id = ch.chapter_id
+        WHERE e.user_id = #{userId}
+          AND e.status = 'ACTIVE'
+        GROUP BY e.enrollment_id, c.course_id, c.title, c.thumbnail_url
+        ORDER BY MAX(sl.created_at) DESC, e.created_at DESC
+    </select>
+
+</mapper>

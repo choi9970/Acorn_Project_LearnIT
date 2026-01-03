@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="integratedPanel" id="side-panel-wrapper" class="side-panel-wrapper">
+    <div id="content-curriculum" class="panel-content-box" style="display:none;">
+        <div th:replace="~{courseVideo/fragments/videoCurriculum :: curriculumContent}"></div>
+    </div>
+
+    <div id="content-interpreter" class="panel-content-box" style="display:none;">
+        <div th:replace="~{courseVideo/fragments/videoInterpreter :: interpreterContent}"></div>
+    </div>
+    <div id="content-qna" class="panel-content-box" style="display:none;">
+        <div class="panel-header"><h3>Q&A</h3><button onclick="closePanel()" class="close-btn">×</button></div>
+        <div class="panel-body"><p style="padding:20px; text-align:center;">질문 내역이 없습니다.</p></div>
+    </div>
+    <div th:replace="~{courseVideo/fragments/videoFile :: resourceContent}"></div>
+</div>
+</html>

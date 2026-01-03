@@ -74,7 +74,7 @@
     <!-- ✅ 리뷰 조회: 강의별 승인된 리뷰만 조회 -->
     <select id="selectReviewsByCourseId" parameterType="int"
             resultType="com.learnit.learnit.courseDetail.ReviewDTO">
-        SELECT 
+        SELECT
             u.name AS name,
             r.rating,
             r.content AS comment
@@ -84,6 +84,16 @@
         AND r.delete_flg = 0
         AND (r.comment_status = 'Approved' OR r.comment_status IS NULL)
         ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 마지막 학습 챕터 조회 -->
+    <select id="selectLastWatchedChapterId" resultType="Long">
+        SELECT chapter_id
+        FROM study_log
+        WHERE user_id = #{userId}
+          AND course_id = #{courseId}
+        ORDER BY created_at DESC
+        LIMIT 1
     </select>
 
 </mapper>

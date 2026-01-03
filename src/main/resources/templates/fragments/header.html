@@ -29,7 +29,7 @@
                         </div>
                     </div>
 
-                    <a th:href="@{/quiz}" class="gnb-item">퀴즈</a>
+                    <a th:href="@{/mapper/quiz}" class="gnb-item">퀴즈</a>
                     <a th:href="@{/community}" class="gnb-item">커뮤니티</a>
                 </nav>
 
@@ -96,7 +96,7 @@
                         <button class="mobile-course-toggle" id="mobileCourseToggle"
                                 type="button" aria-label="모바일 강의목록 카테고리 열기">
                             <!-- ⚠️ 아이콘 경로는 네 프로젝트 실제 위치에 맞춰 유지 -->
-                            <img th:src="@{/images/icon-admin-down-arrow.png}" alt="열기" class="mobile-submenu-icon">
+                            <img th:src="@{/images/admin/icon-admin-down-arrow.png}" alt="열기" class="mobile-submenu-icon">
                         </button>
                     </div>
 
@@ -111,7 +111,7 @@
 
                 <!-- 모바일 퀴즈: 클릭하면 이동 -->
                 <li class="mobile-nav__item">
-                    <a class="mobile-nav__link" th:href="@{/quiz}">퀴즈</a>
+                    <a class="mobile-nav__link" th:href="@{/mapper/quiz}">퀴즈</a>
                 </li>
 
                 <!-- 모바일 커뮤니티: 클릭하면 이동 -->

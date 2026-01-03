@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.quiz.repository.QuizMapper">
+
+    <resultMap id="QuizResultMap" type="com.learnit.learnit.quiz.dto.Quiz">
+        <id property="quizId" column="quiz_id"/>
+        <result property="title" column="title"/>
+        <result property="sectionTitle" column="section_title"/>
+        <result property="type" column="type"/>
+        <collection property="questions" ofType="com.learnit.learnit.quiz.dto.Question">
+            <id property="questionId" column="question_id"/>
+            <result property="content" column="question_content"/>
+            <result property="explanation" column="explanation"/>
+            <collection property="options" ofType="com.learnit.learnit.quiz.dto.QuizOption">
+                <id property="optionId" column="option_id"/>
+                <result property="content" column="option_content"/>
+                <result property="isCorrect" column="is_correct"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="selectQuizListByCourseId" resultType="com.learnit.learnit.quiz.dto.Quiz">
+        SELECT
+            quiz_id AS quizId,
+            title,
+            section_title AS sectionTitle,
+            type
+        FROM quiz
+        WHERE course_id = #{courseId}
+    </select>
+
+    <select id="selectQuizByQuizId" resultMap="QuizResultMap">
+        SELECT
+            q.quiz_id,
+            q.title,
+            q.section_title,
+            qu.question_id,
+            qu.content AS question_content,
+            qu.explanation,
+            qo.option_id,
+            qo.content AS option_content,
+            qo.is_correct
+        FROM quiz q
+                 LEFT JOIN question qu ON q.quiz_id = qu.quiz_id
+                 LEFT JOIN quiz_option qo ON qu.question_id = qo.question_id
+        WHERE q.quiz_id = #{quizId}
+        ORDER BY qu.question_id ASC, qo.option_id ASC
+    </select>
+
+    <select id="countUserQuizHistory" resultType="int">
+        SELECT COUNT(*)
+        FROM user_answer ua
+                 JOIN question q ON ua.question_id = q.question_id
+        WHERE ua.user_id = #{userId}
+          AND q.quiz_id = #{quizId}
+    </select>
+
+    <insert id="insertUserAnswer">
+        INSERT INTO user_answer (user_id, question_id, sel_option_id, is_correct, answered_at)
+        VALUES (#{userId}, #{questionId}, #{optionId}, #{isCorrect}, NOW())
+    </insert>
+</mapper>

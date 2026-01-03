@@ -11,5 +11,6 @@ public class CourseSummaryDTO {
     private Integer totalLectures;   // 전체 강의 수
     private Double progressRate;     // 진행률 (%)
     private Long enrollmentId;
+    private Long lastChapterId;      // 마지막으로 학습한 챕터 ID
 }
 

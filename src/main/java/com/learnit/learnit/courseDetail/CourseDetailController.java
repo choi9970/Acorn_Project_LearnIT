@@ -82,5 +82,14 @@ public class CourseDetailController {
         // 리뷰 조회 (승인된 리뷰만 표시)
         List<ReviewDTO> reviews = courseDetailService.getReviews(courseId);
         model.addAttribute("reviews", reviews != null ? reviews : Collections.emptyList());
+
+        // 이어보기 (수강 중일 때만)
+        if (isEnrolled) {
+            Long lastWatchedChapterId = courseDetailService.getLastWatchedChapterId(loginUserId, courseId);
+            model.addAttribute("lastWatchedChapterId", lastWatchedChapterId);
+        }
+
+        // 리뷰(추후)
+        model.addAttribute("reviews", Collections.emptyList());
     }
 }

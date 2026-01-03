@@ -24,4 +24,6 @@ public interface CourseDetailMapper {
      * 강의별 리뷰 조회 (승인된 리뷰만)
      */
     List<ReviewDTO> selectReviewsByCourseId(@Param("courseId") int courseId);
+
+    Long selectLastWatchedChapterId(@Param("userId") Long userId, @Param("courseId") int courseId);
 }

@@ -1,0 +1,96 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{
+        layout/mypage-layout :: layout(
+          ~{::title},
+          ~{::content},
+          ~{::css},
+          ~{::script}
+        )
+      }">
+
+<head>
+    <title th:fragment="title">내 학습 강의</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-navbar.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/courses.css}">
+    </th:block>
+
+    <th:block th:fragment="script">
+        <script th:src="@{/js/mypage/courses.js}"></script>
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+    <h1 class="dashboard-title">내 학습 강의</h1>
+
+    <!-- 필터 뱃지 영역 -->
+    <div class="filter-badges">
+        <span class="course-status-badge filter-badge active" data-filter="all">전체 강의</span>
+        <span class="course-status-badge filter-badge" data-filter="active">수강중</span>
+        <span class="course-status-badge filter-badge" data-filter="completed">수강완료</span>
+    </div>
+
+    <div class="course-grid">
+        <!-- 강의 목록 반복문 -->
+        <th:block th:if="${courses != null and !#lists.isEmpty(courses)}">
+            <div th:each="course : ${courses}" class="card course-card-horizontal"
+                 th:data-status="${course.progressRate >= 100 ? 'completed' : 'active'}">
+                <!-- 왼쪽: 썸네일 -->
+                <div class="course-thumbnail-wrapper">
+                    <img th:src="${course.thumbnailUrl != null ? course.thumbnailUrl : '/images/course/default-course.png'}" 
+                         alt="강의 썸네일"
+                         onerror="this.src='/images/course/default-course.png'">
+                </div>
+                
+                <!-- 오른쪽: 상세 정보 -->
+                <div class="course-content-wrapper">
+                    <!-- 상단: 상태 뱃지 및 제목 -->
+                    <div class="course-header-row">
+                        <span th:if="${course.progressRate >= 100}" class="course-status-badge badge-completed">수강완료</span>
+                        <span th:if="${course.progressRate < 100}" class="course-status-badge badge-active">수강중</span>
+                        <h3 class="course-title-large" th:text="${course.title}">강의 제목</h3>
+                    </div>
+                    
+                    <!-- 하단: 진도율 및 버튼 -->
+                    <div class="course-bottom-section">
+                        <!-- 커리큘럼 탭 디자인 적용된 진도율 -->
+                        <div class="progress-area">
+                            <div class="progress-info">
+                                <span class="label">나의 학습 진도율</span>
+                                <span class="percent" th:text="${#numbers.formatDecimal(course.progressRate, 0, 0)} + '%'">0%</span>
+                            </div>
+                            <div class="progress-bg">
+                                <div class="progress-fill" th:style="'width: ' + ${course.progressRate} + '%;'"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 강의 시청하기 버튼 -->
+                        <a th:if="${course.lastChapterId != null}" 
+                           th:href="@{/course/play(courseId=${course.courseId}, chapterId=${course.lastChapterId})}" 
+                           class="btn-watch">강의 이어서 시청하기</a>
+                        <a th:if="${course.lastChapterId == null}" 
+                           th:href="@{/CourseDetail(courseId=${course.courseId})}" 
+                           class="btn-watch">강의 시청하기</a>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+
+        <!-- 데이터가 없을 경우 -->
+        <div th:if="${courses == null or #lists.isEmpty(courses)}" class="card card-large">
+            <p class="empty-message">수강 중인 강의가 없습니다.</p>
+        </div>
+        
+        <!-- 필터 결과가 없을 경우 메시지 -->
+        <div id="no-filter-results" class="card card-large" style="display: none;">
+            <p class="empty-message">해당하는 강의가 없습니다.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

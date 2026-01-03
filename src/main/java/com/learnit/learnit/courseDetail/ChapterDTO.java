@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 @Data
 public class ChapterDTO {
 
-    private Integer chapterId;       // PK
+    private Long chapterId;       // PK
     private Integer courseId;        // FK
 
     private String title;

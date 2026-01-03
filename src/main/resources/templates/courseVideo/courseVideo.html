@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${chapter.title}">강의 타이틀</title>
+
+    <link rel="stylesheet" th:href="@{/css/course/courseVideo.css}">
+
+    <meta name="_csrf" th:content="${_csrf?.token}" th:if="${_csrf} != null"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}" th:if="${_csrf} != null"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+</head>
+<body>
+
+<header class="top-header">
+    <div class="header-left">
+        <button class="header-nav-btn" onclick="goBackOrHome()">
+            <img th:src="@{/images/course/icon-left-arrow.png}" alt="뒤로가기">
+        </button>
+        <span class="course-title" th:text="${chapter.title}">강의 제목</span>
+    </div>
+    <div class="header-right">
+
+        <button class="header-nav-btn prev"
+                th:if="${prevChapterId != null}"
+                th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${prevChapterId})}'|">
+            <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전"><span>이전</span>
+        </button>
+        <button class="header-nav-btn prev disabled" th:if="${prevChapterId == null}" disabled>
+            <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전"><span>이전</span>
+        </button>
+
+        <div class="nav-divider"></div>
+
+        <button class="header-nav-btn next"
+                th:if="${nextIsQuiz}"
+                th:onclick="|playContent(${nextQuizId}, 'QUIZ')|">
+            <span>다음</span> <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+        </button>
+
+        <button class="header-nav-btn next"
+                th:if="${!nextIsQuiz && nextChapterId != null}"
+                th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${nextChapterId})}'|">
+            <span>다음</span>
+            <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+        </button>
+
+        <button class="header-nav-btn next disabled"
+                th:if="${!nextIsQuiz && nextChapterId == null}"
+                disabled>
+            <span>다음</span>
+            <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+        </button>
+
+    </div>
+</header>
+
+<div class="main-container">
+
+    <main class="video-section">
+        <div class="video-wrapper">
+
+            <div id="player"></div>
+
+            <div id="quiz-wrapper">
+                <div th:replace="~{courseVideo/fragments/videoQuiz :: quizContent}"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <div th:replace="~{courseVideo/fragments/sidePanels :: integratedPanel}"></div>
+
+    <aside class="right-sidebar">
+        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('curriculum')">
+            <div class="icon-wrap"><img th:src="@{/images/course/icon-curriculum.png}" class="menu-icon"></div>
+            <span class="menu-label">커리큘럼</span>
+        </a>
+        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('interpreter')">
+            <div class="icon-wrap"><img th:src="@{/images/course/icon-interpreter.png}" class="menu-icon"></div>
+            <span class="menu-label">인터프리터</span>
+        </a>
+        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('qna')">
+            <div class="icon-wrap"><img th:src="@{/images/course/icon-qna.png}" class="menu-icon"></div>
+            <span class="menu-label">Q&A</span>
+        </a>
+        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('reference')">
+            <div class="icon-wrap"><img th:src="@{/images/course/icon-file-download.png}" class="menu-icon"></div>
+            <span class="menu-label">자료실</span>
+        </a>
+    </aside>
+
+</div>
+
+<input type="hidden" id="video-url" th:value="${chapter.videoUrl}">
+<input type="hidden" id="course-id" th:value="${courseId}">
+<input type="hidden" id="chapter-id" th:value="${chapter.chapterId}">
+<input type="hidden" id="next-chapter-id" th:value="${nextChapterId}">
+<input type="hidden" id="final-quiz-id" th:value="${finalQuizId}">
+<input type="hidden" id="is-final-submitted" th:value="${isFinalSubmitted}">
+
+<script th:src="@{/js/courseVideo/courseVideo.js}"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+
+</body>
+</html>

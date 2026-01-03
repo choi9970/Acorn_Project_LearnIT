@@ -20,7 +20,7 @@
       <div class="stat-wrap">
         <h3>강의 관리</h3>
         <a href="/admin/course" class="adminMain-stat">
-          <div class="icon-wrap"><img src="/images/icon-admin-course-stat.png" class="stat-icon"> </div>
+          <div class="icon-wrap"><img src="/images/admin/icon-admin-course-stat.png" class="stat-icon"> </div>
           <div class="stat-info">
             <h3 class="stat-number" th:text="${dashboard.activeCourseCount}+ '개'">0개</h3>
             <p class="stat-label">강의 공개중</p>
@@ -31,7 +31,7 @@
       <div class="stat-wrap">
         <h3>리뷰 관리</h3>
         <a href="/admin/review" class="adminMain-stat">
-          <div class="icon-wrap"><img src="/images/icon-admin-review-stat.png" class="stat-icon"></div>
+          <div class="icon-wrap"><img src="/images/admin/icon-admin-review-stat.png" class="stat-icon"></div>
           <div class="stat-info">
             <h3 class="stat-number" th:text="${dashboard.pendingReviewCount}+'개'">0개</h3>
             <p class="stat-label">리뷰 검사 대기</p>
@@ -42,7 +42,7 @@
       <div class="stat-wrap">
         <h3>Q&A 관리</h3>
         <a href="/admin/qna" class="adminMain-stat">
-          <div class="icon-wrap"><img src="/images/icon-admin-qna-stat.png" class="stat-icon"></div>
+          <div class="icon-wrap"><img src="/images/admin/icon-admin-qna-stat.png" class="stat-icon"></div>
           <div class="stat-info">
             <h3 class="stat-number" th:text="${dashboard.pendingQnaCount}+'개'">0개</h3>
             <p class="stat-label">Q&A 답변 대기</p>
@@ -55,13 +55,13 @@
       <div class="notice-wrap">
         <h3>최신 공지</h3>
         <a href="/admin/notice">
-          <img src="/images/icon-admin-plus-btn.png" class="plus-btn"></a>
+          <img src="/images/admin/icon-admin-plus-btn.png" class="plus-btn"></a>
         <div class="list-container">
 
           <div class="list-item" th:each="notice : ${dashboard.latestNotices}">
             <div class="item-header">
               <span class="item-title" th:text="|[${notice.category}] ${notice.title}|">[카테고리] 공지 제목</span>
-              <img src="/images/icon-admin-down-arrow.png">
+              <img src="/images/admin/icon-admin-down-arrow.png">
             </div>
           </div>
           <div class="list-item" th:if="${#lists.isEmpty(dashboard.latestNotices)}">
@@ -73,7 +73,7 @@
       <div class="certificate-wrap">
         <h3>수료증 수여 대기 강의</h3>
         <a href="/admin/certificate">
-          <img src="/images/icon-admin-plus-btn.png" class="plus-btn"></a>
+          <img src="/images/admin/icon-admin-plus-btn.png" class="plus-btn"></a>
         <div class="list-container">
 
           <div class="list-item" th:each="cert : ${dashboard.pendingCertificates}">

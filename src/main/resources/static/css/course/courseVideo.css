@@ -1,0 +1,709 @@
+@charset "UTF-8";
+
+/* =========================================
+   1. Global & Layout Reset
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* 전체 레이아웃 스크롤 방지 */
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* =========================================
+   2. Top Header
+   ========================================= */
+.top-header {
+    height: 60px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 101;
+    flex-shrink: 0;
+}
+
+.header-left {
+    flex: 1;
+    min-width: 0;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.course-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.header-nav-btn {
+    width: auto;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid #e5e5e5;
+    background-color: #ffffff;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.header-nav-btn span {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    line-height: 1;
+    padding-bottom: 1px;
+}
+
+.header-nav-btn:hover { background-color: #f8f9fa; border-color: #ccc; }
+.header-nav-btn:hover span { color: #333; }
+.header-nav-btn:active { transform: translateY(0); }
+
+.header-nav-btn.disabled {
+    opacity: 0.5; cursor: default; background-color: #f9f9f9; border-color: #eee;
+}
+.header-nav-btn.disabled:hover { transform: none; background-color: #f9f9f9; }
+
+.header-nav-btn img { width: 12px; height: 12px; opacity: 0.6; object-fit: contain; }
+.rotate-180 { transform: rotate(180deg); }
+.nav-divider { width: 1px; height: 16px; background-color: #eee; margin: 0 4px; }
+
+/* =========================================
+   3. Main Container & Video Section
+   ========================================= */
+.main-container {
+    display: flex;
+    flex: 1;
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
+
+.video-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 퀴즈가 길어지면 위아래 중앙 유지 */
+    align-items: center;
+    padding: 20px; /* 여백을 조금 더 주어 여유 확보 */
+    background-color: #f5f5f5;
+    overflow-y: auto; /* 퀴즈가 브라우저 높이보다 길어질 경우 대비 */
+}
+
+/* 영상 래퍼 */
+.video-wrapper {
+    width: 100%;
+    max-width: 1200px; /* 너무 퍼지지 않게 적정 가로폭 제한 */
+    background-color: #fff;
+    border-radius: 8px;
+    position: relative;
+    transition: all 0.3s ease; /* 영역 확장 시 부모 애니메이션 */
+}
+
+.video-wrapper:not(.quiz-active) {
+    aspect-ratio: 16 / 9;
+}
+
+.video-wrapper.quiz-active {
+    aspect-ratio: auto; /* 비율 해제 */
+    min-height: 700px;  /* PC에서 퀴즈가 보여줄 최소 세로 높이 */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.video-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* =========================================
+   4. Side Panel
+   ========================================= */
+.side-panel-wrapper {
+    width: 0;
+    height: 100%;
+    overflow: hidden;
+    background-color: #ffffff;
+    border-left: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width 0.3s ease-in-out;
+}
+.side-panel-wrapper.open { width: 320px; }
+
+.panel-content-box {
+    width: 320px; height: 100%; display: flex; flex-direction: column;
+}
+.panel-header {
+    height: 50px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; border-bottom: 1px solid #eee; font-weight: bold; color: #333; flex-shrink: 0;
+}
+.close-btn {
+    background: none; border: none; font-size: 24px; cursor: pointer; color: #999;
+}
+.panel-inner {
+    display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden;
+}
+.panel-body {
+    flex: 1; overflow-y: auto; min-height: 0;
+    padding-bottom: 40px; counter-reset: lecture-counter;
+}
+
+/* =========================================
+   5. Right Sidebar
+   ========================================= */
+.right-sidebar {
+    width: 70px; background-color: #ffffff; border-left: 1px solid #ddd;
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 20px; gap: 30px; z-index: 100;
+}
+.menu-item {
+    display: flex; flex-direction: column; align-items: center;
+    text-decoration: none; color: #555; cursor: pointer; transition: opacity 0.2s;
+}
+.menu-item:hover { color: #000; }
+.icon-wrap {
+    width: 36px; height: 36px; border-radius: 8px; margin-bottom: 6px;
+    display: flex; justify-content: center; align-items: center;
+}
+.menu-icon { width: 20px; height: 20px; object-fit: contain; }
+.menu-label { font-size: 11px; font-weight: 600; }
+
+/* =========================================
+   스크롤바 숨기기 (기능은 유지)
+   ========================================= */
+
+.panel-body {
+    /* IE and Edge */
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+
+    /* (참고) 스크롤이 되게 하려면 높이 제한과 overflow 설정이 있어야 합니다 */
+    overflow-y: auto;
+    /* height: calc(100vh - 150px);  <-- 높이는 기존에 잡혀있을 테니 확인만 하세요 */
+}
+
+/* Chrome, Safari, Opera */
+.panel-body::-webkit-scrollbar {
+    display: none;
+}
+
+/* ============================== */
+/* Curriculum Style */
+/* ============================== */
+.progress-area {
+    padding: 20px 20px 10px 20px; background-color: #fff;
+    border-bottom: 1px solid #f5f5f5; flex-shrink: 0;
+}
+.progress-info {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #444;
+}
+.progress-info .percent { color: #00c471; font-weight: 700; }
+.progress-bg {
+    width: 100%; height: 8px; background-color: #eee;
+    border-radius: 4px; overflow: hidden;
+}
+.progress-fill {
+    height: 100%; background-color: #00c471;
+    border-radius: 4px; transition: width 0.5s ease-in-out;
+}
+
+.section-header {
+    background-color: #f8f9fa; padding: 12px 20px;
+    font-size: 14px; font-weight: 700; color: #333;
+    border-bottom: 1px solid #eee; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background 0.2s;
+}
+.section-header:hover { background-color: #e9ecef; }
+.toggle-icon {
+    width: 14px; height: 14px; object-fit: contain; opacity: 0.5;
+    transition: transform 0.3s ease; transform: rotate(180deg);
+}
+.section-header:hover .toggle-icon { opacity: 1; }
+.section-header.collapsed .toggle-icon { transform: rotate(0deg); }
+.section-header.collapsed + .chapter-list { display: none; }
+
+.chapter-list { list-style: none; padding: 0; margin: 0; display: block; }
+.chapter-list li a {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px 12px 30px; text-decoration: none; color: #555;
+    font-size: 13px; border-bottom: 1px solid #f9f9f9;
+}
+.chapter-list li:hover a { background-color: #f8f9fa; color: #333; }
+.chapter-list li.active a {
+    background-color: #e6f7ff; color: #007bff; font-weight: 600;
+    border-left: 3px solid #007bff; padding-left: 27px;
+}
+.chapter-list li:not(.quiz-item) { counter-increment: lecture-counter; }
+.chapter-idx::before {
+    content: counter(lecture-counter) ".";
+    font-weight: bold; color: #00c471; margin-right: 4px;
+}
+
+/* =========================================
+   Interpreter Styles
+   ========================================= */
+.interpreter-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 10px; gap: 5px; height: 50px;
+    border-bottom: 1px solid #eee; background-color: #fff; flex-shrink: 0;
+}
+.interpreter-header h3 { margin: 0; font-size: 15px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.header-controls { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+.lang-select { height: 28px; font-size: 12px; padding: 0 2px 0 6px; width: 105px; }
+.run-btn {
+    background-color: #00c471; color: white; border: none; height: 28px;
+    padding: 0 10px; font-size: 12px; display: flex; align-items: center; gap: 4px; white-space: nowrap;
+}
+.run-btn:hover { background-color: #00b368; }
+.run-btn span { color: white; font-weight: 600; }
+
+.interpreter-container {
+    width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden;
+}
+.editor-area {
+    flex: 2; width: 100%; border-bottom: 1px solid #ddd;
+    min-height: 200px; flex-shrink: 1;
+}
+.console-area {
+    flex: 1; width: 100%; background-color: #1e1e1e; color: #fff;
+    padding: 10px; margin-bottom: 10px; overflow: auto;
+    border-radius: 5px; font-family: monospace;
+    min-height: 100px; flex-shrink: 0;
+}
+.console-label {
+    font-size: 12px; color: #aaa; margin-bottom: 5px;
+    position: sticky; top: 0; background-color: #1e1e1e;
+}
+#output-console { margin: 0; white-space: pre-wrap; }
+.monaco-editor .line-numbers { text-align: center !important; }
+
+/* =========================================
+   [6] QUIZ STYLES (뭉개짐 방지 완벽 대응)
+   ========================================= */
+
+/* 1. 퀴즈 래퍼: 여기서 스크롤을 관리합니다 */
+#quiz-wrapper {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%; /* 확장된 .video-wrapper 높이를 그대로 따라감 */
+    background-color: #fff;
+    z-index: 20;
+    display: none;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.quiz-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+}
+
+.quiz-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* 자식 요소가 부모를 뚫지 못하게 함 */
+}
+
+/* 2. 단계별 박스: 여백을 vh(화면높이비율)로 설정 */
+.quiz-step {
+    flex: 1;
+    width: 100%;
+    padding: 50px 5%; /* PC에서 위아래 여백을 더 넓게 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4vh;
+}
+
+/* [1] 시작 & 결과 화면 */
+.quiz-title-text, .result-msg-text {
+    font-size: clamp(20px, 4vh, 28px);
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
+}
+
+.quiz-desc-text {
+    font-size: clamp(14px, 2vh, 18px);
+    color: #666;
+    text-align: center;
+}
+
+/* 직사각형 시작 버튼: 모바일에서 안 잘리게 함 */
+.btn-start-circle {
+    width: 100%;
+    max-width: 240px;
+    height: 54px; /* 높이를 고정하여 직사각형 유지 */
+    background: #00c471;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    flex-shrink: 0; /* 찌그러짐 방지 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 점수 박스 */
+.score-circle {
+    width: 160px;
+    height: 80px;
+    background: #f9fffb;
+    font-size: 50px;
+    font-weight: 800;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+.score-circle .unit { font-size: 50px; font-weight: 800; margin-left:5px;}
+
+/* [2] 문제 화면 (모바일 짤림 방지 핵심) */
+.question-step {
+    justify-content: flex-start;
+    padding: 0;
+}
+
+.question-area {
+    width: 100%;
+    padding: 3vh 20px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+.q-text {
+    font-size: 24px; /* 좀 더 크게 */
+    line-height: 1.5;
+}
+
+.q-badge {
+    font-weight: bold;
+    color: #00c471;
+}
+
+/* 보기 영역: 여기가 가장 많이 차지하도록 함 */
+.options-area {
+    width: 100%;
+    flex: 1;
+    padding: 2vh 5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;       /* 기능은 유지 */
+
+    -ms-overflow-style: none;  /* IE, Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+.options-area::-webkit-scrollbar {
+    display: none;
+}
+
+.option-item {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.option-item.selected { border-color: #00c471; background-color: #e3faf0; font-weight: bold; }
+
+/* 정답/오답 시각 효과 */
+
+/* 1. 내가 선택한 오답 (빨간 테두리 + 배경) */
+.option-item.correct {
+    border: 2px solid #00c471 !important;
+    background-color: #e3faf0 !important;
+    color: #008a4f !important;
+}
+.option-item.wrong {
+    border: 2px solid #ff6b6b !important;
+    background-color: #fff5f5 !important;
+    color: #e03131 !important;
+}
+
+/* 채점 완료 후 다른 선택지를 클릭하지 못하도록 방지 */
+.options-area.graded {
+    pointer-events: none; /* 클릭 차단 */
+}
+
+/* 하단 버튼 영역 */
+.bottom-action-area {
+    width: 100%;
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+
+    /* Flexbox를 활용한 중앙 정렬 */
+    display: flex;
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center;     /* 세로 중앙 정렬 */
+    background: #fff;        /* 배경색 명시 */
+}
+
+.btn-submit-full {
+    width: 100%;
+    max-width: 700px; /* 이 너비 안에서 가운데 정렬됨 */
+    padding: 14px;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer; /* 마우스 커서 추가 */
+    transition: background 0.2s;
+}
+
+.btn-submit-full:hover:not(:disabled) {
+    background: #444; /* 호버 시 약간 밝게 */
+}
+
+.btn-next-lecture {
+    padding: 10px 30px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    margin-top: 10px;
+}
+.btn-next-lecture:hover { background: #0056b3; }
+
+.resource-item {
+    display: flex;
+    justify-content: space-between; /* 내용은 왼쪽, 버튼은 오른쪽 끝 */
+    align-items: center;            /* 수직 중앙 정렬 */
+    padding: 15px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.resource-item:hover {
+    background-color: #f9f9f9; /* 마우스 올리면 살짝 회색 */
+}
+
+.res-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 80%; /* 버튼 자리를 위해 너비 제한 */
+}
+.res-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.5;
+}
+
+.res-badge {
+    display: inline-block; padding: 2px 6px; border-radius: 4px;
+    background: #f0f0f0; color: #666; font-size: 11px; margin-right: 5px;
+}
+
+.badge-type {
+    width: 35px;
+    text-align: center;
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 700;        /* 폰트 굵게 */
+    border-radius: 4px;
+    flex-shrink: 0;          /* 찌그러짐 방지 */
+    margin-top: 3px;         /* 텍스트 높이 맞춤 */
+    line-height: 1.2;
+}
+
+.badge-pdf {
+    background-color: #ffeef0; /* 배경: 연한 빨강 */
+    color: #f5222d;            /* 글자: 진한 빨강 */
+    border: 1px solid #ffa39e; /* 테두리 (선택사항) */
+}
+.badge-zip {
+    background-color: #e6f7ff; /* 배경: 연한 파랑 */
+    color: #1890ff;            /* 글자: 진한 파랑 */
+    border: 1px solid #91d5ff;
+}
+
+.badge-default {
+    background-color: #f5f5f5;
+    color: #666;
+    border: 1px solid #d9d9d9;
+}
+
+.text-content {
+    word-break: keep-all; /* 단어 단위로 줄바꿈 (한글 가독성 up) */
+}
+
+.btn-download {
+    display: flex;              /* 아이콘 중앙 정렬용 */
+    align-items: center;
+    justify-content: center;
+    width: 30px;               /* 버튼 크기 고정 */
+    height: 30px;
+    background-color: #fff;
+    border: 1px solid #ddd;    /* 테두리 */
+    border-radius: 8px;        /* 둥근 모서리 */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;     /* a태그 밑줄 제거 */
+    flex-shrink: 0;            /* 화면 줄어들어도 버튼 찌그러짐 방지 */
+}
+.btn-download img {
+    width: 15px;               /* 아이콘 크기 */
+    height: 15px;
+    object-fit: contain;
+    opacity: 0.7;              /* 살짝 흐리게 */
+    transition: opacity 0.2s;
+}
+
+/* 마우스 올렸을 때 효과 */
+.btn-download:hover {
+    background-color: #f0f0f0;
+    border-color: #bbb;
+}
+
+.btn-download:hover img {
+    opacity: 1; /* 아이콘 진하게 */
+}
+
+
+
+/* =========================================
+   7. Responsive (Mobile <= 768px)
+   ========================================= */
+@media (max-width: 768px) {
+    .main-container { flex-direction: column; padding-bottom: 70px; }
+    .header-right { gap: 2px; }
+
+    .side-panel-wrapper {
+        position: relative; width: 100% !important; height: 0;
+        border-left: none; border-top: 1px solid #ddd;
+        border-radius: 20px 20px 0 0; transition: height 0.3s ease-in-out;
+        order: 2; z-index: 200;
+    }
+    .side-panel-wrapper.open { height: 45vh; }
+    .panel-content-box { width: 100%; }
+
+    .right-sidebar {
+        position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
+        flex-direction: row; justify-content: space-between;
+        padding: 0 30px; border-left: none; border-top: 1px solid #ddd; z-index: 300;
+    }
+    .right-sidebar .menu-item { flex: 1; justify-content: center; }
+    .icon-wrap { background-color: transparent; }
+
+    .interpreter-header { padding: 0 20px; gap: 10px; }
+    .interpreter-header h3 { font-size: 16px; }
+    .lang-select { width: auto; height: 32px; font-size: 13px; }
+    .run-btn { height: 32px; padding: 0 14px; }
+    .editor-area { flex: 3; }
+    .console-area { flex: 1; min-height: 120px; }
+
+    .video-section {
+        padding: 10px;
+        justify-content: flex-start; /* 모바일은 위에서부터 배치 */
+    }
+
+    .video-wrapper.quiz-active {
+        min-height: 370px; /* 모바일 폰 높이에 맞춘 최소 세로폭 */
+    }
+
+    /* [모바일 퀴즈 수정] 모바일 전용 최소 크기 설정 */
+    .quiz-container {
+        min-width: 0 !important;
+        min-height: 0 !important;
+    }
+
+    /* 모바일에서는 버튼 크기를 살짝 줄임 (하지만 고정) */
+    .btn-start-circle {
+        width: 90%;         /* 아주 작은 폰에서는 더 넓게 */
+        height: 50px;       /* 높이 살짝 조절 */
+        font-size: 16px;
+    }
+    .score-circle {
+        width: 150px;
+        height: 80px;
+        font-size: 28px;
+    }
+
+    /* 여백 조정 */
+    .question-area, .options-area, .bottom-action-area {
+        padding: 20px; /* PC보다 좁은 여백 */
+    }
+    .q-text { font-size: 18px; }
+}
+
+/* 해설 박스 스타일 */
+.explanation-box {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #00c471; /* 초록색 포인트 */
+    border-radius: 4px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.exp-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #00c471;
+    margin-bottom: 5px;
+}
+
+.exp-content {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+    margin: 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

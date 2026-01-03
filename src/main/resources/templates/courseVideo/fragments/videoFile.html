@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="resourceContent" id="content-reference" class="panel-content-box" style="display: none;">
+    <div class="panel-inner">
+
+        <div class="panel-header">
+            <h3>자료실</h3>
+            <button onclick="closePanel()" class="close-btn">×</button>
+        </div>
+
+        <div class="panel-body">
+
+            <ul id="resource-list" class="resource-list">
+                </ul>
+
+            <div id="no-resource-msg" style="display:none; text-align:center; padding:40px 0; color:#999;">
+                <p>등록된 학습 자료가 없습니다.</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</html>

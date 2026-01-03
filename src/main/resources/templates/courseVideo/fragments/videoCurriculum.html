@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="curriculumContent" class="panel-inner">
+
+    <div class="panel-header">
+        <h3>커리큘럼</h3>
+        <button onclick="closePanel()" class="close-btn">×</button>
+    </div>
+
+    <div class="progress-area">
+        <div class="progress-info">
+            <span class="label">나의 학습 진도율</span>
+            <span class="percent" th:text="|${progressPercent}%|">0%</span>
+        </div>
+        <div class="progress-bg">
+            <div class="progress-fill" th:style="|width: ${progressPercent}%|"></div>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div class="curriculum-section" th:each="section : ${curriculum}">
+
+            <div class="section-header" onclick="toggleSection(this)">
+                <span class="section-title" th:text="${section.sectionTitle}">섹션명</span>
+                <img th:src="@{/images/admin/icon-admin-down-arrow.png}"
+                     class="toggle-icon"
+                     alt="토글버튼">
+            </div>
+
+            <ul class="chapter-list">
+                <li th:each="item : ${section.chapters}"
+                    th:classappend="${item.chapterId == chapter.chapterId ? 'active ' : ''}">
+
+                    <a href="javascript:void(0)"
+                       th:data-id="${item.chapterId}"
+                       th:data-url="${item.videoUrl}"
+                       onclick="playContent(this.getAttribute('data-id'), this.getAttribute('data-url'))"
+                       style="cursor: pointer;">
+
+                        <div class="chapter-info" style="display: flex; align-items: center; gap: 8px;">
+                            <span class="chapter-idx"></span>
+                            <span class="chapter-title" th:text="${item.title}">강의 제목</span>
+                        </div>
+                    </a>
+                </li>
+
+                <th:block th:with="sectionQuiz=${quizMap.get(section.sectionTitle)}">
+
+                    <li th:if="${sectionQuiz != null}"
+                        class="quiz-item">
+
+                        <a href="javascript:void(0)"
+                           th:data-id="${sectionQuiz.quizId}"
+                           data-url="QUIZ"
+                           onclick="playContent(this.getAttribute('data-id'), this.getAttribute('data-url'))"
+                           style="cursor: pointer;">
+
+                            <div class="chapter-info" style="display: flex; align-items: center; gap: 8px;">
+                                <span class="quiz-badge" style="font-weight:900; color:#ff6b6b;">Q.</span>
+                                <span class="chapter-title" th:text="${sectionQuiz.title}">퀴즈 제목</span>
+                            </div>
+                        </a>
+                    </li>
+                </th:block>
+
+            </ul>
+        </div>
+    </div>
+</div>
+</html>
