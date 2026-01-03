@@ -88,12 +88,23 @@
 
     <!-- 마지막 학습 챕터 조회 -->
     <select id="selectLastWatchedChapterId" resultType="Long">
-        SELECT chapter_id
-        FROM study_log
-        WHERE user_id = #{userId}
-          AND course_id = #{courseId}
-        ORDER BY created_at DESC
-        LIMIT 1
+    SELECT chapter_id
+    FROM study_log
+    WHERE user_id = #{userId}
+    AND course_id = #{courseId}
+    ORDER BY created_at DESC
+    LIMIT 1
+    </select>
+
+    <!-- ✅ 내 활성 리뷰 존재 여부 (delete_flg = 0) -->
+    <select id="countActiveReviewByCourseAndUser"
+            parameterType="map"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM review
+        WHERE course_id = #{courseId}
+        AND user_id = #{userId}
+        AND delete_flg = 0
     </select>
 
 </mapper>
