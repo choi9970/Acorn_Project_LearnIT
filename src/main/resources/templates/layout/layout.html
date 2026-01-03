@@ -43,6 +43,8 @@
 <script th:src="@{/js/fragments/header.js}" defer></script>
 <!--페이지별 js-->
 <th:block th:replace="${script}"></th:block>
-
+<script th:inline="javascript">
+    window.IS_LOGGED_IN = [[${loginUserId != null}]];
+</script>
 </body>
 </html>

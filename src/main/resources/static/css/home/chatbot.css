@@ -116,7 +116,66 @@
     cursor: pointer;
 }
 
+.course-cards {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 0 0;
+}
 
+.course-card {
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.course-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.course-price {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.course-desc {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.35;
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+
+.course-btn {
+  display: inline-block;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.course-btn:hover {
+  background: #f6f6f6;
+}
+
+.quick-menu{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.quick-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-decoration: none; /* a 태그일 때 밑줄 제거 */
+}
 /* 반응형 버전 */
 @media (max-width: 768px) {
 
