@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // 2) 수강신청
       if (action === "enroll") {
         const courseId = btn.dataset.courseId;
-        alert("수강신청 페이지로 이동(추후 연결) courseId=" + courseId);
+        location.href = "/payment?courseIds=" + courseId;
         return;
       }
 
