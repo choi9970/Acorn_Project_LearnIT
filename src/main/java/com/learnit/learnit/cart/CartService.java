@@ -56,17 +56,30 @@ public class CartService {
         return cartMapper.deleteByUserIdAndCourseIds(userId, courseIds);
     }
 
-    // ✅✅ 로그인 성공 시: 세션(게스트) 장바구니를 DB 장바구니로 병합
+    // ✅✅ 로그인 성공 시: (게스트) 장바구니를 (회원) 장바구니로 "추가 병합" (덮어쓰기 X)
     public int mergeGuestCartToUser(Long userId, List<Long> guestCourseIds) {
         if (userId == null) return 0;
         if (guestCourseIds == null || guestCourseIds.isEmpty()) return 0;
 
-        int inserted = 0;
-        for (Long courseId : guestCourseIds) {
-            if (courseId == null) continue;
-            boolean ok = addToCart(userId, courseId);
-            if (ok) inserted++;
+        // 중복 제거(게스트 목록 내 중복 방지)
+        List<Long> distinctIds = guestCourseIds.stream()
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+
+        int merged = 0;
+
+        for (Long courseId : distinctIds) {
+            // ✅ 회원 장바구니에 이미 있으면 스킵
+            int exists = cartMapper.exists(userId, courseId);
+            if (exists > 0) continue;
+
+            // ✅ 없으면 추가
+            cartMapper.insertCart(userId, courseId);
+            merged++;
         }
-        return inserted;
+
+        return merged;
     }
+
 }

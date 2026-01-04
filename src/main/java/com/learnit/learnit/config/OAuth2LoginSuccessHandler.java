@@ -86,6 +86,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
             // ✅ 로그인 세션 세팅
             sessionService.setLoginSession(session, user);
+            @SuppressWarnings("unchecked")
+            List<Long> guestCourseIds =
+                    (List<Long>) session.getAttribute("GUEST_CART_COURSE_IDS");
+
+            if (guestCourseIds != null && !guestCourseIds.isEmpty()) {
+                cartService.mergeGuestCartToUser(user.getUserId(), guestCourseIds);
+                session.removeAttribute("GUEST_CART_COURSE_IDS");
+            }
 
 
 

@@ -1,5 +1,6 @@
 package com.learnit.learnit.user.controller;
 
+import com.learnit.learnit.cart.CartService;
 import com.learnit.learnit.user.dto.LoginRequestDTO;
 import com.learnit.learnit.user.dto.SignupRequestDTO;
 import com.learnit.learnit.user.entity.User;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -27,6 +29,7 @@ public class UserController {
     private final UserService userService;
     private final SessionService sessionService;
     private final EmailService emailService;
+    private final CartService cartService;
 
     @GetMapping("/login")
     public String showLoginForm(
@@ -71,6 +74,14 @@ public class UserController {
         }
 
         userService.setLoginSession(session, user);
+        @SuppressWarnings("unchecked")
+        List<Long> guestCourseIds =
+                (List<Long>) session.getAttribute("GUEST_CART_COURSE_IDS");
+
+        if (guestCourseIds != null && !guestCourseIds.isEmpty()) {
+            cartService.mergeGuestCartToUser(user.getUserId(), guestCourseIds);
+            session.removeAttribute("GUEST_CART_COURSE_IDS");
+        }
 
         // ✅ redirect 우선 (안전한 경로만 허용)
         String redirect = (String) session.getAttribute("REDIRECT_AFTER_LOGIN");
