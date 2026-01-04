@@ -274,11 +274,17 @@ function runCode() {
     const consoleDiv = document.getElementById('output-console');
     consoleDiv.innerText = "실행 중입니다...";
 
+    // courseId와 chapterId 가져오기
+    const courseId = document.getElementById('course-id')?.value;
+    const chapterId = document.getElementById('chapter-id')?.value;
+
     fetchWithCsrf('/api/interpreter/run', {
         method: 'POST',
         body: JSON.stringify({
             code: state.monacoEditor.getValue(),
-            languageId: document.getElementById('language-selector').value
+            languageId: document.getElementById('language-selector').value,
+            courseId: courseId,
+            chapterId: chapterId
         })
     })
         .then(res => res.json())

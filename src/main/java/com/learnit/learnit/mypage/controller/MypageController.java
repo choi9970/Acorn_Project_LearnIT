@@ -2,6 +2,8 @@ package com.learnit.learnit.mypage.controller;
 
 import com.learnit.learnit.mypage.dto.CertificateDTO;
 import com.learnit.learnit.mypage.dto.DashboardDTO;
+import com.learnit.learnit.mypage.dto.DailyCourseDTO;
+import com.learnit.learnit.mypage.dto.DailyGoalDTO;
 import com.learnit.learnit.mypage.dto.PaymentHistoryDTO;
 import com.learnit.learnit.mypage.dto.PaymentReceiptDTO;
 import com.learnit.learnit.mypage.dto.GitHubAnalysisDTO;
@@ -23,6 +25,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -159,65 +163,190 @@ public class MypageController {
     /**
      * 주간 학습 데이터 조회 (AJAX용)
      */
-    @GetMapping("/api/mypage/weekly-learning")
+    @GetMapping(value = "/api/mypage/weekly-learning", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public WeeklyLearningDTO getWeeklyLearning(
+    public ResponseEntity<?> getWeeklyLearning(
             @RequestParam int year,
             @RequestParam int month,
             @RequestParam(required = false) String startDate,
             HttpSession session) {
         Long userId = SessionUtils.getUserId(session);
         if (userId == null) {
-            throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "로그인이 필요한 서비스입니다.");
+            return ResponseEntity.status(401).body(errorResponse);
         }
 
-        LocalDate weekStart;
-        if (startDate != null && !startDate.isEmpty()) {
-            weekStart = LocalDate.parse(startDate);
-        } else {
-            LocalDate now = LocalDate.now();
-            weekStart = now.minusDays(now.getDayOfWeek().getValue() - 1);
-        }
+        try {
+            LocalDate weekStart;
+            if (startDate != null && !startDate.isEmpty()) {
+                weekStart = LocalDate.parse(startDate);
+            } else {
+                LocalDate now = LocalDate.now();
+                weekStart = now.minusDays(now.getDayOfWeek().getValue() - 1);
+            }
 
-        return dashboardService.getWeeklyLearningDataByStartDate(userId, year, month, weekStart);
+            WeeklyLearningDTO data = dashboardService.getWeeklyLearningDataByStartDate(userId, year, month, weekStart);
+            return ResponseEntity.ok(data);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "주간 학습 데이터 조회에 실패했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 
     /**
      * 캘린더 데이터 조회 (AJAX용)
      */
-    @GetMapping("/api/mypage/calendar")
+    @GetMapping(value = "/api/mypage/calendar", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public CalendarSummaryDTO getCalendar(
+    public ResponseEntity<?> getCalendar(
             @RequestParam int year,
             @RequestParam int month,
             HttpSession session) {
         Long userId = SessionUtils.getUserId(session);
         if (userId == null) {
-            throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "로그인이 필요한 서비스입니다.");
+            return ResponseEntity.status(401).body(errorResponse);
         }
 
-        return dashboardService.getCalendarData(userId, year, month);
+        try {
+            CalendarSummaryDTO data = dashboardService.getCalendarData(userId, year, month);
+            return ResponseEntity.ok(data);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "캘린더 데이터 조회에 실패했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 
     /**
      * 일일 학습 목표 저장 (AJAX용)
      */
-    @PostMapping("/api/mypage/daily-goals")
+    @PostMapping(value = "/api/mypage/daily-goals", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> saveDailyGoals(
+    public ResponseEntity<Map<String, Object>> saveDailyGoals(
             @RequestBody Map<String, Object> goals,
             HttpSession session) {
         Long userId = SessionUtils.getUserId(session);
         if (userId == null) {
-            throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "로그인이 필요한 서비스입니다.");
+            return ResponseEntity.status(401).body(errorResponse);
         }
 
-        // TODO: 실제 데이터베이스에 저장하는 로직 구현 필요
-        // 현재는 성공 응답만 반환
+        try {
+            Integer classGoal = goals.get("classGoal") != null ? 
+                Integer.parseInt(goals.get("classGoal").toString()) : null;
+            Integer timeGoal = goals.get("timeGoal") != null ? 
+                Integer.parseInt(goals.get("timeGoal").toString()) : null;
+            Integer interpreterGoal = goals.get("noteGoal") != null ? 
+                Integer.parseInt(goals.get("noteGoal").toString()) : null; // noteGoal은 interpreterGoal로 매핑
+            
+            DailyGoalDTO savedGoal = dashboardService.saveDailyGoal(userId, classGoal, timeGoal, interpreterGoal);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "일일 학습 목표가 저장되었습니다.");
+            response.put("goal", savedGoal);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "일일 학습 목표 저장에 실패했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    /**
+     * 현재 주의 일일 학습 목표 조회 (AJAX용)
+     */
+    @GetMapping(value = "/api/mypage/daily-goals", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDailyGoals(HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+        
         Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "일일 학습 목표가 저장되었습니다.");
-        return response;
+        if (userId == null) {
+            response.put("success", false);
+            response.put("error", "로그인이 필요한 서비스입니다.");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        try {
+            DailyGoalDTO goal = dashboardService.getCurrentDailyGoal(userId);
+            response.put("success", true);
+            response.put("goal", goal);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "일일 학습 목표 조회에 실패했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * 수료증 전체 목록 조회 (AJAX용)
+     */
+    @GetMapping("/api/mypage/certificates")
+    @ResponseBody
+    public Map<String, Object> getAllCertificates(HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+        
+        Map<String, Object> response = new HashMap<>();
+        if (userId == null) {
+            response.put("success", false);
+            response.put("error", "로그인이 필요한 서비스입니다.");
+            return response;
+        }
+
+        try {
+            List<CertificateDTO> certificates = profileService.getCertificates(userId);
+            response.put("success", true);
+            response.put("certificates", certificates != null ? certificates : new java.util.ArrayList<>());
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "수료증 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            return response;
+        }
+    }
+
+    /**
+     * 특정 날짜의 수강한 강의 목록 조회 (AJAX용)
+     */
+    @GetMapping(value = "/api/mypage/daily-courses", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDailyCourses(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam int day,
+            HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+        
+        Map<String, Object> response = new HashMap<>();
+        if (userId == null) {
+            response.put("success", false);
+            response.put("error", "로그인이 필요한 서비스입니다.");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        try {
+            List<DailyCourseDTO> courses = dashboardService.getDailyCourses(userId, year, month, day);
+            response.put("success", true);
+            response.put("courses", courses != null ? courses : new java.util.ArrayList<>());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "일일 강의 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
     }
 }
 

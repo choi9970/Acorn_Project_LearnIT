@@ -25,6 +25,11 @@ public class AuthInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
         String requestURI = request.getRequestURI();
         
+        // API 경로는 인터셉터에서 제외 (컨트롤러에서 직접 처리)
+        if (requestURI.startsWith("/api/")) {
+            return true;
+        }
+        
         // 관리자 페이지 접근 제어 (가장 먼저 체크)
         if (requestURI.startsWith("/admin")) {
             // 로그인하지 않은 경우

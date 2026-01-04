@@ -61,6 +61,14 @@
             <td>
               <a th:href="@{'/admin/review/' + ${review.reviewId}}" class="course-link" 
                  th:text="${review.courseTitle != null ? review.courseTitle : '강의명 없음'}">강의명</a>
+              <span th:if="${review.courseId != null}">
+                <a th:href="@{'/CourseDetail?courseId=' + ${review.courseId}}" 
+                   target="_blank" 
+                   class="course-detail-link" 
+                   style="margin-left: 8px; color: #007bff; text-decoration: none; font-size: 12px;">
+                  [강의 상세보기]
+                </a>
+              </span>
             </td>
             <td th:text="${review.userName != null ? review.userName : '작성자 없음'}">작성자</td>
             <td>
