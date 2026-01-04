@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.admin.AdminCourseMapper">
+
+    <select id="selectCourses" resultType="com.learnit.learnit.admin.AdminCourse">
+        SELECT
+            c.course_id      AS courseId,
+            c.title          AS title,
+            u.name           AS instructorName,
+            c.status         AS status,
+            c.created_at     AS createdAt,
+            c.updated_at     AS updatedAt
+        FROM course c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        WHERE c.delete_flg = 0
+        <if test="status != null and status != ''">
+            AND c.status = #{status}
+        </if>
+        <if test="search != null and search != ''">
+            AND (c.title LIKE CONCAT('%', #{search}, '%')
+                 OR u.name LIKE CONCAT('%', #{search}, '%'))
+        </if>
+        ORDER BY c.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countCourses" resultType="int">
+        SELECT COUNT(*)
+        FROM course c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        WHERE c.delete_flg = 0
+        <if test="status != null and status != ''">
+            AND c.status = #{status}
+        </if>
+        <if test="search != null and search != ''">
+            AND (c.title LIKE CONCAT('%', #{search}, '%')
+                 OR u.name LIKE CONCAT('%', #{search}, '%'))
+        </if>
+    </select>
+
+    <update id="updateCourseStatus">
+        UPDATE course
+        SET status = #{status},
+            updated_at = NOW()
+        WHERE course_id = #{courseId}
+    </update>
+
+    <update id="deleteCourse" flushCache="true">
+        UPDATE course
+        SET delete_flg = 1,
+            updated_at = NOW()
+        WHERE course_id = #{courseId}
+    </update>
+
+</mapper>

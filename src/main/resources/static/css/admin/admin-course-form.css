@@ -1,0 +1,102 @@
+/* 강의 생성/수정 폼 스타일 */
+.admin-form-container {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 0.8rem;
+    box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
+    margin-bottom: 2.4rem;
+    padding-bottom: 1.6rem;
+    border-bottom: 1px solid #eee;
+}
+
+.form-header h2 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #111;
+}
+
+/* 탭 네비게이션 스타일 (임시) */
+.form-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2.4rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab-item {
+    padding: 1rem 2rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #666;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-item.active {
+    color: #0A4A7A;
+    border-bottom-color: #0A4A7A;
+}
+
+/* 폼 섹션 스타일 */
+.form-section {
+    margin-bottom: 2rem;
+    display: none; /* JS로 제어 예정 */
+}
+
+.form-section.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 1.6rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: #333;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.4rem;
+    font-size: 1.4rem;
+}
+
+.form-actions {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-cancel, .btn-submit {
+    padding: 1rem 2rem;
+    border-radius: 0.4rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-cancel {
+    background: #f1f3f5;
+    color: #495057;
+    text-decoration: none;
+}
+
+.btn-submit {
+    background: #0A4A7A;
+    color: #fff;
+}
