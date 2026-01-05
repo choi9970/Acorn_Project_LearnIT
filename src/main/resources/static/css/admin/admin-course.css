@@ -1,8 +1,8 @@
 /* 강의 관리 페이지 스타일 */
 .admin-course-container {
     padding: 2rem;
-    max-width: 1400px;
-    min-width: 1000px; /* 최소 너비 설정으로 뭉개짐 방지 */
+    max-width: 940px;
+    min-width: 740px; /* 최소 너비 설정으로 뭉개짐 방지 */
     margin: 0 auto;
 }
 
@@ -117,6 +117,7 @@
     overflow: hidden; /* 모서리 둥글게 */
     box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.1);
     overflow-x: auto; /* 가로 스크롤 허용 */
+    min-height: 497px;
 }
 
 .course-table {
@@ -197,32 +198,35 @@
 
 .btn-edit,
 .btn-delete {
-    padding: 0.6rem 1.2rem;
+    padding: 0.5rem 1.1rem; /* 테두리 두께(1px)를 고려하여 패딩 조정 */
     font-size: 1.3rem;
     font-weight: 600;
-    border: none;
     border-radius: 0.6rem;
     cursor: pointer;
     text-decoration: none;
     display: inline-block;
+    transition: all 0.2s ease;
+    background-color: #fff;
 }
 
 .btn-edit {
+    border: 1px solid #007bff;
+    color: #007bff;
+}
+
+.btn-edit:hover {
     background-color: #007bff;
     color: #fff;
 }
 
-.btn-edit:hover {
-    background-color: #0069d9;
-}
-
 .btn-delete {
-    background-color: #dc3545;
-    color: #fff;
+    border: 1px solid #dc3545;
+    color: #dc3545;
 }
 
 .btn-delete:hover {
-    background-color: #c82333;
+    background-color: #dc3545;
+    color: #fff;
 }
 
 .empty-message {
@@ -249,6 +253,7 @@
 .prev-btn-area, .next-btn-area {
     display: flex;
     justify-content: center;
+    width: 50px; /* 버튼 영역 고정 너비로 중앙 정렬 유지 */
 }
 
 .page-numbers-area {

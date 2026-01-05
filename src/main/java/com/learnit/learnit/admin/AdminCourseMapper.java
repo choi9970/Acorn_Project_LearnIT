@@ -18,4 +18,6 @@ public interface AdminCourseMapper {
     void updateCourseStatus(@Param("courseId") Long courseId, @Param("status") String status);
     
     void deleteCourse(@Param("courseId") Long courseId);
+
+    void insertCourse(AdminCourseCreateDTO course);
 }
