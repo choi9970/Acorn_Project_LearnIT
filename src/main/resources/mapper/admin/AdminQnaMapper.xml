@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.admin.qna.AdminQnaRepository">
+
+    <sql id="latestAnswerJoin">
+        LEFT JOIN (
+        SELECT a1.*
+        FROM qna_answer a1
+        JOIN (
+        SELECT qna_id, MAX(created_at) AS max_created
+        FROM qna_answer
+        GROUP BY qna_id
+        ) m ON a1.qna_id = m.qna_id AND a1.created_at = m.max_created
+        ) a ON q.qna_id = a.qna_id
+        LEFT JOIN users au ON a.user_id = au.user_id
+    </sql>
+
+    <select id="selectQnas" resultType="com.learnit.learnit.admin.qna.AdminQnaDto">
+        SELECT
+        q.qna_id AS qnaId,
+        q.course_id AS courseId,
+        c.title AS courseTitle,
+
+        q.user_id AS questionUserId,
+        qu.name AS questionUserName,
+        qu.email AS questionUserEmail,
+
+        q.title AS questionTitle,
+        q.content AS questionContent,
+        q.created_at AS questionCreatedAt,
+        q.is_resolved AS isResolved,
+
+        a.answer_id AS answerId,
+        a.user_id AS answerUserId,
+        au.name AS answerUserName,
+        a.content AS answerContent,
+        a.created_at AS answerCreatedAt
+
+        FROM qna_question q
+        LEFT JOIN course c ON q.course_id = c.course_id
+        JOIN users qu ON q.user_id = qu.user_id
+        <include refid="latestAnswerJoin"/>
+
+        <where>
+            <if test="type != null and type != ''">
+                <choose>
+                    <when test="type == 'SITE'">
+                        AND q.course_id IS NULL
+                    </when>
+                    <when test="type == 'LECTURE'">
+                        AND q.course_id IS NOT NULL
+                    </when>
+                </choose>
+            </if>
+
+            <if test="status != null and status != ''">
+                <choose>
+                    <when test="status == 'ACTIVE'">
+                        AND q.is_resolved = 'N'
+                    </when>
+                    <when test="status == 'PASS'">
+                        AND q.is_resolved = 'Y'
+                    </when>
+                </choose>
+            </if>
+
+            <if test="search != null and search != ''">
+                AND (
+                q.title LIKE CONCAT('%', #{search}, '%')
+                OR q.content LIKE CONCAT('%', #{search}, '%')
+                OR qu.name LIKE CONCAT('%', #{search}, '%')
+                OR c.title LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+        </where>
+
+        ORDER BY q.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countQnas" resultType="int">
+        SELECT COUNT(*)
+        FROM qna_question q
+        LEFT JOIN course c ON q.course_id = c.course_id
+        JOIN users qu ON q.user_id = qu.user_id
+        <where>
+            <if test="type != null and type != ''">
+                <choose>
+                    <when test="type == 'SITE'">
+                        AND q.course_id IS NULL
+                    </when>
+                    <when test="type == 'LECTURE'">
+                        AND q.course_id IS NOT NULL
+                    </when>
+                </choose>
+            </if>
+
+            <if test="status != null and status != ''">
+                <choose>
+                    <when test="status == 'ACTIVE'">
+                        AND q.is_resolved = 'N'
+                    </when>
+                    <when test="status == 'PASS'">
+                        AND q.is_resolved = 'Y'
+                    </when>
+                </choose>
+            </if>
+
+            <if test="search != null and search != ''">
+                AND (
+                q.title LIKE CONCAT('%', #{search}, '%')
+                OR q.content LIKE CONCAT('%', #{search}, '%')
+                OR qu.name LIKE CONCAT('%', #{search}, '%')
+                OR c.title LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="selectQnaDetail" resultType="com.learnit.learnit.admin.qna.AdminQnaDto">
+        SELECT
+        q.qna_id AS qnaId,
+        q.course_id AS courseId,
+        c.title AS courseTitle,
+
+        q.user_id AS questionUserId,
+        qu.name AS questionUserName,
+        qu.email AS questionUserEmail,
+
+        q.title AS questionTitle,
+        q.content AS questionContent,
+        q.created_at AS questionCreatedAt,
+        q.is_resolved AS isResolved,
+
+        a.answer_id AS answerId,
+        a.user_id AS answerUserId,
+        au.name AS answerUserName,
+        a.content AS answerContent,
+        a.created_at AS answerCreatedAt
+
+        FROM qna_question q
+        LEFT JOIN course c ON q.course_id = c.course_id
+        JOIN users qu ON q.user_id = qu.user_id
+        <include refid="latestAnswerJoin"/>
+
+        WHERE q.qna_id = #{qnaId}
+    </select>
+
+    <select id="selectLatestAnswerId" resultType="int">
+        SELECT answer_id
+        FROM qna_answer
+        WHERE qna_id = #{qnaId}
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insertAnswer">
+        INSERT INTO qna_answer (qna_id, user_id, content, created_at)
+        VALUES (#{qnaId}, #{userId}, #{content}, NOW())
+    </insert>
+
+    <update id="updateAnswer">
+        UPDATE qna_answer
+        SET content = #{content},
+        created_at = NOW()
+        WHERE answer_id = #{answerId}
+    </update>
+
+    <update id="updateResolved">
+        UPDATE qna_question
+        SET is_resolved = #{isResolved}
+        WHERE qna_id = #{qnaId}
+    </update>
+
+    <delete id="deleteAnswersByQnaId">
+        DELETE FROM qna_answer WHERE qna_id = #{qnaId}
+    </delete>
+
+    <delete id="deleteQuestionById">
+        DELETE FROM qna_question WHERE qna_id = #{qnaId}
+    </delete>
+
+    <!-- ✅✅ 추가: 다음 qna_id = MAX+1 (비어있으면 1) -->
+    <select id="selectNextQnaId" resultType="int">
+        SELECT IFNULL(MAX(qna_id), 0) + 1
+        FROM qna_question
+    </select>
+
+    <!-- ✅✅ 추가: AUTO_INCREMENT를 nextId로 맞춤 -->
+    <update id="resetQnaAutoIncrement">
+        ALTER TABLE qna_question AUTO_INCREMENT = ${nextId}
+    </update>
+
+</mapper>

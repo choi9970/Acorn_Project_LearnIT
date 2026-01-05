@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(
+        ~{::title},
+        ~{::content},
+        ~{::css}
+      )}">
+
+<th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/admin/qna.css}">
+</th:block>
+
+<head>
+    <title>Q&A 상세</title>
+</head>
+
+<body>
+<section th:fragment="content">
+    <div class="admin-qna-container">
+        <h2>Q&A 상세</h2>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <div class="detail-wrap" th:if="${qna != null}">
+            <div class="detail-head">
+                <div>
+                    <div class="meta">
+                        <span><b>구분</b> : <span th:text="${qna.typeLabel}"></span></span>
+                        <span><b>작성자</b> : <span th:text="${qna.questionUserName}"></span></span>
+                        <span><b>이메일</b> : <span th:text="${qna.questionUserEmail}"></span></span>
+                        <span th:if="${qna.courseTitle != null}">
+                            <b>강의</b> : <span th:text="${qna.courseTitle}"></span>
+                        </span>
+                    </div>
+                    <div class="qtitle" th:text="${qna.questionTitle != null ? qna.questionTitle : '(제목없음)'}"></div>
+                </div>
+
+                <div class="detail-actions">
+                    <!-- ✅ 삭제 -->
+                    <form th:action="@{'/admin/qna/' + ${qna.qnaId} + '/delete'}" method="post"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <input type="hidden" name="type" th:value="${currentType}">
+                        <input type="hidden" name="status" th:value="${currentStatus}">
+                        <input type="hidden" name="search" th:value="${searchKeyword}">
+                        <input type="hidden" name="page" th:value="${currentPage}">
+                        <input type="hidden" name="size" th:value="${pageSize}">
+                        <button type="submit" class="btn-mini danger">삭제</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 상태 변경 -->
+            <form th:action="@{'/admin/qna/' + ${qna.qnaId} + '/status'}" method="post" class="status-form" style="margin-bottom:12px;">
+                <select name="status" class="status-select">
+                    <option value="ACTIVE" th:selected="${qna.statusLabel == 'ACTIVE'}">ACTIVE</option>
+                    <option value="PASS" th:selected="${qna.statusLabel == 'PASS'}">PASS</option>
+                </select>
+                <button type="submit" class="btn-mini">상태변경</button>
+
+                <!-- ✅ 목록 상태 유지 -->
+                <input type="hidden" name="type" th:value="${currentType}">
+                <input type="hidden" name="statusFilter" th:value="${currentStatus}">
+                <input type="hidden" name="search" th:value="${searchKeyword}">
+                <input type="hidden" name="page" th:value="${currentPage}">
+                <input type="hidden" name="size" th:value="${pageSize}">
+            </form>
+
+            <div class="detail-body">
+                <div class="question-box">
+                    <div class="box-title">질문</div>
+                    <div class="box-content" th:text="${qna.questionContent}">질문 내용</div>
+                </div>
+
+                <div class="answer-box">
+                    <div class="box-title">답변</div>
+
+                    <form th:action="@{'/admin/qna/' + ${qna.qnaId} + '/answer'}" method="post" class="answer-form">
+                        <textarea name="content" rows="6"
+                                  placeholder="답변을 입력하세요"
+                                  th:text="${qna.answerContent}"></textarea>
+
+                        <label class="check">
+                            <input type="checkbox" name="markResolved" value="true" checked>
+                            답변 저장 시 PASS 처리
+                        </label>
+
+                        <!-- ✅ 목록 상태 유지 -->
+                        <input type="hidden" name="type" th:value="${currentType}">
+                        <input type="hidden" name="status" th:value="${currentStatus}">
+                        <input type="hidden" name="search" th:value="${searchKeyword}">
+                        <input type="hidden" name="page" th:value="${currentPage}">
+                        <input type="hidden" name="size" th:value="${pageSize}">
+
+                        <button type="submit" class="btn-primary">수정/완료</button>
+                    </form>
+                </div>
+            </div>
+
+            <div style="margin-top: 14px;">
+                <a th:href="@{/admin/qna(type=${currentType}, status=${currentStatus}, search=${searchKeyword}, page=${currentPage}, size=${pageSize})}"
+                   class="btn-reset">목록으로</a>
+            </div>
+        </div>
+
+        <div th:if="${qna == null}" class="empty">
+            존재하지 않는 Q&A 입니다.
+        </div>
+    </div>
+</section>
+</body>
+</html>

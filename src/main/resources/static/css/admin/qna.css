@@ -1,0 +1,207 @@
+.admin-qna-container{
+    padding:2rem;
+    max-width: 1400px;
+    margin:0 auto;
+
+    /* ✅ flex 레이아웃 안에서 테이블이 잘리는 문제 방지 */
+    min-width: 0;
+}
+
+.admin-qna-container h2{
+    font-size:2.4rem;
+    font-weight:800;
+    margin:0 0 1.4rem 0;
+    color:#111;
+}
+
+.alert{padding:1.2rem 1.6rem;border-radius:.8rem;margin-bottom:1rem;font-size:1.4rem;}
+.alert-success{background:#d4edda;border:1px solid #c3e6cb;color:#155724;}
+.alert-error{background:#f8d7da;border:1px solid #f5c6cb;color:#721c24;}
+
+.filters{background:#f8f9fa;padding:1.2rem;border-radius:.8rem;margin-bottom:1.6rem;}
+
+.filter-form{
+    display:flex;
+    gap:1rem;
+    align-items:center;
+    flex-wrap: wrap;
+}
+.filter-select,.search-input{
+    padding:.8rem 1.2rem;
+    border:1px solid #d5dbe3;
+    border-radius:.6rem;
+    font-size:1.4rem;
+}
+.search-input{flex:1;min-width:220px;}
+
+.btn-search{
+    background:#0A4A7A;color:#fff;border:none;
+    padding:.9rem 1.4rem;border-radius:.6rem;font-weight:800;cursor:pointer;
+    white-space: nowrap;
+}
+.btn-reset{
+    background:#6c757d;color:#fff;border:none;
+    padding:.9rem 1.4rem;border-radius:.6rem;font-weight:800;
+    text-decoration:none;display:inline-block;
+    white-space: nowrap;
+}
+
+/* ✅ 테이블 잘림 방지 (가로 스크롤) */
+.table-wrap{
+    background:#fff;border-radius:.8rem;
+    overflow-x:auto;
+    overflow-y:hidden;
+    box-shadow:0 .2rem .6rem rgba(0,0,0,.08);
+
+    /* ✅ 부모가 줄어들 때 같이 줄어들도록 */
+    width: 100%;
+    min-width: 0;
+}
+
+/* ✅ table-layout:auto 로 컬럼이 “내용 기준”으로 자연스럽게 잡히게 */
+.qna-table{
+    width:100%;
+    border-collapse:collapse;
+    min-width: 1100px; /* 화면이 좁으면 스크롤 생김 */
+    table-layout: auto;
+}
+
+.qna-table thead{background:#0A4A7A;color:#fff;}
+
+.qna-table th,
+.qna-table td{
+    padding:1.2rem;
+    font-size:1.4rem;
+    border-bottom:1px solid #eee;
+    text-align:center;
+    vertical-align:middle;
+    box-sizing:border-box;
+}
+
+.qna-table tbody tr:hover{background:#f8f9fa;}
+
+/* 링크 기본 */
+.link{
+    color:#0A4A7A;
+    font-weight:800;
+    text-decoration:none;
+
+    /* ✅ nowrap 유지하되 말줄임 가능하게 */
+    display:inline-block;
+    max-width: 100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+/* ✅ 강좌명(4번째 컬럼)이 잘리는 핵심 해결: 셀도 말줄임 허용 */
+.qna-table tbody td:nth-child(4){
+    text-align:left;
+    max-width: 420px;           /* 너무 길면 여기서 컷 */
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+/* ✅ 요약(7번째 컬럼)도 말줄임 + 왼쪽 정렬 */
+.qna-table tbody td:nth-child(7){
+    text-align:left;
+    max-width:260px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* 빈 데이터 */
+.empty{text-align:center;padding:3rem;color:#999;}
+
+.badge{padding:.35rem .8rem;border-radius:999px;font-weight:900;font-size:1.2rem;display:inline-block;white-space:nowrap;}
+.badge-active{background:#fff3cd;color:#856404;}
+.badge-pass{background:#d4edda;color:#155724;}
+
+/* detail */
+.detail-wrap{
+    margin-top: 1.6rem;
+    background:#fff;
+    border-radius:.8rem;
+    box-shadow:0 .2rem .6rem rgba(0,0,0,.08);
+    padding: 1.6rem;
+}
+.detail-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 1rem;
+    border-bottom:1px solid #eee;
+    padding-bottom: 1.2rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+}
+.meta{display:flex;gap:1.2rem;flex-wrap:wrap;color:#333;font-size:1.3rem;}
+.qtitle{margin-top:.6rem;font-size:1.8rem;font-weight:900;color:#111;}
+
+.status-form{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;}
+.status-select{padding:.6rem 1rem;border:1px solid #d5dbe3;border-radius:.6rem;font-weight:800;}
+.btn-mini{border:1px solid #d5dbe3;background:#fff;padding:.6rem 1rem;border-radius:.6rem;font-weight:900;cursor:pointer;white-space:nowrap;}
+
+.detail-body{display:flex;gap:1.2rem;flex-wrap:wrap;}
+.question-box,.answer-box{flex:1;min-width: 320px;background:#f8f9fa;border-radius:.8rem;padding:1.2rem;}
+.box-title{font-weight:900;margin-bottom:.8rem;color:#111;}
+.box-content{white-space:pre-wrap;line-height:1.6;color:#222;font-size:1.4rem;}
+
+.answer-form textarea{
+    width:100%;
+    border:1px solid #d5dbe3;
+    border-radius:.6rem;
+    padding:1rem;
+    font-size:1.4rem;
+    resize:vertical;
+    margin-bottom:.8rem;
+}
+.check{display:flex;gap:.6rem;align-items:center;font-size:1.3rem;color:#333;margin-bottom:.8rem;}
+.btn-primary{
+    background:#0A4A7A;color:#fff;border:none;padding:.9rem 1.4rem;border-radius:.6rem;
+    font-weight:900;cursor:pointer;float:right;white-space:nowrap;
+}
+
+.btn-mini.danger{
+    border-color:#dc3545;
+    color:#dc3545;
+}
+.btn-mini.danger:hover{
+    background:#dc3545;
+    color:#fff;
+}
+
+/* pagination */
+.pagination{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:.8rem;
+    margin: 1.6rem 0;
+    flex-wrap: wrap;
+}
+.page-link, .page-number a{
+    padding:.8rem 1.1rem;
+    border:1px solid #d5dbe3;
+    border-radius:.6rem;
+    text-decoration:none;
+    color:#0A4A7A;
+    font-weight:700;
+    white-space: nowrap;
+}
+.page-number strong{
+    padding:.8rem 1.1rem;
+    border-radius:.6rem;
+    background:#0A4A7A;
+    color:#fff;
+    white-space: nowrap;
+}
+
+.summary{
+    text-align:center;
+    color:#666;
+    font-size:1.4rem;
+    margin-top: 1rem;
+}

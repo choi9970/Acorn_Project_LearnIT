@@ -1,0 +1,208 @@
+.admin-notice-container{
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.page-head{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    margin-bottom: 1.6rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.admin-notice-container h2{
+    font-size: 2.4rem;
+    font-weight: 800;
+    color:#111;
+    margin: 0 0 1.6rem 0;
+}
+
+.alert{
+    padding: 1.2rem 1.6rem;
+    border-radius: .8rem;
+    margin-bottom: 1.2rem;
+    font-size: 1.4rem;
+}
+.alert-success{background:#d4edda; border:1px solid #c3e6cb; color:#155724;}
+.alert-error{background:#f8d7da; border:1px solid #f5c6cb; color:#721c24;}
+
+.filters{
+    background:#f8f9fa;
+    padding: 1.2rem;
+    border-radius: .8rem;
+    margin-bottom: 1.6rem;
+}
+
+/* ✅ 화면 줄면 아래로 내려가게 */
+.filter-form{
+    display:flex;
+    gap:1rem;
+    align-items:center;
+    flex-wrap: wrap;
+}
+
+.filter-select, .search-input{
+    padding:.8rem 1.2rem;
+    border:1px solid #d5dbe3;
+    border-radius:.6rem;
+    font-size:1.4rem;
+}
+
+/* ✅ 너무 큰 min-width 때문에 작은 화면에서 깨지는걸 방지 */
+.search-input{
+    flex:1;
+    min-width: 220px;
+}
+
+.btn-primary{
+    background:#0A4A7A;
+    color:#fff;
+    border:none;
+    padding:.9rem 1.4rem;
+    border-radius:.6rem;
+    font-weight:700;
+    text-decoration:none;
+    cursor:pointer;
+    display:inline-block;
+    white-space: nowrap;
+}
+.btn-search{
+    background:#0A4A7A; color:#fff; border:none;
+    padding:.9rem 1.4rem; border-radius:.6rem; font-weight:700; cursor:pointer;
+    white-space: nowrap;
+}
+.btn-reset{
+    background:#6c757d;
+    color:#fff;
+    border:none;
+    padding:.9rem 1.4rem;
+    border-radius:.6rem;
+    font-weight:700;
+    text-decoration:none;
+    cursor:pointer;
+    display:inline-block;
+    white-space: nowrap;
+}
+
+/* ✅ 테이블 잘림 방지: 가로 스크롤 */
+.table-wrap{
+    background:#fff;
+    border-radius:.8rem;
+    overflow-x:auto;
+    overflow-y:hidden;
+    box-shadow: 0 .2rem .6rem rgba(0,0,0,.08);
+}
+
+.notice-table{
+    width:100%;
+    border-collapse: collapse;
+    min-width: 980px;
+    table-layout: fixed; /* ✅ 컬럼 흔들림 방지 */
+}
+
+.notice-table thead{background:#0A4A7A; color:#fff;}
+
+/* ✅✅ 핵심: th/td 정렬을 통일해야 "왼쪽으로 밀림"이 사라짐 */
+.notice-table th,
+.notice-table td{
+    padding: 1.2rem;
+    font-size: 1.4rem;
+    border-bottom: 1px solid #eaeaea;
+    text-align: center;        /* ✅ 핵심 */
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+.notice-table tbody tr:hover{background:#f8f9fa;}
+
+/* ✅ 제목만 보기 좋게 왼쪽 정렬 + 말줄임 */
+.title-cell{
+    font-weight:600;
+    color:#111;
+    text-align: left;          /* ✅ 제목만 왼쪽 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 혹시 title-cell 클래스가 빠진 경우 대비(4번째 컬럼=제목) */
+.notice-table tbody td:nth-child(4){
+    text-align:left;
+}
+
+.action-cell{white-space:nowrap;}
+
+.col-check{
+    width:48px;
+    text-align:center;
+}
+
+.btn-mini{
+    border:1px solid #d5dbe3;
+    background:#fff;
+    padding:.5rem 1rem;
+    border-radius:.6rem;
+    text-decoration:none;
+    font-weight:700;
+    font-size:1.3rem;
+    cursor:pointer;
+    display:inline-block;
+    margin-right:.4rem;
+    white-space: nowrap;
+}
+.btn-mini.danger{border-color:#dc3545; color:#dc3545;}
+.btn-mini.danger:hover{background:#dc3545; color:#fff;}
+
+.empty{text-align:center; padding: 3rem; color:#999;}
+
+.pagination{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:.8rem;
+    margin: 1.6rem 0;
+    flex-wrap: wrap;
+}
+.page-link, .page-number a{
+    padding:.8rem 1.1rem;
+    border:1px solid #d5dbe3;
+    border-radius:.6rem;
+    text-decoration:none;
+    color:#0A4A7A;
+    font-weight:700;
+    white-space: nowrap;
+}
+.page-number strong{
+    padding:.8rem 1.1rem;
+    border-radius:.6rem;
+    background:#0A4A7A;
+    color:#fff;
+    white-space: nowrap;
+}
+
+.summary{
+    text-align:center;
+    color:#666;
+    font-size:1.4rem;
+    margin-top: 1rem;
+}
+
+/* form */
+.form-wrap{
+    background:#fff;
+    border-radius:.8rem;
+    padding: 1.8rem;
+    box-shadow: 0 .2rem .6rem rgba(0,0,0,.08);
+}
+.form-row{display:flex; flex-direction:column; gap:.6rem; margin-bottom: 1.4rem;}
+.form-row label{font-size:1.4rem; font-weight:800; color:#111;}
+.form-row input, .form-row select, .form-row textarea{
+    border:1px solid #d5dbe3;
+    border-radius:.6rem;
+    padding:.9rem 1.2rem;
+    font-size:1.4rem;
+}
+.form-actions{display:flex; gap: 1rem; justify-content:flex-end; margin-top: 1.2rem; flex-wrap: wrap;}

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(
+        ~{::title},
+        ~{::content},
+        ~{::css}
+      )}">
+
+<th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/admin/notice.css}">
+</th:block>
+
+<head>
+    <title>공지 관리</title>
+</head>
+
+<body>
+<section th:fragment="content">
+    <div class="admin-notice-container">
+        <div class="page-head">
+            <h2>공지관리</h2>
+            <div class="head-actions">
+                <button type="submit" form="deleteSelectedForm" class="btn-reset"
+                        onclick="return confirmDeleteSelected();">부분 삭제</button>
+
+                <a class="btn-primary"
+                   th:href="@{/admin/notice/new(
+                        returnPage=${currentPage},
+                        returnSize=${pageSize},
+                        returnCategory=${currentCategory},
+                        returnSearch=${searchKeyword}
+                   )}">
+                    글작성
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <!-- 필터 -->
+        <div class="filters">
+            <form method="get" action="/admin/notice" class="filter-form">
+                <select name="category" class="filter-select">
+                    <option value="">전체 구분</option>
+                    <option value="긴급" th:selected="${currentCategory == '긴급'}">긴급</option>
+                    <option value="일반" th:selected="${currentCategory == '일반'}">일반</option>
+                    <option value="이벤트" th:selected="${currentCategory == '이벤트'}">이벤트</option>
+                </select>
+                <input type="text" name="search" class="search-input"
+                       placeholder="제목/내용/작성자 검색" th:value="${searchKeyword}">
+                <button type="submit" class="btn-search">검색</button>
+                <a href="/admin/notice" class="btn-reset">초기화</a>
+            </form>
+        </div>
+
+        <!-- ✅ 선택삭제 form -->
+        <form id="deleteSelectedForm" th:action="@{/admin/notice/delete-selected}" method="post">
+
+            <!-- ✅✅ 추가: 전체선택 플래그 -->
+            <input type="hidden" name="selectAll" id="selectAllFlag" value="false">
+
+            <!-- 목록 상태 유지 -->
+            <input type="hidden" name="page" th:value="${currentPage}">
+            <input type="hidden" name="size" th:value="${pageSize}">
+            <input type="hidden" name="category" th:value="${currentCategory}">
+            <input type="hidden" name="search" th:value="${searchKeyword}">
+
+            <div class="table-wrap">
+                <table class="notice-table">
+                    <thead>
+                    <tr>
+                        <th class="col-check">
+                            <input type="checkbox" id="chkAll">
+                        </th>
+                        <th>구분</th>
+                        <th>공지번호</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>작성일</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="n : ${notices}">
+                        <td class="col-check">
+                            <input type="checkbox" name="noticeIds" class="chkItem" th:value="${n.noticeId}">
+                        </td>
+                        <td th:text="${n.category}">일반</td>
+                        <td th:text="${n.noticeId}">1</td>
+
+                        <!-- ✅ 제목만 왼쪽 정렬 + 말줄임은 CSS에서 처리 -->
+                        <td class="title-cell" th:text="${n.title}">제목</td>
+
+                        <td th:text="${n.writerName}">관리자</td>
+                        <td th:text="${n.createdAt != null ? #temporals.format(n.createdAt,'yyyy-MM-dd') : '-'}">-</td>
+
+                        <td class="action-cell">
+                            <a class="btn-mini"
+                               th:href="@{/admin/notice/{id}/edit(
+                                         id=${n.noticeId},
+                                         returnPage=${currentPage},
+                                         returnSize=${pageSize},
+                                         returnCategory=${currentCategory},
+                                         returnSearch=${searchKeyword}
+                               )}">
+                                수정
+                            </a>
+
+                            <button type="submit"
+                                    class="btn-mini danger"
+                                    th:formaction="@{'/admin/notice/' + ${n.noticeId} + '/delete'}"
+                                    formmethod="post"
+                                    onclick="return confirm('정말 삭제하시겠습니까?');">
+                                삭제
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${notices == null or #lists.isEmpty(notices)}">
+                        <td colspan="7" class="empty">등록된 공지가 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+
+        <!-- 페이징 -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 1}"
+               th:href="@{/admin/notice(page=${currentPage-1}, size=${pageSize}, category=${currentCategory}, search=${searchKeyword})}"
+               class="page-link">이전</a>
+
+            <span th:each="i : ${#numbers.sequence(1,totalPages)}" class="page-number">
+                <a th:if="${i != currentPage}"
+                   th:href="@{/admin/notice(page=${i}, size=${pageSize}, category=${currentCategory}, search=${searchKeyword})}"
+                   th:text="${i}">1</a>
+                <strong th:if="${i == currentPage}" th:text="${i}">1</strong>
+            </span>
+
+            <a th:if="${currentPage < totalPages}"
+               th:href="@{/admin/notice(page=${currentPage+1}, size=${pageSize}, category=${currentCategory}, search=${searchKeyword})}"
+               class="page-link">다음</a>
+        </div>
+
+        <div class="summary">
+            총 <strong th:text="${totalCount}">0</strong>개
+        </div>
+    </div>
+
+    <script>
+        const chkAll = document.getElementById('chkAll');
+        const selectAllFlag = document.getElementById('selectAllFlag');
+        const items = () => document.querySelectorAll('.chkItem');
+
+        chkAll?.addEventListener('change', (e) => {
+            const checked = e.target.checked;
+            items().forEach(chk => chk.checked = checked);
+            if (selectAllFlag) selectAllFlag.value = checked ? 'true' : 'false';
+        });
+
+        document.addEventListener('change', (e) => {
+            if (e.target.classList && e.target.classList.contains('chkItem')) {
+                if (selectAllFlag && selectAllFlag.value === 'true') {
+                    selectAllFlag.value = 'false';
+                    if (chkAll) chkAll.checked = false;
+                }
+            }
+        });
+
+        function confirmDeleteSelected() {
+            const isSelectAll = selectAllFlag && selectAllFlag.value === 'true';
+
+            if (isSelectAll) {
+                const cat = document.querySelector('input[name="category"]')?.value || '';
+                const search = document.querySelector('input[name="search"]')?.value || '';
+
+                let msg = '현재 조건에 해당하는 공지를 모두 삭제하시겠습니까?';
+                if (!cat && !search) {
+                    msg = '⚠️ 전체 공지를 모두 삭제합니다. 정말 진행하시겠습니까?';
+                }
+                return confirm(msg);
+            }
+
+            const hasChecked = Array.from(items()).some(chk => chk.checked);
+            if (!hasChecked) {
+                alert('삭제할 공지를 선택해주세요.');
+                return false;
+            }
+            return confirm('선택한 공지를 삭제하시겠습니까?');
+        }
+    </script>
+
+</section>
+</body>
+</html>
