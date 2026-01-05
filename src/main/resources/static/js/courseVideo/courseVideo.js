@@ -68,14 +68,30 @@ function getCsrfHeader() {
     return (header && token) ? { [header.content]: token.content } : {};
 }
 
-// 공통 Fetch 함수 (CSRF 헤더 포함)
+// 공통 Fetch 함수 (CSRF 헤더 포함) + 세션쿠키 포함(도커/프록시/크로스도메인 대비)
 async function fetchWithCsrf(url, options = {}) {
-    const headers = { 
-        'Content-Type': 'application/json', 
+    const headers = {
+        'Content-Type': 'application/json',
         ...getCsrfHeader(),
-        ...options.headers 
+        ...(options.headers || {})
     };
-    return fetch(url, { ...options, headers });
+
+    const res = await fetch(url, {
+        credentials: 'include', // ✅ JSESSIONID 등 세션쿠키 무조건 포함
+        ...options,
+        headers
+    });
+
+    // ✅ fetch가 /login 으로 리다이렉트된 경우를 프론트에서 감지 가능하게
+    // (서버가 302 -> /login 처리하면 fetch는 최종 HTML을 받아서 ok가 되어버릴 수 있음)
+    if (res.redirected && res.url && res.url.includes('/login')) {
+        // 로그인 필요 상황을 명확히 처리하기 위해 401처럼 다루기
+        // 호출부에서 res.status가 401은 아니지만, 여기서 throw로 처리 가능
+        // (원하면 throw 대신 return res로 두고 호출부에서 res.url 체크해도 됨)
+        throw new Error("LOGIN_REQUIRED");
+    }
+
+    return res;
 }
 
 /* =========================================
@@ -183,6 +199,8 @@ function openPanel(tabName) {
     }
 
     if (tabName === 'reference') loadResources();
+
+    if (tabName === 'qna') initQnaPanel();
 
     state.currentActiveTab = tabName;
     localStorage.setItem('lastActivePanel', tabName);
