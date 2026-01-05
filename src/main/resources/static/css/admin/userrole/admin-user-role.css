@@ -1,0 +1,71 @@
+.admin-role-search {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.admin-role-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-role-table th,
+.admin-role-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  vertical-align: top;
+}
+
+.cell-line {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pending-box {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pending-box .hint {
+  grid-column: 1 / span 2;
+  font-size: 12px;
+  color: #666;
+}
+
+.subadmin-box {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px dashed #bbb;
+  border-radius: 8px;
+}
+
+.sub-line {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.managed {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  background: #eef;
+  border: 1px solid #ccd;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.admin-pagination {
+  margin-top: 12px;
+}
+
+.admin-pagination button {
+  margin-right: 6px;
+}

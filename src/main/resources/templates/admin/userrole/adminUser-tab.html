@@ -1,0 +1,41 @@
+<div th:fragment="roleTab(activeTab)">
+    <div class="admin-tabs">
+        <a class="admin-tab"
+           th:href="@{/admin/role}"
+           th:classappend="${activeTab == 'role'} ? 'active'">
+            관리자 권한
+        </a>
+        <a class="admin-tab"
+           th:href="@{/admin/coupon}"
+           th:classappend="${activeTab == 'coupon'} ? 'active'">
+            쿠폰 부여
+        </a>
+    </div>
+
+    <div class="admin-role-search">
+        <select id="searchType">
+            <option value="email">메일</option>
+            <option value="name">이름</option>
+            <option value="userId">회원ID</option>
+        </select>
+        <input id="searchKeyword" placeholder="검색어 입력" />
+        <button id="btnSearch" type="button">검색</button>
+    </div>
+
+    <table class="admin-role-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>이름</th>
+            <th>이메일</th>
+            <th>상태</th>
+            <th>권한</th>
+        </tr>
+        </thead>
+        <tbody id="userTbody"></tbody>
+    </table>
+
+    <div id="pagination" class="admin-pagination"></div>
+
+    <script th:src="@{/js/admin/userrole/admin-user-role.js}"></script>
+</div>

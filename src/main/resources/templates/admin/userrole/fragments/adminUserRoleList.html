@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(
+        ~{::title},
+        ~{::section},
+        ~{::link}
+      )}">
+<head>
+    <title>관리자 권한</title>
+    <link rel="stylesheet" th:href="@{/css/admin/userrole/admin-user-role.css}">
+</head>
+
+<body>
+<section>
+    <div th:replace="~{admin/userrole/adminUser-tab :: roleTab(activeTab=${activeTab})}"></div>
+</section>
+</body>
+</html>
