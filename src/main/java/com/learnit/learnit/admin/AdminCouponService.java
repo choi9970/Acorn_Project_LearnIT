@@ -1,5 +1,6 @@
 package com.learnit.learnit.admin;
 
+import com.learnit.learnit.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,4 +24,8 @@ public class AdminCouponService {
         adminCouponMapper.insertCoupon(couponDTO);
     }
 
+    //3. 쿠폰 발급 회원 검색
+    public List<UserDTO> searchUsers(String keyword){
+        return adminCouponMapper.searchUsers(keyword);
+    }
 }

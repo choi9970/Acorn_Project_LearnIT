@@ -24,4 +24,27 @@
         VALUES ( #{name}, #{type}, #{discountAmount}, #{minPrice}, #{expireDate})
     </insert>
 
+
+    <!--회원 검색-->
+    <select id="searchUsers" resultType="com.learnit.learnit.user.dto.UserDTO">
+
+        SELECT
+            user_id AS userId,
+            email,
+            name,
+            nickname,
+            phone,
+            status
+        FROM users
+        WHERE status = 'ACTIVE'
+        <if test='keyword != null and keyword != ""'>
+            AND (
+                name LIKE CONCAT('%', #{keyword}, '%')
+                OR email LIKE CONCAT('%', #{keyword}, '%')
+                OR phone LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY created_at DESC
+    </select>
+
 </mapper>

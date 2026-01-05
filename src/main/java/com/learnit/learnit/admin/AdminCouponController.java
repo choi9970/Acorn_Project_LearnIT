@@ -1,11 +1,9 @@
 package com.learnit.learnit.admin;
 
+import com.learnit.learnit.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -38,8 +36,15 @@ public class AdminCouponController {
     @PostMapping("/api/admin/coupons")
     @ResponseBody
     public String create(@RequestBody AdminCouponDTO dto){
-        System.out.println("데이터 확인: " + dto.toString());
         adminCouponService.createCoupon(dto);
         return "success";
     }
+
+    //회원 검색
+    @GetMapping("/api/admin/users/search")
+    @ResponseBody
+    public List<UserDTO> search(@RequestParam(required = false) String keyword){
+        return adminCouponService.searchUsers(keyword);
+    }
+
 }
