@@ -19,13 +19,42 @@ public class AdminCouponService {
         return adminCouponMapper.selectCouponList();
     }
 
-    //2. 새 쿠폰 저장
-    public void createCoupon(AdminCouponDTO couponDTO){
-        adminCouponMapper.insertCoupon(couponDTO);
-    }
-
-    //3. 쿠폰 발급 회원 검색
+    //2. 특정 회원 검색
     public List<UserDTO> searchUsers(String keyword){
         return adminCouponMapper.searchUsers(keyword);
     }
+
+
+    //4. 쿠폰 발급 (여러명)
+    @Transactional
+    public void issueCoupons(AdminCouponDTO adminCouponDTO){
+
+        if (adminCouponDTO.getCouponId() == null) {
+            adminCouponMapper.insertCoupon(adminCouponDTO);
+            if (adminCouponDTO.getCouponId() == null) {
+                throw new IllegalStateException("쿠폰 생성 실패");
+            }
+        }
+
+        Long couponId = adminCouponDTO.getCouponId();
+        List<Long> targetUserIds;
+
+        if (adminCouponDTO.isAllUser()) {
+            targetUserIds = adminCouponMapper.selectAllUserIds();
+        } else {
+            targetUserIds = adminCouponDTO.getUserIds();
+        }
+
+        if (targetUserIds != null && !targetUserIds.isEmpty()) {
+
+            for (Long userId : targetUserIds) {
+                if (!adminCouponMapper.existsUserCoupon(userId, couponId)) {
+                    adminCouponMapper.insertUserCoupon(userId, couponId);
+                }
+            }
+        }else {
+            throw new RuntimeException("발급 대상자가 없습니다.");
+        }
+    }
+
 }

@@ -19,13 +19,21 @@
     </select>
 
     <!--쿠폰 생성-->
-    <insert id="insertCoupon" parameterType="com.learnit.learnit.admin.AdminCouponDTO">
+    <insert id="insertCoupon" parameterType="com.learnit.learnit.admin.AdminCouponDTO"
+            useGeneratedKeys="true" keyProperty="couponId">
         INSERT INTO coupon (name, type, discount_amount, min_price, expire_date)
         VALUES ( #{name}, #{type}, #{discountAmount}, #{minPrice}, #{expireDate})
     </insert>
 
+    <!--전체 회원 검색-->
+    <select id="selectAllUserIds" resultType="long">
+        SELECT user_id
+        FROM users
+        WHERE status = 'ACTIVE'
+    </select>
 
-    <!--회원 검색-->
+
+    <!--특정 회원 검색-->
     <select id="searchUsers" resultType="com.learnit.learnit.user.dto.UserDTO">
 
         SELECT
@@ -45,6 +53,22 @@
             )
         </if>
         ORDER BY created_at DESC
+    </select>
+
+
+    <!--쿠폰 발급-->
+    <insert id="insertUserCoupon">
+        INSERT INTO user_coupon(user_id, coupon_id, is_used, issued_at)
+        VALUES (#{userId}, #{couponId}, 'N', NOW())
+    </insert>
+
+    <!--쿠폰 존재 확인-->
+    <select id="existsUserCoupon" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM user_coupon
+            WHERE user_id = #{userId} AND coupon_id = #{couponId}
+        )
     </select>
 
 </mapper>

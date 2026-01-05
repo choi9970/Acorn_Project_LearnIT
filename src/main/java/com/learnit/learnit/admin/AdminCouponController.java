@@ -2,7 +2,10 @@ package com.learnit.learnit.admin;
 
 import com.learnit.learnit.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +24,9 @@ public class AdminCouponController {
 
     //관리자 - 쿠폰 관리 페이지 이동
     @GetMapping("/admin/coupon")
-    public String adminCouponPage() {
+    public String adminCouponPage(Model model) {
+        List<AdminCouponDTO> couponList = adminCouponService.getCouponList();
+        model.addAttribute("coupons", couponList);
         return "admin/admin-coupon";
     }
 
@@ -32,19 +37,31 @@ public class AdminCouponController {
         return adminCouponService.getCouponList();
     }
 
-    //새 쿠폰 생성
-    @PostMapping("/api/admin/coupons")
-    @ResponseBody
-    public String create(@RequestBody AdminCouponDTO dto){
-        adminCouponService.createCoupon(dto);
-        return "success";
-    }
-
     //회원 검색
     @GetMapping("/api/admin/users/search")
     @ResponseBody
     public List<UserDTO> search(@RequestParam(required = false) String keyword){
         return adminCouponService.searchUsers(keyword);
     }
+
+    //쿠폰 발급
+    @PostMapping("/api/admin/coupons/issue")
+    @ResponseBody
+    public ResponseEntity<String> issue(@RequestBody AdminCouponDTO adminCouponDTO){
+        try {
+            adminCouponService.issueCoupons(adminCouponDTO);
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
+        }
+    }
+
+    //쿠폰만 생성
+//    @PostMapping("/api/admin/coupons")
+//    @ResponseBody
+//    public String create(@RequestBody AdminCouponDTO dto){
+//        adminCouponService.createCoupon(dto);
+//        return "success";
+//    }
 
 }

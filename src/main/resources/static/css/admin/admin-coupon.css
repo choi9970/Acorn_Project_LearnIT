@@ -1,6 +1,5 @@
 /* =========================================================
-   관리자 - 쿠폰 관리 페이지
-   (탭 UI와 톤 통일)
+   관리자 - 쿠폰 관리 페이지 (Final)
    ========================================================= */
 
 /* 전체 래퍼 */
@@ -9,7 +8,7 @@
 }
 
 /* ---------------------------------------------------------
-   섹션 공통 (카드 느낌)
+   섹션 공통 (카드 스타일)
 --------------------------------------------------------- */
 .coupon-section {
     margin-bottom: 3.2rem;
@@ -17,7 +16,7 @@
 
     background: #ffffff;
     border: 0.1rem solid #e5e7eb;
-    border-radius: 0.8rem;
+    border-radius: 1rem;
 }
 
 /* 마지막 섹션 여백 제거 */
@@ -39,8 +38,50 @@
 }
 
 /* ---------------------------------------------------------
-   쿠폰 생성 / 회원 검색 폼
+   라디오 선택 영역
 --------------------------------------------------------- */
+.mode-selector,
+.target-selector {
+    display: flex;
+    gap: 2.4rem;
+}
+
+.mode-selector label,
+.target-selector label {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+}
+
+.mode-selector input,
+.target-selector input {
+    margin-right: 0.6rem;
+}
+
+/* ---------------------------------------------------------
+   폼 공통
+--------------------------------------------------------- */
+.form-control,
+.user-search-form input,
+.user-search-form select {
+    height: 4rem;
+    padding: 0 1.2rem;
+
+    border: 0.1rem solid #d1d5db;
+    border-radius: 0.6rem;
+
+    font-size: 1.4rem;
+}
+
+.form-control:focus,
+.user-search-form input:focus,
+.user-search-form select:focus {
+    outline: none;
+    border-color: #0A4A7A;
+}
+
+/* 신규 쿠폰 생성 / 회원 검색 폼 */
 .coupon-create-form,
 .user-search-form {
     display: flex;
@@ -70,9 +111,71 @@ table th {
     color: #374151;
 }
 
-/* hover (선택감만 살짝) */
+/* hover */
 table tbody tr:hover {
     background: #f8fafc;
+}
+
+/* ---------------------------------------------------------
+   버튼 공통
+--------------------------------------------------------- */
+button {
+    font-family: inherit;
+}
+
+/* 검색 버튼 */
+.btn-search {
+    padding: 0 2rem;
+    height: 4rem;
+
+    background: #111827;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 0.6rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-search:hover {
+    opacity: 0.9;
+}
+
+/* 추가 버튼 */
+.btn-add {
+    padding: 0.6rem 1.4rem;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 0.6rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-add:hover {
+    opacity: 0.9;
+}
+
+/* 리스트 제거 버튼 */
+.btn-remove {
+    padding: 0.6rem 1.4rem;
+
+    background: #374151;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 0.6rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-remove:hover {
+    opacity: 0.9;
 }
 
 /* ---------------------------------------------------------
@@ -92,15 +195,15 @@ table tbody tr:hover {
 
 /* 메인 액션 버튼 */
 .btn-issue-coupon {
-    padding: 1.2rem 2.8rem;
-    font-size: 1.4rem;
+    padding: 1.4rem 3.2rem;
+    font-size: 1.5rem;
     font-weight: 700;
 
     background: #0A4A7A;
     color: #ffffff;
 
     border: none;
-    border-radius: 0.6rem;
+    border-radius: 0.8rem;
     cursor: pointer;
 }
 

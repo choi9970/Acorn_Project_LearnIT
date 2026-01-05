@@ -15,7 +15,17 @@ public interface AdminCouponMapper {
     //2. 새 쿠폰 저장
     void insertCoupon(AdminCouponDTO couponDTO);
 
-    //3. 쿠폰 발급 회원 검색
+    //3. 특정 회원 검색
     List<UserDTO> searchUsers(@Param("keyword") String keyword);
 
+    //4. 전체 회원 검색
+    List<Long> selectAllUserIds();
+
+    //5. 쿠폰 발급
+    void insertUserCoupon(@Param("userId") Long userId,
+                          @Param("couponId") Long couponId);
+
+    //6. 쿠폰 존재 확인
+    boolean existsUserCoupon(@Param("userId") Long userId,
+                             @Param("couponId") Long couponId);
 }

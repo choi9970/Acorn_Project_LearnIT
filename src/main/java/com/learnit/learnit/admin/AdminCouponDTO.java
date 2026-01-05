@@ -2,7 +2,9 @@ package com.learnit.learnit.admin;
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class AdminCouponDTO {
@@ -12,6 +14,10 @@ public class AdminCouponDTO {
     private String type;           // AUTO / MANUAL
     private Integer discountAmount;
     private Integer minPrice;       // 최소 주문 금액
-    private LocalDateTime expireDate;
+    private LocalDate expireDate;
     private LocalDateTime createdAt;
+
+    //쿠폰 발급
+    private List<Long> userIds;
+    private boolean isAllUser;
 }
