@@ -29,7 +29,7 @@ public class CourseQnaService {
         return courseQnaMapper.isSubAdminOfCourse(userId, courseId) > 0;
     }
 
-    private boolean canAnswer(Long userId, Long courseId) {
+    private boolean canAnswerAsAdmin(Long userId, Long courseId) {
         return isAdmin(userId) || isSubAdminOfCourse(userId, courseId);
     }
 
@@ -38,64 +38,59 @@ public class CourseQnaService {
         Long loginUserId = SessionUtils.getLoginUserId();
         boolean isAdmin = (loginUserId != null && isAdmin(loginUserId));
         boolean isSubAdmin = (loginUserId != null && isSubAdminOfCourse(loginUserId, courseId));
-        boolean canAnswer = (loginUserId != null && (isAdmin || isSubAdmin));
+        boolean canAdminAnswer = (loginUserId != null && (isAdmin || isSubAdmin));
 
         List<CourseQnaDto.QuestionRes> questions = courseQnaMapper.selectQuestions(courseId);
         List<CourseQnaDto.AnswerRes> answers = courseQnaMapper.selectAnswers(courseId);
 
-        // 답변을 qnaId 기준 그룹핑
         Map<Long, List<CourseQnaDto.AnswerRes>> byQna = answers.stream()
                 .collect(Collectors.groupingBy(CourseQnaDto.AnswerRes::getQnaId));
 
         for (CourseQnaDto.QuestionRes q : questions) {
-            Long ownerId = q.getUserId();
+            Long questionOwnerId = q.getUserId();
+            boolean isQuestionOwner = (loginUserId != null && Objects.equals(loginUserId, questionOwnerId));
 
-            boolean isOwner = (loginUserId != null && Objects.equals(loginUserId, ownerId));
+            // 질문 수정: 작성자만
+            q.setCanEditQuestion(isQuestionOwner);
 
-// ✅ 수정: 질문 수정은 작성자만
-            q.setCanEditQuestion(isOwner);
+            // 질문 삭제: 작성자 또는 관리자(전체/강의)
+            q.setCanDeleteQuestion(isQuestionOwner || isAdmin || isSubAdmin);
 
-// ✅ 수정: 질문 삭제는 작성자 + 관리자(전체/강의)
-            q.setCanDeleteQuestion(isOwner || isAdmin || isSubAdmin);
-            q.setCanAnswer(canAnswer);
-            q.setCanSetResolved(canAnswer); // 답변 등록/수정 시 해결여부 선택 가능
+            // 관리자 답변 버튼
+            q.setCanAnswer(canAdminAnswer);
 
-            // 답변 트리 구성(부모=null은 상위, 나머지는 children)
+            // ✅ 질문자 댓글 버튼 (원글에만 댓글)
+            q.setCanComment(isQuestionOwner);
+
+            q.setCanSetResolved(canAdminAnswer);
+
             List<CourseQnaDto.AnswerRes> list = byQna.getOrDefault(q.getQnaId(), Collections.emptyList());
 
-            Map<Long, CourseQnaDto.AnswerRes> map = new LinkedHashMap<>();
-            List<CourseQnaDto.AnswerRes> top = new ArrayList<>();
-
             for (CourseQnaDto.AnswerRes a : list) {
-                map.put(a.getAnswerId(), a);
-                a.setChildren(new ArrayList<>());
+                boolean isWriter = (loginUserId != null && Objects.equals(loginUserId, a.getUserId()));
+
+                // 수정: 작성자만
+                a.setCanEdit(isWriter);
+
+                // 삭제: 작성자 본인 OR 관리자(전체/강의)
+                a.setCanDelete(loginUserId != null && (isWriter || isAdmin || isSubAdmin));
+
+                // ✅ 답변에 댓글 다는 기능 자체 제거 (항상 false)
+                a.setCanReply(false);
+
+                // ✅ parentAnswerId는 사용하지 않음 (항상 null로 운영)
+                // 댓글/답변 구분 플래그(프론트 배지용)
+                // - 관리자(전체/강의) 작성이면 답변, 질문자 작성이면 댓글
+                boolean isComment = (a.getParentAnswerId() == null) && Objects.equals(a.getUserId(), questionOwnerId);
+                a.setComment(isComment);
+
+                // children 미사용
+                a.setChildren(Collections.emptyList());
             }
 
-            for (CourseQnaDto.AnswerRes a : list) {
-                // 권한 플래그
-                // - canEdit: 작성자만 true (어드민으로 로그인해도 타인글 수정 버튼 X)
-                // - canDelete: 관리자(전체/강의)만 true  (대댓글도 동일 적용)
-                // - canReply: 질문자만 답변에 대댓글 가능
-                boolean isWriter = (loginUserId != null && Objects.equals(loginUserId, a.getUserId())); // ✅ 수정
-                boolean canEdit = isWriter;                                                            // ✅ 수정
-
-                boolean canDelete = (loginUserId != null && (isAdmin || isSubAdmin));                   // (그대로 OK)
-                boolean canReply = (loginUserId != null && Objects.equals(loginUserId, ownerId));       // (그대로 OK)
-
-                a.setCanEdit(canEdit);
-                a.setCanDelete(canDelete);
-                a.setCanReply(canReply);
-
-                if (a.getParentAnswerId() == null) {
-                    top.add(a);
-                } else {
-                    CourseQnaDto.AnswerRes parent = map.get(a.getParentAnswerId());
-                    if (parent != null) parent.getChildren().add(a);
-                    else top.add(a); // 예외 대비
-                }
-            }
-
-            q.setAnswers(top);
+            // 보기 좋게: 답변/댓글 최신순 또는 원하면 다른 정렬로
+            // (selectAnswers 쿼리의 ORDER BY가 있다면 그대로 따라감)
+            q.setAnswers(list);
         }
 
         return questions;
@@ -130,32 +125,43 @@ public class CourseQnaService {
 
         if (!allow) throw new SecurityException("삭제 권한 없음");
 
-        // 질문 delete_flg=1 => 답변도 조회에서 같이 숨김
         courseQnaMapper.softDeleteQuestion(qnaId);
     }
 
+    /**
+     * ✅ 이제 createAnswer는 "질문(원글)에 다는 답변/댓글"만 허용
+     * - parentAnswerId는 항상 null이어야 함 (답변에 댓글 금지)
+     * - 관리자(전체/강의): 답변 가능 + 해결여부 변경 가능
+     * - 질문자: 댓글 가능(해결여부 변경 불가)
+     */
     @Transactional
     public void createAnswer(CourseQnaDto.AnswerCreateReq req, Long courseId) {
         Long userId = SessionUtils.requireLoginUserId();
 
-        // 답변(상위): 관리자만
-        // 대댓글(답변에 대한 댓글): 질문자만
-        if (req.getParentAnswerId() == null) {
-            if (!canAnswer(userId, courseId)) throw new SecurityException("답변 권한 없음");
-        } else {
-            Long ownerId = courseQnaMapper.selectQuestionOwnerId(req.getQnaId());
-            if (!Objects.equals(ownerId, userId)) throw new SecurityException("대댓글은 질문자만 가능");
+        // ❌ 답변에 대한 댓글(대댓글) 기능 제거: parentAnswerId가 오면 차단
+        if (req.getParentAnswerId() != null) {
+            throw new SecurityException("답변에 댓글을 달 수 없습니다. 질문에만 댓글을 달 수 있어요.");
         }
 
-        courseQnaMapper.insertAnswer(req.getQnaId(), userId, req.getParentAnswerId(), req.getContent());
+        Long questionOwnerId = courseQnaMapper.selectQuestionOwnerId(req.getQnaId());
+        boolean isQuestionOwner = Objects.equals(userId, questionOwnerId);
+        boolean isAdminOrSub = canAnswerAsAdmin(userId, courseId);
 
-        // 답변 등록 시 해결여부 선택값이 오면 반영(관리자만)
-        if (req.getParentAnswerId() == null && req.getIsResolved() != null && canAnswer(userId, courseId)) {
+        // 관리자 또는 질문자만 작성 가능
+        if (!isAdminOrSub && !isQuestionOwner) {
+            throw new SecurityException("작성 권한 없음");
+        }
+
+        // insert (parentAnswerId는 null)
+        courseQnaMapper.insertAnswer(req.getQnaId(), userId, null, req.getContent());
+
+        // 관리자 답변이면 해결여부 반영 가능
+        if (isAdminOrSub && req.getIsResolved() != null) {
             courseQnaMapper.updateQuestionResolved(req.getQnaId(), req.getIsResolved());
         }
 
-        // 질문자가 답변에 대댓글 달면 is_resolved는 자동 N
-        if (req.getParentAnswerId() != null) {
+        // 질문자가 댓글을 달면 미해결 처리(원하면 이 라인 제거 가능)
+        if (isQuestionOwner) {
             courseQnaMapper.updateQuestionResolved(req.getQnaId(), "N");
         }
     }
@@ -164,12 +170,15 @@ public class CourseQnaService {
     public void updateAnswer(Long answerId, CourseQnaDto.AnswerUpdateReq req, Long courseId) {
         Long userId = SessionUtils.requireLoginUserId();
 
-        if (!canAnswer(userId, courseId)) throw new SecurityException("수정 권한 없음");
+        Long ownerId = courseQnaMapper.selectAnswerOwnerId(answerId);
+        boolean isWriter = Objects.equals(userId, ownerId);
+
+        if (!isWriter && !canAnswerAsAdmin(userId, courseId)) throw new SecurityException("수정 권한 없음");
 
         courseQnaMapper.updateAnswer(answerId, req.getContent());
 
-        // 해결여부 변경은 질문에 반영
-        if (req.getIsResolved() != null) {
+        // 해결여부 변경은 관리자만 의미있게 처리 (프론트에서도 관리자 UI에서만 보이게)
+        if (req.getIsResolved() != null && canAnswerAsAdmin(userId, courseId)) {
             Long qnaId = courseQnaMapper.selectAnswerQnaId(answerId);
             courseQnaMapper.updateQuestionResolved(qnaId, req.getIsResolved());
         }
@@ -179,7 +188,11 @@ public class CourseQnaService {
     public void deleteAnswer(Long answerId, Long courseId) {
         Long userId = SessionUtils.requireLoginUserId();
 
-        if (!canAnswer(userId, courseId)) throw new SecurityException("삭제 권한 없음");
+        Long ownerId = courseQnaMapper.selectAnswerOwnerId(answerId);
+        boolean isWriter = Objects.equals(userId, ownerId);
+
+        // 작성자 본인 OR 관리자(전체/강의)
+        if (!isWriter && !canAnswerAsAdmin(userId, courseId)) throw new SecurityException("삭제 권한 없음");
 
         courseQnaMapper.softDeleteAnswer(answerId);
     }

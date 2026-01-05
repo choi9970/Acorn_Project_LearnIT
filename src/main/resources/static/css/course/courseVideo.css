@@ -778,10 +778,11 @@ body {
 }
 
 .qna-item {
-    border: 1px solid #e5e7eb;
+    border: 1px solid #000;
     border-radius: 14px;
-    padding: 12px;
+    padding: 10px;
     background: #fff;
+    margin-bottom: 20px;
 }
 
 .qna-head,
@@ -854,15 +855,26 @@ body {
     margin-top: 10px;
 }
 
+/* ✅ 답변 기본 박스 */
 .qna-answer {
-    border: 1px solid #eef2f7;
-    border-radius: 12px;
-    padding: 10px;
-    background: #f9fafb;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fff;
 }
 
-.qna-answer.child {
-    background: #ffffff;
+/* 대댓글: 같은 레벨이지만 들여쓰기만 */
+.qna-answer.child{
+  margin-left: 24px;
+  border-style: dashed;
+  background: #fafafa;
+}
+
+/* (선택) 대댓글 앞에 표시(↳) 같은 느낌 */
+.qna-answer.child .qna-nick::before {
+  content: "↳ ";
+  opacity: 0.7;
 }
 
 .qna-children {
@@ -887,6 +899,14 @@ body {
     font-size: 13px;
 }
 
+.qna-actions{
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.qna-compose-block { margin-top: 10px; }
+.qna-answers + .qna-compose-block { margin-top: 12px; }
 /* =========================
    Q&A 패널: 전체 스크롤 (courseVideo.css)
 ========================= */

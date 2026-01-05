@@ -38,4 +38,5 @@ public interface CourseQnaMapper {
 
     int updateAnswer(@Param("answerId") Long answerId, @Param("content") String content);
     int softDeleteAnswer(@Param("answerId") Long answerId);
+
 }
