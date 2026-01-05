@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(~{::title}, ~{::content}, ~{::css})}">
+
+<head>
+    <title th:fragment="title">관리자 - 쿠폰 관리</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/admin/adminUser-tab.css}">
+        <link rel="stylesheet" th:href="@{/css/admin/admin-coupon.css}">
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content" class="admin-coupon">
+    <!--    <h2>유저 관리</h2>-->
+
+    <th:block th:replace="admin/adminUser-tab :: tab('coupon')" />
+
+    <!--1. 쿠폰 생성-->
+    <section class="coupon-section coupon-create">
+        <h2 class="section-title">쿠폰 생성</h2>
+
+        <!-- 기존 쿠폰 선택 -->
+        <div class="coupon-select-area">
+            <!-- select box-->
+        </div>
+
+        <!-- 신규 쿠폰 생성 폼-->
+        <form class="coupon-create-form">
+            <!-- 쿠폰명 / 할인 타입 / 할인값 / 기간 -->
+        </form>
+    </section>
+
+    <!--2. 회원 검색-->
+    <section class="coupon-section user-search">
+        <h2 class="section-title">회원 검색</h2>
+
+        <form class="user-search-form">
+            <!-- 이메일 / 이름 / ID -->
+        </form>
+
+        <table class="user-search-result">
+            <!-- 검색 결과 -->
+        </table>
+    </section>
+
+    <!--3. 쿠폰 부여 리스트-->
+    <section class="coupon-section issue-list">
+        <h2 class="section-title">쿠폰 부여 리스트</h2>
+
+        <table class="issue-user-table">
+            <!-- 선택된 유저 -->
+        </table>
+    </section>
+
+    <!--4. 쿠폰 지급-->
+    <section class="coupon-section issue-action">
+        <button type="button" class="btn-issue-coupon">쿠폰 지급</button>
+    </section>
+</div>
+
+</body>

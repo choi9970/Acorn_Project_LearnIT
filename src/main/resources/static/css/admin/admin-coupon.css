@@ -1,0 +1,109 @@
+/* =========================================================
+   관리자 - 쿠폰 관리 페이지
+   (탭 UI와 톤 통일)
+   ========================================================= */
+
+/* 전체 래퍼 */
+.admin-coupon {
+    padding: 2.4rem;
+}
+
+/* ---------------------------------------------------------
+   섹션 공통 (카드 느낌)
+--------------------------------------------------------- */
+.coupon-section {
+    margin-bottom: 3.2rem;
+    padding: 2.4rem;
+
+    background: #ffffff;
+    border: 0.1rem solid #e5e7eb;
+    border-radius: 0.8rem;
+}
+
+/* 마지막 섹션 여백 제거 */
+.coupon-section:last-child {
+    margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------
+   섹션 타이틀
+--------------------------------------------------------- */
+.section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0A4A7A;
+
+    padding-bottom: 1.2rem;
+    margin-bottom: 2rem;
+    border-bottom: 0.1rem solid #e5e7eb;
+}
+
+/* ---------------------------------------------------------
+   쿠폰 생성 / 회원 검색 폼
+--------------------------------------------------------- */
+.coupon-create-form,
+.user-search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.6rem;
+}
+
+/* ---------------------------------------------------------
+   테이블 공통
+--------------------------------------------------------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.4rem;
+}
+
+table th,
+table td {
+    padding: 1.2rem;
+    border-bottom: 0.1rem solid #e5e7eb;
+    text-align: left;
+}
+
+table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* hover (선택감만 살짝) */
+table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* ---------------------------------------------------------
+   쿠폰 부여 리스트 테이블
+--------------------------------------------------------- */
+.issue-user-table {
+    margin-top: 1.2rem;
+}
+
+/* ---------------------------------------------------------
+   쿠폰 지급 버튼 영역
+--------------------------------------------------------- */
+.issue-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* 메인 액션 버튼 */
+.btn-issue-coupon {
+    padding: 1.2rem 2.8rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+
+    background: #0A4A7A;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 0.6rem;
+    cursor: pointer;
+}
+
+.btn-issue-coupon:hover {
+    opacity: 0.9;
+}
