@@ -1,5 +1,7 @@
 package com.learnit.learnit.admin;
 
+import com.learnit.learnit.user.util.SessionUtils;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -26,34 +28,36 @@ public class AdminReviewController {
     @GetMapping
     public String reviewList(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "size", defaultValue = "7") int size,
+            @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "search", required = false) String search,
+            HttpSession session,
             Model model) {
         try {
-            List<AdminReviewDto> reviews = adminReviewService.getReviews(page, size, status, search);
-            int totalCount = adminReviewService.getReviewCount(status, search);
+            Long userId = SessionUtils.getUserId(session);
+            List<AdminReviewDto> reviews = adminReviewService.getReviews(page, size, searchType, search, userId);
+            int totalCount = adminReviewService.getReviewCount(searchType, search, userId);
             int totalPages = (int) Math.ceil((double) totalCount / size);
 
-            log.info("리뷰 목록 조회 완료: page={}, size={}, status={}, search={}, reviews.size()={}, totalCount={}", 
-                page, size, status, search, reviews != null ? reviews.size() : 0, totalCount);
+            log.info("리뷰 목록 조회 완료: page={}, size={}, searchType={}, search={}, userId={}, reviews.size()={}, totalCount={}", 
+                page, size, searchType, search, userId, reviews != null ? reviews.size() : 0, totalCount);
 
             model.addAttribute("reviews", reviews != null ? reviews : new java.util.ArrayList<>());
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("totalCount", totalCount);
-            model.addAttribute("currentStatus", status);
+            model.addAttribute("currentSearchType", searchType);
             model.addAttribute("searchKeyword", search);
             model.addAttribute("pageSize", size);
         } catch (Exception e) {
-            log.error("리뷰 목록 조회 실패: page={}, size={}, status={}, search={}, error={}", 
-                page, size, status, search, e.getMessage(), e);
+            log.error("리뷰 목록 조회 실패: page={}, size={}, searchType={}, search={}, error={}", 
+                page, size, searchType, search, e.getMessage(), e);
             // 에러 발생 시 빈 리스트로 처리
             model.addAttribute("reviews", new java.util.ArrayList<>());
             model.addAttribute("currentPage", 1);
             model.addAttribute("totalPages", 0);
             model.addAttribute("totalCount", 0);
-            model.addAttribute("currentStatus", status);
+            model.addAttribute("currentSearchType", searchType);
             model.addAttribute("searchKeyword", search);
             model.addAttribute("pageSize", size);
             model.addAttribute("errorMessage", "리뷰 목록을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
@@ -81,6 +85,9 @@ public class AdminReviewController {
     @PostMapping("/{reviewId}/approve")
     public String approveReview(
             @PathVariable Long reviewId,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "search", required = false) String search,
             RedirectAttributes redirectAttributes) {
         try {
             adminReviewService.approveReview(reviewId);
@@ -90,6 +97,18 @@ public class AdminReviewController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "리뷰 승인 중 오류가 발생했습니다.");
         }
+        
+        // 페이지 파라미터 유지
+        if (page != null && page > 0) {
+            redirectAttributes.addAttribute("page", page);
+        }
+        if (searchType != null && !searchType.isEmpty()) {
+            redirectAttributes.addAttribute("searchType", searchType);
+        }
+        if (search != null && !search.isEmpty()) {
+            redirectAttributes.addAttribute("search", search);
+        }
+        
         return "redirect:/admin/review";
     }
 
@@ -99,6 +118,9 @@ public class AdminReviewController {
     @PostMapping("/{reviewId}/reject")
     public String rejectReview(
             @PathVariable Long reviewId,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "search", required = false) String search,
             RedirectAttributes redirectAttributes) {
         try {
             adminReviewService.rejectReview(reviewId);
@@ -108,6 +130,18 @@ public class AdminReviewController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "리뷰 거부 중 오류가 발생했습니다.");
         }
+        
+        // 페이지 파라미터 유지
+        if (page != null && page > 0) {
+            redirectAttributes.addAttribute("page", page);
+        }
+        if (searchType != null && !searchType.isEmpty()) {
+            redirectAttributes.addAttribute("searchType", searchType);
+        }
+        if (search != null && !search.isEmpty()) {
+            redirectAttributes.addAttribute("search", search);
+        }
+        
         return "redirect:/admin/review";
     }
 
@@ -118,6 +152,9 @@ public class AdminReviewController {
     public String updateStatus(
             @PathVariable Long reviewId,
             @RequestParam String status,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "search", required = false) String search,
             RedirectAttributes redirectAttributes) {
         try {
             adminReviewService.updateStatus(reviewId, status);
@@ -129,6 +166,18 @@ public class AdminReviewController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "리뷰 상태 변경 중 오류가 발생했습니다.");
         }
+        
+        // 페이지 파라미터 유지
+        if (page != null && page > 0) {
+            redirectAttributes.addAttribute("page", page);
+        }
+        if (searchType != null && !searchType.isEmpty()) {
+            redirectAttributes.addAttribute("searchType", searchType);
+        }
+        if (search != null && !search.isEmpty()) {
+            redirectAttributes.addAttribute("search", search);
+        }
+        
         return "redirect:/admin/review";
     }
 
@@ -138,6 +187,9 @@ public class AdminReviewController {
     @PostMapping("/{reviewId}/delete")
     public String deleteReview(
             @PathVariable Long reviewId,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "search", required = false) String search,
             RedirectAttributes redirectAttributes) {
         try {
             adminReviewService.deleteReview(reviewId);
@@ -147,6 +199,55 @@ public class AdminReviewController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "리뷰 삭제 중 오류가 발생했습니다.");
         }
+        
+        // 페이지 파라미터 유지
+        if (page != null && page > 0) {
+            redirectAttributes.addAttribute("page", page);
+        }
+        if (searchType != null && !searchType.isEmpty()) {
+            redirectAttributes.addAttribute("searchType", searchType);
+        }
+        if (search != null && !search.isEmpty()) {
+            redirectAttributes.addAttribute("search", search);
+        }
+        
+        return "redirect:/admin/review";
+    }
+
+    /**
+     * 리뷰 업데이트 (내용, 평점, 상태)
+     */
+    @PostMapping("/{reviewId}/update")
+    public String updateReview(
+            @PathVariable Long reviewId,
+            @RequestParam String content,
+            @RequestParam Integer rating,
+            @RequestParam String commentStatus,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "search", required = false) String search,
+            RedirectAttributes redirectAttributes) {
+        try {
+            adminReviewService.updateReview(reviewId, content, rating, commentStatus);
+            redirectAttributes.addFlashAttribute("successMessage", "리뷰가 수정되었습니다.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            log.error("리뷰 업데이트 실패: reviewId={}, error={}", reviewId, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMessage", "리뷰 수정 중 오류가 발생했습니다.");
+        }
+        
+        // 페이지 파라미터 유지
+        if (page != null && page > 0) {
+            redirectAttributes.addAttribute("page", page);
+        }
+        if (searchType != null && !searchType.isEmpty()) {
+            redirectAttributes.addAttribute("searchType", searchType);
+        }
+        if (search != null && !search.isEmpty()) {
+            redirectAttributes.addAttribute("search", search);
+        }
+        
         return "redirect:/admin/review";
     }
 }

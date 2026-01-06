@@ -76,7 +76,10 @@
 
         <!-- 수료증 섹션 -->
         <section class="profile-section certificate-section">
-            <h2 class="section-title">수료증</h2>
+            <div class="section-header">
+                <h2 class="section-title">수료증</h2>
+                <button class="view-all-link" id="view-all-certificates-btn" style="background: none; border: none; cursor: pointer; color: #666; text-decoration: none; font-size: 1.4rem;">전체 보기 ></button>
+            </div>
             <div class="certificate-content">
                 <div th:if="${certificates != null && !certificates.isEmpty()}" class="certificate-list">
                     <div th:each="cert : ${certificates}" class="certificate-item">
@@ -93,6 +96,21 @@
                 <p th:if="${certificates == null || certificates.isEmpty()}" class="empty-message">수료증이 없습니다.</p>
             </div>
         </section>
+
+        <!-- 수료증 전체 보기 모달 -->
+        <div class="modal-overlay" id="certificates-modal">
+            <div class="modal-content certificates-modal-content">
+                <div class="modal-header">
+                    <h2>수료증 전체 보기</h2>
+                    <button class="modal-close" id="close-certificates-modal">×</button>
+                </div>
+                <div class="modal-body certificates-modal-body">
+                    <div id="certificates-list">
+                        <p class="loading-message">수료증 목록을 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- GitHub 분석 결과 섹션 -->
         <section class="profile-section github-analysis-section">

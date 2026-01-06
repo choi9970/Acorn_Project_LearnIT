@@ -4,6 +4,7 @@ import com.learnit.learnit.mypage.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -55,5 +56,18 @@ public interface DashboardRepository {
     
     // 할일 ID로 조회
     TodoDTO selectTodoById(@Param("todoId") Long todoId, @Param("userId") Long userId);
+    
+    // 월별 할일 목록 조회 (미완료만)
+    List<TodoDTO> selectTodosByMonth(
+            @Param("userId") Long userId,
+            @Param("year") Integer year,
+            @Param("month") Integer month
+    );
+
+    // 일일 학습 목표 저장 또는 업데이트
+    void upsertDailyGoal(DailyGoalDTO goal);
+
+    // 현재 주의 목표 조회
+    DailyGoalDTO selectCurrentDailyGoal(@Param("userId") Long userId, @Param("startDate") LocalDate startDate);
 }
 

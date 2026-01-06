@@ -9,7 +9,9 @@
     </select>
 
     <select id="countPendingQnas" resultType="int">
-        SELECT COUNT(*) FROM qna_question WHERE is_resolved = 'N'
+        SELECT COUNT(*) FROM qna_question 
+        WHERE is_resolved = 'N' 
+          AND delete_flg = 0
     </select>
 
     <select id="countPendingReviews" resultType="int">

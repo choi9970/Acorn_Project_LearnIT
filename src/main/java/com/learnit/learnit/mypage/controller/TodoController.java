@@ -41,18 +41,26 @@ public class TodoController {
     /**
      * 할일 저장 (AJAX용)
      */
-    @PostMapping("/save")
+    @PostMapping(value = "/save", produces = "application/json")
     @ResponseBody
     public Map<String, Object> saveTodo(@RequestBody TodoDTO todo, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         
         try {
+            System.out.println("=== 할일 저장 요청 수신 ===");
+            System.out.println("TodoDTO: " + todo);
+            System.out.println("Title: " + todo.getTitle());
+            System.out.println("TargetDate: " + todo.getTargetDate());
+            
             Long userId = SessionUtils.getUserId(session);
             if (userId == null) {
+                System.out.println("로그인 필요: userId is null");
                 response.put("success", false);
                 response.put("error", "로그인이 필요한 서비스입니다.");
                 return response;
             }
+            System.out.println("UserId: " + userId);
+            
             todo.setUserId(userId);
             
             // description이 null인 경우 빈 문자열로 설정
@@ -61,17 +69,22 @@ public class TodoController {
             }
             
             TodoDTO savedTodo = todoService.saveTodo(todo);
+            System.out.println("Saved Todo: " + savedTodo);
             
             if (savedTodo == null || savedTodo.getTodoId() == null) {
+                System.out.println("할일 저장 실패: savedTodo is null or todoId is null");
                 response.put("success", false);
                 response.put("error", "할일 저장 후 데이터를 가져올 수 없습니다.");
                 return response;
             }
             
+            System.out.println("할일 저장 성공: todoId=" + savedTodo.getTodoId());
             response.put("success", true);
             response.put("todo", savedTodo);
             return response;
         } catch (Exception e) {
+            System.out.println("할일 저장 예외 발생: " + e.getMessage());
+            e.printStackTrace();
             response.put("success", false);
             response.put("error", e.getMessage());
             return response;

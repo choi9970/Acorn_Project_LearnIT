@@ -5,6 +5,22 @@
 <!-- review 테이블 기반 SQL 정의(리스트, 상세, 상태변경, 삭제) -->
 <mapper namespace="com.learnit.learnit.admin.AdminReviewRepository">
 
+    <!-- 사용자가 전체 권한(course_id가 NULL)을 가지고 있는지 확인 -->
+    <select id="hasFullAdminAccess" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM admin_user_role
+        WHERE user_id = #{userId}
+          AND course_id IS NULL
+    </select>
+
+    <!-- 사용자가 관리하는 강의 ID 목록 조회 (서브 어드민 필터링용) -->
+    <select id="selectManagedCourseIds" resultType="int">
+        SELECT DISTINCT course_id
+        FROM admin_user_role
+        WHERE user_id = #{userId}
+          AND course_id IS NOT NULL
+    </select>
+
     <!-- 리뷰 목록 조회 -->
     <select id="selectReviews" resultType="com.learnit.learnit.admin.AdminReviewDto">
         SELECT 
@@ -24,15 +40,24 @@
         JOIN users u ON r.user_id = u.user_id
         <where>
             AND r.delete_flg = 0
-            <if test="status != null and status != ''">
-                AND COALESCE(r.comment_status, 'Active') = #{status}
+            <if test="searchType != null and searchType != '' and searchKeyword != null and searchKeyword != ''">
+                <choose>
+                    <when test="searchType == 'courseId'">
+                        AND r.course_id = CAST(#{searchKeyword} AS UNSIGNED)
+                    </when>
+                    <when test="searchType == 'courseTitle'">
+                        AND c.title LIKE CONCAT('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchType == 'userName'">
+                        AND u.name LIKE CONCAT('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
             </if>
-            <if test="searchKeyword != null and searchKeyword != ''">
-                AND (
-                    c.title LIKE CONCAT('%', #{searchKeyword}, '%')
-                    OR u.name LIKE CONCAT('%', #{searchKeyword}, '%')
-                    OR r.content LIKE CONCAT('%', #{searchKeyword}, '%')
-                )
+            <if test="managedCourseIds != null and managedCourseIds.size() > 0">
+                AND c.course_id IN
+                <foreach collection="managedCourseIds" item="courseId" open="(" separator="," close=")">
+                    #{courseId}
+                </foreach>
             </if>
         </where>
         ORDER BY r.created_at DESC
@@ -47,15 +72,24 @@
         JOIN users u ON r.user_id = u.user_id
         <where>
             AND r.delete_flg = 0
-            <if test="status != null and status != ''">
-                AND COALESCE(r.comment_status, 'Active') = #{status}
+            <if test="searchType != null and searchType != '' and searchKeyword != null and searchKeyword != ''">
+                <choose>
+                    <when test="searchType == 'courseId'">
+                        AND r.course_id = CAST(#{searchKeyword} AS UNSIGNED)
+                    </when>
+                    <when test="searchType == 'courseTitle'">
+                        AND c.title LIKE CONCAT('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchType == 'userName'">
+                        AND u.name LIKE CONCAT('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
             </if>
-            <if test="searchKeyword != null and searchKeyword != ''">
-                AND (
-                    c.title LIKE CONCAT('%', #{searchKeyword}, '%')
-                    OR u.name LIKE CONCAT('%', #{searchKeyword}, '%')
-                    OR r.content LIKE CONCAT('%', #{searchKeyword}, '%')
-                )
+            <if test="managedCourseIds != null and managedCourseIds.size() > 0">
+                AND c.course_id IN
+                <foreach collection="managedCourseIds" item="courseId" open="(" separator="," close=")">
+                    #{courseId}
+                </foreach>
             </if>
         </where>
     </select>
@@ -110,6 +144,16 @@
         SET delete_flg = 1,
             updated_at = NOW()
         WHERE review_id = #{reviewId}
+    </update>
+
+    <!-- 리뷰 업데이트 (내용, 평점, 상태) -->
+    <update id="updateReview">
+        UPDATE review
+        SET content = #{content},
+            rating = #{rating},
+            comment_status = #{commentStatus},
+            updated_at = NOW()
+        WHERE review_id = #{reviewId} AND delete_flg = 0
     </update>
 
 </mapper>

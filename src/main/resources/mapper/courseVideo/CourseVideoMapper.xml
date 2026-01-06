@@ -104,4 +104,21 @@
           AND course_id = #{courseId}
     </select>
 
+    <!-- 인터프리터 실행 로그 저장 -->
+    <insert id="insertInterpreterLog">
+        INSERT INTO interpreter_log (
+            user_id,
+            course_id,
+            chapter_id,
+            language_id,
+            executed_at
+        ) VALUES (
+            #{userId},
+            #{courseId},
+            #{chapterId},
+            #{languageId},
+            NOW()
+        )
+    </insert>
+
 </mapper>

@@ -16,16 +16,18 @@ public interface AdminReviewRepository {
     List<AdminReviewDto> selectReviews(
         @Param("offset") int offset,
         @Param("limit") int limit,
-        @Param("status") String status,
-        @Param("searchKeyword") String searchKeyword
+        @Param("searchType") String searchType,
+        @Param("searchKeyword") String searchKeyword,
+        @Param("managedCourseIds") List<Integer> managedCourseIds
     );
 
     /**
      * 리뷰 총 개수 조회
      */
     int countReviews(
-        @Param("status") String status,
-        @Param("searchKeyword") String searchKeyword
+        @Param("searchType") String searchType,
+        @Param("searchKeyword") String searchKeyword,
+        @Param("managedCourseIds") List<Integer> managedCourseIds
     );
 
     /**
@@ -52,5 +54,25 @@ public interface AdminReviewRepository {
      * 리뷰 삭제
      */
     void deleteReview(@Param("reviewId") Long reviewId);
+
+    /**
+     * 사용자가 전체 권한(course_id가 NULL)을 가지고 있는지 확인
+     */
+    boolean hasFullAdminAccess(@Param("userId") Long userId);
+
+    /**
+     * 사용자가 관리하는 강의 ID 목록 조회 (서브 어드민 필터링용)
+     */
+    List<Integer> selectManagedCourseIds(@Param("userId") Long userId);
+
+    /**
+     * 리뷰 업데이트 (내용, 평점, 상태)
+     */
+    void updateReview(
+        @Param("reviewId") Long reviewId,
+        @Param("content") String content,
+        @Param("rating") Integer rating,
+        @Param("commentStatus") String commentStatus
+    );
 }
 

@@ -25,13 +25,13 @@
     <!-- 검색 및 필터 -->
     <div class="review-filters">
       <form method="get" action="/admin/review" class="filter-form">
-        <select name="status" class="filter-select">
-          <option value="">전체 상태</option>
-          <option value="Active" th:selected="${currentStatus == 'Active'}">대기</option>
-          <option value="Approved" th:selected="${currentStatus == 'Approved'}">승인</option>
-          <option value="Rejected" th:selected="${currentStatus == 'Rejected'}">거부</option>
+        <select name="searchType" class="filter-select">
+          <option value="">선택</option>
+          <option value="courseId" th:selected="${currentSearchType == 'courseId'}">강좌 ID</option>
+          <option value="courseTitle" th:selected="${currentSearchType == 'courseTitle'}">강좌명</option>
+          <option value="userName" th:selected="${currentSearchType == 'userName'}">작성자</option>
         </select>
-        <input type="text" name="search" placeholder="강의명, 사용자명, 내용 검색" 
+        <input type="text" name="search" placeholder="검색어 입력" 
                th:value="${searchKeyword}" class="search-input">
         <button type="submit" class="btn-search">검색</button>
         <a href="/admin/review" class="btn-reset">초기화</a>
@@ -55,34 +55,39 @@
           </tr>
         </thead>
         <tbody>
-          <tr th:each="review : ${reviews}">
+          <th:block th:each="review : ${reviews}">
+          <tr class="review-row clickable-row" 
+              th:attr="data-review-id=${review.reviewId}"
+              onclick="toggleAccordionByRow(this)">
             <td th:text="${review.reviewId}">1</td>
             <td th:text="${review.courseId}">1</td>
-            <td>
+            <td onclick="event.stopPropagation();">
               <a th:href="@{'/admin/review/' + ${review.reviewId}}" class="course-link" 
                  th:text="${review.courseTitle != null ? review.courseTitle : '강의명 없음'}">강의명</a>
+              <span th:if="${review.courseId != null}">
+                <a th:href="@{'/CourseDetail?courseId=' + ${review.courseId}}" 
+                   target="_blank" 
+                   class="course-detail-link" 
+                   style="margin-left: 8px; color: #007bff; text-decoration: none; font-size: 12px;">
+                  [강의 상세보기]
+                </a>
+              </span>
             </td>
             <td th:text="${review.userName != null ? review.userName : '작성자 없음'}">작성자</td>
             <td>
               <span class="rating" th:text="'★ ' + ${review.rating != null ? review.rating : 0}">★ 5</span>
             </td>
             <td>
-              <form th:action="@{'/admin/review/' + ${review.reviewId} + '/update-status'}" 
-                    method="post" style="display: inline-block;">
-                <select name="status" class="status-select" 
-                        th:onchange="'this.form.submit()'"
-                        style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px;">
-                  <option value="Active" th:selected="${review.commentStatus == 'Active'}">대기</option>
-                  <option value="Approved" th:selected="${review.commentStatus == 'Approved'}">승인</option>
-                  <option value="Rejected" th:selected="${review.commentStatus == 'Rejected'}">거부</option>
-                </select>
-              </form>
+              <span class="status-badge" 
+                    th:classappend="${review.commentStatus == 'Active'} ? 'status-active' : 
+                                   (${review.commentStatus == 'Approved'} ? 'status-approved' : 'status-rejected')"
+                    th:text="${review.commentStatus != null ? review.commentStatus : 'Active'}">Active</span>
             </td>
             <td class="comment-cell">
               <span th:text="${review.comment != null ? #strings.abbreviate(review.comment, 50) : '내용 없음'}">리뷰 내용...</span>
             </td>
             <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd') : '-'}">2024-01-01</td>
-            <td class="action-cell">
+            <td class="action-cell" onclick="event.stopPropagation();">
               <div class="action-buttons">
                 <form th:action="@{'/admin/review/' + ${review.reviewId} + '/delete'}" 
                       method="post" style="display: inline;"
@@ -92,6 +97,143 @@
               </div>
             </td>
           </tr>
+          <tr class="accordion-row" th:attr="data-review-id=${review.reviewId}">
+            <td colspan="9" class="accordion-content">
+              <div class="accordion-panel">
+                <!-- 기본 정보 섹션 -->
+                <div class="detail-section">
+                  <h3>기본 정보</h3>
+                  <table class="detail-table">
+                    <tr>
+                      <th>리뷰 ID</th>
+                      <td th:text="${review.reviewId}">1</td>
+                    </tr>
+                    <tr>
+                      <th>강의명</th>
+                      <td>
+                        <span th:text="${review.courseTitle != null ? review.courseTitle : '강의명 없음'}">강의명</span>
+                        <span th:if="${review.courseId != null}">
+                          <a th:href="@{'/CourseDetail?courseId=' + ${review.courseId}}" 
+                             target="_blank" 
+                             class="course-detail-link" 
+                             style="margin-left: 8px; color: #007bff; text-decoration: none;">
+                            [강의 상세보기]
+                          </a>
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>사용자</th>
+                      <td th:text="${review.userName != null ? (review.userName + (review.userEmail != null ? ' (' + review.userEmail + ')' : '')) : '작성자 없음'}">사용자명 (email@example.com)</td>
+                    </tr>
+                    <tr>
+                      <th>평점</th>
+                      <td>
+                        <span class="rating" th:text="'★ ' + ${review.rating != null ? review.rating : 0}">★ 5</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>상태</th>
+                      <td>
+                        <span class="status-badge" 
+                              th:classappend="${review.commentStatus == 'Active'} ? 'status-active' : 
+                                             (${review.commentStatus == 'Approved'} ? 'status-approved' : 'status-rejected')"
+                              th:text="${review.commentStatus != null ? review.commentStatus : 'Active'}">Active</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>작성일</th>
+                      <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : '-'}">2024-01-01 12:00:00</td>
+                    </tr>
+                    <tr>
+                      <th>수정일</th>
+                      <td th:text="${review.updatedAt != null ? #temporals.format(review.updatedAt, 'yyyy-MM-dd HH:mm:ss') : '-'}">2024-01-01 12:00:00</td>
+                    </tr>
+                  </table>
+                </div>
+
+                <!-- 리뷰 내용 섹션 -->
+                <div class="detail-section">
+                  <h3>리뷰 내용</h3>
+                  <div class="review-content">
+                    <p th:text="${review.comment != null ? review.comment : '내용 없음'}">리뷰 내용...</p>
+                  </div>
+                </div>
+
+                <!-- 편집 폼 -->
+                <div class="detail-section">
+                  <h3>리뷰 수정</h3>
+                  <form th:action="@{'/admin/review/' + ${review.reviewId} + '/update'}" method="post" class="review-edit-form">
+                    <input type="hidden" name="page" th:value="${currentPage}">
+                    <input type="hidden" name="searchType" th:value="${currentSearchType}">
+                    <input type="hidden" name="search" th:value="${searchKeyword}">
+                    <div class="form-group">
+                      <label th:attr="for='content-' + ${review.reviewId}">리뷰 내용</label>
+                      <textarea name="content" th:attr="id='content-' + ${review.reviewId}" class="form-control" rows="5" required
+                                th:text="${review.comment != null ? review.comment : ''}"></textarea>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label th:attr="for='rating-' + ${review.reviewId}">평점</label>
+                        <select name="rating" th:attr="id='rating-' + ${review.reviewId}" class="form-control" required>
+                          <option value="1" th:selected="${review.rating == 1}">1</option>
+                          <option value="2" th:selected="${review.rating == 2}">2</option>
+                          <option value="3" th:selected="${review.rating == 3}">3</option>
+                          <option value="4" th:selected="${review.rating == 4}">4</option>
+                          <option value="5" th:selected="${review.rating == 5}">5</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label th:attr="for='commentStatus-' + ${review.reviewId}">상태</label>
+                        <select name="commentStatus" th:attr="id='commentStatus-' + ${review.reviewId}" class="form-control" required>
+                          <option value="Active" th:selected="${review.commentStatus == 'Active'}">Active</option>
+                          <option value="Approved" th:selected="${review.commentStatus == 'Approved'}">Approved</option>
+                          <option value="Rejected" th:selected="${review.commentStatus == 'Rejected'}">Rejected</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-actions">
+                      <button type="submit" class="btn-save">저장</button>
+                      <button type="button" class="btn-cancel" 
+                              th:attr="data-review-id=${review.reviewId}"
+                              onclick="toggleAccordion(this)">취소</button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- 액션 버튼들 -->
+                <div class="detail-actions">
+                  <form th:action="@{'/admin/review/' + ${review.reviewId} + '/approve'}" method="post" style="display: inline;">
+                    <input type="hidden" name="page" th:value="${currentPage}">
+                    <input type="hidden" name="searchType" th:value="${currentSearchType}">
+                    <input type="hidden" name="search" th:value="${searchKeyword}">
+                    <button type="submit" class="btn-approve">승인(APPROVE)</button>
+                  </form>
+                  <form th:action="@{'/admin/review/' + ${review.reviewId} + '/reject'}" method="post" style="display: inline;">
+                    <input type="hidden" name="page" th:value="${currentPage}">
+                    <input type="hidden" name="searchType" th:value="${currentSearchType}">
+                    <input type="hidden" name="search" th:value="${searchKeyword}">
+                    <button type="submit" class="btn-reject">거부(REJECT)</button>
+                  </form>
+                  <form th:action="@{'/admin/review/' + ${review.reviewId} + '/update-status'}" method="post" style="display: inline;">
+                    <input type="hidden" name="status" value="Active">
+                    <input type="hidden" name="page" th:value="${currentPage}">
+                    <input type="hidden" name="searchType" th:value="${currentSearchType}">
+                    <input type="hidden" name="search" th:value="${searchKeyword}">
+                    <button type="submit" class="btn-pass">대기(PASS)</button>
+                  </form>
+                  <form th:action="@{'/admin/review/' + ${review.reviewId} + '/delete'}" method="post" style="display: inline;"
+                        onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <input type="hidden" name="page" th:value="${currentPage}">
+                    <input type="hidden" name="searchType" th:value="${currentSearchType}">
+                    <input type="hidden" name="search" th:value="${searchKeyword}">
+                    <button type="submit" class="btn-delete">삭제</button>
+                  </form>
+                </div>
+              </div>
+            </td>
+          </tr>
+          </th:block>
           <tr th:if="${reviews == null or #lists.isEmpty(reviews)}">
             <td colspan="9" class="empty-message">등록된 리뷰가 없습니다.</td>
           </tr>
@@ -102,16 +244,16 @@
     <!-- 페이징 -->
     <div class="pagination" th:if="${totalPages > 1}">
       <a th:if="${currentPage > 1}" 
-         th:href="@{/admin/review(page=${currentPage - 1}, status=${currentStatus}, search=${searchKeyword})}" 
+         th:href="@{/admin/review(page=${currentPage - 1}, searchType=${currentSearchType}, search=${searchKeyword})}" 
          class="page-link">이전</a>
       <span th:each="i : ${#numbers.sequence(1, totalPages)}" class="page-number">
         <a th:if="${i != currentPage}" 
-           th:href="@{/admin/review(page=${i}, status=${currentStatus}, search=${searchKeyword})}" 
+           th:href="@{/admin/review(page=${i}, searchType=${currentSearchType}, search=${searchKeyword})}" 
            th:text="${i}">1</a>
         <strong th:if="${i == currentPage}" th:text="${i}">1</strong>
       </span>
       <a th:if="${currentPage < totalPages}" 
-         th:href="@{/admin/review(page=${currentPage + 1}, status=${currentStatus}, search=${searchKeyword})}" 
+         th:href="@{/admin/review(page=${currentPage + 1}, searchType=${currentSearchType}, search=${searchKeyword})}" 
          class="page-link">다음</a>
     </div>
 
@@ -119,7 +261,8 @@
       <p>총 <strong th:text="${totalCount}">0</strong>개의 리뷰</p>
     </div>
   </div>
+
+  <script th:src="@{/js/admin/review.js}"></script>
 </section>
 </body>
 </html>
-
