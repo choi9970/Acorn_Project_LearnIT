@@ -1,4 +1,4 @@
-package com.learnit.learnit.admin;
+package com.learnit.learnit.admin.coupon;
 
 import lombok.Data;
 

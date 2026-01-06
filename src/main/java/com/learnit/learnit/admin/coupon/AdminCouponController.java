@@ -1,4 +1,4 @@
-package com.learnit.learnit.admin;
+package com.learnit.learnit.admin.coupon;
 
 import com.learnit.learnit.payment.common.LoginRequiredException;
 import com.learnit.learnit.user.dto.UserDTO;
