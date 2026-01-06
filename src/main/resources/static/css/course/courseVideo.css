@@ -707,3 +707,237 @@ body {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* =========================
+   Q&A Panel
+   ========================= */
+/* =========================
+   Q&A Panel
+   ========================= */
+.qna-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.qna-compose textarea,
+.qna-ta {
+    width: 100%;
+    min-height: 84px;
+    resize: vertical;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.qna-compose-actions,
+.qna-row {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.qna-btn {
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.qna-btn.primary {
+    background: #111827;
+    color: #fff;
+    border-color: #111827;
+}
+
+.qna-link {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: #374151;
+    padding: 0 4px;
+}
+
+.qna-link.danger {
+    color: #dc2626;
+}
+
+.qna-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.qna-item {
+    border: 1px solid #000;
+    border-radius: 14px;
+    padding: 10px;
+    background: #fff;
+    margin-bottom: 20px;
+}
+
+.qna-head,
+.qna-answer-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.qna-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.qna-nick {
+    font-weight: 700;
+    color: #111827;
+}
+
+.qna-time {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.qna-dot {
+    color: #9ca3af;
+}
+
+.qna-badge {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+}
+
+.qna-badge.pending {
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+.qna-badge.resolved {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+}
+
+.qna-content {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #111827;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.qna-answer-area {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #e5e7eb;
+}
+
+.qna-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* ✅ 답변 기본 박스 */
+.qna-answer {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fff;
+}
+
+/* 대댓글: 같은 레벨이지만 들여쓰기만 */
+.qna-answer.child{
+  margin-left: 24px;
+  border-style: dashed;
+  background: #fafafa;
+}
+
+/* (선택) 대댓글 앞에 표시(↳) 같은 느낌 */
+.qna-answer.child .qna-nick::before {
+  content: "↳ ";
+  opacity: 0.7;
+}
+
+.qna-children {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.qna-select-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #374151;
+}
+
+.qna-select {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+.qna-actions{
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.qna-compose-block { margin-top: 10px; }
+.qna-answers + .qna-compose-block { margin-top: 12px; }
+/* =========================
+   Q&A 패널: 전체 스크롤 (courseVideo.css)
+========================= */
+
+/* 사이드 패널이 화면 높이를 갖도록 */
+.side-panel-wrapper {
+  height: 100vh;
+}
+
+/* 패널 박스는 세로 레이아웃 */
+.panel-content-box .panel-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* ✅ flex 스크롤 필수 */
+}
+
+/* 헤더는 고정 */
+.panel-content-box .panel-header {
+  flex: 0 0 auto;
+}
+
+/* ✅ body가 남은 영역 차지 + 여기서 스크롤 */
+#content-qna .panel-body.qna-panel {
+  flex: 1 1 auto;
+  min-height: 0;      /* ✅ 이것 없으면 스크롤 안 생기는 경우 많음 */
+  overflow-y: auto;   /* ✅ Q&A 전체 스크롤 */
+  padding-right: 8px;
+}
+
+/* responsive */
+@media (max-width: 768px) {
+    .qna-item { padding: 10px; }
+}

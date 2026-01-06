@@ -9,9 +9,32 @@
         <div th:replace="~{courseVideo/fragments/videoInterpreter :: interpreterContent}"></div>
     </div>
     <div id="content-qna" class="panel-content-box" style="display:none;">
-        <div class="panel-header"><h3>Q&A</h3><button onclick="closePanel()" class="close-btn">×</button></div>
-        <div class="panel-body"><p style="padding:20px; text-align:center;">질문 내역이 없습니다.</p></div>
+        <div class="panel-inner">
+            <div class="panel-header">
+                <h3>Q&A</h3>
+                <button onclick="closePanel()" class="close-btn">×</button>
+            </div>
+
+            <div class="panel-body qna-panel">
+                <!-- 질문 작성 -->
+                <div class="qna-compose">
+                    <textarea id="qna-new-content" placeholder="이 강의에 대해 질문을 남겨보세요."></textarea>
+                    <div class="qna-compose-actions">
+                        <button class="qna-btn primary" id="qna-btn-create">등록</button>
+                    </div>
+                    <div class="qna-hint" id="qna-compose-hint"></div>
+                </div>
+
+                <!-- 질문 리스트 -->
+                <div class="qna-list" id="qna-list">
+                    <div class="qna-empty" id="qna-empty" style="display:none;">
+                        질문 내역이 없습니다.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <div th:replace="~{courseVideo/fragments/videoFile :: resourceContent}"></div>
 </div>
 </html>

@@ -20,7 +20,7 @@
             <div class="header-center">
                 <nav class="gnb">
                     <div class="gnb-item has-sub">
-                        <a th:href="@{/CourseList}">강의목록</a>
+                        <a th:href="@{/CourseList}" class="gnb-link menu-link">강의목록</a>
                         <div class="submenu">
                             <a th:each="cat : ${categories}"
                                th:text="${cat.name}"
@@ -29,8 +29,8 @@
                         </div>
                     </div>
 
-                    <a th:href="@{/mapper/quiz}" class="gnb-item">퀴즈</a>
-                    <a th:href="@{/community}" class="gnb-item">커뮤니티</a>
+                    <a th:href="@{/mapper/quiz}" class="gnb-item gnb-link">퀴즈</a>
+                    <a th:href="@{/community}" class="gnb-item gnb-link">커뮤니티</a>
                 </nav>
 
                 <form class="header-search" th:action="@{/search}" method="get">
@@ -55,15 +55,13 @@
                         <a th:href="@{/login(redirect=${currentUrl})}" class="login-btn">로그인/회원가입</a>
                     </th:block>
                 </th:block>
-
                 <th:block th:if="${loginUserId != null}">
                     <a th:href="@{/mypage}" class="user-name" th:text="${loginUserName} + '님'"></a>
-                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
                         <button type="submit" class="logout-btn">로그아웃</button>
                     </form>
                 </th:block>
             </div>
-
 
         </div>
     </header>
@@ -73,6 +71,7 @@
         <div class="mobile-nav__overlay" id="mobile-nav-overlay"></div>
 
         <div class="mobile-nav__panel">
+
             <div class="mobile-nav__header">
                 <div class="mobile-nav__logo-wrap">
                     <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="mobile-nav__logo">
@@ -125,13 +124,11 @@
 
                         <!-- 오른쪽 아이콘: 토글만 -->
                         <button class="mobile-course-toggle" id="mobileCourseToggle"
-                                type="button" aria-label="모바일 강의목록 카테고리 열기">
-                            <!-- ⚠️ 아이콘 경로는 네 프로젝트 실제 위치에 맞춰 유지 -->
+                                type="button" aria-label="카테고리 열기">
                             <img th:src="@{/images/admin/icon-admin-down-arrow.png}" alt="열기" class="mobile-submenu-icon">
                         </button>
                     </div>
 
-                    <!-- ✅ 기본은 닫힘 / 아이콘 눌렀을 때만 열림 -->
                     <div class="mobile-submenu" id="mobileCourseSubmenu">
                         <a th:each="cat : ${categories}"
                            th:text="${cat.name}"
@@ -140,17 +137,15 @@
                     </div>
                 </li>
 
-                <!-- 모바일 퀴즈: 클릭하면 이동 -->
                 <li class="mobile-nav__item">
                     <a class="mobile-nav__link" th:href="@{/mapper/quiz}">퀴즈</a>
                 </li>
 
-                <!-- 모바일 커뮤니티: 클릭하면 이동 -->
                 <li class="mobile-nav__item">
                     <a class="mobile-nav__link" th:href="@{/community}">커뮤니티</a>
                 </li>
             </ul>
+
         </div>
     </nav>
 </th:block>
-</html>

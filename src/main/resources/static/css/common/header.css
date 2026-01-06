@@ -1,225 +1,185 @@
 .site-header {
-    border-bottom: 1px solid var(--border-light);
-    background-color: #fff;
+  border-bottom: 1px solid var(--border-light);
+  background-color: #fff;
 }
 
 .header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.4rem;
+  flex-wrap: nowrap;
 }
 
 /* 로고 */
 .logo {
-    height: 80px;
-    display: flex;
-    align-items: center;
+  height: 80px;
+  display: flex;
+  align-items: center;
 }
 
 .logo-img {
-    height: 100px;
-    width: auto;
-    display: block;
+  height: 100px;
+  width: auto;
+  display: block;
 }
 
-/* 메뉴 + 검색 */
+/* 가운데 메뉴 + 검색 */
 .header-center {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 3.2rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 3.2rem;
+  min-width: 0;
 }
 
 .gnb {
-    display: flex;
-    align-items: center;
-    gap: 4rem;
-    font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  font-size: 1.4rem;
+  flex-wrap: nowrap;
+}
+
+.gnb a,
+.gnb-item,
+.gnb-link {
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .gnb-item {
-    color: var(--text-light);
-    padding: 0.4rem 0;
+  color: var(--text-light);
+  padding: 0.4rem 0;
 }
 
-.gnb-item.active {
-    color: var(--text-strong);
-    font-weight: 600;
-}
-
-/* ===========================
-   PC 드롭다운 메뉴 (강의목록)
-=========================== */
-
-/* 드롭다운 부모: 강의목록 */
+/* 드롭다운 */
 .gnb-item.has-sub {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
-/* 서브메뉴 박스 */
 .submenu {
-    position: absolute;
-    top: calc(100% + 1.2rem);   /* 강의목록 아래로 조금 띄우기 */
-    left: 0;
-    display: none;
-    background: #fff;
-    border: 1px solid var(--border-light);
-    border-radius: 0.6rem;
-    padding: 0.6rem 0;
-    min-width: 16rem;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    z-index: 9999;
+  position: absolute;
+  top: calc(100% + 1.2rem);
+  left: 0;
+  display: none;
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 0.6rem;
+  padding: 0.6rem 0;
+  min-width: 16rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  z-index: 9999;
 }
 
-/* 한 줄씩 딱딱 떨어지게 */
 .submenu a {
-    display: block;                 /* ✅ 겹침 방지 */
-    padding: 0.7rem 1.6rem;
-    font-size: 1.4rem;
-    line-height: 1.4;               /* ✅ 글자 겹침 방지 */
-    color: var(--text-normal);
-    white-space: nowrap;
+  display: block;
+  padding: 0.7rem 1.6rem;
+  font-size: 1.4rem;
+  line-height: 1.4;
+  color: var(--text-normal);
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
-/* hover 시 강조만 */
-.submenu a:hover {
-    background: var(--bg-light);
-    color: var(--text-strong);
-}
+.gnb-item.has-sub:hover .submenu { display: block; }
 
-/* 강의목록 위/아래 hover 시 서브메뉴 유지 */
-.gnb-item.has-sub:hover .submenu {
-    display: block;
-}
-
-/* 강의목록 텍스트 강조 (선택) */
-.gnb-item.has-sub:hover > .menu-link {
-    color: var(--text-strong);
-}
-
-/* 메뉴와 서브메뉴 사이 hover 끊김 방지용 */
 .gnb-item.has-sub::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    height: 1.2rem;   /* 위에서 띄운 간격과 맞추기 */
-    background: transparent;
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 1.2rem;
+  background: transparent;
 }
 
 /* 검색 */
 .header-search {
-    flex: 1;
-    max-width: 42rem;
-    display: flex;
-    align-items: center;
-    padding: 0.6rem 1.2rem;
-    border-radius: 999px;
-    border: 1px solid var(--border-light);
-    background-color: #fafafa;
+  flex: 1;
+  max-width: 42rem;
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background-color: #fafafa;
+  min-width: 18rem;
 }
 
 .search-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 1.3rem;
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1.3rem;
+  min-width: 0;
 }
 
-.search-input::placeholder {
-    color: #b5b5b5;
-}
+.search-input::placeholder { color: #b5b5b5; }
+.search-btn { font-size: 1.4rem; }
 
-.search-btn {
-    font-size: 1.4rem;
-}
-
-/* 오른쪽 버튼 */
+/* 오른쪽 */
 .header-right {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .login-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.8rem 1.8rem;
-    border-radius: 999px;
-    background-color: #222;
-    color: #fff;
-    font-size: 1.3rem;
-    text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.8rem;
+  border-radius: 999px;
+  background-color: #222;
+  color: #fff;
+  font-size: 1.3rem;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .user-name {
-    display: inline-block;
-    margin-right: 1rem;
-    color: #333;
-    font-size: 1.3rem;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.user-name:hover {
-    color: #2563eb;
-    text-decoration: underline;
+  margin-right: 1rem;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .logout-btn {
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    background-color: #f5f5f5;
-    color: #333;
-    border: 1px solid #ddd;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.2s;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  font-size: 1.2rem;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.logout-btn:hover {
-    background-color: #e8e8e8;
-    border-color: #bbb;
-}
-
-/* 햄버거 버튼: 기본은 안 보이게 */
-.menu-toggle {
-    display: none;
-    font-size: 2rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-/*장바구니 버튼*/
+/* 장바구니 */
 .cart-btn {
-    margin-right: 1.2rem;
-    display: inline-flex;
-    align-items: center;
+  margin-right: 1.2rem;
+  display: inline-flex;
+  align-items: center;
 }
 .cart-icon {
-    width: 22px;
-    height: 22px;
-    vertical-align: middle;
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
 }
 
-.cart-btn:hover {
-    opacity: 0.8;
-}
-
-.mobile-nav__cart {
-    display: block;
-    margin-top: 0.8rem;
-    font-size: 1.4rem;
-    font-weight: 600;
-    text-decoration: none;
+/* 햄버거 버튼 */
+.menu-toggle {
+  display: none;
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 
@@ -269,97 +229,21 @@
         justify-content: center; /* 로고 가운데 정렬 */
     }
 
-    /* 햄버거 버튼 보이기 + 왼쪽 고정 */
-    .menu-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        padding: 0 1.2rem;
-    }
+  .menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0 1.2rem;
+  }
 
-    /* 가운데 메뉴/검색, 오른쪽 버튼 숨기기 */
-    .header-center,
-    .header-right {
-        display: none;
-    }
-}
-
-/* =============================
-   ✅ 모바일 드로어(사이드바) 전용
-   PC 부분은 건드리지 않음
-============================= */
-
-/* ✅ 모바일 강의목록 한 줄(링크 + 아이콘 버튼) */
-.mobile-course-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  width:100%;
-  padding: 1.2rem 1.6rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 1.2rem;
-  background:#fff;
-}
-
-/* ✅ 빨간 영역(강의목록): 링크처럼 동작 + 영역 넓게 */
-.mobile-course-link{
-  flex:1;
-  font-weight:700;
-  color:#111;
-  text-decoration:none;
-}
-
-/* ✅ 퀴즈/커뮤니티 링크도 동일한 박스 느낌 */
-.mobile-nav__link{
-  display:block;
-  width:100%;
-  padding: 1.2rem 1.6rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 1.2rem;
-  background:#fff;
-  color:#111;
-  font-weight:700;
-  text-decoration:none;
-  margin-top: 1.2rem;
-}
-
-/* ✅ 아이콘만 누르면 토글 */
-.mobile-course-toggle{
-  border:none;
-  background:transparent;
-  padding: 0.4rem;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* 아이콘 크기 */
-.mobile-course-toggle .mobile-submenu-icon{
-  width:18px;
-  height:18px;
-  object-fit:contain;
-  opacity:.7;
-}
-
-/* 눌렀을 때 회전(원하면) */
-.mobile-course-toggle.is-open .mobile-submenu-icon{
-  transform: rotate(180deg);
-  transition: transform .15s ease;
-}
-
-/* ✅ 강의목록 카테고리 리스트: 기본 숨김 */
-.mobile-submenu {
-  display: none;
-  margin-top: 0.6rem;
-}
-
-/* ✅ 열렸을 때만 보이기 */
-.mobile-submenu.is-open {
-  display: block;
+  .header-center,
+  .header-right {
+    display: none;
+  }
 }
 
 /* ✅ 카테고리 링크 스타일 */

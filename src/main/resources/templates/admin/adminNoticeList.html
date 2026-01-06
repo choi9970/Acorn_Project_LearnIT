@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(
+        ~{::title},
+        ~{::content},
+        ~{::css},
+        ~{::script}
+      )}">
+
+<th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/admin/notice.css}">
+</th:block>
+
+<head>
+    <title>공지 관리</title>
+</head>
+
+<body>
+<section th:fragment="content" class="admin-content-inner">
+    <div class="admin-notice-container">
+
+        <h2>공지관리</h2>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <!-- ✅ 검색라인 -->
+        <div class="filters">
+            <form method="get" action="/admin/notice" class="filter-form">
+                <select name="category" class="filter-select">
+                    <option value="">전체 구분</option>
+                    <option value="긴급" th:selected="${currentCategory == '긴급'}">긴급</option>
+                    <option value="일반" th:selected="${currentCategory == '일반'}">일반</option>
+                    <option value="이벤트" th:selected="${currentCategory == '이벤트'}">이벤트</option>
+                </select>
+
+                <input type="text" name="search" class="search-input"
+                       placeholder="제목/내용/작성자 검색" th:value="${searchKeyword}">
+
+                <input type="hidden" name="page" value="1">
+                <input type="hidden" name="size" th:value="${pageSize}">
+
+                <button type="submit" class="btn-search">검색</button>
+
+                <a class="btn-primary"
+                   th:href="@{/admin/notice/new(
+                        returnPage=${currentPage},
+                        returnSize=${pageSize},
+                        returnCategory=${currentCategory},
+                        returnSearch=${searchKeyword}
+                   )}">
+                    글작성
+                </a>
+            </form>
+        </div>
+
+        <div class="table-wrap">
+            <table class="notice-table">
+                <thead>
+                <tr>
+                    <th>구분</th>
+                    <th>공지번호</th>
+                    <th>제목</th>
+                    <th>작성자</th>
+                    <th>작성일</th>
+                    <th>관리</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="n : ${notices}">
+                    <td th:text="${n.category}">일반</td>
+                    <td th:text="${n.noticeId}">1</td>
+                    <td class="title-cell" th:text="${n.title}">제목</td>
+                    <td th:text="${n.writerName}">관리자</td>
+                    <td th:text="${n.createdAt != null ? #temporals.format(n.createdAt,'yyyy-MM-dd') : '-'}">-</td>
+
+                    <td class="action-cell">
+                        <a class="btn-mini"
+                           th:href="@{/admin/notice/{id}/edit(
+                                     id=${n.noticeId},
+                                     returnPage=${currentPage},
+                                     returnSize=${pageSize},
+                                     returnCategory=${currentCategory},
+                                     returnSearch=${searchKeyword}
+                           )}">
+                            수정
+                        </a>
+
+                        <!-- ✅ 삭제 -->
+                        <form th:action="@{/admin/notice/{id}/delete(id=${n.noticeId})}"
+                              method="post"
+                              style="display:inline;">
+                            <input type="hidden" name="page" th:value="${currentPage}">
+                            <input type="hidden" name="size" th:value="${pageSize}">
+                            <input type="hidden" name="category" th:value="${currentCategory}">
+                            <input type="hidden" name="search" th:value="${searchKeyword}">
+
+                            <button type="submit"
+                                    class="btn-mini danger btn-delete-notice">
+                                삭제
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                <tr th:if="${notices == null or #lists.isEmpty(notices)}">
+                    <td colspan="6" class="empty">등록된 공지가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ✅ 페이지번호 5개 단위 -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:if="${startPage > 1}"
+               th:href="@{/admin/notice(page=${startPage-1}, size=${pageSize}, category=${currentCategory}, search=${searchKeyword})}"
+               class="page-link">이전</a>
+
+            <span th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-number">
+                <a th:if="${i != currentPage}"
+                   th:href="@{/admin/notice(page=${i}, size=${pageSize}, category=${currentCategory}, search=${searchKeyword})}"
+                   th:text="${i}">1</a>
+                <strong th:if="${i == currentPage}" th:text="${i}">1</strong>
+            </span>
+
+            <a th:if="${endPage < totalPages}"
+               th:href="@{/admin/notice(page=${endPage+1}, size=${pageSize}, category=${currentCategory}, search=${searchKeyword})}"
+               class="page-link">다음</a>
+        </div>
+
+        <div class="summary">
+            총 <strong th:text="${totalCount}">0</strong>개
+        </div>
+    </div>
+</section>
+<th:block th:fragment="script">
+    <script th:src="@{/js/admin/admin-notice.js}"></script>
+</th:block>
+</body>
+</html>

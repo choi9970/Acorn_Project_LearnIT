@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(
+        ~{::title},
+        ~{::content},
+        ~{::css},
+        ~{::script}
+      )}">
+
+<th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/admin/notice.css}">
+</th:block>
+
+
+<head>
+    <title th:text="${mode == 'edit' ? '공지 수정' : '공지 등록'}">공지</title>
+</head>
+
+<body>
+<section th:fragment="content" class="admin-content-inner">
+
+    <div class="admin-notice-container">
+        <h2 th:text="${mode == 'edit' ? '공지 수정' : '공지 등록'}">공지</h2>
+
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <div class="form-wrap">
+            <form th:action="${mode == 'edit'} ?
+                    @{/admin/notice/{id}/update(id=${notice.noticeId})} :
+                    @{/admin/notice}"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <input type="hidden" name="returnPage" th:value="${returnPage}">
+                <input type="hidden" name="returnSize" th:value="${returnSize}">
+                <input type="hidden" name="returnCategory" th:value="${returnCategory}">
+                <input type="hidden" name="returnSearch" th:value="${returnSearch}">
+
+                <!-- ✅ X버튼용 hidden -->
+                <input type="hidden" name="deleteFile" id="deleteFile" value="false">
+
+                <div class="form-row">
+                    <label>구분</label>
+                    <select name="category" required>
+                        <option value="긴급" th:selected="${notice.category == '긴급'}">긴급</option>
+                        <option value="일반" th:selected="${notice.category == '일반'}">일반</option>
+                        <option value="이벤트" th:selected="${notice.category == '이벤트'}">이벤트</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label>제목</label>
+                    <input type="text" name="title" th:value="${notice.title}" required>
+                </div>
+
+                <div class="form-row">
+                    <label>내용</label>
+                    <textarea name="content" rows="10" required
+                              th:text="${notice.content}"></textarea>
+                </div>
+
+                <!-- ✅ 첨부파일: "현재 첨부" 영역 제거 -->
+                <div class="form-row">
+                    <label>첨부파일</label>
+
+                    <!-- 파일 input (기존 파일이 있어도 input은 비어있는게 정상) -->
+                    <input type="file" name="file" id="fileInput" accept="*/*">
+
+                    <!-- ✅ 기존 첨부가 있을 때만: 파일명 + X 버튼 -->
+                    <div id="existingFileBox"
+                         th:if="${mode == 'edit' and notice.fileUrl != null and notice.fileUrl != ''}"
+                         class="existing-file-box">
+
+                        <span class="file-name"
+                              th:text="${notice.originalFileName != null ? notice.originalFileName : '첨부파일'}">
+                            첨부파일명
+                        </span>
+
+                        <button type="button"
+                                id="btnRemoveExisting"
+                                class="btn-remove-file"
+                                aria-label="첨부파일 삭제">
+                            ✕
+                        </button>
+
+                        <span class="file-desc">
+                            (삭제 후 저장을 눌러야 반영됩니다)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary"
+                            th:text="${mode == 'edit' ? '수정 저장' : '등록'}">등록</button>
+
+                    <a class="btn-reset"
+                       th:href="@{/admin/notice(page=${returnPage}, size=${returnSize}, category=${returnCategory}, search=${returnSearch})}">
+                        취소
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<th:block th:fragment="script">
+    <script th:src="@{/js/admin/admin-notice.js}"></script>
+</th:block>
+</body>
+</html>

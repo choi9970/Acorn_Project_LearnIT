@@ -3,14 +3,17 @@ package com.learnit.learnit.notice;
 import java.sql.Timestamp;
 
 public class Notice {
-    private Long noticeId;      // notice_id
-    private Long userId;        // user_id
+    private Long noticeId;
+    private Long userId;
     private String category;
     private String title;
     private String content;
-    private String fileUrl;     // file_url
+    private String fileUrl;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    // ✅ 화면 표시용(DB 컬럼 아님)
+    private String originalFileName;
 
     public Long getNoticeId() { return noticeId; }
     public void setNoticeId(Long noticeId) { this.noticeId = noticeId; }
@@ -35,4 +38,7 @@ public class Notice {
 
     public Timestamp getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getOriginalFileName() { return originalFileName; }
+    public void setOriginalFileName(String originalFileName) { this.originalFileName = originalFileName; }
 }

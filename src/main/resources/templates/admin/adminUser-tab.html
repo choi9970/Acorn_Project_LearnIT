@@ -1,0 +1,15 @@
+<th:block th:fragment="tab(activeTab)">
+    <div class="admin-tabs">
+        <a class="admin-tab"
+           th:href="@{/admin/role}"
+           th:classappend="${activeTab == 'role'} ? 'active'">
+            관리자 권한
+        </a>
+
+        <a class="admin-tab"
+           th:href="@{/admin/coupon}"
+           th:classappend="${activeTab == 'coupon'} ? 'active'">
+            쿠폰 관리
+        </a>
+    </div>
+</th:block>
