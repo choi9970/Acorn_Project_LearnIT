@@ -35,6 +35,10 @@ public class AdminReviewController {
             Model model) {
         try {
             Long userId = SessionUtils.getUserId(session);
+            if (userId == null) {
+                log.warn("리뷰 목록 조회 시도: 로그인하지 않은 사용자");
+                return "redirect:/login";
+            }
             List<AdminReviewDto> reviews = adminReviewService.getReviews(page, size, searchType, search, userId);
             int totalCount = adminReviewService.getReviewCount(searchType, search, userId);
             int totalPages = (int) Math.ceil((double) totalCount / size);

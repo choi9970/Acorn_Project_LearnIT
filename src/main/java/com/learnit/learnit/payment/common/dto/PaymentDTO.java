@@ -15,7 +15,7 @@ public class PaymentDTO {
 
     private Integer finalPrice;
     private PaymentMethod method;        //CARD / KAKAOPAY
-    private PaymentStatus status;        //SUCESS / FAIL / CANCEL
+    private PaymentStatus status;        //SUCCESS / FAIL / CANCEL
 
     private Long couponId;
     private LocalDateTime createdAt;

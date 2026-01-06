@@ -15,4 +15,5 @@ public class OrderDTO {
     private Integer totalPrice;
     private String status;       //READY, PAID, CANCEL, FAIL
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

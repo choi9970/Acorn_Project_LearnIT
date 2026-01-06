@@ -3,11 +3,15 @@
       th:replace="~{layout/admin-layout :: layout(
         ~{::title},
         ~{::content},
-        ~{::css}
+        ~{::css},
+        ~{::script}
       )}">
 
 <th:block th:fragment="css">
     <link rel="stylesheet" th:href="@{/css/admin/qna.css}">
+</th:block>
+
+<th:block th:fragment="script">
 </th:block>
 
 <head>
@@ -82,7 +86,7 @@
                         </a>
                     </td>
 
-                    <td th:text="${q.courseId != null ? q.courseId : '-'}">-</td>
+                    <td th:text="${q.courseId != null and q.courseId != 0 ? q.courseId : '-'}">-</td>
 
                     <td>
                         <a class="link"
@@ -94,7 +98,7 @@
                                 page=${currentPage},
                                 size=${pageSize
                            })}"
-                           th:text="${q.courseTitle != null ? q.courseTitle : '-'}">-</a>
+                           th:text="${q.courseTitle != null and q.courseTitle != '' ? q.courseTitle : '-'}">-</a>
                     </td>
 
                     <td th:text="${q.questionUserName}">작성자</td>
@@ -107,7 +111,7 @@
                     </td>
 
                     <td class="summary"
-                        th:text="${q.questionContent != null ? #strings.abbreviate(q.questionContent, 30) : '-'}">요약</td>
+                        th:text="${q.questionTitle != null and q.questionTitle != '' ? q.questionTitle : (q.questionContent != null ? #strings.abbreviate(q.questionContent, 30) : '-')}">요약</td>
 
                     <td th:text="${q.questionCreatedAt != null ? #temporals.format(q.questionCreatedAt,'yyyy-MM-dd') : '-'}">-</td>
                 </tr>

@@ -78,7 +78,7 @@
         <div class="list-container">
 
           <div class="list-item" th:each="cert : ${dashboard.pendingCertificates}">
-            <span class="item-title" th:text="">|${cert.courseTitle} - ${cert.userName}|</span>
+            <span class="item-title" th:text="|${cert.title} - ${cert.name}|"></span>
           </div>
           <div class="list-item" th:if="${#lists.isEmpty(dashboard.pendingCertificates)}">
             <span class="item-title" style="color:#999">대기 중인 수료증이 없습니다.</span>

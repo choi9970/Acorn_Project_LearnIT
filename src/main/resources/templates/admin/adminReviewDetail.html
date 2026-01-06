@@ -3,11 +3,15 @@
       th:replace="~{layout/admin-layout :: layout(
         ~{::title},
         ~{::content},
-        ~{::css}
+        ~{::css},
+        ~{::script}
       )}">
 
 <th:block th:fragment="css">
   <link rel="stylesheet" th:href="@{/css/admin/review.css}">
+</th:block>
+
+<th:block th:fragment="script">
 </th:block>
 
 <head>

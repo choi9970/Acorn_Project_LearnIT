@@ -41,7 +41,7 @@ public class PaymentPrepare {
     private PaymentStatus status;      // READY, APPROVED, CANCELED, FAIL
 
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false, length = 500)
     private String courseIds;    // "1,3,5"
 
     @Column
@@ -69,7 +69,7 @@ public class PaymentPrepare {
     }
 
     public void success() {
-        this.status = PaymentStatus.SUCCESS;
+        this.status = PaymentStatus.APPROVED;
     }
 
     public void cancel() {

@@ -110,7 +110,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             }
 
             // ✅ 기존 기본 이동 로직
-            if ("ADMIN".equals(user.getRole())) {
+            String userRole = user.getRole();
+            if (userRole != null && "ADMIN".equals(userRole.trim())) {
                 getRedirectStrategy().sendRedirect(request, response, "/admin/home");
             } else {
                 getRedirectStrategy().sendRedirect(request, response, "/home");

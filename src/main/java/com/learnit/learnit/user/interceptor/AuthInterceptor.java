@@ -40,7 +40,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             
             // 관리자 권한 체크
             String role = (String) session.getAttribute("LOGIN_USER_ROLE");
-            if (role == null || !"ADMIN".equals(role)) {
+            if (role == null || !"ADMIN".equals(role.trim())) {
                 response.sendRedirect("/home?error=unauthorized");
                 return false;
             }

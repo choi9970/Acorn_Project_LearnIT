@@ -51,7 +51,8 @@
             user_id,
             total_price,
             status,
-            created_at
+            created_at,
+            updated_at
         FROM orders
         WHERE order_no = #{orderNo}
           AND user_id = #{userId}
