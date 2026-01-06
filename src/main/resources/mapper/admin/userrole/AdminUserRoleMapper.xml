@@ -40,6 +40,20 @@
             <if test="type == 'userId' and keyword != null and keyword != ''">
                 AND user_id = #{keyword}
             </if>
+
+            <!-- ✅ 상태/권한 필터(다중 선택) -->
+            <if test="statuses != null and statuses.size() > 0">
+                AND status IN
+                <foreach collection="statuses" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
+            </if>
+            <if test="roles != null and roles.size() > 0">
+                AND role IN
+                <foreach collection="roles" item="r" open="(" separator="," close=")">
+                    #{r}
+                </foreach>
+            </if>
         </where>
     </sql>
 
@@ -61,6 +75,61 @@
         <include refid="userSearchWhere"/>
         ORDER BY user_id DESC
         LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- ✅ 필터 목록 (전체 결과 기준) -->
+    <select id="groupUsersByStatus" resultType="map">
+        SELECT
+        status AS value,
+        COUNT(*) AS cnt
+        FROM users
+        <where>
+            <if test="type == 'email' and keyword != null and keyword != ''">
+                AND email LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'name' and keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'userId' and keyword != null and keyword != ''">
+                AND user_id = #{keyword}
+            </if>
+            <!-- status facet에서는 'roles'만 반영(roles 필터 ON 상태 유지) -->
+            <if test="roles != null and roles.size() > 0">
+                AND role IN
+                <foreach collection="roles" item="r" open="(" separator="," close=")">
+                    #{r}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY status
+        ORDER BY cnt DESC
+    </select>
+
+    <select id="groupUsersByRole" resultType="map">
+        SELECT
+        role AS value,
+        COUNT(*) AS cnt
+        FROM users
+        <where>
+            <if test="type == 'email' and keyword != null and keyword != ''">
+                AND email LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'name' and keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'userId' and keyword != null and keyword != ''">
+                AND user_id = #{keyword}
+            </if>
+            <!-- role facet에서는 'statuses'만 반영(statuses 필터 ON 상태 유지) -->
+            <if test="statuses != null and statuses.size() > 0">
+                AND status IN
+                <foreach collection="statuses" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY role
+        ORDER BY cnt DESC
     </select>
 
     <select id="findManagedCourses" resultType="map">

@@ -16,6 +16,71 @@
   vertical-align: top;
 }
 
+/* =========================
+   상태/권한 필터 (헤더 팝업)
+========================= */
+.th-filter {
+  position: relative;
+  white-space: nowrap;
+}
+
+.filter-btn {
+  margin-left: 6px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.filter-btn:hover {
+  opacity: 1;
+}
+
+.filter-popup {
+  position: absolute;
+  top: 38px;
+  right: 8px;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  display: none;
+  z-index: 50;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.filter-popup .filter-title {
+  font-size: 12px;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.filter-popup .filter-list {
+  max-height: 180px;
+  overflow: auto;
+  display: grid;
+  gap: 6px;
+}
+
+.filter-popup label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.filter-popup .filter-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.filter-popup .filter-actions button {
+  padding: 4px 10px;
+}
+
 .cell-line {
   display: flex;
   gap: 8px;

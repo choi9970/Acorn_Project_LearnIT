@@ -28,8 +28,20 @@
             <th>ID</th>
             <th>이름</th>
             <th>이메일</th>
-            <th>상태</th>
-            <th>권한</th>
+
+            <!-- ✅ 상태 필터 -->
+            <th class="th-filter">
+                상태
+                <button type="button" class="filter-btn" data-filter="status" aria-label="상태 필터">▾</button>
+                <div class="filter-popup" id="statusFilterPopup"></div>
+            </th>
+
+            <!-- ✅ 권한 필터 -->
+            <th class="th-filter">
+                권한
+                <button type="button" class="filter-btn" data-filter="role" aria-label="권한 필터">▾</button>
+                <div class="filter-popup" id="roleFilterPopup"></div>
+            </th>
         </tr>
         </thead>
         <tbody id="userTbody"></tbody>

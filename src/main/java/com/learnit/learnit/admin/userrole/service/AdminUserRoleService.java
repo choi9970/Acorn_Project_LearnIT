@@ -31,7 +31,12 @@ public class AdminUserRoleService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> searchUsers(String type, String keyword, int page, int size) {
+    public Map<String, Object> searchUsers(String type,
+                                           String keyword,
+                                           String statusesCsv,
+                                           String rolesCsv,
+                                           int page,
+                                           int size) {
         requireGlobalAdmin();
 
         int safePage = Math.max(page, 1);
@@ -54,10 +59,15 @@ public class AdminUserRoleService {
             }
         }
 
-        int total = mapper.countUsers(type, keyword);
+        List<String> statusFilters = parseCsv(statusesCsv,
+                List.of("SIGNUP_PENDING", "ACTIVE", "BANNED", "DELETE"));
+        List<String> roleFilters = parseCsv(rolesCsv,
+                List.of("USER", "SUB_ADMIN", "ADMIN"));
+
+        int total = mapper.countUsers(type, keyword, statusFilters, roleFilters);
         int totalPages = (int) Math.ceil(total / (double) safeSize);
 
-        List<Map<String, Object>> items = mapper.searchUsers(type, keyword, offset, safeSize);
+        List<Map<String, Object>> items = mapper.searchUsers(type, keyword, statusFilters, roleFilters, offset, safeSize);
 
         for (Map<String, Object> u : items) {
             String role = String.valueOf(u.get("role"));
@@ -70,13 +80,42 @@ public class AdminUserRoleService {
             }
         }
 
+        // ✅ 필터 목록은 "전체 페이징" 기준(=DB 전체 결과)로 보여줘야 하므로 GROUP BY 로 조회
+        // - 상태 목록: 현재 검색조건 + (권한 필터는 반영) + (상태 필터는 제외)
+        // - 권한 목록: 현재 검색조건 + (상태 필터는 반영) + (권한 필터는 제외)
+        List<Map<String, Object>> statusFacet = mapper.groupUsersByStatus(type, keyword, roleFilters);
+        List<Map<String, Object>> roleFacet = mapper.groupUsersByRole(type, keyword, statusFilters);
+
+        Map<String, Object> facets = Map.of(
+                "statuses", statusFacet,
+                "roles", roleFacet
+        );
+
         return Map.of(
                 "items", items,
                 "page", safePage,
                 "size", safeSize,
                 "totalPages", totalPages,
-                "totalCount", total
+                "totalCount", total,
+                "facets", facets,
+                // ✅ 현재 적용중인 필터(프론트에서 체크 상태 복구용)
+                "appliedFilters", Map.of(
+                        "statuses", statusFilters,
+                        "roles", roleFilters
+                )
         );
+    }
+
+    private static List<String> parseCsv(String csv, List<String> allowed) {
+        if (isBlank(csv)) return Collections.emptyList();
+
+        Set<String> set = new LinkedHashSet<>();
+        for (String raw : csv.split(",")) {
+            String v = (raw == null) ? "" : raw.trim();
+            if (v.isEmpty()) continue;
+            if (allowed.contains(v)) set.add(v);
+        }
+        return new ArrayList<>(set);
     }
 
     @Transactional

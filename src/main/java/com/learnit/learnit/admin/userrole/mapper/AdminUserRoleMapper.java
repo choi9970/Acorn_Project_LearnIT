@@ -13,12 +13,26 @@ public interface AdminUserRoleMapper {
 
     Integer findAdminRoleIdByCode(@Param("code") String code);
 
-    int countUsers(@Param("type") String type, @Param("keyword") String keyword);
+    int countUsers(@Param("type") String type,
+                   @Param("keyword") String keyword,
+                   @Param("statuses") List<String> statuses,
+                   @Param("roles") List<String> roles);
 
     List<Map<String, Object>> searchUsers(@Param("type") String type,
                                           @Param("keyword") String keyword,
+                                          @Param("statuses") List<String> statuses,
+                                          @Param("roles") List<String> roles,
                                           @Param("offset") int offset,
                                           @Param("size") int size);
+
+    // ✅ 필터 목록(전체 결과 기준) - GROUP BY
+    List<Map<String, Object>> groupUsersByStatus(@Param("type") String type,
+                                                 @Param("keyword") String keyword,
+                                                 @Param("roles") List<String> roles);
+
+    List<Map<String, Object>> groupUsersByRole(@Param("type") String type,
+                                               @Param("keyword") String keyword,
+                                               @Param("statuses") List<String> statuses);
 
     Map<String, Object> findUserPolicy(@Param("userId") Long userId);
 

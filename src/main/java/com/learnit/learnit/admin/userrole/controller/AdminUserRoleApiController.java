@@ -19,10 +19,13 @@ public class AdminUserRoleApiController {
     public Map<String, Object> users(
             @RequestParam(defaultValue = "email") String type,
             @RequestParam(defaultValue = "") String keyword,
+            // ✅ 필터(다중 선택): 콤마로 전달 (ex: ACTIVE,BANNED)
+            @RequestParam(required = false) String statuses,
+            @RequestParam(required = false) String roles,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "7") int size
     ) {
-        return service.searchUsers(type, keyword, page, size);
+        return service.searchUsers(type, keyword, statuses, roles, page, size);
     }
 
     @PostMapping("/users/{userId}/role")

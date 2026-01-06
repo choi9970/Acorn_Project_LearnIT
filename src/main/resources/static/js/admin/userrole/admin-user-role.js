@@ -1,10 +1,34 @@
 let currentPage = 1;
 
+// ✅ 현재 적용중인 필터(서버 페이징 기준으로 동작)
+let statusFilters = []; // ex: ["ACTIVE","BANNED"]
+let roleFilters = [];   // ex: ["ADMIN","SUB_ADMIN"]
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btnSearch")?.addEventListener("click", () => {
     currentPage = 1;
     loadUsers();
   });
+
+  // ✅ 필터 팝업 열기
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const which = btn.dataset.filter; // status | role
+      toggleFilterPopup(which);
+    });
+  });
+
+  // 팝업 내부 클릭 시 닫히지 않게
+  document.querySelectorAll(".filter-popup").forEach(p => {
+    p.addEventListener("click", (e) => e.stopPropagation());
+  });
+
+  // 바깥 클릭 시 모두 닫기
+  document.addEventListener("click", () => {
+    closeAllFilterPopups();
+  });
+
   loadUsers();
 });
 
@@ -133,13 +157,131 @@ async function loadUsers(page = currentPage) {
   const type = document.getElementById("searchType")?.value || "email";
   const keyword = document.getElementById("searchKeyword")?.value?.trim() || "";
 
-  const data = await apiFetch(
-    `/api/admin/users?type=${encodeURIComponent(type)}&keyword=${encodeURIComponent(keyword)}&page=${page}&size=7`,
-    { method: "GET" }
-  );
+  const qs = new URLSearchParams();
+  qs.set("type", type);
+  qs.set("keyword", keyword);
+  qs.set("page", String(page));
+  qs.set("size", "7");
+  if (statusFilters.length > 0) qs.set("statuses", statusFilters.join(","));
+  if (roleFilters.length > 0) qs.set("roles", roleFilters.join(","));
+
+  const data = await apiFetch(`/api/admin/users?${qs.toString()}`, { method: "GET" });
+
+  // ✅ 서버 GROUP BY 결과로 필터 목록 생성 (전체 페이징 기준)
+  renderFilterPopups(data.facets || {}, data.appliedFilters || {});
 
   renderUsers(data.items || []);
   renderPagination(data.page, data.totalPages);
+}
+
+function closeAllFilterPopups() {
+  document.querySelectorAll(".filter-popup").forEach(p => (p.style.display = "none"));
+}
+
+function toggleFilterPopup(which) {
+  const popup = which === "status"
+    ? document.getElementById("statusFilterPopup")
+    : document.getElementById("roleFilterPopup");
+
+  if (!popup) return;
+
+  // 다른 팝업은 닫고
+  document.querySelectorAll(".filter-popup").forEach(p => {
+    if (p !== popup) p.style.display = "none";
+  });
+
+  popup.style.display = (popup.style.display === "block") ? "none" : "block";
+}
+
+function renderFilterPopups(facets, applied) {
+  // 서버가 내려준 appliedFilters 기준으로 체크 상태 복구
+  if (Array.isArray(applied.statuses)) statusFilters = applied.statuses;
+  if (Array.isArray(applied.roles)) roleFilters = applied.roles;
+
+  renderSingleFilterPopup({
+    popupEl: document.getElementById("statusFilterPopup"),
+    title: "상태",
+    items: Array.isArray(facets.statuses) ? facets.statuses : [],
+    selected: statusFilters,
+    onApply: (nextSelected) => {
+      statusFilters = nextSelected;
+      currentPage = 1;
+      closeAllFilterPopups();
+      loadUsers(1);
+    },
+    onClear: () => {
+      statusFilters = [];
+      currentPage = 1;
+      closeAllFilterPopups();
+      loadUsers(1);
+    }
+  });
+
+  renderSingleFilterPopup({
+    popupEl: document.getElementById("roleFilterPopup"),
+    title: "권한",
+    items: Array.isArray(facets.roles) ? facets.roles : [],
+    selected: roleFilters,
+    onApply: (nextSelected) => {
+      roleFilters = nextSelected;
+      currentPage = 1;
+      closeAllFilterPopups();
+      loadUsers(1);
+    },
+    onClear: () => {
+      roleFilters = [];
+      currentPage = 1;
+      closeAllFilterPopups();
+      loadUsers(1);
+    }
+  });
+}
+
+function renderSingleFilterPopup({ popupEl, title, items, selected, onApply, onClear }) {
+  if (!popupEl) return;
+
+  // items: [{value:'ACTIVE', cnt: 10}, ...]
+  const normalized = items
+    .map(it => ({
+      value: String(it.value ?? ""),
+      cnt: Number(it.cnt ?? 0)
+    }))
+    .filter(it => it.value);
+
+  const selectedSet = new Set((selected || []).map(String));
+
+  popupEl.innerHTML = `
+    <div class="filter-title">${escapeHtml(title)} 필터</div>
+    <div class="filter-list">
+      ${normalized.map(it => {
+        const id = `${popupEl.id}__${it.value}`;
+        const checked = selectedSet.has(it.value) ? "checked" : "";
+        return `
+          <label for="${id}">
+            <input id="${id}" type="checkbox" class="filter-check" value="${escapeHtml(it.value)}" ${checked}>
+            <span>${escapeHtml(it.value)}</span>
+            <span style="margin-left:auto; opacity:0.6; font-size:12px;">${it.cnt}</span>
+          </label>
+        `;
+      }).join("")}
+      ${normalized.length === 0 ? `<div style="font-size:12px; color:#777;">(데이터 없음)</div>` : ""}
+    </div>
+    <div class="filter-actions">
+      <button type="button" class="filter-clear">초기화</button>
+      <button type="button" class="filter-apply">적용</button>
+    </div>
+  `;
+
+  popupEl.querySelector(".filter-apply")?.addEventListener("click", () => {
+    const checked = [...popupEl.querySelectorAll(".filter-check:checked")]
+      .map(el => el.value)
+      .filter(Boolean);
+    onApply(checked);
+  });
+
+  popupEl.querySelector(".filter-clear")?.addEventListener("click", () => {
+    onClear();
+  });
 }
 
 function renderUsers(users) {
