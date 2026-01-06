@@ -26,6 +26,6 @@ public interface AdminCouponMapper {
                           @Param("couponId") Long couponId);
 
     //6. 쿠폰 존재 확인
-    boolean existsUserCoupon(@Param("userId") Long userId,
-                             @Param("couponId") Long couponId);
+    int existsUserCoupon(@Param("userId") Long userId,
+                         @Param("couponId") Long couponId);
 }

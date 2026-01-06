@@ -52,7 +52,8 @@ public class AdminCouponController {
             adminCouponService.issueCoupons(adminCouponDTO);
             return ResponseEntity.ok("success");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

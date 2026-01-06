@@ -29,14 +29,21 @@ public class AdminCouponService {
     @Transactional
     public void issueCoupons(AdminCouponDTO adminCouponDTO){
 
+        //쿠폰 생성(신규)
         if (adminCouponDTO.getCouponId() == null) {
+            if(adminCouponDTO.getType() == null){
+                adminCouponDTO.setType("MANUAL");
+            }
             adminCouponMapper.insertCoupon(adminCouponDTO);
+
             if (adminCouponDTO.getCouponId() == null) {
                 throw new IllegalStateException("쿠폰 생성 실패");
             }
         }
 
         Long couponId = adminCouponDTO.getCouponId();
+
+        //대상 유저 조회
         List<Long> targetUserIds;
 
         if (adminCouponDTO.isAllUser()) {
@@ -45,16 +52,24 @@ public class AdminCouponService {
             targetUserIds = adminCouponDTO.getUserIds();
         }
 
-        if (targetUserIds != null && !targetUserIds.isEmpty()) {
-
-            for (Long userId : targetUserIds) {
-                if (!adminCouponMapper.existsUserCoupon(userId, couponId)) {
-                    adminCouponMapper.insertUserCoupon(userId, couponId);
-                }
+        if(targetUserIds == null || targetUserIds.isEmpty()){
+            if (adminCouponDTO.isAllUser()) {
+                throw new IllegalStateException("지급 가능한 회원이 없습니다.");
+            } else {
+                throw new IllegalStateException("발급 대상자를 선택하세요.");
             }
-        }else {
-            throw new RuntimeException("발급 대상자가 없습니다.");
         }
+
+        //발급
+        for(Long userId : targetUserIds){
+            if(userId == null) continue;
+
+            int exists = adminCouponMapper.existsUserCoupon(userId, couponId);
+            if(exists == 0){
+                adminCouponMapper.insertUserCoupon(userId, couponId);
+            }
+        }
+
     }
 
 }

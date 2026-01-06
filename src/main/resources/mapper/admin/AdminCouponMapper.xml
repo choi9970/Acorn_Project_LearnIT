@@ -29,7 +29,7 @@
     <select id="selectAllUserIds" resultType="long">
         SELECT user_id
         FROM users
-        WHERE status = 'ACTIVE'
+        WHERE role = 'USER' AND status = 'ACTIVE'
     </select>
 
 
@@ -63,12 +63,10 @@
     </insert>
 
     <!--쿠폰 존재 확인-->
-    <select id="existsUserCoupon" resultType="boolean">
-        SELECT EXISTS (
-            SELECT 1
-            FROM user_coupon
-            WHERE user_id = #{userId} AND coupon_id = #{couponId}
-        )
+    <select id="existsUserCoupon" resultType="int">
+        SELECT COUNT(*)
+        FROM user_coupon
+        WHERE user_id = #{userId} AND coupon_id = #{couponId}
     </select>
 
 </mapper>
