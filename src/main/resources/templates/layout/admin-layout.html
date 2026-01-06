@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:fragment="layout(title, content, css)">
+      th:fragment="layout(title, content, css, script)">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,5 +23,7 @@
         </main>
     </div>
 </div>
+<th:block th:replace="${script}"></th:block>
 </body>
 </html>
+
