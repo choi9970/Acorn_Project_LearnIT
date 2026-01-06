@@ -3,12 +3,14 @@
       th:replace="~{layout/admin-layout :: layout(
         ~{::title},
         ~{::content},
-        ~{::css}
+        ~{::css},
+        ~{::script}
       )}">
 
 <th:block th:fragment="css">
     <link rel="stylesheet" th:href="@{/css/admin/notice.css}">
 </th:block>
+
 
 <head>
     <title th:text="${mode == 'edit' ? '공지 수정' : '공지 등록'}">공지</title>
@@ -67,28 +69,21 @@
                     <!-- ✅ 기존 첨부가 있을 때만: 파일명 + X 버튼 -->
                     <div id="existingFileBox"
                          th:if="${mode == 'edit' and notice.fileUrl != null and notice.fileUrl != ''}"
-                         style="margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                         class="existing-file-box">
 
-                        <span style="font-size:13px; color:#333;"
+                        <span class="file-name"
                               th:text="${notice.originalFileName != null ? notice.originalFileName : '첨부파일'}">
                             첨부파일명
                         </span>
 
                         <button type="button"
                                 id="btnRemoveExisting"
-                                style="
-                                    width:26px; height:26px;
-                                    border-radius:6px;
-                                    border:1px solid #ddd;
-                                    background:#fff;
-                                    cursor:pointer;
-                                    line-height:1;
-                                "
+                                class="btn-remove-file"
                                 aria-label="첨부파일 삭제">
                             ✕
                         </button>
 
-                        <span style="font-size:12px; color:#888;">
+                        <span class="file-desc">
                             (삭제 후 저장을 눌러야 반영됩니다)
                         </span>
                     </div>
@@ -106,25 +101,9 @@
             </form>
         </div>
     </div>
-
-    <script>
-        // ✅ 기존 첨부 X 버튼 -> deleteFile=true로 보내고 화면에서 숨김
-        const deleteFile = document.getElementById('deleteFile');
-        const existingBox = document.getElementById('existingFileBox');
-        const btnRemove = document.getElementById('btnRemoveExisting');
-        const fileInput = document.getElementById('fileInput');
-
-        if (btnRemove) {
-            btnRemove.addEventListener('click', () => {
-                if (deleteFile) deleteFile.value = 'true';
-                if (existingBox) existingBox.style.display = 'none';
-
-                // (선택) 사용자가 새 파일을 선택해둔 상태였어도 같이 초기화하고 싶으면
-                if (fileInput) fileInput.value = '';
-            });
-        }
-    </script>
-
 </section>
+<th:block th:fragment="script">
+    <script th:src="@{/js/admin/admin-notice.js}"></script>
+</th:block>
 </body>
 </html>

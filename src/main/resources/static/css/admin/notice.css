@@ -275,6 +275,48 @@
   flex-wrap: wrap;
 }
 
+/* =========================
+   File Upload UI
+========================= */
+.admin-notice-container .existing-file-box {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-notice-container .file-name {
+  font-size: 13px;
+  color: #333;
+}
+
+.admin-notice-container .btn-remove-file {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #666;
+  padding: 0;
+}
+.admin-notice-container .btn-remove-file:hover {
+  background: #f1f1f1;
+  color: #dc3545;
+  border-color: #d5dbe3;
+}
+
+.admin-notice-container .file-desc {
+  font-size: 12px;
+  color: #888;
+}
+
 /* responsive */
 @media (max-width: 1024px){
   .admin-content-inner{

@@ -3,7 +3,8 @@
       th:replace="~{layout/admin-layout :: layout(
         ~{::title},
         ~{::content},
-        ~{::css}
+        ~{::css},
+        ~{::script}
       )}">
 
 <th:block th:fragment="css">
@@ -96,8 +97,7 @@
                             <input type="hidden" name="search" th:value="${searchKeyword}">
 
                             <button type="submit"
-                                    class="btn-mini danger"
-                                    onclick="return confirm('정말 삭제하시겠습니까?');">
+                                    class="btn-mini danger btn-delete-notice">
                                 삭제
                             </button>
                         </form>
@@ -134,5 +134,8 @@
         </div>
     </div>
 </section>
+<th:block th:fragment="script">
+    <script th:src="@{/js/admin/admin-notice.js}"></script>
+</th:block>
 </body>
 </html>
