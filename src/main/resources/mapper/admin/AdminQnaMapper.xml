@@ -29,7 +29,7 @@
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        q.title AS questionTitle,
+        q.content AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
@@ -72,8 +72,7 @@
 
             <if test="search != null and search != ''">
                 AND (
-                q.title LIKE CONCAT('%', #{search}, '%')
-                OR q.content LIKE CONCAT('%', #{search}, '%')
+                q.content LIKE CONCAT('%', #{search}, '%')
                 OR qu.name LIKE CONCAT('%', #{search}, '%')
                 OR c.title LIKE CONCAT('%', #{search}, '%')
                 )
@@ -116,8 +115,7 @@
 
             <if test="search != null and search != ''">
                 AND (
-                q.title LIKE CONCAT('%', #{search}, '%')
-                OR q.content LIKE CONCAT('%', #{search}, '%')
+                q.content LIKE CONCAT('%', #{search}, '%')
                 OR qu.name LIKE CONCAT('%', #{search}, '%')
                 OR c.title LIKE CONCAT('%', #{search}, '%')
                 )
@@ -135,7 +133,7 @@
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        q.title AS questionTitle,
+        q.content AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
