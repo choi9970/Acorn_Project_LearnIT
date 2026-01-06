@@ -38,17 +38,43 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
-// ✅ 서버 전이 규칙과 동일하게
+// ✅ 서버 전이 규칙과 동일하게(현재 상태 유지 포함)
 function allowedNextStatuses(current) {
-  if (current === "SIGNUP_PENDING") return ["ACTIVE"];
-  if (current === "ACTIVE") return ["ACTIVE", "BANNED", "DELETE"];
-  if (current === "BANNED" || current === "DELETE") return ["ACTIVE"];
+  if (current === "SIGNUP_PENDING") return ["SIGNUP_PENDING", "ACTIVE"];
+  if (current === "ACTIVE") return ["ACTIVE", "BANNED", "DELETE"]; // SIGNUP_PENDING 불가
+  if (current === "BANNED") return ["BANNED", "ACTIVE"];
+  if (current === "DELETE") return ["DELETE", "ACTIVE"];
   return ["SIGNUP_PENDING", "ACTIVE", "BANNED", "DELETE"];
 }
 
-function applyStatusTransitionDisable(selectEl, currentStatus) {
-  const allowed = new Set(allowedNextStatuses(currentStatus));
-  [...selectEl.options].forEach(opt => (opt.disabled = !allowed.has(opt.value)));
+// ✅ 전이 불가 옵션은 disabled가 아니라 "옵션 자체를 제거"해서 아예 안 보이게 함
+function applyStatusTransitionRules(statusSelectEl, curr) {
+  if (!statusSelectEl) return;
+
+  const allowed = allowedNextStatuses(curr);
+
+  // ✅ 원본 option(text) 백업 (처음 1회)
+  if (!statusSelectEl.dataset.allOptionsJson) {
+    const all = Array.from(statusSelectEl.options).map(o => ({
+      value: o.value,
+      text: o.textContent
+    }));
+    statusSelectEl.dataset.allOptionsJson = JSON.stringify(all);
+  }
+
+  const allOptions = JSON.parse(statusSelectEl.dataset.allOptionsJson);
+
+  // ✅ 허용된 옵션만 다시 렌더링 (불가 옵션은 "목록에서 사라짐")
+  statusSelectEl.innerHTML = allowed
+    .map(v => {
+      const found = allOptions.find(x => x.value === v);
+      const text = found ? found.text : v;
+      return `<option value="${v}">${text}</option>`;
+    })
+    .join("");
+
+  // ✅ 기본 선택값은 항상 현재 상태
+  statusSelectEl.value = curr;
 }
 
 function setStatusEditMode(tr, on) {
@@ -176,9 +202,9 @@ function renderUsers(users) {
 
     tbody.appendChild(tr);
 
-    // ✅ 전이 불가능 옵션 비활성화
+    // ✅ 전이 불가 옵션은 아예 안 보이게(옵션 제거)
     const statusSel = tr.querySelector(".status");
-    if (statusSel) applyStatusTransitionDisable(statusSel, u.status);
+    applyStatusTransitionRules(statusSel, u.status);
 
     const pendingBox = tr.querySelector(".pending-box");
     const roleSel = tr.querySelector(".role");
@@ -188,6 +214,7 @@ function renderUsers(users) {
       if (subBox) subBox.style.display = (roleSel.value === "SUB_ADMIN") ? "block" : "none";
     });
 
+    // ✅ change에서 전이룰 재적용하면 선택값이 초기화되므로 여기서는 pending box만 제어
     statusSel?.addEventListener("change", () => {
       const isSocial = u.provider && String(u.provider).toLowerCase() !== "local";
       if (u.status === "SIGNUP_PENDING" && statusSel.value === "ACTIVE" && isSocial) {
@@ -254,6 +281,10 @@ function renderUsers(users) {
 
 async function saveStatus(u, tr) {
   const next = tr.querySelector(".status")?.value;
+  if (!next || next === u.status) {
+    setStatusEditMode(tr, false);
+    return;
+  }
   const isSocial = u.provider && String(u.provider).toLowerCase() !== "local";
 
   let nickname = null;

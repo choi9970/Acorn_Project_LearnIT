@@ -148,6 +148,10 @@ public class AdminUserRoleService {
         boolean isSocial = provider != null && !"local".equalsIgnoreCase(provider);
 
         String next = dto.getStatus().trim();
+        if (next.equals(curr)) {
+            return;
+        }
+
         if (!List.of("SIGNUP_PENDING", "ACTIVE", "BANNED", "DELETE").contains(next)) {
             throw new ResponseStatusException(BAD_REQUEST, "status 값이 올바르지 않습니다.");
         }
