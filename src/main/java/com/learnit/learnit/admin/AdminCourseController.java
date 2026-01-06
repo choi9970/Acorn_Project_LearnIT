@@ -20,6 +20,11 @@ public class AdminCourseController {
     private final AdminCourseService adminCourseService;
     private final CategoryService categoryService;
 
+    @org.springframework.web.bind.annotation.InitBinder
+    public void initBinder(org.springframework.web.bind.WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new org.springframework.beans.propertyeditors.StringTrimmerEditor(true));
+    }
+
     @GetMapping("/api/instructors/search")
     @ResponseBody
     public List<UserDTO> searchInstructors(@RequestParam("keyword") String keyword) {
@@ -29,7 +34,7 @@ public class AdminCourseController {
     @GetMapping
     public String courseList(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "8") int size,
+            @RequestParam(value = "size", defaultValue = "7") int size,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "search", required = false) String search,
             Model model) {

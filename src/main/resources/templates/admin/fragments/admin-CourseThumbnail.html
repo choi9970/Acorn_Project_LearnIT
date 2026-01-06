@@ -17,14 +17,14 @@
     <div class="form-group">
         <label class="form-label">강의 상세 썸네일</label>
         <div class="file-upload-container">
-            <input type="file" id="course-detail-thumbnail" name="detailThumbnail" accept="image/*" style="display: none;">
+            <input type="file" id="course-detail-thumbnail" name="detailThumbnail" accept="image/*,application/pdf" style="display: none;">
             <button type="button" class="btn-upload" onclick="document.getElementById('course-detail-thumbnail').click()">파일 선택</button>
             <div id="course-detail-thumbnail-preview" class="file-preview" style="display: none;">
                 <span class="file-name"></span>
                 <button type="button" class="btn-remove-file" data-target="course-detail-thumbnail">×</button>
             </div>
         </div>
-        <p class="help-text">강의 상세 페이지 상단에 표시될 이미지입니다.</p>
+        <p class="help-text">강의 상세 페이지 상단에 표시될 이미지 또는 PDF 파일입니다.</p>
     </div>
 </div>
 </html>

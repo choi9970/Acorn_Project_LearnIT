@@ -21,5 +21,13 @@ public class AdminCourseCreateDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
     
-    private boolean alwaysOpen; 
+    private boolean alwaysOpen;
+
+    // 파일 업로드 (입력)
+    private org.springframework.web.multipart.MultipartFile thumbnail;
+    private org.springframework.web.multipart.MultipartFile detailThumbnail;
+
+    // 파일 경로 (DB 저장용)
+    private String thumbnailUrl;
+    private String detailImgUrl;
 }

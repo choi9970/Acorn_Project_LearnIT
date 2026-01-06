@@ -103,7 +103,7 @@
             email,
             profile_img AS profileImageUrl
         FROM users
-        WHERE role = 'INSTRUCTOR'
+        WHERE role = 'SUB_ADMIN'
         AND (name LIKE CONCAT('%', #{keyword}, '%') OR nickname LIKE CONCAT('%', #{keyword}, '%'))
         ORDER BY name ASC
     </select>

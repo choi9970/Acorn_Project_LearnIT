@@ -117,7 +117,6 @@
     overflow: hidden; /* 모서리 둥글게 */
     box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.1);
     overflow-x: auto; /* 가로 스크롤 허용 */
-    min-height: 497px;
 }
 
 .course-table {
@@ -237,70 +236,43 @@
 }
 
 /* 페이징 */
-.admin-pagination {
+.admin-course-container .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 3rem 0;
+    gap: 8px;
+    margin: 18px 0;
+    flex-wrap: wrap;
 }
 
-.pagination-wrapper {
-    display: flex;
+.admin-course-container .page-link,
+.admin-course-container .page-number a {
+    padding: 8px 12px;
+    border: 1px solid #d5dbe3;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #0A4A7A;
+    font-weight: 800;
+    background: #fff;
+    display: inline-flex; /* notice.css에는 없지만 admin-course.css의 다른 스타일과 조화를 위해 유지/추가 */
     align-items: center;
-    gap: 1rem;
-}
-
-.prev-btn-area, .next-btn-area {
-    display: flex;
-    justify-content: center;
-    width: 50px; /* 버튼 영역 고정 너비로 중앙 정렬 유지 */
-}
-
-.page-numbers-area {
-    display: flex;
-    gap: 0.5rem;
     justify-content: center;
 }
 
-.page-link,
-.page-number a,
-.page-number strong {
+.admin-course-container .page-number strong {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #0A4A7A;
+    color: #fff;
+    font-weight: 900;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 36px;
-    height: 36px;
-    padding: 0 0.8rem;
-    font-size: 1.4rem;
-    border-radius: 0.6rem;
-    text-decoration: none;
-    box-sizing: border-box; /* 패딩이 크기에 영향을 주지 않도록 설정 */
-}
-
-.page-link,
-.page-number a {
-    color: #0A4A7A;
-    border: 1px solid #d5dbe3;
-    background-color: #fff;
-    transition: all 0.2s;
-}
-
-.page-link:hover,
-.page-number a:hover {
-    background-color: #f0f4f8;
-    border-color: #0A4A7A;
-}
-
-.page-number strong {
-    color: #fff;
-    background-color: #0A4A7A;
-    border: 1px solid #0A4A7A;
-    font-weight: 700;
 }
 
 .admin-course-summary {
     text-align: center;
-    margin-top: 2rem;
-    font-size: 1.4rem;
     color: #666;
+    font-size: 14px;
+    margin-top: 10px;
 }
