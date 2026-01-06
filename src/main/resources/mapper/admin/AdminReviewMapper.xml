@@ -6,8 +6,8 @@
 <mapper namespace="com.learnit.learnit.admin.AdminReviewRepository">
 
     <!-- 사용자가 전체 권한(course_id가 NULL)을 가지고 있는지 확인 -->
-    <select id="hasFullAdminAccess" resultType="boolean">
-        SELECT COUNT(*) > 0
+    <select id="hasFullAdminAccess" resultType="java.lang.Boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
         FROM admin_user_role
         WHERE user_id = #{userId}
           AND course_id IS NULL

@@ -13,12 +13,22 @@ public class AdminQnaService {
     private final AdminQnaRepository repo;
 
     public List<AdminQnaDto> getQnas(int page, int size, String type, String status, String search) {
-        int offset = (page - 1) * size;
-        return repo.selectQnas(offset, size, type, status, search);
+        try {
+            int offset = (page - 1) * size;
+            return repo.selectQnas(offset, size, type, status, search);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
     }
 
     public int getTotalCount(String type, String status, String search) {
-        return repo.countQnas(type, status, search);
+        try {
+            return repo.countQnas(type, status, search);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public AdminQnaDto getDetail(int qnaId) {

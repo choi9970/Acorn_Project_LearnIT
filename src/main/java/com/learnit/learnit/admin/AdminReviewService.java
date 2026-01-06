@@ -30,8 +30,8 @@ public class AdminReviewService {
             if (userId != null) {
                 try {
                     // 전체 권한(course_id가 NULL)이 있으면 필터링 없음
-                    boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
-                    if (!hasFullAccess) {
+                    Boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
+                    if (hasFullAccess == null || !hasFullAccess) {
                         // 부분 권한만 있는 경우 해당 course_id 목록으로 필터링
                         managedCourseIds = adminReviewRepository.selectManagedCourseIds(userId);
                         if (managedCourseIds == null || managedCourseIds.isEmpty()) {
@@ -52,6 +52,7 @@ public class AdminReviewService {
         } catch (Exception e) {
             log.error("리뷰 목록 조회 실패: page={}, size={}, searchType={}, searchKeyword={}, userId={}, error={}", 
                 page, size, searchType, searchKeyword, userId, e.getMessage(), e);
+            e.printStackTrace();
             // 테이블이 없거나 에러 발생 시 빈 리스트 반환
             return new java.util.ArrayList<>();
         }
@@ -67,8 +68,8 @@ public class AdminReviewService {
             if (userId != null) {
                 try {
                     // 전체 권한(course_id가 NULL)이 있으면 필터링 없음
-                    boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
-                    if (!hasFullAccess) {
+                    Boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
+                    if (hasFullAccess == null || !hasFullAccess) {
                         // 부분 권한만 있는 경우 해당 course_id 목록으로 필터링
                         managedCourseIds = adminReviewRepository.selectManagedCourseIds(userId);
                         if (managedCourseIds == null || managedCourseIds.isEmpty()) {
@@ -88,6 +89,7 @@ public class AdminReviewService {
         } catch (Exception e) {
             log.error("리뷰 총 개수 조회 실패: searchType={}, searchKeyword={}, userId={}, error={}", 
                 searchType, searchKeyword, userId, e.getMessage(), e);
+            e.printStackTrace();
             // 테이블이 없거나 에러 발생 시 0 반환
             return 0;
         }

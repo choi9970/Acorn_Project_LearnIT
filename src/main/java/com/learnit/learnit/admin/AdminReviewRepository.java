@@ -58,7 +58,7 @@ public interface AdminReviewRepository {
     /**
      * 사용자가 전체 권한(course_id가 NULL)을 가지고 있는지 확인
      */
-    boolean hasFullAdminAccess(@Param("userId") Long userId);
+    Boolean hasFullAdminAccess(@Param("userId") Long userId);
 
     /**
      * 사용자가 관리하는 강의 ID 목록 조회 (서브 어드민 필터링용)
