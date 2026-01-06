@@ -6,7 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -20,6 +21,9 @@ public class NoticeController {
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
 
+    // ✅ 페이지네이션 블록 크기 (1~5, 6~10 ...)
+    private static final int PAGE_BLOCK_SIZE = 5;
+
     public NoticeController(NoticeService noticeService) {
         this.noticeService = noticeService;
     }
@@ -29,18 +33,28 @@ public class NoticeController {
                              Model model) {
 
         int totalPages = noticeService.getTotalPages();
-        int safePage = Math.max(1, Math.min(page, Math.max(totalPages, 1)));
+        if (totalPages <= 0) totalPages = 1;
 
+        int safePage = Math.max(1, Math.min(page, totalPages));
         List<Notice> notices = noticeService.getNotices(safePage);
 
-        int startPage = 1;
-        int endPage = Math.min(5, Math.max(totalPages, 1));
+        // ✅ 블록 계산 (현재 페이지가 속한 5개 묶음)
+        int startPage = ((safePage - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+        int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
+
+        // ✅ 이전/다음 블록 이동용 페이지
+        Integer prevBlockPage = (startPage > 1) ? (startPage - 1) : null;
+        Integer nextBlockPage = (endPage < totalPages) ? (endPage + 1) : null;
 
         model.addAttribute("notices", notices);
         model.addAttribute("currentPage", safePage);
         model.addAttribute("totalPages", totalPages);
+
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
+
+        model.addAttribute("prevBlockPage", prevBlockPage);
+        model.addAttribute("nextBlockPage", nextBlockPage);
 
         return "notice/noticeList";
     }
@@ -75,14 +89,12 @@ public class NoticeController {
                 return;
             }
 
-            // ✅ 원본 파일명으로 다운로드되게 헤더 세팅
             String originalName = notice.getOriginalFileName() != null ? notice.getOriginalFileName() : storedName;
-
             String encoded = URLEncoder.encode(originalName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encoded);
 
-            // 파일 스트림 복사
             try (InputStream is = Files.newInputStream(filePath);
                  OutputStream os = response.getOutputStream()) {
                 is.transferTo(os);

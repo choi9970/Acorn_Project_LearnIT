@@ -39,6 +39,7 @@ public class NoticeService {
         return n;
     }
 
+    // ✅ fileUrl이 "/uploads/notice/uuid__원본.ext" 형태면 원본만 추출
     private void enrichOriginalFileName(Notice notice) {
         if (notice == null) return;
         if (notice.getFileUrl() == null || notice.getFileUrl().isBlank()) return;

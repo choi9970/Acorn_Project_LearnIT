@@ -52,17 +52,9 @@ public class AdminQnaService {
         repo.updateResolved(qnaId, isResolved);
     }
 
-    // ✅✅ Q&A 삭제 + AUTO_INCREMENT를 MAX+1로 재설정
     @Transactional
     public void deleteQna(int qnaId) {
-        repo.deleteAnswersByQnaId(qnaId);
-        repo.deleteQuestionById(qnaId);
-
-        resetAutoIncrementToMaxPlusOne(); // ✅ 추가
-    }
-
-    private void resetAutoIncrementToMaxPlusOne() {
-        int nextId = repo.selectNextQnaId();       // MAX+1 (비어있으면 1)
-        repo.resetQnaAutoIncrement(nextId);        // AUTO_INCREMENT = nextId
+        repo.softDeleteAnswersByQnaId(qnaId);
+        repo.softDeleteQuestionById(qnaId);
     }
 }

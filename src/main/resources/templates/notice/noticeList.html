@@ -18,7 +18,6 @@
             <table class="notice-table">
                 <thead>
                 <tr>
-                    <!-- ✅ 번호 -> 구분 -->
                     <th class="col-no">구분</th>
                     <th class="col-title">제목</th>
                     <th class="col-date">작성일자</th>
@@ -27,23 +26,21 @@
                 </thead>
 
                 <tbody>
-                <!-- ✅ DB 데이터 출력 -->
                 <tr th:each="n : ${notices}">
                     <td>
                         <span class="col-category-text"
                               th:text="${n.category}"
                               th:classappend="${n.category == '긴급'} ? ' is-urgent' :
-                                              (${n.category == '이벤트'} ? ' is-event' : ' is-normal')
-                                              ">
+                                              (${n.category == '이벤트'} ? ' is-event' : ' is-normal')">
                         </span>
                     </td>
 
                     <td class="td-title">
-                        <a th:text="${n.title}"
-                           th:href="@{'/notice/' + ${n.noticeId}}">제목</a>
+                        <a th:href="@{'/notice/' + ${n.noticeId}}">
+                            <span th:text="${n.title}">제목</span>
+                        </a>
                     </td>
 
-                    <!-- 날짜 포맷 -->
                     <td class="col-date" th:text="${#dates.format(n.createdAt, 'yyyy-MM-dd')}">2025-12-17</td>
                     <td class="col-writer" th:text="${n.userId == 4 ? '관리자' : n.userId}">관리자</td>
                 </tr>
@@ -51,13 +48,32 @@
             </table>
         </div>
 
-        <!-- ✅ 페이지네이션: 1~5만, < > 제거 -->
+        <!-- ✅ 블록 페이지네이션 -->
         <nav class="pagination" aria-label="공지사항 페이지네이션" th:if="${totalPages > 1}">
+
+            <!-- 이전 블록 («) -->
+            <a class="page-btn"
+               th:if="${prevBlockPage != null}"
+               th:href="@{/notice(page=${prevBlockPage})}"
+               aria-label="이전 페이지 블록">
+                «
+            </a>
+
+            <!-- 현재 블록 (1~5 / 6~10 ...) -->
             <a class="page-num"
                th:each="p : ${#numbers.sequence(startPage, endPage)}"
                th:classappend="${p == currentPage} ? ' is-active' : ''"
                th:href="@{/notice(page=${p})}"
                th:text="${p}">1</a>
+
+            <!-- 다음 블록 (») -->
+            <a class="page-btn"
+               th:if="${nextBlockPage != null}"
+               th:href="@{/notice(page=${nextBlockPage})}"
+               aria-label="다음 페이지 블록">
+                »
+            </a>
+
         </nav>
 
     </section>

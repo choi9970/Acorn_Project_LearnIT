@@ -35,13 +35,8 @@ public interface AdminQnaRepository {
     void updateResolved(@Param("qnaId") int qnaId,
                         @Param("isResolved") String isResolved);
 
-    void deleteAnswersByQnaId(@Param("qnaId") int qnaId);
+    // ✅ 소프트삭제로 통일
+    void softDeleteAnswersByQnaId(@Param("qnaId") int qnaId);
 
-    void deleteQuestionById(@Param("qnaId") int qnaId);
-
-    // ✅✅ 추가: 다음 qna_id = MAX(qna_id)+1 (비어있으면 1)
-    int selectNextQnaId();
-
-    // ✅✅ 추가: AUTO_INCREMENT 재설정 (MAX+1로)
-    void resetQnaAutoIncrement(@Param("nextId") int nextId);
+    void softDeleteQuestionById(@Param("qnaId") int qnaId);
 }

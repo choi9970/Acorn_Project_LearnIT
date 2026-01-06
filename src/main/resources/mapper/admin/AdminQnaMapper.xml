@@ -39,14 +39,13 @@
         au.name AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
-
         FROM qna_question q
         LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
         <include refid="latestAnswerJoin"/>
 
         <where>
-            AND q.delete_flg = 0
+            q.delete_flg = 0
 
             <if test="type != null and type != ''">
                 <choose>
@@ -90,7 +89,7 @@
         LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
         <where>
-            AND q.delete_flg = 0
+            q.delete_flg = 0
 
             <if test="type != null and type != ''">
                 <choose>
@@ -145,7 +144,6 @@
         au.name AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
-
         FROM qna_question q
         LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
@@ -155,7 +153,8 @@
         AND q.delete_flg = 0
     </select>
 
-    <select id="selectLatestAnswerId" resultType="int">
+    <!-- ✅✅ 핵심: 없으면 NULL 가능 → Integer -->
+    <select id="selectLatestAnswerId" resultType="java.lang.Integer">
         SELECT answer_id
         FROM qna_answer
         WHERE qna_id = #{qnaId}
@@ -165,8 +164,8 @@
     </select>
 
     <insert id="insertAnswer">
-        INSERT INTO qna_answer (qna_id, user_id, content, created_at, updated_at, delete_flg)
-        VALUES (#{qnaId}, #{userId}, #{content}, NOW(), NOW(), 0)
+        INSERT INTO qna_answer (qna_id, user_id, parent_answer_id, content, created_at, updated_at, delete_flg)
+        VALUES (#{qnaId}, #{userId}, NULL, #{content}, NOW(), NOW(), 0)
     </insert>
 
     <update id="updateAnswer">
@@ -183,21 +182,19 @@
         WHERE qna_id = #{qnaId}
     </update>
 
-    <delete id="deleteAnswersByQnaId">
-        DELETE FROM qna_answer WHERE qna_id = #{qnaId}
-    </delete>
+    <!-- ✅✅ 삭제는 소프트 삭제로 통일 -->
+    <update id="softDeleteAnswersByQnaId">
+        UPDATE qna_answer
+        SET delete_flg = 1,
+        updated_at = NOW()
+        WHERE qna_id = #{qnaId}
+    </update>
 
-    <delete id="deleteQuestionById">
-        DELETE FROM qna_question WHERE qna_id = #{qnaId}
-    </delete>
-
-    <select id="selectNextQnaId" resultType="int">
-        SELECT IFNULL(MAX(qna_id), 0) + 1
-        FROM qna_question
-    </select>
-
-    <update id="resetQnaAutoIncrement">
-        ALTER TABLE qna_question AUTO_INCREMENT = ${nextId}
+    <update id="softDeleteQuestionById">
+        UPDATE qna_question
+        SET delete_flg = 1,
+        updated_at = NOW()
+        WHERE qna_id = #{qnaId}
     </update>
 
 </mapper>

@@ -1,6 +1,7 @@
 package com.learnit.learnit.admin.qna;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +15,17 @@ import java.util.List;
 public class AdminQnaController {
 
     private final AdminQnaService service;
-
     private static final int PAGE_BLOCK_SIZE = 5;
+
+    private boolean isAdmin(Authentication auth) {
+        return auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    private boolean isSubAdmin(Authentication auth) {
+        return auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_SUB_ADMIN"));
+    }
 
     @GetMapping
     public String manage(
@@ -25,8 +35,17 @@ public class AdminQnaController {
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "search", required = false) String search,
             @RequestParam(value = "selectedId", required = false) Integer selectedId,
+            Authentication auth,
             Model model
     ) {
+        boolean admin = isAdmin(auth);
+        boolean subAdmin = isSubAdmin(auth);
+
+        // ✅ SUB_ADMIN이면 강의 Q&A만 강제
+        if (subAdmin && !admin) {
+            type = "LECTURE";
+        }
+
         int totalCount = service.getTotalCount(type, status, search);
         int totalPages = (int) Math.ceil((double) totalCount / size);
         if (totalPages <= 0) totalPages = 1;
@@ -52,15 +71,30 @@ public class AdminQnaController {
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
 
+        // ✅ 권한 플래그 (템플릿에서 버튼/폼 제어)
+        model.addAttribute("isAdmin", admin);
+        model.addAttribute("isSubAdmin", subAdmin);
+
         if (selectedId != null) {
-            model.addAttribute("selectedId", selectedId);
-            model.addAttribute("selectedQna", service.getDetail(selectedId));
+            AdminQnaDto detail = service.getDetail(selectedId);
+
+            // ✅ 존재하지 않으면 선택 해제
+            if (detail == null) {
+                model.addAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
+            } else {
+                // ✅ SUB_ADMIN이 SITE(전체Q&A) 접근하면 차단
+                if (subAdmin && !admin && detail.getCourseId() == null) {
+                    model.addAttribute("errorMessage", "SUB_ADMIN은 강의 Q&A만 열람할 수 있습니다.");
+                } else {
+                    model.addAttribute("selectedId", selectedId);
+                    model.addAttribute("selectedQna", detail);
+                }
+            }
         }
 
         return "admin/adminQnaManage";
     }
 
-    // ✅ 기존 /{qnaId} 접근 들어와도 "같은 페이지(selectedId)"로 보내기
     @GetMapping("/{qnaId}")
     public String detailRedirect(
             @PathVariable int qnaId,
@@ -68,8 +102,14 @@ public class AdminQnaController {
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "search", required = false) String search,
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "7") int size
+            @RequestParam(value = "size", defaultValue = "7") int size,
+            Authentication auth
     ) {
+        // ✅ SUB_ADMIN이면 type 강제
+        if (isSubAdmin(auth) && !isAdmin(auth)) {
+            type = "LECTURE";
+        }
+
         return "redirect:/admin/qna?selectedId=" + qnaId
                 + (type != null ? "&type=" + type : "")
                 + (status != null ? "&status=" + status : "")
@@ -78,18 +118,27 @@ public class AdminQnaController {
                 + "&size=" + size;
     }
 
+    // ✅ ADMIN만 가능
     @PostMapping("/{qnaId}/answer")
     public String saveAnswer(@PathVariable int qnaId,
                              @RequestParam("content") String content,
-                             @RequestParam(value = "markResolved", defaultValue = "true") boolean markResolved,
+                             @RequestParam(value = "markResolved", defaultValue = "false") boolean markResolved,
                              @RequestParam(value = "type", required = false) String type,
                              @RequestParam(value = "status", required = false) String status,
                              @RequestParam(value = "search", required = false) String search,
                              @RequestParam(value = "page", defaultValue = "1") int page,
                              @RequestParam(value = "size", defaultValue = "7") int size,
+                             Authentication auth,
                              RedirectAttributes ra) {
+
+        if (!isAdmin(auth)) {
+            ra.addFlashAttribute("errorMessage", "권한이 없습니다. (ADMIN 전용)");
+            addListParams(ra, type, status, search, page, size, qnaId);
+            return "redirect:/admin/qna";
+        }
+
         try {
-            int adminUserId = 4; // ✅ 임시 고정
+            int adminUserId = 4; // ✅ 임시 고정 (추후 로그인 사용자 id로 교체)
             service.saveAnswer(qnaId, adminUserId, content, markResolved);
             ra.addFlashAttribute("successMessage", "답변이 저장되었습니다.");
         } catch (Exception e) {
@@ -100,6 +149,7 @@ public class AdminQnaController {
         return "redirect:/admin/qna";
     }
 
+    // ✅ ADMIN만 가능
     @PostMapping("/{qnaId}/status")
     public String updateStatus(@PathVariable int qnaId,
                                @RequestParam("status") String uiStatus,
@@ -108,7 +158,15 @@ public class AdminQnaController {
                                @RequestParam(value = "search", required = false) String search,
                                @RequestParam(value = "page", defaultValue = "1") int page,
                                @RequestParam(value = "size", defaultValue = "7") int size,
+                               Authentication auth,
                                RedirectAttributes ra) {
+
+        if (!isAdmin(auth)) {
+            ra.addFlashAttribute("errorMessage", "권한이 없습니다. (ADMIN 전용)");
+            addListParams(ra, type, statusFilter, search, page, size, qnaId);
+            return "redirect:/admin/qna";
+        }
+
         try {
             service.updateStatus(qnaId, uiStatus);
             ra.addFlashAttribute("successMessage", "상태가 변경되었습니다.");
@@ -120,6 +178,7 @@ public class AdminQnaController {
         return "redirect:/admin/qna";
     }
 
+    // ✅ ADMIN만 가능
     @PostMapping("/{qnaId}/delete")
     public String delete(@PathVariable int qnaId,
                          @RequestParam(value = "type", required = false) String type,
@@ -127,7 +186,15 @@ public class AdminQnaController {
                          @RequestParam(value = "search", required = false) String search,
                          @RequestParam(value = "page", defaultValue = "1") int page,
                          @RequestParam(value = "size", defaultValue = "7") int size,
+                         Authentication auth,
                          RedirectAttributes ra) {
+
+        if (!isAdmin(auth)) {
+            ra.addFlashAttribute("errorMessage", "권한이 없습니다. (ADMIN 전용)");
+            addListParams(ra, type, status, search, page, size, null);
+            return "redirect:/admin/qna";
+        }
+
         try {
             service.deleteQna(qnaId);
             ra.addFlashAttribute("successMessage", "Q&A가 삭제되었습니다.");
@@ -135,7 +202,6 @@ public class AdminQnaController {
             ra.addFlashAttribute("errorMessage", "삭제 실패: " + e.getMessage());
         }
 
-        // 삭제 후 선택 해제
         addListParams(ra, type, status, search, page, size, null);
         return "redirect:/admin/qna";
     }

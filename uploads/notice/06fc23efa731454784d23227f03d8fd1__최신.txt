@@ -1,0 +1,2295 @@
+package com.learnit.learnit.cart;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Controller
+public class CartController {
+
+    private final CartService cartService;
+
+    public CartController(CartService cartService) {
+        this.cartService = cartService;
+    }
+
+    @GetMapping("/cart")
+    public String cartPage(Model model) {
+        Long userId = 5L; // ✅ 임시 고정
+
+        List<CartItem> items = cartService.getCartItems(userId);
+        int totalPrice = cartService.calcTotal(items);
+
+        model.addAttribute("items", items);
+        model.addAttribute("totalPrice", totalPrice);
+        model.addAttribute("discountPrice", 0);
+        model.addAttribute("finalPrice", totalPrice);
+
+        return "cart/cart";
+    }
+
+    // ✅ 추가: 장바구니 담기
+    @PostMapping("/cart/add")
+    @ResponseBody
+    public String addToCart(@RequestParam("courseId") Long courseId) {
+        Long userId = 5L; // ✅ 임시 고정
+        boolean inserted = cartService.addToCart(userId, courseId);
+        return inserted ? "OK" : "DUP"; // 프론트에서 참고용
+    }
+
+    @PostMapping("/cart/delete")
+    public String deleteItem(@RequestParam("cartId") Long cartId) {
+        Long userId = 5L;
+        cartService.removeItem(userId, cartId);
+        return "redirect:/cart";
+    }
+
+    @PostMapping("/cart/clear")
+    public String clearCart() {
+        Long userId = 5L;
+        cartService.clearCart(userId);
+        return "redirect:/cart";
+    }
+}
+카트쪽 코드 먼저 보여줄게
+package com.learnit.learnit.cart;
+
+public class CartItem {
+    private Long cartId;
+    private Long courseId;
+    private String categoryName;
+    private String title;
+    private Integer price;
+    private String thumbnailUrl;
+
+    public Long getCartId() { return cartId; }
+    public void setCartId(Long cartId) { this.cartId = cartId; }
+
+    public Long getCourseId() { return courseId; }
+    public void setCourseId(Long courseId) { this.courseId = courseId; }
+
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public Integer getPrice() { return price; }
+    public void setPrice(Integer price) { this.price = price; }
+
+    public String getThumbnailUrl() { return thumbnailUrl; }
+    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
+}
+package com.learnit.learnit.cart;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import java.util.List;
+
+@Mapper
+public interface CartMapper {
+    List<CartItem> findByUserId(@Param("userId") Long userId);
+
+    int deleteByCartId(@Param("cartId") Long cartId, @Param("userId") Long userId);
+
+    int deleteAllByUserId(@Param("userId") Long userId);
+
+    // ✅ 추가: 중복 체크
+    int exists(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
+    // ✅ 추가: 장바구니 담기
+    int insertCart(@Param("userId") Long userId, @Param("courseId") Long courseId);
+}
+
+package com.learnit.learnit.cart;
+
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class CartService {
+
+    private final CartMapper cartMapper;
+
+    public CartService(CartMapper cartMapper) {
+        this.cartMapper = cartMapper;
+    }
+
+    public List<CartItem> getCartItems(Long userId) {
+        return cartMapper.findByUserId(userId);
+    }
+
+    public int removeItem(Long userId, Long cartId) {
+        return cartMapper.deleteByCartId(cartId, userId);
+    }
+
+    public int clearCart(Long userId) {
+        return cartMapper.deleteAllByUserId(userId);
+    }
+
+    public int calcTotal(List<CartItem> items) {
+        int sum = 0;
+        for (CartItem i : items) {
+            if (i.getPrice() != null) sum += i.getPrice();
+        }
+        return sum;
+    }
+
+    // ✅ 추가: 중복 담기 방지 + 담기
+    public boolean addToCart(Long userId, Long courseId) {
+        int cnt = cartMapper.exists(userId, courseId);
+        if (cnt > 0) return false;          // 이미 담김
+        cartMapper.insertCart(userId, courseId);
+        return true;                         // 새로 담김
+    }
+}
+
+package com.learnit.learnit.course;
+
+import com.learnit.learnit.common.PageResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+public class CourseApiController {
+
+    private final CourseService courseService;
+
+    @GetMapping("/api/courses")
+    public PageResponse<CourseDTO> list(
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(defaultValue = "latest") String sort,
+            @RequestParam(defaultValue = "all") String tab,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
+    ) {
+        return courseService.getCoursesPage(categoryId, sort, tab, page, size);
+    }
+}
+package com.learnit.learnit.course;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+@RequiredArgsConstructor
+public class CourseController {
+
+    @GetMapping("/CourseList")
+    public String courseList(
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false, defaultValue = "all") String tab,
+            @RequestParam(required = false, defaultValue = "latest") String sort,
+            Model model
+    ) {
+        model.addAttribute("selectedCategoryId", categoryId);
+        model.addAttribute("selectedTab", tab);
+        model.addAttribute("selectedSort", sort);
+
+        return "courseList/courseList";
+    }
+}
+package com.learnit.learnit.course;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+public class CourseDTO {
+
+    private Integer courseId;        // PK
+    private Integer categoryId;      // 카테고리 FK
+    private Integer userId;          // 교수자 ID
+
+    private String title;            // 제목
+    private String description;      // 상세 설명
+    private Integer price;           // 가격 (0이면 무료)
+
+    private String thumbnailUrl;     // 리스트용 썸네일
+    private String detailImgUrl;     // 상세 페이지 이미지
+
+    private String openType;         // ALWAYS / PERIOD
+    private LocalDateTime openStart; // 제한 강의 시작일
+    private LocalDateTime openEnd;   // 제한 강의 종료일
+
+    private String status;           // CLOSE / ACTIVE
+
+    private LocalDateTime createdAt; // 생성일
+    private LocalDateTime updatedAt; // 수정일
+
+    private Integer deleteFlg;       // 삭제 플래그 (0:N, 1:Y)
+    private String instructorName; // 지식공유자
+    private String periodText;     // 수강기간(무제한 or 기간)
+    private String categoryName;   // 카테고리 태그
+
+}
+package com.learnit.learnit.course;
+
+import com.learnit.learnit.home.MainCourse;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+@Mapper
+public interface CourseMapper {
+    //
+    List<CourseDTO> searchCourses(@Param("keyword") String keyword);
+
+    //메인 페이지
+    //인기 강의 목록 불러오기
+    List<MainCourse> selectPopularCourse(int limit);
+
+    //썸네일배너 강의 불러오기
+    List<MainCourse> selectBannerCourse(int limit);
+
+    // ✅ 목록 필터/정렬(ajax용)
+    // 기존(필요하면 유지)
+    List<CourseDTO> selectCourses(@Param("categoryId") Integer categoryId,
+                                  @Param("sort") String sort,
+                                  @Param("tab") String tab);
+
+    // ✅ 무한스크롤(페이지)용
+    List<CourseDTO> selectCoursesPage(@Param("categoryId") Integer categoryId,
+                                      @Param("sort") String sort,
+                                      @Param("tab") String tab,
+                                      @Param("limit") int limit,
+                                      @Param("offset") int offset);
+
+    // ✅ 총 개수(페이지 계산용)
+    long countCourses(@Param("categoryId") Integer categoryId,
+                      @Param("tab") String tab);
+}
+package com.learnit.learnit.course;
+
+import com.learnit.learnit.common.PageResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class CourseService {
+
+    private final CourseMapper courseMapper;
+
+    public PageResponse<CourseDTO> getCoursesPage(Integer categoryId, String sort, String tab, int page, int size) {
+
+        String safeSort = (sort == null) ? "latest" : sort;
+        String safeTab  = (tab == null)  ? "all"    : tab;
+
+        if (!safeSort.matches("latest|popular|priceAsc|priceDesc")) safeSort = "latest";
+        if (!safeTab.matches("all|free")) safeTab = "all";
+
+        if (page < 0) page = 0;
+        if (size <= 0) size = 12;
+
+        int offset = page * size;
+
+        List<CourseDTO> content =
+                courseMapper.selectCoursesPage(categoryId, safeSort, safeTab, size, offset);
+
+        long total =
+                courseMapper.countCourses(categoryId, safeTab);
+
+        int totalPages = (int) Math.ceil((double) total / size);
+        boolean last = (totalPages == 0) || (page + 1 >= totalPages);
+
+        return new PageResponse<>(
+                content,
+                page,
+                size,
+                total,
+                totalPages,
+                last
+        );
+    }
+}
+package com.learnit.learnit.courseDetail;
+
+import lombok.Data;
+
+@Data
+public class ChapterDTO {
+    private int chapterId;
+    private int courseId;
+    private String title;
+    private int orderIndex;
+}
+package com.learnit.learnit.courseDetail;
+
+import com.learnit.learnit.course.CourseDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Collections;
+
+@Controller
+@RequiredArgsConstructor
+public class CourseDetailController {
+
+    private final CourseDetailService courseDetailService;
+
+    // ✅ 비로그인 상세
+    @GetMapping("/CourseDetail")
+    public String detail(
+            @RequestParam("courseId") int courseId,
+            @RequestParam(value = "tab", defaultValue = "intro") String tab,
+            Model model
+    ) {
+        setCommonModel(model, courseId, tab, false);
+        return "courseDetail/courseDetail.html";
+    }
+
+    // ✅ 로그인 가정 상세
+    @GetMapping("/CourseDetailLogin")
+    public String detailLogin(
+            @RequestParam("courseId") int courseId,
+            @RequestParam(value = "tab", defaultValue = "intro") String tab,
+            Model model
+    ) {
+        setCommonModel(model, courseId, tab, true);
+        return "courseDetail/courseDetail.html";
+    }
+
+    private void setCommonModel(Model model, int courseId, String tab, boolean isLoggedIn) {
+        CourseDTO course = courseDetailService.getCourse(courseId);
+
+        model.addAttribute("course", course);
+        model.addAttribute("activeTab", tab);
+        model.addAttribute("isLoggedIn", isLoggedIn);
+
+        // ✅ 로그인 가정 유저명(나중에 세션/시큐리티로 바꾸면 됨)
+        model.addAttribute("userName", isLoggedIn ? "user" : null);
+
+        // ✅ chapters는 항상 담기
+        model.addAttribute("chapters", courseDetailService.getChaptersOrDummy(courseId));
+
+        // ✅ reviews는 reviews 탭일 때만
+        if ("reviews".equals(tab)) {
+            model.addAttribute("reviews", courseDetailService.getDummyReviews());
+        } else {
+            model.addAttribute("reviews", Collections.emptyList());
+        }
+    }
+}
+package com.learnit.learnit.courseDetail;
+
+import com.learnit.learnit.course.CourseDTO;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+@Mapper
+public interface CourseDetailMapper {
+    CourseDTO selectCourseDetail(@Param("courseId") int courseId);
+
+    // ✅ 커리큘럼(챕터) 조회 추가
+    List<ChapterDTO> selectChaptersByCourseId(@Param("courseId") int courseId);
+}
+package com.learnit.learnit.courseDetail;
+
+import com.learnit.learnit.course.CourseDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class CourseDetailService {
+
+    private final CourseDetailMapper courseDetailMapper;
+
+    public CourseDTO getCourse(int courseId) {
+        return courseDetailMapper.selectCourseDetail(courseId);
+    }
+
+    // ✅ DB에 chapter 데이터 있으면 DB로, 없으면 더미로
+    public List<ChapterDTO> getChaptersOrDummy(int courseId) {
+        List<ChapterDTO> list = courseDetailMapper.selectChaptersByCourseId(courseId);
+        if (list == null || list.isEmpty()) {
+            return getDummyChapters(courseId);
+        }
+        return list;
+    }
+
+    // ✅ 더미 챕터
+    public List<ChapterDTO> getDummyChapters(int courseId) {
+        ChapterDTO c1 = new ChapterDTO();
+        c1.setCourseId(courseId);
+        c1.setOrderIndex(1);
+        c1.setTitle("강의소개");
+
+        ChapterDTO c2 = new ChapterDTO();
+        c2.setCourseId(courseId);
+        c2.setOrderIndex(2);
+        c2.setTitle("기본 개념");
+
+        ChapterDTO c3 = new ChapterDTO();
+        c3.setCourseId(courseId);
+        c3.setOrderIndex(3);
+        c3.setTitle("실습");
+
+        return List.of(c1, c2, c3);
+    }
+
+    // ✅ 수강평 더미
+    public List<Map<String, Object>> getDummyReviews() {
+        return List.of(
+                Map.of("name", "dmax", "rating", 5.0, "comment", "많은 도움이 되었습니다. 고맙습니다!"),
+                Map.of("name", "Jang Jaehoon", "rating", 5.0, "comment", "좋은 강의 감사합니다!"),
+                Map.of("name", "masiljangajji", "rating", 5.0, "comment", "Good")
+        );
+    }
+}
+package com.learnit.learnit.search;
+
+import com.learnit.learnit.course.CourseDTO;
+import com.learnit.learnit.course.CourseMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/search")
+@RequiredArgsConstructor
+public class SearchApiController {
+
+    private final CourseMapper courseMapper;
+
+    @GetMapping("/courses")
+    public List<CourseDTO> searchCourses(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "12") int size
+    ) {
+        // ✅ 1차 버전: 기존 searchCourses 재활용 (페이징은 프론트에서만)
+        return courseMapper.searchCourses(keyword);
+    }
+}
+package com.learnit.learnit.search;
+
+import com.learnit.learnit.course.CourseDTO;
+import com.learnit.learnit.course.CourseMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
+
+@Controller
+@RequiredArgsConstructor
+public class SearchController {
+
+    private final CourseMapper courseMapper;
+
+    @GetMapping("/search")
+    public String search(@RequestParam(value = "keyword", required = false) String keyword,
+                         Model model) {
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return "redirect:/home";
+        }
+
+        // ✅ 매퍼 resultType이 CourseDTO니까 여기 타입도 CourseDTO로 맞춤
+        List<CourseDTO> list = courseMapper.searchCourses(keyword);
+
+        model.addAttribute("list", list);
+        model.addAttribute("keyword", keyword);
+
+        return "home/search-result";
+    }
+}
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.learnit.learnit.cart.CartMapper">
+
+    <select id="findByUserId" resultType="com.learnit.learnit.cart.CartItem">
+        SELECT
+        c.cart_id AS cartId,
+        co.course_id AS courseId,
+        ca.name AS categoryName,
+        co.title AS title,
+        co.price AS price,
+        co.thumbnail_url AS thumbnailUrl
+        FROM cart c
+        JOIN course co ON co.course_id = c.course_id
+        LEFT JOIN category ca ON ca.category_id = co.category_id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.cart_id DESC
+    </select>
+
+    <!-- ✅ 추가: 중복 체크 -->
+    <select id="exists" resultType="int">
+        SELECT COUNT(*)
+        FROM cart
+        WHERE user_id = #{userId}
+        AND course_id = #{courseId}
+    </select>
+
+    <!-- ✅ 추가: 담기 -->
+    <insert id="insertCart">
+        INSERT INTO cart (user_id, course_id)
+        VALUES (#{userId}, #{courseId})
+    </insert>
+
+    <delete id="deleteByCartId">
+        DELETE FROM cart
+        WHERE cart_id = #{cartId}
+        AND user_id = #{userId}
+    </delete>
+
+    <delete id="deleteAllByUserId">
+        DELETE FROM cart
+        WHERE user_id = #{userId}
+    </delete>
+
+</mapper>
+
+이건 resoures/mapper/cart/CartMapper.xml코드야
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.category.CategoryRepository">
+
+    <select id="findAll" resultType="com.learnit.learnit.category.CategoryDTO">
+        SELECT
+            category_id AS categoryId,
+            name,
+            icon_path  AS iconPath
+        FROM category
+        ORDER BY category_id ASC
+    </select>
+
+</mapper>
+이건  CategoryMapper.xml코드야
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.course.CourseMapper">
+    <select id="searchCourses"
+            resultType="com.learnit.learnit.course.CourseDTO">
+        SELECT
+            c.course_id      AS courseId,
+            c.category_id    AS categoryId,
+            c.user_id        AS userId,
+            c.title          AS title,
+            c.description    AS description,
+            c.price          AS price,
+            c.thumbnail_url  AS thumbnailUrl,
+            c.detail_img_url AS detailImgUrl,
+            c.open_type      AS openType,
+            c.open_start     AS openStart,
+            c.open_end       AS openEnd,
+            c.status         AS status,
+            c.created_at     AS createdAt,
+            c.updated_at     AS updatedAt,
+            c.delete_flg     AS deleteFlg
+        FROM course c
+        WHERE c.delete_flg = 0
+          AND (
+            c.title LIKE CONCAT('%', #{keyword}, '%')
+                OR c.description LIKE CONCAT('%', #{keyword}, '%')
+            )
+        ORDER BY c.course_id DESC
+    </select>
+
+    <!--인기강의 목록 불러오기 (최대5개)-->
+    <select id="selectPopularCourse" resultType="com.learnit.learnit.home.MainCourse">
+        SELECT
+            c.course_id AS courseId,
+            ct.name AS categoryName,
+            c.title,
+            c.price,
+            c.thumbnail_url AS thumbnailUrl,
+            c.status,
+            count(pd.pay_detail_id) AS salesCount
+        FROM course c JOIN payment_detail pd ON c.course_id = pd.course_id
+                      JOIN category ct ON c.category_id = ct.category_id
+        WHERE c.delete_flg = 0 AND c.status = 'ACTIVE'
+        GROUP BY c.course_id
+        ORDER BY salesCount DESC
+            LIMIT #{limit}
+    </select>
+
+
+    <!--썸네일 배너용 최신 강의 불러오기(최대4개)-->
+    <select id="selectBannerCourse" resultType="com.learnit.learnit.home.MainCourse">
+        SELECT
+            c.course_id,
+            c.title,
+            ct.name AS categoryName,
+            c.thumbnail_url,
+            c.detail_img_url
+        FROM course c JOIN category ct
+                           ON c.category_id = ct.category_id
+        WHERE delete_flg = 0 AND status = 'ACTIVE'
+        ORDER BY created_at DESC
+            LIMIT #{limit}
+    </select>
+
+    <!-- ✅ 무한스크롤(페이지) 목록 -->
+    <select id="selectCoursesPage" resultType="com.learnit.learnit.course.CourseDTO">
+        SELECT
+        c.course_id      AS courseId,
+        c.category_id    AS categoryId,
+        c.user_id        AS userId,
+        c.title          AS title,
+        c.description    AS description,
+        c.price          AS price,
+        c.thumbnail_url  AS thumbnailUrl,
+        c.detail_img_url AS detailImgUrl,
+        c.open_type      AS openType,
+        c.open_start     AS openStart,
+        c.open_end       AS openEnd,
+        c.status         AS status,
+        c.created_at     AS createdAt,
+        c.updated_at     AS updatedAt,
+        c.delete_flg     AS deleteFlg,
+        COALESCE(COUNT(pd.pay_detail_id), 0) AS salesCount
+        FROM course c
+        LEFT JOIN payment_detail pd
+        ON c.course_id = pd.course_id
+        WHERE c.delete_flg = 0
+        AND c.status = 'ACTIVE'
+        <if test="categoryId != null">
+            AND c.category_id = #{categoryId}
+        </if>
+
+        <if test="tab == 'free'">
+            AND c.price = 0
+        </if>
+
+        GROUP BY
+        c.course_id, c.category_id, c.user_id, c.title, c.description, c.price,
+        c.thumbnail_url, c.detail_img_url, c.open_type, c.open_start, c.open_end,
+        c.status, c.created_at, c.updated_at, c.delete_flg
+
+        <choose>
+            <when test="sort == 'popular'">
+                ORDER BY salesCount DESC, c.created_at DESC
+            </when>
+            <when test="sort == 'priceAsc'">
+                ORDER BY c.price ASC, c.created_at DESC
+            </when>
+            <when test="sort == 'priceDesc'">
+                ORDER BY c.price DESC, c.created_at DESC
+            </when>
+            <otherwise>
+                ORDER BY c.created_at DESC
+            </otherwise>
+        </choose>
+
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- ✅ 전체 개수 (페이지 계산용) -->
+    <select id="countCourses" resultType="long">
+        SELECT COUNT(*)
+        FROM course c
+        WHERE c.delete_flg = 0
+        AND c.status = 'ACTIVE'
+        <if test="categoryId != null">
+            AND c.category_id = #{categoryId}
+        </if>
+        <if test="tab == 'free'">
+            AND c.price = 0
+        </if>
+    </select>
+
+</mapper>
+이건 CourseMapper.xml코드고
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.courseDetail.CourseDetailMapper">
+
+    <select id="selectCourseDetail" resultType="com.learnit.learnit.course.CourseDTO">
+        SELECT
+        c.course_id      AS courseId,
+        c.category_id    AS categoryId,
+        c.user_id        AS userId,
+        c.title          AS title,
+        c.description    AS description,
+        c.price          AS price,
+        c.thumbnail_url  AS thumbnailUrl,
+        c.detail_img_url AS detailImgUrl,
+        c.open_type      AS openType,
+        c.open_start     AS openStart,
+        c.open_end       AS openEnd,
+        c.status         AS status,
+        c.created_at     AS createdAt,
+        c.updated_at     AS updatedAt,
+        c.delete_flg     AS deleteFlg,
+
+        -- ✅ 카테고리명
+        cat.name         AS categoryName,
+
+        -- ✅ 지식공유자 (nickname 우선, 없으면 name)
+        COALESCE(u.nickname, u.name) AS instructorName,
+
+        -- ✅ 수강기간 텍스트
+        CASE
+        WHEN c.open_type = 'ALWAYS' THEN '무제한'
+        ELSE CONCAT(DATE_FORMAT(c.open_start, '%Y.%m.%d'), ' ~ ', DATE_FORMAT(c.open_end, '%Y.%m.%d'))
+        END AS periodText
+
+        FROM course c
+        LEFT JOIN category cat ON cat.category_id = c.category_id
+        LEFT JOIN users u ON u.user_id = c.user_id
+        WHERE c.course_id = #{courseId}
+        AND c.delete_flg = 0
+    </select>
+
+
+    <!-- ✅ 커리큘럼(챕터) 조회 -->
+    <select id="selectChaptersByCourseId" resultType="com.learnit.learnit.courseDetail.ChapterDTO">
+        SELECT
+        chapter_id  AS chapterId,
+        course_id   AS courseId,
+        title       AS title,
+        order_index AS orderIndex
+        FROM chapter
+        WHERE course_id = #{courseId}
+        ORDER BY order_index ASC
+    </select>
+
+</mapper>
+이건 courseDetail/CourseDetailMapper.xml코드고
+.cart-page {
+  padding: 5rem 0;
+}
+
+.cart-head {
+  margin-bottom: 2rem;
+}
+
+.cart-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 2.6rem;
+  font-weight: 800;
+}
+
+.cart-icon {
+  font-size: 2.4rem;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2.4rem;
+  align-items: start;
+}
+
+/* 왼쪽 리스트 */
+.cart-list {
+  background: #fff;
+}
+
+.cart-list-top {
+  padding: 1.2rem 1.2rem 1.6rem;
+  border-bottom: 1px solid #eee;
+
+  /* ✅ 추가 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cart-check-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.4rem;
+  color: #111;
+}
+
+/* ✅ 전체삭제 버튼 */
+.cart-clear-form {
+  margin: 0;
+}
+
+.cart-clear-btn {
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.8rem;
+  border: 1px solid #e5e7eb;
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: #fff;
+}
+
+.cart-clear-btn:hover {
+  background: #f3f4f6;
+}
+
+.cart-clear-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cart-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 88px 1fr auto 36px;
+  gap: 1.2rem;
+  align-items: center;
+
+  padding: 1.6rem 1.2rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-check input {
+  width: 16px;
+  height: 16px;
+}
+
+.cart-thumb .thumb-box {
+  width: 76px;
+  height: 56px;
+  border: 1px solid #ddd;
+  border-radius: 1rem;
+  background: #fafafa;
+}
+
+.cart-info {
+  min-width: 0;
+}
+
+.cart-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 0.8rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.6rem;
+  color: #111;
+}
+
+.cart-name {
+  font-size: 1.3rem;
+  color: #666;
+}
+
+.cart-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.cart-price .per {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.cart-remove {
+  width: 32px;
+  height: 32px;
+  border-radius: 0.8rem;
+  border: 1px solid #e5e7eb;
+  font-size: 2.2rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-remove:hover {
+  background: #f3f4f6;
+}
+
+/* 오른쪽 요약 카드 */
+.summary-card {
+  border: 2px solid #111;
+  border-radius: 1.2rem;
+  padding: 1.6rem;
+  background: #fff;
+}
+
+.summary-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 1.2rem;
+}
+
+.summary-lines {
+  display: grid;
+  gap: 0.8rem;
+  margin-bottom: 1.6rem;
+}
+
+.summary-lines .line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  color: #111;
+}
+
+.summary-btn {
+  width: 100%;
+  padding: 1.2rem 1.4rem;
+  border-radius: 0.8rem;
+  background: #111;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.summary-btn:hover {
+  opacity: 0.92;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .cart-page {
+    padding: 3rem 0;
+  }
+
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-item {
+    grid-template-columns: 28px 76px 1fr 32px;
+    grid-template-areas:
+      "check thumb info remove"
+      "check thumb price remove";
+    align-items: center;
+  }
+
+  .cart-check { grid-area: check; }
+  .cart-thumb { grid-area: thumb; }
+  .cart-info  { grid-area: info; } /* ✅ 오타 수정 (isnfo -> info) */
+  .cart-price { grid-area: price; }
+  .cart-remove { grid-area: remove; }
+
+  .cart-price {
+    font-size: 1.8rem;
+    margin-top: 0.4rem;
+  }
+
+  .summary-card {
+    border-width: 1px;
+  }
+}
+이건 cart.css코드고
+.cd-wrap { padding: 4rem 0; }
+
+.cd-hero {
+  background: #111;
+  border-radius: 2rem;
+  padding: 3rem;
+  color: #fff;
+  margin-top: 2rem;
+}
+.cd-hero__inner { display:flex; gap:3rem; align-items:center; justify-content:space-between; }
+.cd-hero__left { flex:1; }
+.cd-title { font-size: 2.8rem; font-weight: 800; margin-bottom: 1rem; }
+.cd-sub { opacity: .85; margin-bottom: 1.2rem; }
+.cd-tags { display:flex; gap:.8rem; flex-wrap:wrap; }
+.tag { background: rgba(255,255,255,.12); padding:.4rem .8rem; border-radius: 999px; font-size:1.2rem; }
+
+.cd-hero__right { width: 380px; }
+.cd-hero__img { width:100%; border-radius:1.6rem; object-fit:cover; aspect-ratio: 16/9; }
+
+.cd-tabs {
+  display:flex; gap:2rem;
+  border-bottom: 1px solid #e5e7eb;
+  margin-top: 2rem;
+}
+.cd-tabs a {
+  padding: 1.4rem .2rem;
+  font-weight: 700;
+  color: #777;
+  position:relative;
+}
+.cd-tabs a.is-active { color:#111; }
+.cd-tabs a.is-active::after {
+  content:"";
+  position:absolute; left:0; bottom:-1px;
+  width:100%; height:2px;
+  background:#111;
+}
+
+.cd-body { display:grid; grid-template-columns: 1fr 360px; gap: 2.4rem; margin-top: 2.4rem; }
+.cd-left { background:#fff; border:1px solid #eee; border-radius:1.6rem; padding:2.4rem; }
+.cd-h2 { font-size:1.8rem; font-weight:800; margin-bottom:1.6rem; }
+
+.cd-sidebar { background:#fff; border:1px solid #eee; border-radius:1.6rem; padding:2.4rem; height: fit-content; }
+.cd-price { font-size: 2.2rem; font-weight: 900; margin-bottom: 1.4rem; }
+
+.cd-btn { width:100%; padding: 1.2rem 1.4rem; border-radius: 1.2rem; font-weight:800; }
+.cd-btn.primary { background:#111; color:#fff; }
+.cd-btn.secondary { background:#f3f4f6; color:#111; }
+.cd-btn.pay { background:#111; color:#fff; margin-top:1rem; }
+
+.cd-info { margin-top: 1.6rem; border-top:1px solid #eee; padding-top: 1.6rem; }
+.cd-info .row { display:flex; justify-content:space-between; padding:.8rem 0; color:#555; }
+.cd-info b { color:#111; }
+
+/* ✅ 로그인 가정: 반반 버튼 */
+.cd-btn-row { display:flex; gap:1rem; }
+.cd-btn.half { width: 50%; }
+
+/* ✅ intro 이미지 */
+.cd-intro-img { margin: 1.2rem 0 1.6rem; }
+.cd-intro-img img {
+  width: 100%;
+  border-radius: 1.2rem;
+  border: 1px solid #eee;
+  object-fit: cover;
+}
+.cd-desc { color:#333; line-height:1.7; }
+
+/* ✅ 커리큘럼(아코디언) */
+.cd-cur-top { display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.2rem; }
+.cd-cur-meta { color:#666; font-weight:700; }
+
+.cd-accordion details {
+  border: 1px solid #eee;
+  border-radius: 1.2rem;
+  overflow:hidden;
+}
+.cd-accordion summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.4rem 1.6rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#f9fafb;
+  font-weight: 800;
+}
+.cd-accordion summary::-webkit-details-marker { display:none; }
+
+.cd-lesson-list { padding: 0; margin: 0; }
+.cd-lesson {
+  display:flex;
+  gap: 1rem;
+  align-items:center;
+  padding: 1.2rem 1.6rem;
+  border-top: 1px solid #eee;
+}
+.lesson-num {
+  width: 2.6rem; height: 2.6rem;
+  display:flex; align-items:center; justify-content:center;
+  border-radius: 50%;
+  background:#111; color:#fff;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+.lesson-title { font-weight: 700; color:#222; }
+
+.review-card {
+  border:1px solid #eee;
+  border-radius: 1.2rem;
+  padding: 1.6rem;
+  margin-bottom: 1.2rem;
+}
+.review-top { display:flex; justify-content:space-between; margin-bottom:.6rem; }
+
+@media (max-width: 1024px) {
+  .cd-body { grid-template-columns: 1fr; }
+  .cd-hero__right { display:none; }
+}
+/* ✅ 로그인 가정 버튼 2개 반반 */
+.cd-btn-row { display:flex; gap:1rem; }
+.cd-btn.half { width: 50%; }
+
+/* ✅ 강의소개 상세 이미지 */
+.cd-detail-img-wrap { margin-top: 1.6rem; }
+.cd-detail-img {
+  width: 100%;
+  border-radius: 1.2rem;
+  border: 1px solid #eee;
+  display:block;
+}
+
+/* ✅ 커리큘럼 상단 */
+.cd-cur-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom: 1.2rem;
+}
+.cd-cur-meta { color:#666; font-size:1.4rem; }
+
+/* ✅ 인프런 느낌 아코디언 */
+.cd-accordion details {
+  border: 1px solid #eee;
+  border-radius: 1.2rem;
+  overflow:hidden;
+}
+.cd-accordion summary {
+  list-style:none;
+  cursor:pointer;
+  padding: 1.4rem 1.6rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#fafafa;
+  font-weight:800;
+}
+.cd-accordion summary::-webkit-details-marker { display:none; }
+
+.cd-lesson-list { padding: 0; margin:0; }
+.cd-lesson {
+  display:flex;
+  gap: 1.2rem;
+  align-items:center;
+  padding: 1.2rem 1.6rem;
+  border-top: 1px solid #eee;
+}
+.lesson-num { width: 2.4rem; font-weight:800; color:#111; }
+.lesson-title { color:#111; }
+이건 courseDetail/course-detail.css코드고
+/* =========================
+   카테고리 영역
+========================= */
+.category-wrap{
+    width:100%;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.category-strip{
+    max-width:1200px;
+    margin:0 auto;
+    padding:14px 20px;
+    overflow-x:auto;                 /* 가로 스크롤 */
+}
+
+/* 가운데 정렬 + 아이템 적어도 중앙 유지 */
+.category-row{
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    min-width:100%;
+}
+
+/* 카테고리 아이템 */
+.cat-item{
+    flex:0 0 auto;
+    width:64px;
+    text-decoration:none;
+    color:#111;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+}
+
+.cat-item.is-active .cat-box{
+    background:#111;
+}
+
+.cat-item.is-active .cat-icon{
+    filter:invert(1);
+}
+
+/* 아이콘 박스 */
+.cat-box{
+    width:44px;
+    height:44px;
+    border-radius:10px;
+    background:#e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    border:2px solid transparent;
+}
+
+.cat-icon{
+    width:28px;
+    height:28px;
+    object-fit:contain;
+}
+
+/* ✅ 활성화 표시 */
+.cat-item.is-active .cat-box{
+    background:#111;
+    border-color:#111;
+}
+
+.cat-item.is-active .cat-text{
+    font-weight:700;
+}
+
+/* 카테고리 텍스트 */
+.cat-text{
+    width:64px;
+    font-size:12px;
+    text-align:center;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+
+/* =========================
+   필터 바
+========================= */
+.filter-wrap{
+    width:100%;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.filter-bar{
+    max-width:1200px;
+    margin:0 auto;
+    padding:14px 20px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+}
+
+/* 탭 */
+.tabs{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.tab{
+    display:inline-flex;
+    align-items:center;
+    padding:7px 12px;
+
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+
+    font-size:12px;
+    font-weight:600;
+    text-decoration:none;
+    color:#111;
+    background:#fff;
+}
+
+.tab.is-active{
+    background:#111;
+    color:#fff;
+    border-color:#111;
+}
+
+/* 정렬 */
+.sort{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.sort-label{
+    font-size:12px;
+    font-weight:600;
+}
+
+.sort-select{
+    appearance:none;
+    padding:8px 34px 8px 12px;
+
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    background:#fff;
+
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+
+    /* 화살표 */
+    background-image:
+            linear-gradient(45deg, transparent 50%, #111 50%),
+            linear-gradient(135deg, #111 50%, transparent 50%);
+    background-position:
+            calc(100% - 16px) 52%,
+            calc(100% - 11px) 52%;
+    background-size:5px 5px;
+    background-repeat:no-repeat;
+}
+
+
+/* =========================
+   강의 카드 그리드
+========================= */
+#courseGrid{
+    max-width:1200px;
+    margin:0 auto;
+    padding:20px;
+
+    display:grid;
+    gap:20px;
+
+    /* PC 기본: 3개 */
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+}
+
+.course-card{
+    width:100%;
+}
+
+/* 카드 내부 */
+.course-link{
+    display:block;
+    text-decoration:none;
+    color:inherit;
+}
+
+.thumb-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio:16 / 9;
+    border-radius:14px;
+    overflow:hidden;
+    background:#f3f4f6;
+}
+
+.thumb{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.thumb-placeholder{
+    width:100%;
+    height:100%;
+    background:#e5e7eb;
+}
+
+.cart-btn{
+    position:absolute;
+    right:10px;
+    bottom:10px;
+    border:none;
+    background:#fff;
+    border-radius:50%;
+    width:34px;
+    height:34px;
+    cursor:pointer;
+}
+
+.card-body{
+    padding:12px 4px;
+}
+
+.title{
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.desc{
+    font-size:12px;
+    color:#6b7280;
+    margin-bottom:10px;
+}
+
+.meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.price{
+    font-size:13px;
+    font-weight:700;
+}
+
+/*추가*/
+.course-empty {
+    grid-column: 1 / -1;       /* 그리드 전체 폭 */
+    min-height: 450px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.course-empty h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 10px;
+}
+
+.course-empty p {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.course-empty .btn-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 22px;
+    border-radius: 12px;
+
+    background: #111;
+    color: #fff;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.course-empty .btn-home:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+
+/* =========================
+   반응형 (768px 기준)
+========================= */
+@media (max-width:768px){
+
+    /* 카테고리 */
+    .category-strip{ padding:12px 14px; }
+    .cat-item{ width:58px; }
+    .cat-box{ width:40px; height:40px; }
+    .cat-text{ width:58px; font-size:11px; }
+
+    /* ✅ 필터: 모바일에서도 한 줄 */
+    .filter-bar{
+        padding:12px 14px;
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        flex-wrap:nowrap;
+    }
+
+    .tabs{
+        flex:1 1 auto;
+        display:flex;
+        gap:8px;
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;
+        min-width:0; /* ✅ 핵심: 옆 요소 때문에 안 밀리게 */
+    }
+    .tabs::-webkit-scrollbar{ display:none; }
+
+    .tab{
+        flex:0 0 auto;
+        white-space:nowrap;
+        padding:7px 10px;
+        font-size:12px;
+    }
+
+    .sort{
+        flex:0 0 auto;
+        margin-left:auto;
+        display:flex;
+        align-items:center;
+    }
+
+    .sort-label{ display:none; }
+
+    .sort-select{
+        width:140px;
+        min-width:120px;
+        padding:8px 30px 8px 10px;
+    }
+
+    /* 강의 카드 → 2개씩 */
+    #courseGrid{
+        padding:14px;
+        gap:14px;
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .title{ font-size:13px; }
+    .desc{ font-size:11px; }
+
+    /*추가*/
+    .course-empty {
+        min-height: 300px;
+    }
+
+    .course-empty .code {
+        font-size: 48px;
+    }
+
+    .course-empty h2 {
+        font-size: 18px;
+    }
+
+    .course-empty p {
+        font-size: 13px;
+    }
+}
+이건 courseList/course-list.css코드고
+document.addEventListener("DOMContentLoaded", () => {
+    const checkAll = document.getElementById("checkAll");
+    const itemChecks = () => Array.from(document.querySelectorAll(".itemCheck"));
+
+    const totalText = document.getElementById("totalPriceText");
+    const discountText = document.getElementById("discountText");
+    const finalText = document.getElementById("finalPriceText");
+
+    function formatWon(n) {
+        return n.toLocaleString("ko-KR") + "원";
+    }
+
+    function calcSelectedTotal() {
+        return itemChecks()
+            .filter(chk => chk.checked)
+            .reduce((sum, chk) => sum + Number(chk.dataset.price || 0), 0);
+    }
+
+    function renderPrice() {
+        const total = calcSelectedTotal();
+        const discount = 0;
+        const final = total - discount;
+
+        if (totalText) totalText.textContent = formatWon(total);
+        if (discountText) discountText.textContent = "-" + formatWon(discount);
+        if (finalText) finalText.textContent = formatWon(final);
+
+        const all = itemChecks();
+        if (checkAll && all.length > 0) {
+            checkAll.checked = all.every(chk => chk.checked);
+        }
+    }
+
+    if (checkAll) {
+        checkAll.addEventListener("change", () => {
+            itemChecks().forEach(chk => (chk.checked = checkAll.checked));
+            renderPrice();
+        });
+    }
+
+    itemChecks().forEach(chk => chk.addEventListener("change", renderPrice));
+
+    renderPrice();
+});
+이건 cart/cart.js코드고
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-action]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const action = btn.dataset.action;
+
+      if (action === "login") {
+        alert("로그인이 필요합니다. (로그인 페이지 구현 후 이동)");
+        return;
+      }
+
+      // ✅ 수강신청 가기 (원하는 URL로 바꿔)
+      if (action === "enroll") {
+        const courseId = btn.dataset.courseId;
+        // 예시: 수강신청 페이지가 없으면 일단 alert
+        alert("수강신청 페이지로 이동(추후 연결) courseId=" + courseId);
+        // location.href = `/enroll?courseId=${courseId}`;
+        return;
+      }
+
+      // ✅ 장바구니 담기: 무조건 먼저 담고 → confirm은 이동만 결정
+      if (action === "cartAdd") {
+        const courseId = btn.dataset.courseId;
+
+        try {
+          const res = await fetch("/cart/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+            body: new URLSearchParams({ courseId })
+          });
+
+          const text = await res.text(); // OK or DUP
+          // text === "DUP"이면 이미 담겨있음 (그래도 유지)
+
+          const ok = confirm("장바구니 페이지로 이동하시겠습니까?");
+          if (ok) location.href = "/cart";
+          // 취소면 그냥 현재 페이지 유지
+        } catch (e) {
+          alert("장바구니 담기에 실패했습니다. 서버 상태를 확인하세요.");
+        }
+        return;
+      }
+    });
+  });
+});
+이건 courseDetail/course-detail.js코드고
+document.addEventListener('DOMContentLoaded', () => {
+    const state = {
+        categoryId: null,
+        tab: 'all',
+        sort: 'popular',
+        page: 0,
+        size: 12,
+        loading: false,
+        last: false,
+    };
+
+    const grid = document.getElementById('courseGrid');
+    const sortSelect = document.getElementById('sortSelect');
+
+    // ---------- URL <-> state ----------
+    function readStateFromUrl() {
+        const p = new URLSearchParams(location.search);
+
+        const cid = p.get('categoryId');
+        state.categoryId = (cid !== null && cid !== '') ? Number(cid) : null;
+
+        const tab = p.get('tab');
+        state.tab = tab ? tab : 'all';
+
+        const sort = p.get('sort');
+        state.sort = sort ? sort : 'popular';
+    }
+
+    function syncUrl(push = true) {
+        const p = new URLSearchParams();
+        if (state.categoryId !== null) p.set('categoryId', state.categoryId);
+        if (state.tab) p.set('tab', state.tab);
+        if (state.sort) p.set('sort', state.sort);
+
+        const newUrl = p.toString() ? `/CourseList?${p.toString()}` : `/CourseList`;
+        const payload = { categoryId: state.categoryId, tab: state.tab, sort: state.sort };
+
+        if (push) history.pushState(payload, '', newUrl);
+        else history.replaceState(payload, '', newUrl);
+    }
+
+    // ---------- UI ----------
+    function setActiveCategory(categoryId) {
+        document.querySelectorAll('.cat-item[data-category-id]').forEach(el => {
+            const cid = Number(el.dataset.categoryId);
+            el.classList.toggle('is-active', cid === categoryId);
+        });
+    }
+
+    function setActiveTab(tab) {
+        document.querySelectorAll('.tab[data-tab]').forEach(el => {
+            const active = el.dataset.tab === tab;
+            el.classList.toggle('is-active', active);
+            el.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+    }
+
+    function applyControls() {
+        setActiveCategory(state.categoryId);
+        setActiveTab(state.tab);
+        if (sortSelect) sortSelect.value = state.sort;
+    }
+
+    function resetPaging() {
+        state.page = 0;
+        state.last = false;
+        grid.innerHTML = '';
+    }
+
+    // ---------- API ----------
+    async function fetchPageAndAppend() {
+        if (!grid) return;
+        if (state.loading || state.last) return;
+
+        state.loading = true;
+
+        const p = new URLSearchParams();
+        if (state.categoryId !== null) p.set('categoryId', state.categoryId);
+        p.set('tab', state.tab);
+        p.set('sort', state.sort);
+        p.set('page', String(state.page));
+        p.set('size', String(state.size));
+
+        // 첫 페이지면 로딩 표시
+        if (state.page === 0) {
+            grid.innerHTML = `<div class="loading">로딩중...</div>`;
+        }
+
+        try {
+            const res = await fetch(`/api/courses?${p.toString()}`, {
+                headers: { 'Accept': 'application/json' }
+            });
+
+            // ✅ JSON이 아닐 수도 있어서 확인
+            const ct = res.headers.get('content-type') || '';
+            if (!res.ok) {
+                const text = await res.text().catch(() => '');
+                console.error('API ERROR', res.status, text);
+                grid.innerHTML = `<div class="error">불러오기 실패 (${res.status})</div>`;
+                return;
+            }
+
+            let data;
+            if (ct.includes('application/json')) {
+                data = await res.json();
+            } else {
+                const text = await res.text();
+                console.error('NOT JSON', text);
+                grid.innerHTML = `<div class="error">JSON이 아닌 응답(로그인/에러페이지 가능)</div>`;
+                return;
+            }
+
+            // ✅ List or Page 모두 대응
+            const content = Array.isArray(data) ? data : (data.content ?? []);
+            const isLast = Array.isArray(data) ? (content.length < state.size) : !!data.last;
+
+            if (state.page === 0) grid.innerHTML = '';
+            if (!content || content.length === 0) {
+                if (state.page === 0) grid.innerHTML = `
+                        <div class="course-empty">
+                            <h2>표시할 강의가 없어요.</h2>
+                            <p>
+                              선택하신 조건에 해당하는 강의를 찾을 수 없습니다.<br>
+                              다른 카테고리나 필터를 선택해보세요.
+                            </p>
+                            <a href="/CourseList" class="btn-home">전체 강의 보기</a>
+                          </div>
+                        `;
+                state.last = true;
+                return;
+            }
+
+            grid.insertAdjacentHTML('beforeend', content.map(courseCardHtml).join(''));
+
+            state.last = isLast;
+            state.page += 1;
+
+        } catch (e) {
+            console.error(e);
+            if (state.page === 0) grid.innerHTML = `<div class="error">네트워크 오류</div>`;
+        } finally {
+            state.loading = false;
+        }
+    }
+
+    function courseCardHtml(c) {
+        const price = Number(c.price ?? 0);
+        const priceText = (price === 0) ? '무료' : `${price.toLocaleString()}원`;
+        const thumb = c.thumbnailUrl ? c.thumbnailUrl : '';
+
+        return `
+      <article class="course-card">
+        <a class="course-link" href="/CourseDetail?courseId=${c.courseId}&tab=intro">
+          <div class="thumb-wrap">
+            ${thumb
+            ? `<img class="thumb" src="${escapeHtml(thumb)}" alt="">`
+            : `<div class="thumb thumb-placeholder"></div>`}
+            <button class="cart-btn" type="button" aria-label="장바구니">🛒</button>
+          </div>
+          <div class="card-body">
+            <h3 class="title">${escapeHtml(c.title ?? '')}</h3>
+            <p class="desc">${escapeHtml(String(c.description ?? '').slice(0, 80))}</p>
+            <div class="meta">
+              <span class="price">${priceText}</span>
+            </div>
+          </div>
+        </a>
+      </article>`;
+    }
+
+    function escapeHtml(s) {
+        return String(s)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    // ---------- Events ----------
+    document.querySelectorAll('.cat-item[data-category-id]').forEach(catEl => {
+        catEl.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            state.categoryId = Number(catEl.dataset.categoryId);
+            applyControls();
+
+            syncUrl(true);
+
+            resetPaging();
+            fetchPageAndAppend();
+        });
+    });
+
+    document.querySelectorAll('.tab[data-tab]').forEach(tabEl => {
+        tabEl.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            state.tab = tabEl.dataset.tab;
+            applyControls();
+
+            syncUrl(true);
+
+            resetPaging();
+            fetchPageAndAppend();
+        });
+    });
+
+    if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+            state.sort = sortSelect.value;
+
+            syncUrl(true);
+
+            resetPaging();
+            fetchPageAndAppend();
+        });
+    }
+
+    // ✅ 무한 스크롤 (바닥 근처에서 다음 페이지)
+    window.addEventListener('scroll', () => {
+        const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
+        if (nearBottom) fetchPageAndAppend();
+    });
+
+    window.addEventListener('popstate', (e) => {
+        const s = e.state;
+
+        if (s) {
+            state.categoryId = s.categoryId ?? null;
+            state.tab = s.tab ?? 'all';
+            state.sort = s.sort ?? 'popular';
+        } else {
+            readStateFromUrl();
+        }
+
+        applyControls();
+        syncUrl(false);
+
+        resetPaging();
+        fetchPageAndAppend();
+    });
+
+    // ---------- init ----------
+    readStateFromUrl();
+    applyControls();
+    syncUrl(false);
+    resetPaging();
+    fetchPageAndAppend();
+});
+이건 courseList/course-list.js코드고
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+
+<head>
+    <title th:fragment="title">장바구니</title>
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/common/cart.css}">
+    </th:block>
+</head>
+
+<body>
+<div th:fragment="content">
+
+    <section class="cart-page container">
+
+        <div class="cart-head">
+            <h1 class="cart-title">
+                <span class="cart-icon">🛒</span>
+                장바구니
+            </h1>
+        </div>
+
+        <div class="cart-layout">
+
+            <div class="cart-list">
+
+                <div class="cart-list-top">
+                    <label class="cart-check-all">
+                        <input id="checkAll" type="checkbox" checked>
+                        <span>전체선택</span>
+                    </label>
+
+                    <!-- ✅ 전체삭제 버튼 -->
+                    <form th:action="@{/cart/clear}" method="post" class="cart-clear-form">
+                        <button type="submit" class="cart-clear-btn"
+                                th:disabled="${#lists.isEmpty(items)}"
+                                aria-label="장바구니 전체삭제"
+                                onclick="return confirm('장바구니를 전체 삭제할까요?');">
+                            전체삭제
+                        </button>
+                    </form>
+                </div>
+
+                <article class="cart-item" th:each="i : ${items}">
+                    <label class="cart-check">
+                        <input class="itemCheck" type="checkbox" checked
+                               th:attr="data-price=${i.price}">
+                    </label>
+
+                    <div class="cart-thumb" aria-hidden="true">
+                        <div class="thumb-box">
+                            <img th:if="${i.thumbnailUrl != null}"
+                                 th:src="${i.thumbnailUrl}"
+                                 alt=""
+                                 style="width:100%;height:100%;object-fit:cover;border-radius:1rem;">
+                        </div>
+
+                    </div>
+
+                    <div class="cart-info">
+                        <div class="cart-badge" th:text="${i.categoryName}">카테고리</div>
+                        <div class="cart-name" th:text="${i.title}">강의명</div>
+                    </div>
+
+                    <div class="cart-price">
+                        <strong th:if="${i.price != null and i.price > 0}"
+                                th:text="${#numbers.formatInteger(i.price, 3, 'COMMA')} + '원'">0원</strong>
+
+                        <strong th:if="${i.price == null or i.price == 0}"
+                                th:text="'무료'">무료</strong>
+
+                        <span class="per">/1개</span>
+                    </div>
+
+                    <form th:action="@{/cart/delete}" method="post">
+                        <input type="hidden" name="cartId" th:value="${i.cartId}">
+                        <button type="submit" class="cart-remove" aria-label="삭제">×</button>
+                    </form>
+                </article>
+
+                <div th:if="${#lists.isEmpty(items)}" style="padding: 2rem; color:#666;">
+                    장바구니가 비어있습니다.
+                </div>
+
+            </div>
+
+            <aside class="cart-summary">
+                <div class="summary-card">
+                    <h2 class="summary-title">구매금액</h2>
+
+                    <dl class="summary-lines">
+                        <div class="line">
+                            <dt>상품금액</dt>
+                            <dd id="totalPriceText"
+                                th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')} + '원'">0원</dd>
+                        </div>
+                        <div class="line">
+                            <dt>할인금액</dt>
+                            <dd id="discountText"
+                                th:text="'-' + ${#numbers.formatInteger(discountPrice, 3, 'COMMA')} + '원'">-0원</dd>
+                        </div>
+                        <div class="line">
+                            <dt>최종금액</dt>
+                            <dd id="finalPriceText"
+                                th:text="${#numbers.formatInteger(finalPrice, 3, 'COMMA')} + '원'">0원</dd>
+                        </div>
+                    </dl>
+
+                    <button class="summary-btn" type="button">주문하기</button>
+                </div>
+            </aside>
+
+        </div>
+    </section>
+
+</div>
+<!--main content js-->
+<th:block th:fragment="script">
+    <script th:src="@{/js/cart/cart.js}"></script>
+</th:block>
+</body>
+</html>
+이건 templates/cart.html코드고
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="detailHeader(course, activeTab, isLoggedIn)">
+
+    <section class="cd-hero">
+        <div class="cd-hero__inner">
+            <div class="cd-hero__left">
+                <h1 class="cd-title" th:text="${course.title}">강의 제목</h1>
+                <p class="cd-sub" th:text="${course.description}">강의 설명</p>
+
+                <div class="cd-tags">
+                    <span class="tag" th:text="${course.categoryName}">프론트엔드</span>
+                </div>
+
+            </div>
+
+            <div class="cd-hero__right">
+                <img class="cd-hero__img"
+                     th:src="${course.thumbnailUrl != null ? course.thumbnailUrl : '/images/no-image.png'}"
+                     alt="">
+            </div>
+        </div>
+    </section>
+
+    <!-- ✅ 로그인 여부에 따라 URL 유지 -->
+    <nav class="cd-tabs">
+        <a th:href="${isLoggedIn}
+                    ? @{/CourseDetailLogin(courseId=${course.courseId}, tab='intro')}
+                    : @{/CourseDetail(courseId=${course.courseId}, tab='intro')}"
+           th:classappend="${activeTab == 'intro'} ? ' is-active' : ''">강의 소개</a>
+
+        <a th:href="${isLoggedIn}
+                    ? @{/CourseDetailLogin(courseId=${course.courseId}, tab='curriculum')}
+                    : @{/CourseDetail(courseId=${course.courseId}, tab='curriculum')}"
+           th:classappend="${activeTab == 'curriculum'} ? ' is-active' : ''">커리큘럼</a>
+
+        <a th:href="${isLoggedIn}
+                    ? @{/CourseDetailLogin(courseId=${course.courseId}, tab='reviews')}
+                    : @{/CourseDetail(courseId=${course.courseId}, tab='reviews')}"
+           th:classappend="${activeTab == 'reviews'} ? ' is-active' : ''">수강평</a>
+    </nav>
+
+</th:block>
+</html>
+이건 courseDetail/fragments/detail-header.html코드고
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="detailSidebar(course, isLoggedIn)">
+
+    <aside class="cd-sidebar">
+        <div class="cd-price">
+            <span th:text="${course.price == 0 ? '무료' : #numbers.formatInteger(course.price, 0, 'COMMA') + '원'}">69,000원</span>
+        </div>
+
+        <!-- ✅ 비로그인 -->
+        <button class="cd-btn primary"
+                th:if="${!isLoggedIn}"
+                data-action="login">
+             수강신청 하기
+        </button>
+
+        <!-- ✅ 로그인 -->
+        <div th:if="${isLoggedIn}">
+            <div class="cd-btn-row">
+                <!-- ✅ 텍스트 변경 -->
+                <button class="cd-btn primary half"
+                        data-action="enroll"
+                        th:attr="data-course-id=${course.courseId}">
+                    수강신청 하기
+                </button>
+
+                <!-- ✅ 텍스트 변경 + 담기 동작 -->
+                <button class="cd-btn secondary half"
+                        data-action="cartAdd"
+                        th:attr="data-course-id=${course.courseId}">
+                    장바구니 담기
+                </button>
+            </div>
+        </div>
+
+        <div class="cd-info">
+            <div class="row"><span>지식공유자</span><b>Sonic AI</b></div>
+            <div class="row"><span>수강기간</span><b>무제한</b></div>
+            <!-- ✅ 난이도 삭제(팀장님 요구)면 이 row 통째로 제거 -->
+        </div>
+    </aside>
+
+</th:block>
+이건 detail-sidebar.html코드고
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="curriculumFragment(chapters)">
+
+    <div class="cd-cur-top">
+        <h2 class="cd-h2">커리큘럼</h2>
+
+        <div class="cd-cur-meta">
+            <span th:text="|전체 ${chapters != null ? #lists.size(chapters) : 0}개|">전체 0개</span>
+        </div>
+    </div>
+
+    <div class="cd-accordion">
+        <details open>
+            <summary>
+                <span class="sec-title">섹션 1. 커리큘럼</span>
+                <span class="sec-count"
+                      th:text="|${chapters != null ? #lists.size(chapters) : 0}개|">0개</span>
+            </summary>
+
+            <ul class="cd-lesson-list">
+                <li class="cd-lesson" th:if="${chapters == null || #lists.isEmpty(chapters)}">
+                    <span class="lesson-title">등록된 커리큘럼이 없습니다.</span>
+                </li>
+
+                <li class="cd-lesson" th:each="ch : ${chapters}">
+                    <span class="lesson-num" th:text="${ch.orderIndex}">1</span>
+                    <span class="lesson-title" th:text="${ch.title}">강의소개</span>
+                </li>
+            </ul>
+        </details>
+    </div>
+
+</th:block>
+이건 courseDetail/tabs/curriculum.html코드고
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="introFragment(course)">
+
+    <h2 class="cd-h2">강의 소개</h2>
+
+    <!-- ✅ 강의 상세 이미지 -->
+    <div class="cd-detail-img-wrap" th:if="${course.detailImgUrl != null}">
+        <img class="cd-detail-img" th:src="${course.detailImgUrl}" alt="강의 상세 이미지">
+    </div>
+
+</th:block>
+이건 intro.html코드고
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="reviewsFragment(reviews)">
+
+    <h2 class="cd-h2">수강평</h2>
+
+    <div class="review-card" th:each="r : ${reviews}">
+        <div class="review-top">
+            <b th:text="${r.name}">dmax</b>
+            <span>★ <span th:text="${r.rating}">5.0</span></span>
+        </div>
+        <p th:text="${r.comment}">후기</p>
+    </div>
+
+</th:block>
+이건 reviews.html코드고
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <title th:fragment="title">강의 상세</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail.css}">
+    </th:block>
+</head>
+
+<body>
+<div th:fragment="content" class="cd-wrap container">
+
+    <!-- 상단(배너 + 탭) -->
+    <div th:replace="courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab}, ${isLoggedIn})"></div>
+
+    <section class="cd-body">
+        <!-- 왼쪽(탭 내용) -->
+        <div class="cd-left">
+            <th:block
+                    th:replace="${activeTab == 'curriculum'} ? ~{courseDetail/tabs/curriculum :: curriculumFragment(${chapters})}
+                     : (${activeTab == 'reviews'} ? ~{courseDetail/tabs/reviews :: reviewsFragment(${reviews})}
+                     : ~{courseDetail/tabs/intro :: introFragment(${course})})">
+            </th:block>
+        </div>
+
+
+        <!-- 오른쪽(사이드바) -->
+        <div th:replace="courseDetail/fragments/detail-sidebar :: detailSidebar(${course}, ${isLoggedIn})"></div>
+    </section>
+
+</div>
+
+<th:block th:fragment="script">
+    <script th:src="@{/js/courseDetail/course-detail.js}"></script>
+</th:block>
+</body>
+</html>
+이건 courseDetail/courseDetail.html코드고
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <!-- title fragment -->
+    <title th:fragment="title">CourseList</title>
+
+    <!--main content css-->
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/home/home.css}">
+        <link rel="stylesheet" th:href="@{/css/courseList/course-list.css}">
+    </th:block>
+</head>
+
+<body>
+
+<!-- content fragment -->
+<div th:fragment="content" class="home-container">
+    <!--<p th:text="'categories size = ' + ${#lists.size(categories)}"></p>-->
+    <section class="category-wrap">
+        <div class="category-strip">
+            <div class="category-row">
+                <a class="cat-item"
+                   th:each="cat : ${categories}"
+                   th:href="@{/CourseList(categoryId=${cat.categoryId})}"
+                   th:attr="data-category-id=${cat.categoryId}">
+                    <span class="cat-box">
+                         <img class="cat-icon"
+                              th:src="${cat.iconPath}"
+                              alt="">
+                    </span>
+                    <span class="cat-text" th:text="${cat.name}">카테고리</span>
+                </a>
+            </div>
+        </div>
+    </section>
+    <!--셀렉트-->
+    <section class="filter-wrap">
+        <div class="filter-bar">
+
+            <!-- 왼쪽 탭 -->
+            <div class="tabs" role="tablist" aria-label="필터 탭">
+                <a class="tab is-active" data-tab="all" href="#" role="tab" aria-selected="true">카테고리</a>
+                <!--<a class="tab" href="#" role="tab" aria-selected="false">왕초보</a>-->
+                <a class="tab" data-tab="free" href="#" role="tab" aria-selected="false">무료</a>
+                <!--<a class="tab" href="#" role="tab" aria-selected="false">할인</a>-->
+            </div>
+
+            <!-- 오른쪽 정렬 셀렉트 -->
+            <div class="sort">
+                <label class="sort-label" for="sortSelect">정렬</label>
+                <select id="sortSelect" name="sort" class="sort-select">
+                    <option value="popular">인기순</option>
+                    <option value="priceDesc">가격 높은순</option>
+                    <option value="priceAsc">가격 낮은순</option>
+                </select>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ✅ 본문(강의 카드 영역) -->
+    <main class="content">
+        <section id="courseGrid" class="course-grid">
+            <!-- 강의 카드들 -->
+        </section>
+    </main>
+
+</div>
+
+<!--main content js-->
+<th:block th:fragment="script">
+    <script th:src="@{/js/courseList/course-list.js}"></script>
+</th:block>
+
+</body>
+</html>
+이건 courseList/courseList.html코드야

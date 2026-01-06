@@ -23,12 +23,24 @@
         <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
         <div class="filters">
-            <form method="get" action="/admin/qna" class="filter-form">
-                <select name="type" class="filter-select">
-                    <option value="">구분 전체</option>
-                    <option value="LECTURE" th:selected="${currentType == 'LECTURE'}">강의 Q&A</option>
-                    <option value="SITE" th:selected="${currentType == 'SITE'}">전체 Q&A</option>
-                </select>
+            <form method="get" th:action="@{/admin/qna}" class="filter-form">
+
+                <!-- ✅ SUB_ADMIN이면 type 강제(LECTURE) -->
+                <th:block th:if="${isSubAdmin}">
+
+                    <input type="hidden" name="type" value="LECTURE"/>
+
+                    <span style="font-weight:900; color:#0A4A7A;">강의 Q&A만 열람 가능</span>
+                </th:block>
+
+                <!-- ✅ ADMIN이면 구분 선택 가능 -->
+                <th:block th:if="${isAdmin}">
+                    <select name="type" class="filter-select">
+                        <option value="">구분 전체</option>
+                        <option value="LECTURE" th:selected="${currentType == 'LECTURE'}">강의 Q&A</option>
+                        <option value="SITE" th:selected="${currentType == 'SITE'}">전체 Q&A</option>
+                    </select>
+                </th:block>
 
                 <select name="status" class="filter-select">
                     <option value="">상태 전체</option>
@@ -66,7 +78,6 @@
                 <tr th:each="q : ${qnas}">
                     <td th:text="${q.typeLabel}">강의 Q&A</td>
 
-                    <!-- ✅ 같은 페이지에서 selectedId로 상세 펼치기 -->
                     <td>
                         <a class="link"
                            th:href="@{/admin/qna(
@@ -77,9 +88,7 @@
                                 page=${currentPage},
                                 size=${pageSize}
                            )}"
-                           th:text="${q.qnaId}">
-                            1
-                        </a>
+                           th:text="${q.qnaId}">1</a>
                     </td>
 
                     <td th:text="${q.courseId != null ? q.courseId : '-'}">-</td>
@@ -92,8 +101,8 @@
                                 status=${currentStatus},
                                 search=${searchKeyword},
                                 page=${currentPage},
-                                size=${pageSize
-                           })}"
+                                size=${pageSize}
+                           )}"
                            th:text="${q.courseTitle != null ? q.courseTitle : '-'}">-</a>
                     </td>
 
@@ -102,8 +111,7 @@
                     <td>
                         <span class="badge"
                               th:classappend="${q.statusLabel == 'ACTIVE'} ? 'badge-active' : 'badge-pass'"
-                              th:text="${q.statusLabel}">
-                        </span>
+                              th:text="${q.statusLabel}"></span>
                     </td>
 
                     <td class="summary"
@@ -119,7 +127,6 @@
             </table>
         </div>
 
-        <!-- ✅ 페이지번호 5개 단위 -->
         <div class="pagination" th:if="${totalPages > 1}">
             <a th:if="${startPage > 1}"
                th:href="@{/admin/qna(page=${startPage-1}, size=${pageSize}, type=${currentType}, status=${currentStatus}, search=${searchKeyword})}"
@@ -141,9 +148,7 @@
             총 <strong th:text="${totalCount}">0</strong>개
         </div>
 
-        <!-- ==========================
-             ✅ 하단 상세/수정 패널 (피그마처럼 한 페이지)
-        =========================== -->
+        <!-- ✅ 하단 상세 패널 -->
         <div class="detail-wrap" th:if="${selectedQna != null}">
             <div class="detail-head">
                 <div>
@@ -159,7 +164,8 @@
                          th:text="${selectedQna.questionTitle != null ? selectedQna.questionTitle : '(제목없음)'}"></div>
                 </div>
 
-                <div class="detail-actions">
+                <!-- ✅ 삭제는 ADMIN만 -->
+                <div class="detail-actions" th:if="${isAdmin}">
                     <form th:action="@{'/admin/qna/' + ${selectedQna.qnaId} + '/delete'}"
                           method="post"
                           onsubmit="return confirm('정말 삭제하시겠습니까?');">
@@ -173,7 +179,9 @@
                 </div>
             </div>
 
-            <form th:action="@{'/admin/qna/' + ${selectedQna.qnaId} + '/status'}"
+            <!-- ✅ 상태변경은 ADMIN만 -->
+            <form th:if="${isAdmin}"
+                  th:action="@{'/admin/qna/' + ${selectedQna.qnaId} + '/status'}"
                   method="post"
                   class="status-form"
                   style="margin-bottom:12px;">
@@ -190,6 +198,11 @@
                 <input type="hidden" name="size" th:value="${pageSize}">
             </form>
 
+            <!-- ✅ SUB_ADMIN이면 안내 -->
+            <div th:if="${isSubAdmin}" style="margin:0 0 12px 0; color:#666; font-weight:700;">
+                SUB_ADMIN은 열람만 가능합니다. (답변/상태변경/삭제 불가)
+            </div>
+
             <div class="detail-body">
                 <div class="question-box">
                     <div class="box-title">질문</div>
@@ -199,7 +212,9 @@
                 <div class="answer-box">
                     <div class="box-title">답변</div>
 
-                    <form th:action="@{'/admin/qna/' + ${selectedQna.qnaId} + '/answer'}"
+                    <!-- ✅ 답변 저장은 ADMIN만 -->
+                    <form th:if="${isAdmin}"
+                          th:action="@{'/admin/qna/' + ${selectedQna.qnaId} + '/answer'}"
                           method="post"
                           class="answer-form">
                         <textarea name="content" rows="6"
@@ -219,6 +234,12 @@
 
                         <button type="submit" class="btn-primary">수정/완료</button>
                     </form>
+
+                    <!-- ✅ SUB_ADMIN은 읽기용으로 답변만 표시 -->
+                    <div th:if="${isSubAdmin}" class="box-content"
+                         th:text="${selectedQna.answerContent != null ? selectedQna.answerContent : '등록된 답변이 없습니다.'}">
+                        -
+                    </div>
                 </div>
             </div>
 
