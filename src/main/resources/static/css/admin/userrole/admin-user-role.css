@@ -60,6 +60,32 @@
   padding: 4px 8px;
   border-radius: 999px;
   font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ✅ 태그 삭제(×)는 "권한 수정 모드"에서만 노출 */
+.tag .tag-del {
+  display: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+tr.role-editing .tag .tag-del {
+  display: inline-block;
+}
+
+/* 보기모드 느낌(비활성화) */
+.admin-role-table select:disabled,
+.admin-role-table input:disabled,
+.admin-role-table button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .admin-pagination {

@@ -30,9 +30,6 @@ public class AdminUserRoleService {
         return s == null || s.trim().isEmpty();
     }
 
-    // ---------------------------
-    // 유저 검색 + 페이징(응답 Map)
-    // ---------------------------
     @Transactional(readOnly = true)
     public Map<String, Object> searchUsers(String type, String keyword, int page, int size) {
         requireGlobalAdmin();
@@ -41,11 +38,9 @@ public class AdminUserRoleService {
         int safeSize = (size <= 0) ? 7 : Math.min(size, 50);
         int offset = (safePage - 1) * safeSize;
 
-        // type 보정
         if (!List.of("email", "name", "userId").contains(type)) type = "email";
         if (keyword == null) keyword = "";
 
-        // userId 검색이면 숫자 아니면 빈 결과
         if ("userId".equals(type) && !isBlank(keyword)) {
             try { Long.parseLong(keyword.trim()); }
             catch (Exception e) {
@@ -64,7 +59,6 @@ public class AdminUserRoleService {
 
         List<Map<String, Object>> items = mapper.searchUsers(type, keyword, offset, safeSize);
 
-        // SUB_ADMIN이면 관리강의 붙이기
         for (Map<String, Object> u : items) {
             String role = String.valueOf(u.get("role"));
             if ("SUB_ADMIN".equals(role)) {
@@ -85,9 +79,6 @@ public class AdminUserRoleService {
         );
     }
 
-    // ---------------------------
-    // 권한 변경 (요청 DTO)
-    // ---------------------------
     @Transactional
     public void updateRole(Long targetUserId, UpdateUserRoleDTO dto) {
         requireGlobalAdmin();
@@ -100,37 +91,31 @@ public class AdminUserRoleService {
         if (user == null) throw new ResponseStatusException(NOT_FOUND, "사용자를 찾을 수 없습니다.");
 
         String provider = (String) user.get("provider");
-        boolean isSocial = provider != null && !"local".equalsIgnoreCase(provider); // ✅ 권장 기준
+        boolean isSocial = provider != null && !"local".equalsIgnoreCase(provider);
 
         String newRole = dto.getRole().trim();
         if (!List.of("USER", "SUB_ADMIN", "ADMIN").contains(newRole)) {
             throw new ResponseStatusException(BAD_REQUEST, "role 값이 올바르지 않습니다.");
         }
 
-        // 소셜은 ADMIN/SUB_ADMIN 금지
         if (isSocial && ("ADMIN".equals(newRole) || "SUB_ADMIN".equals(newRole))) {
             throw new ResponseStatusException(BAD_REQUEST, "소셜 가입 회원에게 ADMIN/SUB_ADMIN 권한을 부여할 수 없습니다.");
         }
 
-        // users.role 업데이트
         mapper.updateUserRole(targetUserId, newRole);
 
-        // 정책: USER로 내리면 admin_user_role 전부 삭제
         mapper.deleteAdminUserRoles(targetUserId);
 
         if ("USER".equals(newRole)) return;
 
-        // admin_role_id는 code로 조회(하드코딩 금지)
         Integer roleId = mapper.findAdminRoleIdByCode(newRole);
         if (roleId == null) throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "admin_role(code=" + newRole + ")이 없습니다.");
 
         if ("ADMIN".equals(newRole)) {
-            // ADMIN: course_id NULL 1건
             mapper.insertAdminUserRole(targetUserId, roleId, null);
             return;
         }
 
-        // SUB_ADMIN: 관리강의 1개 이상 필수
         List<Integer> courseIds = dto.getCourseIds();
         if (courseIds == null || courseIds.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST, "SUB_ADMIN은 1개 이상의 관리 강의가 필요합니다.");
@@ -147,9 +132,6 @@ public class AdminUserRoleService {
         }
     }
 
-    // ---------------------------
-    // 상태 변경 (요청 DTO)
-    // ---------------------------
     @Transactional
     public void updateStatus(Long targetUserId, UpdateUserStatusDTO dto) {
         requireGlobalAdmin();
@@ -170,13 +152,11 @@ public class AdminUserRoleService {
             throw new ResponseStatusException(BAD_REQUEST, "status 값이 올바르지 않습니다.");
         }
 
-        // 전이 규칙
         if ("SIGNUP_PENDING".equals(curr)) {
             if (!"ACTIVE".equals(next)) {
                 throw new ResponseStatusException(BAD_REQUEST, "SIGNUP_PENDING은 ACTIVE로만 변경 가능합니다.");
             }
             if (isSocial) {
-                // 소셜 SIGNUP_PENDING -> ACTIVE는 nickname/phone 필수 + email_verified='Y'
                 if (isBlank(dto.getNickname()) || isBlank(dto.getPhone())) {
                     throw new ResponseStatusException(BAD_REQUEST, "SIGNUP_PENDING→ACTIVE는 nickname/phone이 필요합니다.");
                 }
@@ -203,9 +183,6 @@ public class AdminUserRoleService {
         }
     }
 
-    // ---------------------------
-    // 강의 검색 + 페이징(응답 Map)
-    // ---------------------------
     @Transactional(readOnly = true)
     public Map<String, Object> searchCourses(String keyword, int page, int size) {
         requireGlobalAdmin();
@@ -228,5 +205,38 @@ public class AdminUserRoleService {
                 "totalPages", totalPages,
                 "totalCount", total
         );
+    }
+
+    // ✅ SUB_ADMIN 태그 “삭제(×)” - 즉시 반영
+    @Transactional
+    public void removeSubAdminCourse(Long targetUserId, Integer courseId) {
+        requireGlobalAdmin();
+
+        if (targetUserId == null || courseId == null || courseId <= 0) {
+            throw new ResponseStatusException(BAD_REQUEST, "userId/courseId가 올바르지 않습니다.");
+        }
+
+        Map<String, Object> user = mapper.findUserPolicy(targetUserId);
+        if (user == null) throw new ResponseStatusException(NOT_FOUND, "사용자를 찾을 수 없습니다.");
+
+        String role = String.valueOf(user.get("role"));
+        if (!"SUB_ADMIN".equals(role)) {
+            throw new ResponseStatusException(BAD_REQUEST, "SUB_ADMIN 사용자만 관리 강의를 삭제할 수 있습니다.");
+        }
+
+        Integer subAdminRoleId = mapper.findAdminRoleIdByCode("SUB_ADMIN");
+        if (subAdminRoleId == null) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "admin_role(code=SUB_ADMIN)이 없습니다.");
+        }
+
+        int remain = mapper.countSubAdminCourses(targetUserId, subAdminRoleId);
+        if (remain <= 1) {
+            throw new ResponseStatusException(BAD_REQUEST, "SUB_ADMIN은 최소 1개 이상의 관리 강의가 필요합니다.");
+        }
+
+        int deleted = mapper.deleteSubAdminCourse(targetUserId, subAdminRoleId, courseId);
+        if (deleted <= 0) {
+            throw new ResponseStatusException(NOT_FOUND, "삭제할 관리 강의를 찾을 수 없습니다.");
+        }
     }
 }

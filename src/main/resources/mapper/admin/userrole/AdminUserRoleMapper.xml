@@ -19,7 +19,6 @@
         WHERE code = #{code}
     </select>
 
-    <!-- 정책 체크용 -->
     <select id="findUserPolicy" resultType="map">
         SELECT
         user_id AS userId,
@@ -50,7 +49,6 @@
         <include refid="userSearchWhere"/>
     </select>
 
-    <!-- 응답은 Map으로(기존 DTO 재사용 가능성이 높고, DTO 강제 생성 불필요) -->
     <select id="searchUsers" resultType="map">
         SELECT
         user_id AS userId,
@@ -65,7 +63,6 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
-    <!-- SUB_ADMIN 관리 강의 목록 -->
     <select id="findManagedCourses" resultType="map">
         SELECT
         c.course_id AS courseId,
@@ -90,7 +87,6 @@
         WHERE user_id = #{userId}
     </update>
 
-    <!-- SIGNUP_PENDING(소셜) -> ACTIVE 강제 -->
     <update id="forceActivateSocialPending">
         UPDATE users
         SET
@@ -112,7 +108,6 @@
         VALUES (#{userId}, #{adminRoleId}, #{courseId})
     </insert>
 
-    <!-- 강의 검색 (delete_flg=0만) -->
     <select id="countCourses" resultType="int">
         SELECT COUNT(*)
         FROM course
@@ -134,5 +129,21 @@
         ORDER BY course_id DESC
         LIMIT #{size} OFFSET #{offset}
     </select>
+
+    <!-- ✅ 추가: SUB_ADMIN 관리강의 카운트/삭제 -->
+    <select id="countSubAdminCourses" resultType="int">
+        SELECT COUNT(*)
+        FROM admin_user_role
+        WHERE user_id = #{userId}
+        AND admin_role_id = #{adminRoleId}
+        AND course_id IS NOT NULL
+    </select>
+
+    <delete id="deleteSubAdminCourse">
+        DELETE FROM admin_user_role
+        WHERE user_id = #{userId}
+        AND admin_role_id = #{adminRoleId}
+        AND course_id = #{courseId}
+    </delete>
 
 </mapper>

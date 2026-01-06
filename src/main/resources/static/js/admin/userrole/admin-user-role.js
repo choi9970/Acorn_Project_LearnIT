@@ -17,11 +17,7 @@ function csrfHeaders() {
 
 async function apiFetch(url, options = {}) {
   const headers = { ...(options.headers || {}), ...csrfHeaders() };
-  const res = await fetch(url, {
-    credentials: "same-origin",
-    ...options,
-    headers
-  });
+  const res = await fetch(url, { credentials: "same-origin", ...options, headers });
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -33,15 +29,88 @@ async function apiFetch(url, options = {}) {
   return null;
 }
 
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+// ✅ 서버 전이 규칙과 동일하게
+function allowedNextStatuses(current) {
+  if (current === "SIGNUP_PENDING") return ["ACTIVE"];
+  if (current === "ACTIVE") return ["ACTIVE", "BANNED", "DELETE"];
+  if (current === "BANNED" || current === "DELETE") return ["ACTIVE"];
+  return ["SIGNUP_PENDING", "ACTIVE", "BANNED", "DELETE"];
+}
+
+function applyStatusTransitionDisable(selectEl, currentStatus) {
+  const allowed = new Set(allowedNextStatuses(currentStatus));
+  [...selectEl.options].forEach(opt => (opt.disabled = !allowed.has(opt.value)));
+}
+
+function setStatusEditMode(tr, on) {
+  tr.classList.toggle("status-editing", !!on);
+
+  const sel = tr.querySelector(".status");
+  const btn = tr.querySelector(".btn-status");
+  const pendingBox = tr.querySelector(".pending-box");
+  const nickname = tr.querySelector(".nickname");
+  const phone = tr.querySelector(".phone");
+
+  if (sel) sel.disabled = !on;
+  if (nickname) nickname.disabled = !on;
+  if (phone) phone.disabled = !on;
+
+  if (!on) {
+    if (pendingBox) pendingBox.style.display = "none";
+    if (btn) btn.textContent = "수정";
+  } else {
+    if (btn) btn.textContent = "저장";
+  }
+}
+
+function setRoleEditMode(tr, on) {
+  tr.classList.toggle("role-editing", !!on);
+
+  const roleSel = tr.querySelector(".role");
+  const btn = tr.querySelector(".btn-role");
+
+  const kw = tr.querySelector(".course-keyword");
+  const courseSel = tr.querySelector(".course-select");
+  const btnCourseSearch = tr.querySelector(".btn-course-search");
+  const btnCourseAdd = tr.querySelector(".btn-course-add");
+
+  if (roleSel) roleSel.disabled = !on;
+  if (kw) kw.disabled = !on;
+  if (courseSel) courseSel.disabled = !on;
+  if (btnCourseSearch) btnCourseSearch.disabled = !on;
+  if (btnCourseAdd) btnCourseAdd.disabled = !on;
+
+  if (btn) btn.textContent = on ? "저장" : "수정";
+}
+
+function buildManagedTag(courseId, title) {
+  return `
+    <span class="tag" data-id="${courseId}">
+      <span class="tag-text">${escapeHtml(title)}</span>
+      <button type="button" class="tag-del" title="삭제" aria-label="삭제">×</button>
+    </span>
+  `;
+}
+
 async function loadUsers(page = currentPage) {
   currentPage = page;
 
-  const type = document.getElementById("searchType").value;
-  const keyword = document.getElementById("searchKeyword").value.trim();
+  const type = document.getElementById("searchType")?.value || "email";
+  const keyword = document.getElementById("searchKeyword")?.value?.trim() || "";
 
-  const data = await apiFetch(`/api/admin/users?type=${encodeURIComponent(type)}&keyword=${encodeURIComponent(keyword)}&page=${page}&size=7`, {
-    method: "GET"
-  });
+  const data = await apiFetch(
+    `/api/admin/users?type=${encodeURIComponent(type)}&keyword=${encodeURIComponent(keyword)}&page=${page}&size=7`,
+    { method: "GET" }
+  );
 
   renderUsers(data.items || []);
   renderPagination(data.page, data.totalPages);
@@ -49,13 +118,14 @@ async function loadUsers(page = currentPage) {
 
 function renderUsers(users) {
   const tbody = document.getElementById("userTbody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   users.forEach(u => {
     const tr = document.createElement("tr");
 
-    const managed = (u.managedCourses || [])
-      .map(c => `<span class="tag" data-id="${c.courseId}">${escapeHtml(c.title)}</span>`)
+    const managedHtml = (u.managedCourses || [])
+      .map(c => buildManagedTag(c.courseId, c.title))
       .join(" ");
 
     tr.innerHTML = `
@@ -65,82 +135,133 @@ function renderUsers(users) {
 
       <td>
         <div class="cell-line">
-          <select class="status">
+          <select class="status" disabled>
             ${["SIGNUP_PENDING","ACTIVE","BANNED","DELETE"].map(s =>
               `<option value="${s}" ${u.status===s?"selected":""}>${s}</option>`
             ).join("")}
           </select>
-          <button class="btn-status" type="button">저장</button>
+          <button class="btn-status" type="button">수정</button>
         </div>
 
         <div class="pending-box" style="display:none;">
-          <input class="nickname" placeholder="닉네임" />
-          <input class="phone" placeholder="010-0000-0000" />
+          <input class="nickname" placeholder="닉네임" disabled />
+          <input class="phone" placeholder="010-0000-0000" disabled />
           <div class="hint">소셜 SIGNUP_PENDING → ACTIVE는 닉네임/전화번호가 필요합니다.</div>
         </div>
       </td>
 
       <td>
         <div class="cell-line">
-          <select class="role">
+          <select class="role" disabled>
             ${["USER","SUB_ADMIN","ADMIN"].map(r =>
               `<option value="${r}" ${u.role===r?"selected":""}>${r}</option>`
             ).join("")}
           </select>
-          <button class="btn-role" type="button">저장</button>
+          <button class="btn-role" type="button">수정</button>
         </div>
 
         <div class="subadmin-box" style="display:${u.role==="SUB_ADMIN" ? "block" : "none"};">
           <div class="sub-line">
-            <input class="course-keyword" placeholder="강의 검색" />
-            <button class="btn-course-search" type="button">검색</button>
+            <input class="course-keyword" placeholder="강의 검색" disabled />
+            <button class="btn-course-search" type="button" disabled>검색</button>
           </div>
           <div class="sub-line">
-            <select class="course-select"></select>
-            <button class="btn-course-add" type="button">+</button>
+            <select class="course-select" disabled></select>
+            <button class="btn-course-add" type="button" disabled>+</button>
           </div>
-          <div class="managed">${managed}</div>
+          <div class="managed">${managedHtml}</div>
         </div>
       </td>
     `;
 
     tbody.appendChild(tr);
 
+    // ✅ 전이 불가능 옵션 비활성화
     const statusSel = tr.querySelector(".status");
+    if (statusSel) applyStatusTransitionDisable(statusSel, u.status);
+
     const pendingBox = tr.querySelector(".pending-box");
     const roleSel = tr.querySelector(".role");
     const subBox = tr.querySelector(".subadmin-box");
 
-    statusSel.addEventListener("change", () => {
-      const isSocial = u.provider && u.provider.toLowerCase() !== "local";
+    roleSel?.addEventListener("change", () => {
+      if (subBox) subBox.style.display = (roleSel.value === "SUB_ADMIN") ? "block" : "none";
+    });
+
+    statusSel?.addEventListener("change", () => {
+      const isSocial = u.provider && String(u.provider).toLowerCase() !== "local";
       if (u.status === "SIGNUP_PENDING" && statusSel.value === "ACTIVE" && isSocial) {
-        pendingBox.style.display = "block";
+        if (pendingBox) pendingBox.style.display = "block";
       } else {
-        pendingBox.style.display = "none";
+        if (pendingBox) pendingBox.style.display = "none";
       }
     });
 
-    roleSel.addEventListener("change", () => {
-      subBox.style.display = (roleSel.value === "SUB_ADMIN") ? "block" : "none";
+    // 기본은 보기모드(전부 비활성화)
+    setStatusEditMode(tr, false);
+    setRoleEditMode(tr, false);
+
+    // ✅ 상태: 수정 -> 저장 토글
+    tr.querySelector(".btn-status")?.addEventListener("click", async () => {
+      const editing = tr.classList.contains("status-editing");
+      if (!editing) {
+        setStatusEditMode(tr, true);
+        return;
+      }
+      await saveStatus(u, tr);
     });
 
-    tr.querySelector(".btn-status").addEventListener("click", () => saveStatus(u, tr));
-    tr.querySelector(".btn-role").addEventListener("click", () => saveRole(u, tr));
-    tr.querySelector(".btn-course-search")?.addEventListener("click", () => searchCourse(tr));
-    tr.querySelector(".btn-course-add")?.addEventListener("click", () => addCourse(tr));
+    // ✅ 권한: 수정 -> 저장 토글
+    tr.querySelector(".btn-role")?.addEventListener("click", async () => {
+      const editing = tr.classList.contains("role-editing");
+      if (!editing) {
+        setRoleEditMode(tr, true);
+        return;
+      }
+      await saveRole(u, tr);
+    });
+
+    tr.querySelector(".btn-course-search")?.addEventListener("click", () => {
+      if (!tr.classList.contains("role-editing")) return;
+      searchCourse(tr);
+    });
+
+    tr.querySelector(".btn-course-add")?.addEventListener("click", () => {
+      if (!tr.classList.contains("role-editing")) return;
+      addCourse(tr);
+    });
+
+    // ✅ SUB_ADMIN 태그 “삭제(×)” - 수정모드에서만 + 즉시 서버 반영
+    tr.querySelector(".managed")?.addEventListener("click", (ev) => {
+      const btn = ev.target.closest?.(".tag-del");
+      if (!btn) return;
+      if (!tr.classList.contains("role-editing")) return;
+
+      const tag = btn.closest(".tag");
+      const courseId = Number(tag?.dataset?.id);
+      if (!courseId) return;
+
+      const tags = tr.querySelectorAll(".managed .tag");
+      if (tags.length <= 1) {
+        alert("SUB_ADMIN은 최소 1개 이상의 관리 강의가 필요합니다.");
+        return;
+      }
+
+      deleteManagedCourse(u.userId, courseId, tag);
+    });
   });
 }
 
 async function saveStatus(u, tr) {
-  const next = tr.querySelector(".status").value;
-  const isSocial = u.provider && u.provider.toLowerCase() !== "local";
+  const next = tr.querySelector(".status")?.value;
+  const isSocial = u.provider && String(u.provider).toLowerCase() !== "local";
 
   let nickname = null;
   let phone = null;
 
   if (u.status === "SIGNUP_PENDING" && next === "ACTIVE" && isSocial) {
-    nickname = tr.querySelector(".nickname").value.trim();
-    phone = tr.querySelector(".phone").value.trim();
+    nickname = tr.querySelector(".nickname")?.value?.trim() || "";
+    phone = tr.querySelector(".phone")?.value?.trim() || "";
     if (!nickname || !phone) {
       alert("닉네임/전화번호가 필요합니다.");
       return;
@@ -154,16 +275,16 @@ async function saveStatus(u, tr) {
       body: JSON.stringify({ status: next, nickname, phone })
     });
     alert("상태 변경 완료");
+    setStatusEditMode(tr, false);
     loadUsers();
   } catch (e) {
     alert(e.message || "상태 변경 실패");
-    console.log(e.message);
   }
 }
 
 async function saveRole(u, tr) {
-  const role = tr.querySelector(".role").value;
-  const isSocial = u.provider && u.provider.toLowerCase() !== "local";
+  const role = tr.querySelector(".role")?.value;
+  const isSocial = u.provider && String(u.provider).toLowerCase() !== "local";
 
   if (isSocial && (role === "ADMIN" || role === "SUB_ADMIN")) {
     alert("소셜 가입 회원에게 ADMIN/SUB_ADMIN 권한을 부여할 수 없습니다.");
@@ -189,6 +310,7 @@ async function saveRole(u, tr) {
       body: JSON.stringify({ role, courseIds })
     });
     alert("권한 변경 완료");
+    setRoleEditMode(tr, false);
     loadUsers();
   } catch (e) {
     alert(e.message || "권한 변경 실패");
@@ -196,12 +318,14 @@ async function saveRole(u, tr) {
 }
 
 async function searchCourse(tr) {
-  const kw = tr.querySelector(".course-keyword").value.trim();
+  const kw = tr.querySelector(".course-keyword")?.value?.trim() || "";
   try {
     const data = await apiFetch(`/api/admin/courses?keyword=${encodeURIComponent(kw)}&page=1&size=7`, {
       method: "GET"
     });
     const sel = tr.querySelector(".course-select");
+    if (!sel) return;
+
     sel.innerHTML = "";
     (data.items || []).forEach(c => {
       const opt = document.createElement("option");
@@ -216,21 +340,31 @@ async function searchCourse(tr) {
 
 function addCourse(tr) {
   const sel = tr.querySelector(".course-select");
-  if (!sel.value) return;
+  if (!sel || !sel.value) return;
 
   const list = tr.querySelector(".managed");
+  if (!list) return;
+
   const exists = [...list.querySelectorAll(".tag")].some(t => t.dataset.id === String(sel.value));
   if (exists) return;
 
-  const tag = document.createElement("span");
-  tag.className = "tag";
-  tag.dataset.id = sel.value;
-  tag.textContent = sel.selectedOptions[0]?.textContent || sel.value;
-  list.appendChild(tag);
+  const title = sel.selectedOptions[0]?.textContent || sel.value;
+  list.insertAdjacentHTML("beforeend", buildManagedTag(sel.value, title));
+}
+
+async function deleteManagedCourse(userId, courseId, tagEl) {
+  try {
+    await apiFetch(`/api/admin/users/${userId}/sub-admin/courses/${courseId}`, { method: "DELETE" });
+    tagEl?.remove();
+  } catch (e) {
+    alert(e.message || "삭제 실패");
+  }
 }
 
 function renderPagination(page, totalPages) {
   const el = document.getElementById("pagination");
+  if (!el) return;
+
   el.innerHTML = "";
   if (!totalPages || totalPages <= 1) return;
 
@@ -242,13 +376,4 @@ function renderPagination(page, totalPages) {
     b.addEventListener("click", () => loadUsers(p));
     el.appendChild(b);
   }
-}
-
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
