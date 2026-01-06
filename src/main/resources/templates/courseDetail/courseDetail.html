@@ -7,6 +7,7 @@
 
     <th:block th:fragment="css">
         <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail.css}">
+        <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail-review.css}">
     </th:block>
 </head>
 
@@ -70,6 +71,10 @@
 
 <th:block th:fragment="script">
     <script th:src="@{/js/courseDetail/course-detail.js}"></script>
+
+    <!-- ✅ 리뷰 탭일 때만 리뷰 JS 로드 -->
+    <script th:if="${activeTab == 'reviews'}"
+            th:src="@{/js/courseDetail/course-detail-review.js}"></script>
 </th:block>
 </body>
 </html>

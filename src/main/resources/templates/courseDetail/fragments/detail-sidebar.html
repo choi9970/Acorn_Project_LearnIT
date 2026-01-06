@@ -6,6 +6,7 @@
             <span th:text="${course.price == 0 ? '무료' : #numbers.formatInteger(course.price, 0, 'COMMA') + '원'}">0원</span>
         </div>
 
+        <!-- ✅ 로그인 + 수강중: 이어보기 -->
         <button type="button" class="cd-btn primary"
                 th:if="${isLoggedIn and isEnrolled}"
                 data-action="continue"
@@ -13,25 +14,23 @@
             이어 보기
         </button>
 
-        <button type="button" class="cd-btn primary"
-                th:if="${!isLoggedIn}"
-                data-action="login">
-            수강신청 하기
-        </button>
-
-        <div th:if="${isLoggedIn and !isEnrolled}">
+        <!-- ✅ 수강 안한 경우(로그인/비로그인 공통): 버튼 2개 노출 -->
+        <div th:if="${!isEnrolled}">
             <div class="cd-btn-row">
+
+                <!-- ✅ 수강신청하기: 비로그인은 로그인으로, 로그인 유저는 enroll -->
                 <button type="button" class="cd-btn primary half"
-                        data-action="enroll"
-                        th:attr="data-course-id=${course.courseId}">
+                        th:attr="data-action=${isLoggedIn ? 'enroll' : 'login'}, data-course-id=${course.courseId}">
                     수강신청 하기
                 </button>
 
+                <!-- ✅ 장바구니 담기: 비로그인도 허용 -->
                 <button type="button" class="cd-btn secondary half"
                         data-action="cartAdd"
                         th:attr="data-course-id=${course.courseId}">
                     장바구니 담기
                 </button>
+
             </div>
         </div>
 

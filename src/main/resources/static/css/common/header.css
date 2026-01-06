@@ -182,12 +182,52 @@
   cursor: pointer;
 }
 
-/* 768px 이하 */
+
+.cart-btn {
+    position: relative;   /* ✅ 기준점 */
+    display: inline-flex;
+    align-items: center;
+}
+
+
+/* 장바구니 아이콘(또는 버튼) 감싸는 래퍼가 있어야 함 */
+.cart-icon-wrap {
+    position: relative; /* ✅ 뱃지 기준점 */
+    display: inline-block;
+}
+
+/* badge 공통 (PC/모바일 공통으로 absolute) */
+.cart-count-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #ff3b30;
+    color: #fff;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: 700;
+}
+/* 768px 이하에서만 위치 미세조정이 필요하면 여기서만 조절 */
 @media (max-width: 768px) {
-  .header-inner {
-    position: relative;
-    justify-content: center;
-  }
+    .cart-count-badge {
+        top: -6px;
+        right: -10px;
+    }
+    .mobile-nav__cart {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .header-inner {
+        position: relative;
+        justify-content: center; /* 로고 가운데 정렬 */
+    }
 
   .menu-toggle {
     display: flex;
@@ -204,4 +244,15 @@
   .header-right {
     display: none;
   }
+}
+
+/* ✅ 카테고리 링크 스타일 */
+.mobile-submenu a {
+  display: block;
+  padding: 0.9rem 1.2rem;
+  line-height: 1.4;
+  word-break: keep-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

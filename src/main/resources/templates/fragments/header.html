@@ -1,9 +1,13 @@
-<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="site-header">
+<!-- src/main/resources/templates/fragments/header.html -->
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="site-header">
     <header class="site-header">
         <div class="container header-inner">
 
             <!-- 모바일: 햄버거 버튼 -->
-            <button type="button" class="menu-toggle" id="btn-menu" aria-label="메뉴 열기">☰</button>
+            <button type="button" class="menu-toggle" id="btn-menu" aria-label="메뉴 열기">
+                ☰
+            </button>
 
             <!-- 로고 -->
             <div class="logo">
@@ -35,16 +39,23 @@
                 </form>
             </div>
 
-            <!-- 오른쪽 (PC) -->
+            <!-- 오른쪽 로그인 버튼 (PC) -->
             <div class="header-right">
-                <th:block th:if="${loginUserId == null}">
-                    <a th:href="@{/login}" class="login-btn">로그인/회원가입</a>
-                </th:block>
 
+                <!-- ✅ 장바구니 버튼: 로그인/비로그인 모두 노출 -->
+                <a th:href="@{/cart}" class="cart-btn" aria-label="장바구니">
+                    <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="cart">
+                    <span class="cart-count-badge"
+                          th:if="${cartCount > 0}"
+                          th:text="${cartCount}">0</span>
+                </a>
+
+                <th:block th:if="${loginUserId == null}">
+                    <th:block th:with="redirectUrl=${currentUrl}">
+                        <a th:href="@{/login(redirect=${currentUrl})}" class="login-btn">로그인/회원가입</a>
+                    </th:block>
+                </th:block>
                 <th:block th:if="${loginUserId != null}">
-                    <a th:href="@{/cart}" class="cart-btn" aria-label="장바구니">
-                        <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="장바구니">
-                    </a>
                     <a th:href="@{/mypage}" class="user-name" th:text="${loginUserName} + '님'"></a>
                     <form th:action="@{/logout}" method="post" style="display:inline;">
                         <button type="submit" class="logout-btn">로그아웃</button>
@@ -62,61 +73,56 @@
         <div class="mobile-nav__panel">
 
             <div class="mobile-nav__header">
+                <div class="mobile-nav__logo-wrap">
+                    <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="mobile-nav__logo">
+                </div>
 
-                <!-- ✅ 로그인 상태: (1줄) 로고 가운데 + X 오른쪽  / (2줄) 이름+액션 더 위로 -->
-                <th:block th:if="${loginUserId != null}">
-                    <div class="mobile-nav__header-top">
-                        <div class="mobile-nav__top-spacer"></div>
+                <div class="mobile-nav__header-actions">
 
-                        <a th:href="@{/home}" class="mobile-nav__brand" aria-label="홈으로">
-                            <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="mobile-nav__logo">
-                        </a>
+                    <!-- ✅ 장바구니: 로그인/비로그인 모두 노출 + badge -->
+                    <a th:href="@{/cart}" class="mobile-nav__cart" aria-label="장바구니">
+                        <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="cart">
+                        <span class="cart-count-badge"
+                              th:if="${cartCount > 0}"
+                              th:text="${cartCount}">0</span>
+                    </a>
 
-                        <button class="mobile-nav__close" id="mobile-nav-close" aria-label="닫기" type="button">
-                            &times;
-                        </button>
-                    </div>
+                    <!-- ✅ 비로그인: 로그인 버튼 + redirect -->
+                    <th:block th:if="${loginUserId == null}">
+                        <a th:href="@{/login(redirect=${currentUrl})}"
+                           class="mobile-nav__login">로그인</a>
+                    </th:block>
 
-                    <div class="mobile-nav__header-bottom">
-                        <a th:href="@{/mypage}" class="mobile-nav__user-name"
-                           th:text="${loginUserName}" th:title="${loginUserName}"></a>
+                    <!-- ✅ 로그인 상태 -->
+                    <th:block th:if="${loginUserId != null}">
+                        <a th:href="@{/mypage}"
+                           class="mobile-nav__user-name"
+                           th:text="${loginUserName}">사용자</a>
 
-                        <div class="mobile-nav__header-actions">
-                            <a th:href="@{/cart}" class="mobile-nav__cart" aria-label="장바구니">
-                                <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="장바구니">
-                            </a>
-                            <form th:action="@{/logout}" method="post" style="display:inline;">
-                                <button type="submit" class="mobile-nav__logout">로그아웃</button>
-                            </form>
-                        </div>
-                    </div>
-                </th:block>
+                        <form th:action="@{/logout}" method="post" style="display:inline;">
+                            <button type="submit" class="mobile-nav__logout">로그아웃</button>
+                        </form>
+                    </th:block>
 
-                <!-- ✅ 비로그인 상태: 한 줄에 로고(왼쪽) + 로그인(오른쪽) + X(맨오른쪽) -->
-                <th:block th:if="${loginUserId == null}">
-                    <div class="mobile-nav__header-guest">
-                        <a th:href="@{/home}" class="mobile-nav__brand-guest" aria-label="홈으로">
-                            <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="mobile-nav__logo mobile-nav__logo--guest">
-                        </a>
-
-                        <div class="mobile-nav__guest-actions">
-                            <a th:href="@{/login}" class="mobile-nav__login">로그인</a>
-                            <button class="mobile-nav__close" id="mobile-nav-close" aria-label="닫기" type="button">
-                                &times;
-                            </button>
-                        </div>
-                    </div>
-                </th:block>
-
+                    <button class="mobile-nav__close"
+                            id="mobile-nav-close"
+                            aria-label="카테고리 닫기"
+                            type="button">
+                        &times;
+                    </button>
+                </div>
             </div>
 
-            <!-- 메뉴 리스트 -->
             <ul class="mobile-nav__list">
 
+                <!-- ✅ 모바일 강의목록: 텍스트 영역 클릭=CourseList 이동 / 아이콘 클릭=토글 -->
                 <li class="mobile-nav__item">
+
                     <div class="mobile-course-row">
+                        <!-- 빨간 영역(강의목록 칸): 페이지 이동 -->
                         <a class="mobile-course-link" th:href="@{/CourseList}">강의목록</a>
 
+                        <!-- 오른쪽 아이콘: 토글만 -->
                         <button class="mobile-course-toggle" id="mobileCourseToggle"
                                 type="button" aria-label="카테고리 열기">
                             <img th:src="@{/images/admin/icon-admin-down-arrow.png}" alt="열기" class="mobile-submenu-icon">

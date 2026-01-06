@@ -25,5 +25,10 @@ public interface CourseDetailMapper {
      */
     List<ReviewDTO> selectReviewsByCourseId(@Param("courseId") int courseId);
 
+    // 내 활성 리뷰 존재 여부 확인 (delete_flg = 0)
+    int countActiveReviewByCourseAndUser(
+            @Param("courseId") Long courseId,
+            @Param("userId") Long userId
+    );
     Long selectLastWatchedChapterId(@Param("userId") Long userId, @Param("courseId") int courseId);
 }

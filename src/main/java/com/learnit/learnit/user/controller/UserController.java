@@ -1,5 +1,6 @@
 package com.learnit.learnit.user.controller;
 
+import com.learnit.learnit.cart.CartService;
 import com.learnit.learnit.user.dto.LoginRequestDTO;
 import com.learnit.learnit.user.dto.SignupRequestDTO;
 import com.learnit.learnit.user.entity.User;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -27,15 +29,25 @@ public class UserController {
     private final UserService userService;
     private final SessionService sessionService;
     private final EmailService emailService;
+    private final CartService cartService;
 
     @GetMapping("/login")
-    public String showLoginForm(@RequestParam(required = false) String error, Model model, HttpSession session) {
+    public String showLoginForm(
+            @RequestParam(required = false) String error,
+            @RequestParam(required = false) String redirect,
+            Model model,
+            HttpSession session
+    ) {
+        // ✅ redirect가 있으면 세션에 저장 (로그인 성공 후 이동용)
+        if (redirect != null && !redirect.isBlank()) {
+            session.setAttribute("REDIRECT_AFTER_LOGIN", redirect);
+        }
+
         if (error != null) {
-            // OAuth 오류 메시지가 있으면 사용, 없으면 기본 메시지
             String oauthError = (String) session.getAttribute("oauthError");
             if (oauthError != null) {
                 model.addAttribute("error", oauthError);
-                session.removeAttribute("oauthError"); // 한 번만 표시
+                session.removeAttribute("oauthError");
             } else {
                 model.addAttribute("error", "로그인에 실패했습니다.");
             }
@@ -62,13 +74,40 @@ public class UserController {
         }
 
         userService.setLoginSession(session, user);
-        
+        @SuppressWarnings("unchecked")
+        List<Long> guestCourseIds =
+                (List<Long>) session.getAttribute("GUEST_CART_COURSE_IDS");
+
+        if (guestCourseIds != null && !guestCourseIds.isEmpty()) {
+            cartService.mergeGuestCartToUser(user.getUserId(), guestCourseIds);
+            session.removeAttribute("GUEST_CART_COURSE_IDS");
+        }
+
+        // ✅ redirect 우선 (안전한 경로만 허용)
+        String redirect = (String) session.getAttribute("REDIRECT_AFTER_LOGIN");
+        session.removeAttribute("REDIRECT_AFTER_LOGIN");
+
+        if (isSafeRedirect(redirect)) {
+            return "redirect:" + redirect;
+        }
+
         // 관리자 계정인 경우 관리자 페이지로 리다이렉트
         if ("ADMIN".equals(user.getRole())) {
             return "redirect:/admin/home";
         }
-        
+
         return "redirect:/home";
+    }
+
+    // ✅ 외부 URL 오픈리다이렉트 방지
+    private boolean isSafeRedirect(String redirect) {
+        if (redirect == null || redirect.isBlank()) return false;
+        // 내부 경로만 허용
+        if (!redirect.startsWith("/")) return false;
+        // // 또는 http 포함 등 차단
+        if (redirect.startsWith("//")) return false;
+        if (redirect.contains("http://") || redirect.contains("https://")) return false;
+        return true;
     }
 
     @GetMapping("/signup")

@@ -32,7 +32,7 @@
                         <span>전체선택</span>
                     </label>
 
-                    <!-- ✅ 전체삭제 버튼 -->
+                    <!-- ✅ 전체삭제 버튼 (로그인/비로그인 모두 동작: 컨트롤러에서 분기 처리) -->
                     <form th:action="@{/cart/clear}" method="post" class="cart-clear-form">
                         <button type="submit" class="cart-clear-btn"
                                 th:disabled="${#lists.isEmpty(items)}"
@@ -71,14 +71,22 @@
 
                         <strong th:if="${i.price == null or i.price == 0}"
                                 th:text="'무료'">무료</strong>
-
-                        <span class="per">/1개</span>
                     </div>
 
-                    <form th:action="@{/cart/delete}" method="post">
-                        <input type="hidden" name="cartId" th:value="${i.cartId}">
-                        <button type="submit" class="cart-remove" aria-label="삭제">×</button>
-                    </form>
+                    <!-- ✅ 로그인/비로그인 삭제 폼 분기 -->
+                    <th:block th:if="${i.cartId != null}">
+                        <form th:action="@{/cart/delete}" method="post">
+                            <input type="hidden" name="cartId" th:value="${i.cartId}">
+                            <button type="submit" class="cart-remove" aria-label="삭제">×</button>
+                        </form>
+                    </th:block>
+
+                    <th:block th:if="${i.cartId == null}">
+                        <form th:action="@{/cart/delete-course}" method="post">
+                            <input type="hidden" name="courseId" th:value="${i.courseId}">
+                            <button type="submit" class="cart-remove" aria-label="삭제">×</button>
+                        </form>
+                    </th:block>
                 </article>
 
 
@@ -122,10 +130,13 @@
     </section>
 
 </div>
+
 <!--main content js-->
 <th:block th:fragment="script">
+    <script th:inline="javascript">
+        window.IS_LOGGED_IN = [[${isLoggedIn}]];
+    </script>
     <script th:src="@{/js/cart/cart.js}"></script>
 </th:block>
 </body>
 </html>
-

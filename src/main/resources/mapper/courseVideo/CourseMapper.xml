@@ -31,7 +31,7 @@
     </select>
 
     <!--인기강의 목록 불러오기 (최대5개)-->
-    <select id="selectPopularCourse" resultType="com.learnit.learnit.home.MainCourse">
+    <select id="selectPopularCourse" resultType="map">
         SELECT
             c.course_id AS courseId,
             ct.name AS categoryName,
@@ -51,13 +51,12 @@
 
 
     <!--썸네일 배너용 최신 강의 불러오기(최대4개)-->
-    <select id="selectBannerCourse" resultType="com.learnit.learnit.home.MainCourse">
+    <select id="selectBannerCourse" resultType="map">
         SELECT
-            c.course_id,
+            c.course_id AS courseId,
             c.title,
             ct.name AS categoryName,
-            c.thumbnail_url,
-            c.detail_img_url
+            c.thumbnail_url AS thumbnailUrl
         FROM course c JOIN category ct
                            ON c.category_id = ct.category_id
         WHERE delete_flg = 0 AND status = 'ACTIVE'

@@ -1,7 +1,8 @@
 package com.learnit.learnit.courseDetail;
 
-import com.learnit.learnit.user.util.SessionUtils;
+
 import com.learnit.learnit.course.CourseDTO;
+import com.learnit.learnit.user.util.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -79,17 +80,13 @@ public class CourseDetailController {
 
         model.addAttribute("curriculumTotal", chapters.size());
 
-        // 리뷰 조회 (승인된 리뷰만 표시)
-        List<ReviewDTO> reviews = courseDetailService.getReviews(courseId);
-        model.addAttribute("reviews", reviews != null ? reviews : Collections.emptyList());
-
+        // 리뷰(추후)
+        //model.addAttribute("reviews", Collections.emptyList());
+        model.addAttribute("courseId", courseId);
         // 이어보기 (수강 중일 때만)
         if (isEnrolled) {
             Long lastWatchedChapterId = courseDetailService.getLastWatchedChapterId(loginUserId, courseId);
             model.addAttribute("lastWatchedChapterId", lastWatchedChapterId);
         }
-
-        // 리뷰(추후)
-        model.addAttribute("reviews", Collections.emptyList());
     }
 }
