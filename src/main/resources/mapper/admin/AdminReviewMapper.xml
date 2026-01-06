@@ -5,20 +5,24 @@
 <!-- review 테이블 기반 SQL 정의(리스트, 상세, 상태변경, 삭제) -->
 <mapper namespace="com.learnit.learnit.admin.AdminReviewRepository">
 
-    <!-- 사용자가 전체 권한(course_id가 NULL)을 가지고 있는지 확인 -->
+    <!-- 사용자가 전체 권한(ADMIN 역할이고 course_id가 NULL)을 가지고 있는지 확인 -->
     <select id="hasFullAdminAccess" resultType="boolean">
         SELECT COUNT(*) > 0
-        FROM admin_user_role
-        WHERE user_id = #{userId}
-          AND course_id IS NULL
+        FROM admin_user_role aur
+        JOIN admin_role ar ON aur.admin_role_id = ar.admin_role_id
+        WHERE aur.user_id = #{userId}
+          AND ar.code = 'ADMIN'
+          AND aur.course_id IS NULL
     </select>
 
     <!-- 사용자가 관리하는 강의 ID 목록 조회 (서브 어드민 필터링용) -->
     <select id="selectManagedCourseIds" resultType="int">
-        SELECT DISTINCT course_id
-        FROM admin_user_role
-        WHERE user_id = #{userId}
-          AND course_id IS NOT NULL
+        SELECT DISTINCT aur.course_id
+        FROM admin_user_role aur
+        JOIN admin_role ar ON aur.admin_role_id = ar.admin_role_id
+        WHERE aur.user_id = #{userId}
+          AND ar.code = 'SUB_ADMIN'
+          AND aur.course_id IS NOT NULL
     </select>
 
     <!-- 리뷰 목록 조회 -->

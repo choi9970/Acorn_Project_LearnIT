@@ -13,8 +13,7 @@
         FROM qna_answer
         WHERE delete_flg = 0
         GROUP BY qna_id
-        ) m ON a1.qna_id = m.qna_id AND a1.created_at = m.max_created
-        WHERE a1.delete_flg = 0
+        ) m ON a1.qna_id = m.qna_id AND a1.created_at = m.max_created AND a1.delete_flg = 0
         ) a ON q.qna_id = a.qna_id
         LEFT JOIN users au ON a.user_id = au.user_id
     </sql>
@@ -40,7 +39,7 @@
 
         a.answer_id AS answerId,
         a.user_id AS answerUserId,
-        au.name AS answerUserName,
+        COALESCE(au.name, '') AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
 
@@ -148,7 +147,7 @@
 
         a.answer_id AS answerId,
         a.user_id AS answerUserId,
-        au.name AS answerUserName,
+        COALESCE(au.name, '') AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
 

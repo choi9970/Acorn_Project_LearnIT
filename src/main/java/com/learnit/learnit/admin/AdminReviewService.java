@@ -26,6 +26,7 @@ public class AdminReviewService {
             int limit = size;
             
             // 서브 어드민 필터링: 관리하는 course_id 목록 조회
+            // admin_user_role 테이블이 없거나 오류 발생 시 전체 권한으로 처리
             java.util.List<Integer> managedCourseIds = null;
             if (userId != null) {
                 try {
@@ -33,15 +34,20 @@ public class AdminReviewService {
                     boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
                     if (!hasFullAccess) {
                         // 부분 권한만 있는 경우 해당 course_id 목록으로 필터링
-                        managedCourseIds = adminReviewRepository.selectManagedCourseIds(userId);
-                        if (managedCourseIds == null || managedCourseIds.isEmpty()) {
-                            // 권한이 없으면 빈 리스트 반환
-                            return new java.util.ArrayList<>();
+                        try {
+                            managedCourseIds = adminReviewRepository.selectManagedCourseIds(userId);
+                            if (managedCourseIds == null || managedCourseIds.isEmpty()) {
+                                // 권한이 없으면 빈 리스트 반환
+                                return new java.util.ArrayList<>();
+                            }
+                        } catch (Exception e2) {
+                            log.warn("관리 강의 ID 조회 실패 (전체 권한으로 처리): userId={}, error={}", userId, e2.getMessage());
+                            // 조회 실패 시 전체 권한으로 처리
                         }
                     }
                 } catch (Exception e) {
                     log.warn("관리자 권한 조회 실패 (전체 권한으로 처리): userId={}, error={}", userId, e.getMessage());
-                    // 권한 조회 실패 시 전체 권한으로 처리
+                    // 권한 조회 실패 시 전체 권한으로 처리 (managedCourseIds = null)
                 }
             }
             
@@ -64,6 +70,7 @@ public class AdminReviewService {
     public int getReviewCount(String searchType, String searchKeyword, Long userId) {
         try {
             // 서브 어드민 필터링: 관리하는 course_id 목록 조회
+            // admin_user_role 테이블이 없거나 오류 발생 시 전체 권한으로 처리
             java.util.List<Integer> managedCourseIds = null;
             if (userId != null) {
                 try {
@@ -71,15 +78,20 @@ public class AdminReviewService {
                     boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
                     if (!hasFullAccess) {
                         // 부분 권한만 있는 경우 해당 course_id 목록으로 필터링
-                        managedCourseIds = adminReviewRepository.selectManagedCourseIds(userId);
-                        if (managedCourseIds == null || managedCourseIds.isEmpty()) {
-                            // 권한이 없으면 0 반환
-                            return 0;
+                        try {
+                            managedCourseIds = adminReviewRepository.selectManagedCourseIds(userId);
+                            if (managedCourseIds == null || managedCourseIds.isEmpty()) {
+                                // 권한이 없으면 0 반환
+                                return 0;
+                            }
+                        } catch (Exception e2) {
+                            log.warn("관리 강의 ID 조회 실패 (전체 권한으로 처리): userId={}, error={}", userId, e2.getMessage());
+                            // 조회 실패 시 전체 권한으로 처리
                         }
                     }
                 } catch (Exception e) {
                     log.warn("관리자 권한 조회 실패 (전체 권한으로 처리): userId={}, error={}", userId, e.getMessage());
-                    // 권한 조회 실패 시 전체 권한으로 처리
+                    // 권한 조회 실패 시 전체 권한으로 처리 (managedCourseIds = null)
                 }
             }
             
