@@ -47,7 +47,23 @@
                 <span class="discount"
                       th:text="${coupon.discountAmount} + '원'"></span>
 
-                <span class="coupon-badge usable">사용 가능</span>
+                <span class="coupon-badge used"
+                      th:if="${coupon.isUsed == 'Y'}">
+                    사용 완료
+                </span>
+
+                <span class="coupon-badge expired"
+                      th:if="${coupon.isUsed == 'N' and coupon.expireDate != null
+                             and coupon.expireDate.isBefore(T(java.time.LocalDateTime).now())}">
+                    만료
+                </span>
+
+                <span class="coupon-badge usable"
+                      th:if="${coupon.isUsed == 'N' and
+                             (coupon.expireDate == null
+                             or coupon.expireDate.isAfter(T(java.time.LocalDateTime).now()))}">
+                    사용 가능
+                </span>
             </div>
 
         </div>
