@@ -13,6 +13,11 @@
     box-sizing: border-box;
     width: 100%;
     overflow-x: hidden;
+    overflow-wrap: break-word;
+}
+
+.admin-review-container * {
+    box-sizing: border-box;
 }
 
 .admin-review-container h2 {
@@ -105,43 +110,155 @@
 .review-list {
     background: #fff;
     border-radius: 0.8rem;
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: visible;
-    box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.08);
     max-width: 100%;
     box-sizing: border-box;
+    width: 100%;
+    border: 1px solid #e9ecef;
 }
 
 .review-table {
     width: 100%;
     max-width: 100%;
-    border-collapse: collapse;
-    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
     box-sizing: border-box;
+    word-wrap: break-word;
 }
 
 .review-table thead {
-    background-color: #0A4A7A;
+    background: linear-gradient(135deg, #0A4A7A 0%, #0d5a8f 100%);
     color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .review-table th {
-    padding: 1rem 0.8rem;
-    font-size: 1.2rem;
+    padding: 1.2rem 0.8rem;
+    font-size: 1.1rem;
     font-weight: 600;
     text-align: left;
     box-sizing: border-box;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    letter-spacing: 0.2px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.review-table th:first-child {
+    border-top-left-radius: 0.8rem;
+}
+
+.review-table th:last-child {
+    border-top-right-radius: 0.8rem;
 }
 
 .review-table td {
-    padding: 1rem 0.8rem;
+    padding: 1.4rem 1.2rem;
     font-size: 1.2rem;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #f0f0f0;
     box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    word-break: break-word;
+    vertical-align: middle;
+    transition: background-color 0.2s ease;
+}
+
+/* 각 열 너비 고정 - 테이블이 넘치지 않도록 (합계 정확히 100%) */
+.review-table th:nth-child(1),
+.review-table td:nth-child(1) {
+    width: 8%;
+    min-width: 80px;
+    text-align: center;
+}
+
+.review-table th:nth-child(1) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.review-table th:nth-child(2),
+.review-table td:nth-child(2) {
+    width: 6%;
+    min-width: 70px;
+    text-align: center;
+}
+
+.review-table th:nth-child(3),
+.review-table td:nth-child(3) {
+    width: 22%;
+}
+
+.review-table th:nth-child(4),
+.review-table td:nth-child(4) {
+    width: 8%;
+    text-align: center;
+}
+
+.review-table th:nth-child(5),
+.review-table td:nth-child(5) {
+    width: 6%;
+    text-align: center;
+}
+
+.review-table th:nth-child(6),
+.review-table td:nth-child(6) {
+    width: 11%;
+    min-width: 110px;
+    text-align: center;
+}
+
+.review-table th:nth-child(6) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.review-table th:nth-child(7),
+.review-table td:nth-child(7) {
+    width: 20%;
+}
+
+.review-table th:nth-child(8),
+.review-table td:nth-child(8) {
+    width: 7%;
+    text-align: center;
+}
+
+.review-table th:nth-child(9),
+.review-table td:nth-child(9) {
+    width: 7%;
+    text-align: center;
+}
+
+.review-table th:nth-child(10),
+.review-table td:nth-child(10) {
+    width: 5%;
+    text-align: center;
+}
+
+.review-table tbody tr {
+    transition: all 0.2s ease;
 }
 
 .review-table tbody tr:hover {
     background-color: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+}
+
+.review-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
 .clickable-row {
@@ -153,9 +270,10 @@
 }
 
 .comment-cell {
-    max-width: 250px;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+    position: relative;
 }
 
 .comment-cell span {
@@ -173,9 +291,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    vertical-align: middle;
+    font-weight: 500;
+    transition: color 0.2s ease;
 }
 
 .course-link:hover {
+    color: #083d63;
     text-decoration: underline;
 }
 
@@ -184,9 +306,12 @@
     color: #007bff;
     text-decoration: none;
     font-size: 1rem;
+    font-weight: 400;
+    transition: color 0.2s ease;
 }
 
 .course-detail-link:hover {
+    color: #0056b3;
     text-decoration: underline;
 }
 
@@ -198,9 +323,15 @@
 .status-badge {
     padding: 0.4rem 0.8rem;
     border-radius: 0.4rem;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     display: inline-block;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .status-pending {
@@ -227,6 +358,7 @@
 .status-filter-header {
     position: relative;
     overflow: visible;
+    z-index: 10001;
 }
 
 .status-filter-label {
@@ -234,8 +366,9 @@
     user-select: none;
     display: inline-block;
     color: white !important;
-    font-size: 1.2rem;
+    font-size: 1rem;
     transition: color 0.2s ease, text-decoration 0.2s ease;
+    white-space: nowrap;
 }
 
 .status-filter-label:hover {
@@ -251,25 +384,31 @@
 
 .status-filter-dropdown {
     display: none;
-    position: fixed;
+    position: absolute;
     background: white;
     border: 1px solid #ddd;
-    border-radius: 0.6rem;
-    box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.15);
-    z-index: 9999;
-    min-width: 140px;
+    border-radius: 0.4rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    width: 100%;
+    max-width: 110px;
     overflow: hidden;
     transition: all 0.2s ease;
+    top: 100%;
+    left: 0;
+    margin-top: 0.5rem;
 }
 
 .filter-option {
-    padding: 1rem 1.4rem;
+    padding: 0.7rem 0.9rem;
     cursor: pointer;
     border-bottom: 1px solid #eee;
-    font-size: 1.2rem;
+    font-size: 1rem;
     transition: all 0.2s ease;
-    color: #007bff !important;
+    color: #333 !important;
     position: relative;
+    white-space: nowrap;
+    text-align: center;
 }
 
 .filter-option:last-child {
@@ -277,24 +416,14 @@
 }
 
 .filter-option:hover {
-    background-color: #f0f7ff !important;
-    color: #0056b3 !important;
+    background-color: #f8f9fa !important;
+    color: #0A4A7A !important;
 }
 
 .filter-option.active {
-    background-color: #e7f3ff !important;
-    color: #007bff !important;
+    background-color: #0A4A7A !important;
+    color: #fff !important;
     font-weight: 600;
-    padding-left: 2.6rem;
-}
-
-.filter-option.active::before {
-    content: '✓';
-    position: absolute;
-    left: 0.6rem;
-    color: #007bff;
-    font-weight: bold;
-    font-size: 1.1rem;
 }
 
 .action-cell {
@@ -303,20 +432,22 @@
 
 .action-buttons {
     display: flex;
-    gap: 0.8rem;
+    gap: 0.6rem;
+    justify-content: center;
 }
 
 .btn-approve,
 .btn-reject,
 .btn-pass,
 .btn-delete {
-    padding: 0.6rem 1.2rem;
-    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    font-size: 1.1rem;
     font-weight: 600;
     border: none;
-    border-radius: 0.6rem;
+    border-radius: 0.5rem;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .btn-approve {
@@ -326,6 +457,8 @@
 
 .btn-approve:hover {
     background-color: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
 }
 
 .btn-reject {
@@ -335,6 +468,8 @@
 
 .btn-reject:hover {
     background-color: #e0a800;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
 }
 
 .btn-pass {
@@ -344,6 +479,8 @@
 
 .btn-pass:hover {
     background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
 .btn-delete {
@@ -353,6 +490,8 @@
 
 .btn-delete:hover {
     background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
 .empty-message {
@@ -419,6 +558,7 @@
     font-weight: 600;
     margin-bottom: 1.6rem;
     color: #111;
+    text-align: left;
 }
 
 .detail-table {
