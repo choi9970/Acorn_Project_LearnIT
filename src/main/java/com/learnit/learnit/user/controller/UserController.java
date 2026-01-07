@@ -83,9 +83,9 @@ public class UserController {
             session.removeAttribute("GUEST_CART_COURSE_IDS");
         }
 
-        // 관리자 계정인 경우 관리자 페이지로 리다이렉트 (최우선)
+        // 관리자 계정인 경우 관리자 페이지로 리다이렉트 (최우선) - ADMIN 또는 SUB_ADMIN
         String userRole = user.getRole();
-        if (userRole != null && "ADMIN".equals(userRole.trim())) {
+        if (userRole != null && ("ADMIN".equals(userRole.trim()) || "SUB_ADMIN".equals(userRole.trim()))) {
             // 관리자는 redirect 파라미터 무시하고 항상 관리자 홈으로
             session.removeAttribute("REDIRECT_AFTER_LOGIN");
             return "redirect:/admin/home";
