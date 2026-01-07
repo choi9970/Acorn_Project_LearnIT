@@ -12,24 +12,28 @@ public class AdminQnaService {
 
     private final AdminQnaRepository repo;
 
-    public int getTotalCount(String type, String status, String searchField, String search, Integer searchQnaId) {
-        return repo.countQnas(type, status, searchField, search, searchQnaId);
+    public int getTotalCount(String type, String status, String searchField, String search, Integer searchQnaId, Long instructorUserId) {
+        return repo.countQnas(type, status, searchField, search, searchQnaId, instructorUserId);
     }
 
     public List<AdminQnaDto> getList(String type, String status, String searchField, String search,
-                                     Integer searchQnaId, int offset, int size) {
-        return repo.selectQnas(offset, size, type, status, searchField, search, searchQnaId);
+                                     Integer searchQnaId, int offset, int size, Long instructorUserId) {
+        return repo.selectQnas(offset, size, type, status, searchField, search, searchQnaId, instructorUserId);
     }
 
     public AdminQnaDto getDetail(int qnaId) {
         return repo.selectQnaDetail(qnaId);
     }
 
+    public Long getInstructorUserIdByCourseId(Integer courseId) {
+        if (courseId == null) return null;
+        return repo.selectInstructorUserIdByCourseId(courseId);
+    }
+
     @Transactional
     public void saveAnswerAndStatus(int qnaId, long adminUserId, String content, String newStatus) {
         Integer answerId = repo.selectLatestAnswerId(qnaId);
 
-        // ✅ 답변 업서트
         if (content != null) {
             String trimmed = content.trim();
             if (!trimmed.isEmpty()) {
@@ -38,7 +42,6 @@ public class AdminQnaService {
             }
         }
 
-        // ✅ 상태 반영 (PASS => Y, ACTIVE => N)
         if ("PASS".equalsIgnoreCase(newStatus)) repo.updateResolved(qnaId, "Y");
         else if ("ACTIVE".equalsIgnoreCase(newStatus)) repo.updateResolved(qnaId, "N");
     }

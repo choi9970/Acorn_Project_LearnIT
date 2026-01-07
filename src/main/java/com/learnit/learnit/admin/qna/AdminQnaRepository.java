@@ -11,11 +11,12 @@ public interface AdminQnaRepository {
     List<AdminQnaDto> selectQnas(
             @Param("offset") int offset,
             @Param("limit") int limit,
-            @Param("type") String type,        // LECTURE / SITE / null
-            @Param("status") String status,    // ACTIVE / PASS / null
-            @Param("searchField") String searchField, // QNA_ID / TITLE / WRITER
+            @Param("type") String type,
+            @Param("status") String status,
+            @Param("searchField") String searchField,
             @Param("search") String search,
-            @Param("searchQnaId") Integer searchQnaId
+            @Param("searchQnaId") Integer searchQnaId,
+            @Param("instructorUserId") Long instructorUserId   // ✅ 추가
     );
 
     int countQnas(
@@ -23,7 +24,8 @@ public interface AdminQnaRepository {
             @Param("status") String status,
             @Param("searchField") String searchField,
             @Param("search") String search,
-            @Param("searchQnaId") Integer searchQnaId
+            @Param("searchQnaId") Integer searchQnaId,
+            @Param("instructorUserId") Long instructorUserId   // ✅ 추가
     );
 
     AdminQnaDto selectQnaDetail(@Param("qnaId") int qnaId);
@@ -49,4 +51,7 @@ public interface AdminQnaRepository {
     void softDeleteAnswersByQnaId(@Param("qnaId") int qnaId);
 
     void softDeleteQuestionById(@Param("qnaId") int qnaId);
+
+    // ✅ 추가: 강의 소유자(강사) 확인
+    Long selectInstructorUserIdByCourseId(@Param("courseId") int courseId);
 }

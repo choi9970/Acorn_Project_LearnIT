@@ -385,19 +385,49 @@ html, body { max-width: 100%; }
 }
 .status-label{ font-weight: 900; color:#333; }
 
-/* 버튼들 */
+/* =========================
+   ✅ 버튼 통일 (여기부터가 핵심 수정)
+   - 수정/삭제: 크기/모양 동일
+   - 삭제: 빨간색만 다르게
+========================= */
+
+/* 공통 큰 버튼 베이스 (수정/삭제 같이 사용) */
+.btn-primary,
+.btn-danger{
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+  height: 44px;
+  line-height: 1;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 버튼 너비가 글자에 따라 들쭉날쭉해 보이면 아래 주석 해제 */
+  /* min-width: 84px; */
+}
+
+/* 수정(파랑) */
 .btn-primary{
   background:#0A4A7A;
   color:#fff;
-  border:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:900;
-  cursor:pointer;
-  white-space:nowrap;
-  height: 44px;
 }
 
+/* 삭제(빨강) - 모양은 동일, 색만 변경 */
+.btn-danger{
+  background:#dc3545;
+  color:#fff;
+}
+
+/* hover */
+.btn-primary:hover{ filter: brightness(0.95); }
+.btn-danger:hover{ filter: brightness(0.95); }
+
+/* 작은 버튼 (기존 유지) */
 .btn-mini{
   border:1px solid #d5dbe3;
   background:#fff;

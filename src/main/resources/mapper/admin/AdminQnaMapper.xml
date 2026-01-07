@@ -44,7 +44,13 @@
             </choose>
         </if>
 
-        <!-- ✅ 검색 (대소문자 무시) -->
+        <!-- ✅ SUB_ADMIN 전용 필터: 본인 강의만 -->
+        <if test="instructorUserId != null">
+            AND q.course_id IS NOT NULL
+            AND c.user_id = #{instructorUserId}
+        </if>
+
+        <!-- ✅ 검색 -->
         <if test="searchField == 'QNA_ID'">
             <if test="searchQnaId != null">
                 AND q.qna_id = #{searchQnaId}
@@ -64,7 +70,6 @@
                     )
                 </when>
 
-                <!-- 안전장치: 혹시 값이 이상하면 기존 통합검색처럼 -->
                 <otherwise>
                     AND (
                     LOWER(IFNULL(q.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
@@ -189,5 +194,13 @@
         updated_at = NOW()
         WHERE qna_id = #{qnaId}
     </update>
+
+    <!-- ✅ 추가: 강사(강의 소유자) 조회 -->
+    <select id="selectInstructorUserIdByCourseId" resultType="java.lang.Long">
+        SELECT user_id
+        FROM course
+        WHERE course_id = #{courseId}
+        LIMIT 1
+    </select>
 
 </mapper>
