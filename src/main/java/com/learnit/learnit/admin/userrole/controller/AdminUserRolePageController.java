@@ -23,6 +23,6 @@ public class AdminUserRolePageController {
         }
 
         model.addAttribute("activeTab", "role");
-        return "admin/userrole/fragments/adminUserRoleList";
+        return "admin/admin-role";
     }
 }

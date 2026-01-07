@@ -405,14 +405,41 @@ function renderUsers(users) {
   users.forEach(u => {
     const tr = document.createElement("tr");
 
+    // ✅ 소셜가입(provider != local) : ADMIN/SUB_ADMIN 부여 불가 + 화면에서 선택지 잠금
+    const isSocial = u.provider && String(u.provider).toLowerCase() !== "local";
+    const providerLabel = isSocial ? String(u.provider).toUpperCase() : "LOCAL";
+
+    const signupBadge = isSocial
+      ? `<span class="signup-badge social">SOCIAL <em>(${escapeHtml(providerLabel)})</em></span>`
+      : `<span class="signup-badge local">LOCAL</span>`;
+
+    // ✅ 소셜가입이면 ADMIN/SUB_ADMIN 옵션을 아예 안 보이게
+    // (혹시 DB에 이상값으로 ADMIN/SUB_ADMIN이 이미 들어있으면 '표시만' 되고 변경은 못 하게)
+    const baseRoleOptions = isSocial ? ["USER"] : ["USER", "SUB_ADMIN", "ADMIN"];
+    const roleOptions = (isSocial && u.role && !baseRoleOptions.includes(u.role))
+      ? [u.role, ...baseRoleOptions]
+      : baseRoleOptions;
+
     const managedHtml = (u.managedCourses || [])
       .map(c => buildManagedTag(c.courseId, c.title))
       .join(" ");
 
     tr.innerHTML = `
       <td>${u.userId}</td>
-      <td>${escapeHtml(u.name || "")}</td>
-      <td>${escapeHtml(u.email || "")}</td>
+      <td>
+        <div class="name-line">
+          <span class="name-text">${escapeHtml(u.name || "")}</span>
+        </div>
+      </td>
+      <td>
+        <div class="email-line">
+          <span class="email-text">${escapeHtml(u.email || "")}</span>
+        </div>
+      </td>
+
+      <td>
+        ${signupBadge}
+      </td>
 
       <td>
         <div class="cell-line">
@@ -431,15 +458,20 @@ function renderUsers(users) {
         </div>
       </td>
 
-      <td>
+      <td class="${isSocial ? "role-locked" : ""}">
         <div class="cell-line">
           <select class="role" disabled>
-            ${["USER","SUB_ADMIN","ADMIN"].map(r =>
-              `<option value="${r}" ${u.role===r?"selected":""}>${r}</option>`
-            ).join("")}
+            ${roleOptions.map(r => {
+              const selected = (u.role === r) ? "selected" : "";
+              // ✅ isSocial인데 현재 role이 USER가 아니라면(표시 전용) 해당 옵션만 선택 가능, 그 외는 제거되어 안 보이거나 비활성
+              const disabled = (isSocial && r !== "USER" && r !== u.role) ? "disabled" : "";
+              return `<option value="${r}" ${selected} ${disabled}>${r}</option>`;
+            }).join("")}
           </select>
-          <button class="btn-role" type="button">수정</button>
+          <button class="btn-role" type="button" ${isSocial ? "disabled title=\"소셜 가입 회원은 ADMIN/SUB_ADMIN 권한을 부여할 수 없습니다.\"" : ""}>수정</button>
         </div>
+
+        ${isSocial ? `<div class="role-lock-hint">🔒 소셜가입: 관리자 권한 부여 불가</div>` : ""}
 
         <div class="subadmin-box" style="display:${u.role==="SUB_ADMIN" ? "block" : "none"};">
           <div class="sub-line">
@@ -471,7 +503,6 @@ function renderUsers(users) {
 
     // ✅ change에서 전이룰 재적용하면 선택값이 초기화되므로 여기서는 pending box만 제어
     statusSel?.addEventListener("change", () => {
-      const isSocial = u.provider && String(u.provider).toLowerCase() !== "local";
       if (u.status === "SIGNUP_PENDING" && statusSel.value === "ACTIVE" && isSocial) {
         if (pendingBox) pendingBox.style.display = "block";
       } else {
@@ -495,6 +526,8 @@ function renderUsers(users) {
 
     // ✅ 권한: 수정 -> 저장 토글
     tr.querySelector(".btn-role")?.addEventListener("click", async () => {
+      // ✅ 소셜가입이면 '수정' 자체를 막는다(옵션도 숨겼지만 2중 방어)
+      if (isSocial) return;
       const editing = tr.classList.contains("role-editing");
       if (!editing) {
         setRoleEditMode(tr, true);

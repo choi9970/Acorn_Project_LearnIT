@@ -1,4 +1,7 @@
-<div th:fragment="roleTab(activeTab)">
+<!-- templates/admin/adminUser-tab.html -->
+
+<!-- ✅ 탭 전용 fragment (coupon/role 공통 사용) -->
+<div th:fragment="tab(activeTab)">
     <div class="admin-tabs">
         <a class="admin-tab"
            th:href="@{/admin/role}"
@@ -11,59 +14,4 @@
             쿠폰 부여
         </a>
     </div>
-
-    <!-- ✅ 검색 + 초기화 툴바 -->
-    <div class="admin-role-toolbar">
-        <div class="admin-role-search">
-            <select id="searchType">
-                <option value="email">메일</option>
-                <option value="name">이름</option>
-                <option value="userId">회원ID</option>
-            </select>
-            <input id="searchKeyword" placeholder="검색어 입력" />
-            <button id="btnSearch" type="button">검색</button>
-        </div>
-
-        <div class="admin-role-actions">
-            <button id="btnResetAll" type="button" class="btn-reset">
-                검색/필터 초기화
-            </button>
-        </div>
-    </div>
-
-    <!-- ✅ 현재 적용중인 검색/필터 표시 칩 -->
-    <div id="appliedFilters" class="applied-filters" aria-live="polite"></div>
-
-    <table class="admin-role-table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>이름</th>
-            <th>이메일</th>
-
-            <!-- ✅ 상태 필터 -->
-            <th class="th-filter">
-                상태
-                <button type="button" class="filter-btn" data-filter="status" aria-label="상태 필터">▾</button>
-                <div class="filter-popup" id="statusFilterPopup"></div>
-            </th>
-
-            <!-- ✅ 권한 필터 -->
-            <th class="th-filter">
-                권한
-                <button type="button" class="filter-btn" data-filter="role" aria-label="권한 필터">▾</button>
-                <div class="filter-popup" id="roleFilterPopup"></div>
-            </th>
-        </tr>
-        </thead>
-        <tbody id="userTbody"></tbody>
-    </table>
-
-    <div id="pagination" class="admin-pagination"></div>
-
-    <!-- ✅ 총 N명 표시 (pagination 아래) -->
-    <div id="totalCount" class="admin-total-count"></div>
-
-    <script th:src="@{/js/admin/userrole/admin-user-role.js}"></script>
-
 </div>
