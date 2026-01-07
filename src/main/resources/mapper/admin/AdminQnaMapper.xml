@@ -6,15 +6,16 @@
 
     <sql id="latestAnswerJoin">
         LEFT JOIN (
-        SELECT a1.*
+        SELECT a1.answer_id, a1.qna_id, a1.user_id, a1.content, a1.created_at
         FROM qna_answer a1
-        JOIN (
-        SELECT qna_id, MAX(created_at) AS max_created
-        FROM qna_answer
-        WHERE delete_flg = 0
-        GROUP BY qna_id
-        ) m ON a1.qna_id = m.qna_id AND a1.created_at = m.max_created
-        WHERE a1.delete_flg = 0
+        INNER JOIN (
+            SELECT qna_id, MAX(created_at) AS max_created
+            FROM qna_answer
+            WHERE delete_flg = 0
+            GROUP BY qna_id
+        ) m ON a1.qna_id = m.qna_id 
+           AND a1.created_at = m.max_created 
+           AND a1.delete_flg = 0
         ) a ON q.qna_id = a.qna_id
         LEFT JOIN users au ON a.user_id = au.user_id
     </sql>
@@ -23,25 +24,29 @@
         SELECT
         q.qna_id AS qnaId,
         q.course_id AS courseId,
-        c.title AS courseTitle,
+        COALESCE(c.title, '') AS courseTitle,
 
         q.user_id AS questionUserId,
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        q.title AS questionTitle,
+        CASE 
+            WHEN q.content IS NULL OR q.content = '' THEN ''
+            WHEN LENGTH(q.content) > 50 THEN SUBSTRING(q.content, 1, 50)
+            ELSE q.content
+        END AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
 
         a.answer_id AS answerId,
         a.user_id AS answerUserId,
-        au.name AS answerUserName,
+        COALESCE(au.name, '') AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
 
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
         JOIN users qu ON q.user_id = qu.user_id
         <include refid="latestAnswerJoin"/>
 
@@ -72,8 +77,7 @@
 
             <if test="search != null and search != ''">
                 AND (
-                q.title LIKE CONCAT('%', #{search}, '%')
-                OR q.content LIKE CONCAT('%', #{search}, '%')
+                q.content LIKE CONCAT('%', #{search}, '%')
                 OR qu.name LIKE CONCAT('%', #{search}, '%')
                 OR c.title LIKE CONCAT('%', #{search}, '%')
                 )
@@ -87,7 +91,7 @@
     <select id="countQnas" resultType="int">
         SELECT COUNT(*)
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
         JOIN users qu ON q.user_id = qu.user_id
         <where>
             AND q.delete_flg = 0
@@ -116,8 +120,7 @@
 
             <if test="search != null and search != ''">
                 AND (
-                q.title LIKE CONCAT('%', #{search}, '%')
-                OR q.content LIKE CONCAT('%', #{search}, '%')
+                q.content LIKE CONCAT('%', #{search}, '%')
                 OR qu.name LIKE CONCAT('%', #{search}, '%')
                 OR c.title LIKE CONCAT('%', #{search}, '%')
                 )
@@ -129,25 +132,29 @@
         SELECT
         q.qna_id AS qnaId,
         q.course_id AS courseId,
-        c.title AS courseTitle,
+        COALESCE(c.title, '') AS courseTitle,
 
         q.user_id AS questionUserId,
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        q.title AS questionTitle,
+        CASE 
+            WHEN q.content IS NULL OR q.content = '' THEN ''
+            WHEN LENGTH(q.content) > 50 THEN SUBSTRING(q.content, 1, 50)
+            ELSE q.content
+        END AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
 
         a.answer_id AS answerId,
         a.user_id AS answerUserId,
-        au.name AS answerUserName,
+        COALESCE(au.name, '') AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
 
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
         JOIN users qu ON q.user_id = qu.user_id
         <include refid="latestAnswerJoin"/>
 

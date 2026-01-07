@@ -1,6 +1,9 @@
 package com.learnit.learnit.courseVideo.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper; // 🔥 이거 추가됨
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learnit.learnit.courseVideo.service.CourseVideoService;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,13 +18,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class InterpreterController {
 
+    private final CourseVideoService courseVideoService;
     private static final String RAPID_API_KEY = "ba94e9a805msh82fa76cff1b1842p192b67jsn9397668b1906";
     private static final String JUDGE0_URL = "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true";
 
     @PostMapping("/api/interpreter/run")
-    public Map<String, Object> runCode(@RequestBody Map<String, String> payload) {
+    public Map<String, Object> runCode(@RequestBody Map<String, String> payload, HttpSession session) {
         System.out.println("========== [1] 코드 실행 요청 도착 ==========");
         String sourceCode = payload.get("code");
         String languageId = payload.get("languageId");
@@ -62,6 +67,27 @@ public class InterpreterController {
                     result.put("output", "컴파일/문법 에러:\n" + compileOutput);
                 } else {
                     result.put("output", "실행 완료 (출력값 없음)");
+                }
+
+                // 인터프리터 실행 로그 저장 (성공한 경우만)
+                if (stdout != null || (stderr == null && compileOutput == null)) {
+                    Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+                    String courseIdStr = payload.get("courseId");
+                    String chapterIdStr = payload.get("chapterId");
+
+                    if (userId != null && courseIdStr != null && chapterIdStr != null) {
+                        try {
+                            Long courseId = Long.parseLong(courseIdStr);
+                            Long chapterId = Long.parseLong(chapterIdStr);
+                            Integer langId = Integer.parseInt(languageId);
+                            courseVideoService.saveInterpreterLog(userId, courseId, chapterId, langId);
+                            System.out.println("인터프리터 실행 로그 저장 성공: userId=" + userId + ", courseId=" + courseId + ", chapterId=" + chapterId);
+                        } catch (NumberFormatException e) {
+                            System.err.println("ID 파싱 오류: " + e.getMessage());
+                        } catch (Exception e) {
+                            System.err.println("인터프리터 실행 로그 저장 실패: " + e.getMessage());
+                        }
+                    }
                 }
             } else {
                 result.put("output", "결과가 비어있습니다.");

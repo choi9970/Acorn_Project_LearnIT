@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.qna.mapper.CourseQnaMapper">
+
+    <!-- 권한 -->
+    <select id="selectEnrollmentStatus" resultType="string">
+        SELECT status
+        FROM enrollment
+        WHERE user_id = #{userId}
+        AND course_id = #{courseId}
+        LIMIT 1
+    </select>
+
+    <select id="isAdmin" resultType="int">
+        SELECT COUNT(1)
+        FROM admin_user_role aur
+        JOIN admin_role ar ON aur.admin_role_id = ar.admin_role_id
+        WHERE aur.user_id = #{userId}
+        AND ar.code = 'ADMIN'
+    </select>
+
+    <select id="isSubAdminOfCourse" resultType="int">
+        SELECT COUNT(1)
+        FROM admin_user_role aur
+        JOIN admin_role ar ON aur.admin_role_id = ar.admin_role_id
+        WHERE aur.user_id = #{userId}
+        AND ar.code = 'SUB_ADMIN'
+        AND aur.course_id = #{courseId}
+    </select>
+
+    <!-- 질문 -->
+    <select id="selectQuestions" resultType="com.learnit.learnit.qna.dto.CourseQnaDto$QuestionRes">
+        SELECT
+        q.qna_id     AS qnaId,
+        q.course_id  AS courseId,
+        q.user_id    AS userId,
+        u.nickname   AS writerNickname,
+        q.content    AS content,
+        q.is_resolved AS isResolved,
+        DATE_FORMAT(q.created_at, '%Y-%m-%d %H:%i') AS createdAt,
+        DATE_FORMAT(q.updated_at, '%Y-%m-%d %H:%i') AS updatedAt
+        FROM qna_question q
+        JOIN users u ON u.user_id = q.user_id
+        WHERE q.course_id = #{courseId}
+        AND q.delete_flg = 0
+        ORDER BY q.qna_id DESC
+    </select>
+
+    <select id="selectQuestionOwnerId" resultType="long">
+        SELECT user_id
+        FROM qna_question
+        WHERE qna_id = #{qnaId}
+    </select>
+
+    <insert id="insertQuestion">
+        INSERT INTO qna_question (course_id, user_id, content, is_resolved, delete_flg)
+        VALUES (#{courseId}, #{userId}, #{content}, 'N', 0)
+    </insert>
+
+    <update id="updateQuestionByOwner">
+        UPDATE qna_question
+        SET content = #{content},
+        is_resolved = 'N',
+        updated_at = CURRENT_TIMESTAMP
+        WHERE qna_id = #{qnaId}
+        AND user_id = #{userId}
+        AND delete_flg = 0
+    </update>
+
+    <update id="softDeleteQuestion">
+        UPDATE qna_question
+        SET delete_flg = 1,
+        updated_at = CURRENT_TIMESTAMP
+        WHERE qna_id = #{qnaId}
+    </update>
+
+    <update id="updateQuestionResolved">
+        UPDATE qna_question
+        SET is_resolved = #{isResolved},
+        updated_at = CURRENT_TIMESTAMP
+        WHERE qna_id = #{qnaId}
+        AND delete_flg = 0
+    </update>
+
+    <!-- 답변(상위/대댓글 모두) -->
+    <select id="selectAnswers" resultType="com.learnit.learnit.qna.dto.CourseQnaDto$AnswerRes">
+        SELECT
+        a.answer_id AS answerId,
+        a.qna_id AS qnaId,
+        a.user_id AS userId,
+        u.nickname AS writerNickname,
+        a.parent_answer_id AS parentAnswerId,
+        a.content AS content,
+        DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i') AS createdAt
+        FROM qna_answer a
+        JOIN qna_question q ON q.qna_id = a.qna_id
+        JOIN users u ON u.user_id = a.user_id
+        WHERE q.course_id = #{courseId}
+        AND q.delete_flg = 0
+        AND a.delete_flg = 0
+        ORDER BY a.answer_id ASC
+    </select>
+
+    <select id="selectAnswerQnaId" resultType="long">
+        SELECT qna_id
+        FROM qna_answer
+        WHERE answer_id = #{answerId}
+    </select>
+
+    <insert id="insertAnswer">
+        INSERT INTO qna_answer (qna_id, user_id, parent_answer_id, content, delete_flg)
+        VALUES (#{qnaId}, #{userId}, #{parentAnswerId}, #{content}, 0)
+    </insert>
+
+    <select id="selectAnswerOwnerId" resultType="long">
+        SELECT user_id
+        FROM qna_answer
+        WHERE answer_id = #{answerId}
+    </select>
+
+    <update id="updateAnswer">
+        UPDATE qna_answer
+        SET content = #{content},
+        updated_at = CURRENT_TIMESTAMP
+        WHERE answer_id = #{answerId}
+        AND delete_flg = 0
+    </update>
+
+    <update id="softDeleteAnswer">
+        UPDATE qna_answer
+        SET delete_flg = 1,
+        updated_at = CURRENT_TIMESTAMP
+        WHERE answer_id = #{answerId}
+    </update>
+
+
+</mapper>

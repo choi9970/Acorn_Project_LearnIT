@@ -109,8 +109,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 return;
             }
 
-            // ✅ 기존 기본 이동 로직
-            if ("ADMIN".equals(user.getRole())) {
+            // ✅ 기존 기본 이동 로직 - ADMIN 또는 SUB_ADMIN
+            String userRole = user.getRole();
+            if (userRole != null && ("ADMIN".equals(userRole.trim()) || "SUB_ADMIN".equals(userRole.trim()))) {
                 getRedirectStrategy().sendRedirect(request, response, "/admin/home");
             } else {
                 getRedirectStrategy().sendRedirect(request, response, "/home");

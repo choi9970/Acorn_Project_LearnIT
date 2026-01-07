@@ -11,6 +11,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 수료증 전체 보기 버튼 클릭
+    const viewAllCertificatesBtn = document.getElementById('view-all-certificates-btn');
+    const certificatesModal = document.getElementById('certificates-modal');
+    const closeCertificatesModalBtn = document.getElementById('close-certificates-modal');
+
+    if (viewAllCertificatesBtn && certificatesModal) {
+        viewAllCertificatesBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            certificatesModal.style.display = 'flex';
+            loadAllCertificates();
+        });
+    }
+
+    // 수료증 모달 닫기
+    if (closeCertificatesModalBtn && certificatesModal) {
+        closeCertificatesModalBtn.addEventListener('click', function() {
+            certificatesModal.style.display = 'none';
+        });
+    }
+
+    if (certificatesModal) {
+        certificatesModal.addEventListener('click', function(e) {
+            if (e.target === certificatesModal) {
+                certificatesModal.style.display = 'none';
+            }
+        });
+    }
+    
     // 페이지 로드 시 Thymeleaf에서 전달된 데이터가 있으면 먼저 표시
     if (window.savedSkillChart && window.savedSkillChart.skillNames && window.savedSkillChart.skillNames.length > 0) {
         console.log('Thymeleaf 데이터로 차트 표시:', window.savedSkillChart);
@@ -29,6 +57,73 @@ document.addEventListener('DOMContentLoaded', function() {
         loadSavedAnalysis();
     }
 });
+
+/**
+ * 수료증 전체 목록 로드
+ */
+function loadAllCertificates() {
+    const certificatesList = document.getElementById('certificates-list');
+    if (!certificatesList) return;
+
+    certificatesList.innerHTML = '<p class="loading-message">수료증 목록을 불러오는 중...</p>';
+
+    fetch('/api/mypage/certificates', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('서버 응답 오류: ' + response.status);
+            }
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('서버에서 JSON 응답을 받지 못했습니다.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && typeof data === 'object' && data.success === false) {
+                throw new Error(data.error || '수료증 목록을 불러올 수 없습니다.');
+            }
+            
+            const certificates = data.certificates || data || [];
+            
+            if (certificates.length === 0) {
+                certificatesList.innerHTML = '<p class="empty-message">수료증이 없습니다.</p>';
+                return;
+            }
+
+            let html = '';
+            certificates.forEach(cert => {
+                const issueDate = cert.issuedDate ? new Date(cert.issuedDate).toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                }).replace(/\./g, '. ').replace(/\s+/g, ' ') : '';
+                
+                html += `
+                    <div class="certificate-item">
+                        <div class="certificate-icon">📜</div>
+                        <div class="certificate-info">
+                            <div class="certificate-title">${cert.courseTitle || '강의명 없음'}</div>
+                            <div class="certificate-date">${issueDate}</div>
+                        </div>
+                        <a href="${cert.certificateUrl || '#'}" class="certificate-download-link" download>
+                            다운로드
+                        </a>
+                    </div>
+                `;
+            });
+            certificatesList.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('수료증 목록 로드 실패:', error);
+            certificatesList.innerHTML = '<p class="error-message">수료증 목록을 불러오는데 실패했습니다.</p>';
+        });
+}
 
 /**
  * 저장된 GitHub 분석 결과 로드

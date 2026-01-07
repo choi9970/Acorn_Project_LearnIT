@@ -81,5 +81,25 @@
           AND user_id = #{userId}
     </select>
 
+    <!-- 월별 할일 목록 조회 (미완료만) -->
+    <select id="selectTodosByMonth" resultType="com.learnit.learnit.mypage.dto.TodoDTO">
+        SELECT 
+            todo_id AS todoId,
+            user_id AS userId,
+            title,
+            description,
+            target_date AS targetDate,
+            CASE WHEN is_completed = 'Y' THEN true ELSE false END AS isCompleted,
+            completed_at AS completedAt,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM todo
+        WHERE user_id = #{userId}
+          AND YEAR(target_date) = #{year}
+          AND MONTH(target_date) = #{month}
+          AND (is_completed IS NULL OR is_completed = 'N')
+        ORDER BY target_date ASC, created_at ASC
+    </select>
+
 </mapper>
 
