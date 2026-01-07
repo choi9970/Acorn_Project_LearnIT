@@ -60,12 +60,28 @@ public class NoticeController {
     }
 
     @GetMapping("/notice/{id}")
-    public String noticeDetail(@PathVariable("id") Long id, Model model) {
-
+    public String noticeDetail(
+            @PathVariable("id") Long id,
+            // ✅ 관리자 목록에서 들어왔을 때만 넘어오는 값들
+            @RequestParam(value = "from", required = false) String from,
+            @RequestParam(value = "returnPage", defaultValue = "1") int returnPage,
+            @RequestParam(value = "returnSize", defaultValue = "7") int returnSize,
+            @RequestParam(value = "returnCategory", required = false) String returnCategory,
+            @RequestParam(value = "returnSearch", required = false) String returnSearch,
+            Model model
+    ) {
         Notice notice = noticeService.getNotice(id);
         if (notice == null) return "redirect:/notice";
 
         model.addAttribute("notice", notice);
+
+        // ✅ 관리자에서 왔는지 여부 + 돌아갈 목록 상태
+        model.addAttribute("from", from);
+        model.addAttribute("returnPage", returnPage);
+        model.addAttribute("returnSize", returnSize);
+        model.addAttribute("returnCategory", returnCategory);
+        model.addAttribute("returnSearch", returnSearch);
+
         return "notice/noticeDetail";
     }
 

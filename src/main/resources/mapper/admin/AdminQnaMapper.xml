@@ -19,6 +19,64 @@
         LEFT JOIN users au ON a.user_id = au.user_id
     </sql>
 
+    <sql id="baseWhere">
+        q.delete_flg = 0
+
+        <if test="type != null and type != ''">
+            <choose>
+                <when test="type == 'SITE'">
+                    AND q.course_id IS NULL
+                </when>
+                <when test="type == 'LECTURE'">
+                    AND q.course_id IS NOT NULL
+                </when>
+            </choose>
+        </if>
+
+        <if test="status != null and status != ''">
+            <choose>
+                <when test="status == 'ACTIVE'">
+                    AND q.is_resolved = 'N'
+                </when>
+                <when test="status == 'PASS'">
+                    AND q.is_resolved = 'Y'
+                </when>
+            </choose>
+        </if>
+
+        <!-- ✅ 검색 (대소문자 무시) -->
+        <if test="searchField == 'QNA_ID'">
+            <if test="searchQnaId != null">
+                AND q.qna_id = #{searchQnaId}
+            </if>
+        </if>
+
+        <if test="searchField != null and searchField != '' and search != null and search != '' and searchField != 'QNA_ID'">
+            <choose>
+                <when test="searchField == 'WRITER'">
+                    AND LOWER(qu.name) LIKE CONCAT('%', LOWER(#{search}), '%')
+                </when>
+
+                <when test="searchField == 'TITLE'">
+                    AND (
+                    LOWER(IFNULL(c.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(IFNULL(q.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    )
+                </when>
+
+                <!-- 안전장치: 혹시 값이 이상하면 기존 통합검색처럼 -->
+                <otherwise>
+                    AND (
+                    LOWER(IFNULL(q.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(IFNULL(q.content,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(IFNULL(qu.name,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(IFNULL(c.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    )
+                </otherwise>
+            </choose>
+        </if>
+    </sql>
+
     <select id="selectQnas" resultType="com.learnit.learnit.admin.qna.AdminQnaDto">
         SELECT
         q.qna_id AS qnaId,
@@ -45,42 +103,7 @@
         <include refid="latestAnswerJoin"/>
 
         <where>
-            q.delete_flg = 0
-
-            <if test="qnaId != null">
-                AND q.qna_id = #{qnaId}
-            </if>
-
-            <if test="type != null and type != ''">
-                <choose>
-                    <when test="type == 'SITE'">
-                        AND q.course_id IS NULL
-                    </when>
-                    <when test="type == 'LECTURE'">
-                        AND q.course_id IS NOT NULL
-                    </when>
-                </choose>
-            </if>
-
-            <if test="status != null and status != ''">
-                <choose>
-                    <when test="status == 'ACTIVE'">
-                        AND q.is_resolved = 'N'
-                    </when>
-                    <when test="status == 'PASS'">
-                        AND q.is_resolved = 'Y'
-                    </when>
-                </choose>
-            </if>
-
-            <if test="search != null and search != ''">
-                AND (
-                q.title LIKE CONCAT('%', #{search}, '%')
-                OR q.content LIKE CONCAT('%', #{search}, '%')
-                OR qu.name LIKE CONCAT('%', #{search}, '%')
-                OR c.title LIKE CONCAT('%', #{search}, '%')
-                )
-            </if>
+            <include refid="baseWhere"/>
         </where>
 
         ORDER BY q.created_at DESC
@@ -93,42 +116,7 @@
         LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
         <where>
-            q.delete_flg = 0
-
-            <if test="qnaId != null">
-                AND q.qna_id = #{qnaId}
-            </if>
-
-            <if test="type != null and type != ''">
-                <choose>
-                    <when test="type == 'SITE'">
-                        AND q.course_id IS NULL
-                    </when>
-                    <when test="type == 'LECTURE'">
-                        AND q.course_id IS NOT NULL
-                    </when>
-                </choose>
-            </if>
-
-            <if test="status != null and status != ''">
-                <choose>
-                    <when test="status == 'ACTIVE'">
-                        AND q.is_resolved = 'N'
-                    </when>
-                    <when test="status == 'PASS'">
-                        AND q.is_resolved = 'Y'
-                    </when>
-                </choose>
-            </if>
-
-            <if test="search != null and search != ''">
-                AND (
-                q.title LIKE CONCAT('%', #{search}, '%')
-                OR q.content LIKE CONCAT('%', #{search}, '%')
-                OR qu.name LIKE CONCAT('%', #{search}, '%')
-                OR c.title LIKE CONCAT('%', #{search}, '%')
-                )
-            </if>
+            <include refid="baseWhere"/>
         </where>
     </select>
 
@@ -201,49 +189,5 @@
         updated_at = NOW()
         WHERE qna_id = #{qnaId}
     </update>
-
-    <!-- ✅ qnaId 드롭다운 옵션 -->
-    <select id="selectQnaIds" resultType="int">
-        SELECT q.qna_id
-        FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id
-        JOIN users qu ON q.user_id = qu.user_id
-        <where>
-            q.delete_flg = 0
-
-            <if test="type != null and type != ''">
-                <choose>
-                    <when test="type == 'SITE'">
-                        AND q.course_id IS NULL
-                    </when>
-                    <when test="type == 'LECTURE'">
-                        AND q.course_id IS NOT NULL
-                    </when>
-                </choose>
-            </if>
-
-            <if test="status != null and status != ''">
-                <choose>
-                    <when test="status == 'ACTIVE'">
-                        AND q.is_resolved = 'N'
-                    </when>
-                    <when test="status == 'PASS'">
-                        AND q.is_resolved = 'Y'
-                    </when>
-                </choose>
-            </if>
-
-            <if test="search != null and search != ''">
-                AND (
-                q.title LIKE CONCAT('%', #{search}, '%')
-                OR q.content LIKE CONCAT('%', #{search}, '%')
-                OR qu.name LIKE CONCAT('%', #{search}, '%')
-                OR c.title LIKE CONCAT('%', #{search}, '%')
-                )
-            </if>
-        </where>
-        ORDER BY q.qna_id DESC
-        LIMIT 200
-    </select>
 
 </mapper>

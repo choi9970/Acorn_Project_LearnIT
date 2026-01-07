@@ -1,11 +1,11 @@
 /* =========================
-   QNA (공지관리처럼 "가운데 레일" 정렬 + 아코디언)
+   QNA (NOTICE 느낌으로 폭/정렬 통일 + 아코디언 유지)
 ========================= */
 
-/* ✅ 페이지 전체 가로 오버플로우 방지(헤더 라인 넘어가는 느낌 방지) */
-html, body { max-width: 100%; overflow-x: hidden; }
+/* 전역 */
+html, body { max-width: 100%; }
 
-/* ✅ 레일: 가운데 고정 */
+/* ✅ 레일: notice와 동일 */
 .admin-content-inner{
   width: 100%;
   max-width: 1200px;
@@ -13,150 +13,222 @@ html, body { max-width: 100%; overflow-x: hidden; }
   padding: 0 16px;
   box-sizing: border-box;
   min-width: 0;
-
-  /* ✅ admin-layout이 flex일 때 밀리는 것 방지 */
-  flex: 1 1 auto;
 }
 
-/* 컨테이너도 한 번 더 가운데 고정(레이아웃 영향받을 때 대비) */
+/* 컨테이너 */
 .admin-qna-container{
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 2rem 0;
+  width: 100%;
+  margin: 0;
   min-width: 0;
   box-sizing: border-box;
 }
-
 .admin-qna-container *{ box-sizing: border-box; }
 
 .admin-qna-container h2{
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   font-weight: 800;
+  color: #111;
   margin: 0 0 1.4rem 0;
-  color:#111;
 }
 
 /* alert */
 .admin-qna-container .alert{
-  padding:1.2rem 1.6rem;
-  border-radius:.8rem;
-  margin-bottom:1rem;
-  font-size:1.4rem;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
-.admin-qna-container .alert-success{background:#d4edda;border:1px solid #c3e6cb;color:#155724;}
-.admin-qna-container .alert-error{background:#f8d7da;border:1px solid #f5c6cb;color:#721c24;}
+.admin-qna-container .alert-success{ background:#d4edda; border:1px solid #c3e6cb; color:#155724; }
+.admin-qna-container .alert-error{ background:#f8d7da; border:1px solid #f5c6cb; color:#721c24; }
 
-/* filters */
+/* =========================
+   filters (notice처럼 한 줄 정렬)
+========================= */
 .admin-qna-container .filters{
   background:#f8f9fa;
-  padding:1.2rem;
-  border-radius:.8rem;
-  margin-bottom:1.6rem;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 16px;
 }
+
 .admin-qna-container .filter-form{
   display:flex;
   align-items:center;
-  gap:10px;
-  flex-wrap: wrap;
+  gap: 10px;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
-/* Q&A번호 드롭다운 */
+/* =========================
+   ✅ select 공통(핵심)
+   - HTML이 qnaid-select를 쓰고 있어서 "둘 다" 먹게 처리
+========================= */
+.admin-qna-container .filter-select,
+.admin-qna-container .qnaid-select,
+.admin-qna-container .status-select{
+  height: 44px;
+  padding: 10px 42px 10px 14px;
+  border: 1px solid #d5dbe3;
+  border-radius: 10px;
+  background-color: #fff;
+
+  font-size: 14px;
+  font-weight: 800;
+  color: #111;
+  line-height: 1;
+  cursor: pointer;
+
+  -webkit-appearance: none;
+  appearance: none;
+  -moz-appearance: none;
+
+  /* ✅ 커스텀 화살표(▼) */
+  background-image:
+    linear-gradient(45deg, transparent 50%, #111 50%),
+    linear-gradient(135deg, #111 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size:
+    6px 6px,
+    6px 6px;
+  background-repeat: no-repeat;
+
+  box-shadow: 0 1px 0 rgba(0,0,0,.02);
+}
+
+/* 상단 검색 필터 select 폭 */
+.admin-qna-container .filter-select,
 .admin-qna-container .qnaid-select{
-  padding:.8rem 1.2rem;
-  border:1px solid #d5dbe3;
-  border-radius:.6rem;
-  font-size:1.4rem;
   width: 160px;
-  height: 38px;
-  background:#fff;
+  flex: 0 0 auto;
 }
 
-/* 검색 */
+/* status select는 내용이 짧으니 폭 줄임 */
+.admin-qna-container .status-select{
+  width: 160px;
+}
+
+/* IE/레거시 화살표 제거 */
+.admin-qna-container .filter-select::-ms-expand,
+.admin-qna-container .qnaid-select::-ms-expand,
+.admin-qna-container .status-select::-ms-expand{
+  display:none;
+}
+
+.admin-qna-container .filter-select:focus,
+.admin-qna-container .qnaid-select:focus,
+.admin-qna-container .status-select:focus{
+  outline: none;
+  border-color: #0A4A7A;
+  box-shadow: 0 0 0 3px rgba(10,74,122,.12);
+}
+
+/* 검색 input */
 .admin-qna-container .search-input{
-  padding:.8rem 1.2rem;
-  border:1px solid #d5dbe3;
-  border-radius:.6rem;
-  font-size:1.4rem;
-  flex: 1 1 420px;
-  min-width: 320px;
-  background:#fff;
+  height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 10px;
+  font-size: 14px;
+  flex: 1 1 auto;
+  min-width: 0;
+  background: #fff;
 }
 
+/* 버튼 */
 .admin-qna-container .btn-search,
 .admin-qna-container .btn-reset{
-  border:none;
-  padding:.9rem 1.4rem;
-  border-radius:.6rem;
-  font-weight:900;
-  cursor:pointer;
-  text-decoration:none;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  height:38px;
-  white-space:nowrap;
+  white-space: nowrap;
+  height: 44px;
+  line-height: 1;
 }
 .admin-qna-container .btn-search{ background:#0A4A7A; color:#fff; }
 .admin-qna-container .btn-reset{ background:#6c757d; color:#fff; }
+.admin-qna-container .btn-reset:hover{ filter: brightness(0.95); }
 
 .admin-qna-container .role-hint{
   margin-left: 6px;
-  font-weight: 900;
+  font-weight: 800;
   color:#0A4A7A;
+  font-size: 13px;
 }
 
-/* table */
+/* =========================
+   table (notice 스펙)
+========================= */
 .admin-qna-container .table-wrap{
   width:100%;
   background:#fff;
-  border-radius:.8rem;
-  overflow-x:auto;
-  box-shadow:0 .2rem .6rem rgba(0,0,0,.08);
-  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+  overflow-x: hidden; /* ✅ notice처럼 기본은 스크롤 안 보이게 */
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+/* 화면이 너무 좁을 때만 가로 스크롤 */
+@media (max-width: 900px){
+  .admin-qna-container .table-wrap{ overflow-x:auto; }
 }
 
 .admin-qna-container .qna-table{
-  width:100%;
+  width: 100%;
+  min-width: 860px;
   table-layout: fixed;
   border-collapse: collapse;
-  min-width: 860px;
 }
 
-.admin-qna-container .qna-table thead{ background:#0A4A7A; color:#fff; }
+.admin-qna-container .qna-table thead{
+  background:#0A4A7A;
+  color:#fff;
+}
 
 .admin-qna-container .qna-table th,
 .admin-qna-container .qna-table td{
-  padding:10px 8px;
-  font-size:1.4rem;
-  border-bottom:1px solid #eee;
+  padding: 12px 10px;
+  font-size: 14px;
+  border-bottom: 1px solid #eaeaea;
   white-space: nowrap;
-
-  /* ✅ 기본: 가운데 정렬 */
   text-align: center;
+  vertical-align: middle;
 }
 
 .admin-qna-container .qna-table tbody tr.main-row{ cursor:pointer; }
 .admin-qna-container .qna-table tbody tr.main-row:hover{ background:#f8f9fa; }
 
+/* 컬럼 폭(860 근처) */
 .admin-qna-container .qna-table th:nth-child(1),
-.admin-qna-container .qna-table td:nth-child(1){ width: 110px; }
+.admin-qna-container .qna-table td:nth-child(1){ width: 90px; }
 .admin-qna-container .qna-table th:nth-child(2),
 .admin-qna-container .qna-table td:nth-child(2){ width: 90px; }
-.admin-qna-container .qna-table th:nth-child(3),
-.admin-qna-container .qna-table td:nth-child(3){ width: 420px; }
 .admin-qna-container .qna-table th:nth-child(4),
 .admin-qna-container .qna-table td:nth-child(4){ width: 110px; }
 .admin-qna-container .qna-table th:nth-child(5),
-.admin-qna-container .qna-table td:nth-child(5){ width: 110px; }
+.admin-qna-container .qna-table td:nth-child(5){ width: 100px; }
 .admin-qna-container .qna-table th:nth-child(6),
 .admin-qna-container .qna-table td:nth-child(6){ width: 120px; }
 
-/* ✅ 제목은 읽기 좋게 왼쪽 정렬 + 말줄임 */
+/* 강좌명/제목만 왼쪽 */
+.admin-qna-container .qna-table th:nth-child(3),
+.admin-qna-container .qna-table td:nth-child(3){
+  text-align: left;
+  padding-left: 16px;
+}
+
 .admin-qna-container .title-cell{
   overflow:hidden;
   text-overflow:ellipsis;
-  text-align: left;
+  font-weight: 700;
+  color:#111;
 }
 
 /* badge */
@@ -164,22 +236,22 @@ html, body { max-width: 100%; overflow-x: hidden; }
   padding:.35rem .8rem;
   border-radius:999px;
   font-weight:900;
-  font-size:1.2rem;
+  font-size:12px;
   display:inline-block;
 }
 .admin-qna-container .badge-active{ background:#fff3cd; color:#856404; }
 .admin-qna-container .badge-pass{ background:#d4edda; color:#155724; }
 
-.admin-qna-container .empty{ text-align:center; padding:3rem; color:#999; }
-
-/* 구분 헤더 필터(구분만 유지) */
-.th-filter{ position: relative; }
-.filter-icon{
-  margin-left: 6px;
-  cursor: pointer;
-  opacity: .9;
-  font-weight: 900;
+/* empty */
+.admin-qna-container .empty{
+  text-align:center;
+  padding: 3rem;
+  color:#999;
 }
+
+/* 구분 헤더 필터(유지) */
+.th-filter{ position: relative; }
+.filter-icon{ margin-left: 6px; cursor: pointer; opacity: .9; font-weight: 900; }
 .filter-icon:hover{ opacity: 1; }
 
 .filter-popup{
@@ -206,9 +278,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 }
 .popup-link:hover{ background:#f1f4f8; }
 
-/* =========================
-   ✅ 상태 배지 클릭 = "필터"가 아니라 "해당 row 상태 변경"
-========================= */
+/* 상태 배지 클릭 팝업 */
 .status-badge-wrap{
   position: relative;
   display: inline-flex;
@@ -217,15 +287,10 @@ html, body { max-width: 100%; overflow-x: hidden; }
 }
 .status-badge-wrap.can-click .status-badge-click{ cursor: pointer; }
 
-/* 새 팝업 */
 .status-action-popup{
   position: absolute;
   top: 30px;
-
-  /* ✅ 가운데 정렬(옆칸 침범) 때문에 겹쳐보였음 → 왼쪽 정렬로 고정 */
   left: 0;
-  transform: none;
-
   width: 160px;
   background: #fff;
   border: 1px solid #d5dbe3;
@@ -238,18 +303,14 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
 .status-action-form{
   margin: 0;
-
-  /* ✅ 버튼을 세로로 쌓기 */
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-/* ✅ 버튼을 한 줄씩(블록) */
 .popup-btn{
   display: block;
   width: 100%;
-
   border: none;
   background: transparent;
   text-align: left;
@@ -261,11 +322,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
   white-space: nowrap;
 }
 .popup-btn:hover{ background:#f1f4f8; }
-/* detail accordion row */
+
+/* accordion detail (관리 리스트 내부) */
 .detail-row td{
   background:#fafafa;
   border-bottom: 1px solid #eee;
-  text-align: left; /* 상세는 좌측이 보기 좋음 */
+  text-align: left;
 }
 .detail-inner{ padding: 14px 10px; }
 
@@ -273,12 +335,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
   display:flex;
   flex-wrap: wrap;
   gap: 12px;
-  font-size: 1.3rem;
+  font-size: 13px;
   color:#333;
   margin-bottom: 10px;
 }
 .detail-title{
-  font-size: 1.8rem;
+  font-size: 18px;
   font-weight: 900;
   color:#111;
   margin-bottom: 12px;
@@ -297,28 +359,24 @@ html, body { max-width: 100%; overflow-x: hidden; }
   border-radius: .8rem;
   padding: 12px;
 }
-.box-title{
-  font-weight: 900;
-  margin-bottom: 8px;
-}
+.box-title{ font-weight: 900; margin-bottom: 8px; }
 .box-content{
   white-space: pre-wrap;
   line-height: 1.6;
   color:#222;
-  font-size:1.4rem;
+  font-size:14px;
 }
 
 .answer-form textarea{
   width:100%;
   border:1px solid #d5dbe3;
-  border-radius:.6rem;
-  padding:1rem;
-  font-size:1.4rem;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:14px;
   resize:vertical;
-  margin-bottom:.8rem;
+  margin-bottom:8px;
 }
 
-/* 상태 inline */
 .status-inline{
   display:flex;
   align-items:center;
@@ -326,92 +384,86 @@ html, body { max-width: 100%; overflow-x: hidden; }
   margin: 8px 0 12px;
 }
 .status-label{ font-weight: 900; color:#333; }
-.status-select{
-  padding:.6rem 1rem;
-  border:1px solid #d5dbe3;
-  border-radius:.6rem;
-  font-weight:900;
-  background:#fff;
-}
 
+/* 버튼들 */
 .btn-primary{
   background:#0A4A7A;
   color:#fff;
   border:none;
-  padding:.9rem 1.4rem;
-  border-radius:.6rem;
+  padding:10px 14px;
+  border-radius:10px;
   font-weight:900;
   cursor:pointer;
   white-space:nowrap;
+  height: 44px;
 }
 
 .btn-mini{
   border:1px solid #d5dbe3;
   background:#fff;
-  padding:.6rem 1rem;
-  border-radius:.6rem;
-  font-weight:900;
+  padding:6px 10px;
+  border-radius:10px;
+  font-weight:800;
   cursor:pointer;
   white-space:nowrap;
+  height: 32px;
 }
-.btn-mini.danger{
-  border-color:#dc3545;
-  color:#dc3545;
-}
-.btn-mini.danger:hover{
-  background:#dc3545;
-  color:#fff;
-}
+.btn-mini.danger{ border-color:#dc3545; color:#dc3545; }
+.btn-mini.danger:hover{ background:#dc3545; color:#fff; }
 
-.no-permission{
-  margin-top: 10px;
-  font-weight: 900;
-  color:#666;
-}
-
-/* 버튼 row: 수정 + 삭제 나란히 */
-.btn-row{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-top: 8px;
-}
+.no-permission{ margin-top: 10px; font-weight: 900; color:#666; }
+.btn-row{ display:flex; align-items:center; gap:10px; margin-top: 8px; }
 
 /* pagination */
 .admin-qna-container .pagination{
   display:flex;
   justify-content:center;
   align-items:center;
-  gap:.6rem;
-  margin: 1.6rem 0;
+  gap: 8px;
+  margin: 18px 0;
   flex-wrap: wrap;
 }
 .admin-qna-container .page-link,
 .admin-qna-container .page-number a{
-  padding:.7rem 1.05rem;
-  border:1px solid #d5dbe3;
-  border-radius:.6rem;
+  padding: 8px 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 10px;
   text-decoration:none;
   color:#0A4A7A;
-  font-weight:800;
+  font-weight: 800;
+  background:#fff;
 }
 .admin-qna-container .page-number strong{
-  padding:.7rem 1.05rem;
-  border-radius:.6rem;
+  padding: 8px 12px;
+  border-radius: 10px;
   background:#0A4A7A;
   color:#fff;
-  font-weight:900;
+  font-weight: 900;
 }
 
 .admin-qna-container .summary-total{
   text-align:center;
   color:#666;
-  font-size:1.4rem;
-  margin-top:1rem;
+  font-size: 14px;
+  margin-top: 10px;
 }
 
+/* responsive */
 @media (max-width: 1024px){
-  .admin-content-inner{   max-width: 980px; }
-  .admin-qna-container{  max-width: 980px;padding: 1.2rem 0; }
-  .admin-qna-container .search-input{ min-width: 100%; }
+  .admin-content-inner{
+    max-width: 100%;
+    padding: 0 12px;
+  }
+  .admin-qna-container{ padding: 14px 0; }
+
+  .admin-qna-container .filter-form{ flex-wrap: wrap; }
+  .admin-qna-container .search-input{
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+  .admin-qna-container .filter-select,
+  .admin-qna-container .qnaid-select{
+    width: 100%;
+    flex: 1 1 100%;
+  }
 }

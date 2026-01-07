@@ -71,7 +71,22 @@
                 <tr th:each="n : ${notices}">
                     <td th:text="${n.category}">일반</td>
                     <td th:text="${n.noticeId}">1</td>
-                    <td class="title-cell" th:text="${n.title}">제목</td>
+
+                    <!-- ✅ 제목 클릭 -> 사용자 공지 상세로 이동 + 돌아올 관리자 목록 상태 전달 -->
+                    <td class="title-cell">
+                        <a th:href="@{/notice/{id}(
+                                    id=${n.noticeId},
+                                    from='admin',
+                                    returnPage=${currentPage},
+                                    returnSize=${pageSize},
+                                    returnCategory=${currentCategory},
+                                    returnSearch=${searchKeyword}
+                                  )}"
+                           th:text="${n.title}">
+                            제목
+                        </a>
+                    </td>
+
                     <td th:text="${n.writerName}">관리자</td>
                     <td th:text="${n.createdAt != null ? #temporals.format(n.createdAt,'yyyy-MM-dd') : '-'}">-</td>
 
@@ -134,6 +149,7 @@
         </div>
     </div>
 </section>
+
 <th:block th:fragment="script">
     <script th:src="@{/js/admin/admin-notice.js}"></script>
 </th:block>

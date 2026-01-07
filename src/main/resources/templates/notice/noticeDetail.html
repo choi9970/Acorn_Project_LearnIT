@@ -51,7 +51,23 @@
             </div>
 
             <div class="notice-detail-actions">
-                <a class="notice-back-btn" th:href="@{/notice}">목록 보기</a>
+                <!-- ✅ 관리자에서 왔으면 관리자 목록으로, 아니면 사용자 목록으로 -->
+                <a class="notice-back-btn"
+                   th:if="${from == 'admin'}"
+                   th:href="@{/admin/notice(
+                                page=${returnPage},
+                                size=${returnSize},
+                                category=${returnCategory},
+                                search=${returnSearch}
+                             )}">
+                    목록 보기
+                </a>
+
+                <a class="notice-back-btn"
+                   th:unless="${from == 'admin'}"
+                   th:href="@{/notice}">
+                    목록 보기
+                </a>
             </div>
         </div>
     </section>

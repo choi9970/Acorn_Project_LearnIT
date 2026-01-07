@@ -19,24 +19,38 @@ public class AdminQnaController {
 
     private static final int PAGE_BLOCK_SIZE = 5;
 
+    // ✅ 검색필드 상수
+    private static final String FIELD_QNA_ID = "QNA_ID";
+    private static final String FIELD_TITLE  = "TITLE";
+    private static final String FIELD_WRITER = "WRITER";
+
     @GetMapping
     public String manage(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "7") int size,
+
             @RequestParam(value = "type", required = false) String type,       // LECTURE / SITE / null
             @RequestParam(value = "status", required = false) String status,   // ACTIVE / PASS / null
+
+            @RequestParam(value = "searchField", required = false) String searchField, // ✅ QNA_ID / TITLE / WRITER
             @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "qnaId", required = false) Integer qnaId,
+
             Model model,
             HttpSession session
     ) {
         boolean isAdmin = auth.isAdmin(session);
         boolean isSubAdmin = auth.isSubAdmin(session);
 
-        // ✅ 콤마(,) 같은 이상값 정리 (캡처 URL: type=%2C ...)
         type = normalize(type);
         status = normalize(status);
+        searchField = normalize(searchField);
         search = normalize(search);
+
+        // ✅ searchField 기본값
+        if (searchField == null) searchField = FIELD_TITLE;
+        if (!FIELD_QNA_ID.equals(searchField) && !FIELD_TITLE.equals(searchField) && !FIELD_WRITER.equals(searchField)) {
+            searchField = FIELD_TITLE;
+        }
 
         // ✅ SUB_ADMIN은 무조건 강의Q&A만
         if (isSubAdmin && !isAdmin) {
@@ -47,19 +61,25 @@ public class AdminQnaController {
         if (size < 1) size = 7;
         if (page < 1) page = 1;
 
-        int totalCount = service.getTotalCount(type, status, search, qnaId);
+        // ✅ Q&A번호 검색이면 숫자만 허용
+        Integer searchQnaId = null;
+        if (FIELD_QNA_ID.equals(searchField) && search != null) {
+            String s = search.trim();
+            if (s.matches("^\\d+$")) {
+                try { searchQnaId = Integer.parseInt(s); } catch (Exception ignored) {}
+            }
+        }
+
+        int totalCount = service.getTotalCount(type, status, searchField, search, searchQnaId);
         int totalPages = (int) Math.ceil((double) totalCount / size);
         if (totalPages <= 0) totalPages = 1;
         if (page > totalPages) page = totalPages;
 
         int offset = (page - 1) * size;
-        List<AdminQnaDto> qnas = service.getList(type, status, search, qnaId, offset, size);
+        List<AdminQnaDto> qnas = service.getList(type, status, searchField, search, searchQnaId, offset, size);
 
         int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
         int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
-
-        // ✅ qnaId 드롭다운 옵션 (현재 조건 기준)
-        List<Integer> qnaIdOptions = service.getQnaIdOptions(type, status, search);
 
         model.addAttribute("qnas", qnas);
 
@@ -68,10 +88,9 @@ public class AdminQnaController {
 
         model.addAttribute("currentType", type);
         model.addAttribute("currentStatus", status);
-        model.addAttribute("searchKeyword", search);
-        model.addAttribute("qnaIdFilter", qnaId);
 
-        model.addAttribute("qnaIdOptions", qnaIdOptions);
+        model.addAttribute("searchField", searchField);
+        model.addAttribute("searchKeyword", search);
 
         model.addAttribute("currentPage", page);
         model.addAttribute("pageSize", size);
@@ -92,8 +111,8 @@ public class AdminQnaController {
 
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "qnaId", required = false) Integer qnaIdFilter,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "7") int size,
 
@@ -102,30 +121,31 @@ public class AdminQnaController {
     ) {
         type = normalize(type);
         status = normalize(status);
+        searchField = normalize(searchField);
         search = normalize(search);
 
         Long loginUserId = auth.loginUserId(session);
         if (loginUserId == null) {
             ra.addFlashAttribute("errorMessage", "로그인 정보가 없습니다.");
-            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+            return redirectList(ra, type, status, searchField, search, page, size);
         }
 
         AdminQnaDto detail = service.getDetail(qnaId);
         if (detail == null) {
             ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
-            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+            return redirectList(ra, type, status, searchField, search, page, size);
         }
 
-        // ✅ row 권한 체크: 강의Q&A는 SUB_ADMIN 가능, 전체Q&A는 ADMIN만
         if (!auth.canManageRow(session, detail.getCourseId())) {
             ra.addFlashAttribute("errorMessage", "권한이 없습니다.");
-            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+            return redirectList(ra, type, status, searchField, search, page, size);
         }
 
         service.saveAnswerAndStatus(qnaId, loginUserId, content, newStatus);
         ra.addFlashAttribute("successMessage", "저장되었습니다.");
-        return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+        return redirectList(ra, type, status, searchField, search, page, size);
     }
+
     // ✅ 상태만 변경 (리스트에서 배지 클릭 메뉴용)
     @PostMapping("/{qnaId}/status")
     public String changeStatus(
@@ -134,8 +154,8 @@ public class AdminQnaController {
 
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "qnaId", required = false) Integer qnaIdFilter,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "7") int size,
 
@@ -144,29 +164,29 @@ public class AdminQnaController {
     ) {
         type = normalize(type);
         status = normalize(status);
+        searchField = normalize(searchField);
         search = normalize(search);
 
         Long loginUserId = auth.loginUserId(session);
         if (loginUserId == null) {
             ra.addFlashAttribute("errorMessage", "로그인 정보가 없습니다.");
-            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+            return redirectList(ra, type, status, searchField, search, page, size);
         }
 
         AdminQnaDto detail = service.getDetail(qnaId);
         if (detail == null) {
             ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
-            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+            return redirectList(ra, type, status, searchField, search, page, size);
         }
 
         if (!auth.canManageRow(session, detail.getCourseId())) {
             ra.addFlashAttribute("errorMessage", "권한이 없습니다.");
-            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+            return redirectList(ra, type, status, searchField, search, page, size);
         }
 
-        // ✅ 답변 없이 상태만 바꿈 (content=null)
         service.saveAnswerAndStatus(qnaId, loginUserId, null, newStatus);
         ra.addFlashAttribute("successMessage", "상태가 변경되었습니다.");
-        return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+        return redirectList(ra, type, status, searchField, search, page, size);
     }
 
     // ✅ 삭제(옆 버튼)
@@ -176,8 +196,8 @@ public class AdminQnaController {
 
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "qnaId", required = false) Integer qnaIdFilter,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "7") int size,
 
@@ -186,30 +206,31 @@ public class AdminQnaController {
     ) {
         type = normalize(type);
         status = normalize(status);
+        searchField = normalize(searchField);
         search = normalize(search);
 
         AdminQnaDto detail = service.getDetail(qnaId);
         if (detail == null) {
             ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
-            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+            return redirectList(ra, type, status, searchField, search, page, size);
         }
         if (!auth.canManageRow(session, detail.getCourseId())) {
             ra.addFlashAttribute("errorMessage", "권한이 없습니다.");
-            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+            return redirectList(ra, type, status, searchField, search, page, size);
         }
 
         service.delete(qnaId);
         ra.addFlashAttribute("successMessage", "삭제되었습니다.");
-        return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+        return redirectList(ra, type, status, searchField, search, page, size);
     }
 
     private String redirectList(RedirectAttributes ra,
-                                String type, String status, String search, Integer qnaId,
+                                String type, String status, String searchField, String search,
                                 int page, int size) {
         if (type != null && !type.isBlank()) ra.addAttribute("type", type);
         if (status != null && !status.isBlank()) ra.addAttribute("status", status);
+        if (searchField != null && !searchField.isBlank()) ra.addAttribute("searchField", searchField);
         if (search != null && !search.isBlank()) ra.addAttribute("search", search);
-        if (qnaId != null) ra.addAttribute("qnaId", qnaId);
         ra.addAttribute("page", page);
         ra.addAttribute("size", size);
         return "redirect:/admin/qna";
@@ -224,4 +245,3 @@ public class AdminQnaController {
         return t;
     }
 }
-

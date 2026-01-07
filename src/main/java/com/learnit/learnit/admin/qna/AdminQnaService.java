@@ -12,20 +12,17 @@ public class AdminQnaService {
 
     private final AdminQnaRepository repo;
 
-    public int getTotalCount(String type, String status, String search, Integer qnaId) {
-        return repo.countQnas(type, status, search, qnaId);
+    public int getTotalCount(String type, String status, String searchField, String search, Integer searchQnaId) {
+        return repo.countQnas(type, status, searchField, search, searchQnaId);
     }
 
-    public List<AdminQnaDto> getList(String type, String status, String search, Integer qnaId, int offset, int size) {
-        return repo.selectQnas(offset, size, type, status, search, qnaId);
+    public List<AdminQnaDto> getList(String type, String status, String searchField, String search,
+                                     Integer searchQnaId, int offset, int size) {
+        return repo.selectQnas(offset, size, type, status, searchField, search, searchQnaId);
     }
 
     public AdminQnaDto getDetail(int qnaId) {
         return repo.selectQnaDetail(qnaId);
-    }
-
-    public List<Integer> getQnaIdOptions(String type, String status, String search) {
-        return repo.selectQnaIds(type, status, search);
     }
 
     @Transactional
@@ -36,20 +33,14 @@ public class AdminQnaService {
         if (content != null) {
             String trimmed = content.trim();
             if (!trimmed.isEmpty()) {
-                if (answerId == null) {
-                    repo.insertAnswer(qnaId, adminUserId, trimmed);
-                } else {
-                    repo.updateAnswer(answerId, trimmed);
-                }
+                if (answerId == null) repo.insertAnswer(qnaId, adminUserId, trimmed);
+                else repo.updateAnswer(answerId, trimmed);
             }
         }
 
         // ✅ 상태 반영 (PASS => Y, ACTIVE => N)
-        if ("PASS".equalsIgnoreCase(newStatus)) {
-            repo.updateResolved(qnaId, "Y");
-        } else if ("ACTIVE".equalsIgnoreCase(newStatus)) {
-            repo.updateResolved(qnaId, "N");
-        }
+        if ("PASS".equalsIgnoreCase(newStatus)) repo.updateResolved(qnaId, "Y");
+        else if ("ACTIVE".equalsIgnoreCase(newStatus)) repo.updateResolved(qnaId, "N");
     }
 
     @Transactional

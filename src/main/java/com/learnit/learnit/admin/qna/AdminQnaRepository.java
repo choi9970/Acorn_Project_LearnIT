@@ -13,15 +13,17 @@ public interface AdminQnaRepository {
             @Param("limit") int limit,
             @Param("type") String type,        // LECTURE / SITE / null
             @Param("status") String status,    // ACTIVE / PASS / null
+            @Param("searchField") String searchField, // QNA_ID / TITLE / WRITER
             @Param("search") String search,
-            @Param("qnaId") Integer qnaId
+            @Param("searchQnaId") Integer searchQnaId
     );
 
     int countQnas(
             @Param("type") String type,
             @Param("status") String status,
+            @Param("searchField") String searchField,
             @Param("search") String search,
-            @Param("qnaId") Integer qnaId
+            @Param("searchQnaId") Integer searchQnaId
     );
 
     AdminQnaDto selectQnaDetail(@Param("qnaId") int qnaId);
@@ -47,11 +49,4 @@ public interface AdminQnaRepository {
     void softDeleteAnswersByQnaId(@Param("qnaId") int qnaId);
 
     void softDeleteQuestionById(@Param("qnaId") int qnaId);
-
-    // ✅ qnaId 드롭다운용 (조건에 맞는 qna_id 목록)
-    List<Integer> selectQnaIds(
-            @Param("type") String type,
-            @Param("status") String status,
-            @Param("search") String search
-    );
 }
