@@ -4,9 +4,9 @@
     <div class="form-group">
         <label class="form-label">강의 썸네일</label>
         <div class="file-upload-container">
-            <input type="file" id="course-thumbnail" name="thumbnail" accept="image/*" style="display: none;">
-            <button type="button" class="btn-upload" onclick="document.getElementById('course-thumbnail').click()">파일 선택</button>
-            <div id="course-thumbnail-preview" class="file-preview" style="display: none;">
+            <input type="file" id="course-thumbnail" name="thumbnail" accept="image/*" class="file-upload-input">
+            <button type="button" class="btn-upload" data-target="course-thumbnail">파일 선택</button>
+            <div id="course-thumbnail-preview" class="file-preview">
                 <span class="file-name"></span>
                 <button type="button" class="btn-remove-file" data-target="course-thumbnail">×</button>
             </div>
@@ -17,9 +17,9 @@
     <div class="form-group">
         <label class="form-label">강의 상세 썸네일</label>
         <div class="file-upload-container">
-            <input type="file" id="course-detail-thumbnail" name="detailThumbnail" accept="image/*,application/pdf" style="display: none;">
-            <button type="button" class="btn-upload" onclick="document.getElementById('course-detail-thumbnail').click()">파일 선택</button>
-            <div id="course-detail-thumbnail-preview" class="file-preview" style="display: none;">
+            <input type="file" id="course-detail-thumbnail" name="detailThumbnail" accept="image/*,application/pdf" class="file-upload-input">
+            <button type="button" class="btn-upload" data-target="course-detail-thumbnail">파일 선택</button>
+            <div id="course-detail-thumbnail-preview" class="file-preview">
                 <span class="file-name"></span>
                 <button type="button" class="btn-remove-file" data-target="course-detail-thumbnail">×</button>
             </div>

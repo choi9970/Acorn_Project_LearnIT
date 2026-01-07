@@ -7,7 +7,7 @@
         
         <!-- 1. 텍스트 파일(.txt)인 경우 (PDF에서 추출된 텍스트) -->
         <th:block th:if="${#strings.endsWith(#strings.toLowerCase(course.detailImgUrl), '.txt')}">
-            <div id="course-detail-text" class="course-detail-text" style="white-space: pre-wrap; line-height: 1.8; font-size: 1.6rem; color: #333; padding: 2rem; background: #f9f9f9; border-radius: 8px;">
+            <div id="course-detail-text" class="course-detail-text">
                 강의 소개 내용을 불러오는 중입니다...
             </div>
             <script th:inline="javascript">

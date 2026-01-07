@@ -192,6 +192,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /* --- 파일 업로드 처리 (썸네일) --- */
+    // 1. 파일 선택 버튼 클릭 이벤트
+    const uploadBtns = document.querySelectorAll('.btn-upload');
+    uploadBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            if (targetId) {
+                const input = document.getElementById(targetId);
+                if (input) input.click();
+            }
+        });
+    });
+
+    // 2. 파일 변경 이벤트 (프리뷰 표시)
     const fileInputs = document.querySelectorAll('input[type="file"]');
     
     fileInputs.forEach(input => {
@@ -202,7 +215,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const previewId = e.target.id + '-preview';
                 const previewContainer = document.getElementById(previewId);
                 const fileNameSpan = previewContainer.querySelector('.file-name');
-                const uploadBtn = e.target.nextElementSibling; // button.btn-upload
+                // button.btn-upload는 input 바로 다음에 위치
+                const uploadBtn = e.target.nextElementSibling; 
 
                 if (file) {
                     fileNameSpan.textContent = file.name;
