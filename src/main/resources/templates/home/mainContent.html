@@ -68,7 +68,7 @@
         </div>
         <span class="course-category" th:text="${courseList[0].categoryName}"></span>
         <h4 th:text="${courseList[0].title}"></h4>
-        <p th:text="${#numbers.formatInteger(courseList[0].price, 3, 'COMMA')} + '원'"></p>
+        <p th:text="${courseList[0].price == 0 ? '무료' : #numbers.formatInteger(courseList[0].price, 0, 'COMMA') + '원'}"></p>
       </a>
 
       <!-- 나머지 강의 -->
@@ -83,7 +83,7 @@
           </div>
           <span class="course-category" th:text="${c.categoryName}"></span>
           <h4 th:text="${c.title}"></h4>
-          <p th:text="${#numbers.formatInteger(c.price, 3, 'COMMA')} + '원'"></p>
+          <p th:text="${c.price == 0 ? '무료' : #numbers.formatInteger(c.price, 0, 'COMMA') + '원'}"></p>
         </a>
       </div>
 

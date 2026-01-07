@@ -4,18 +4,12 @@ import com.learnit.learnit.mypage.dto.CertificateDTO;
 import com.learnit.learnit.mypage.dto.DashboardDTO;
 import com.learnit.learnit.mypage.dto.DailyCourseDTO;
 import com.learnit.learnit.mypage.dto.DailyGoalDTO;
-import com.learnit.learnit.mypage.dto.PaymentHistoryDTO;
-import com.learnit.learnit.mypage.dto.PaymentReceiptDTO;
 import com.learnit.learnit.mypage.dto.GitHubAnalysisDTO;
 import com.learnit.learnit.mypage.dto.ProfileDTO;
 import com.learnit.learnit.mypage.dto.SkillChartDTO;
 import com.learnit.learnit.mypage.dto.WeeklyLearningDTO;
 import com.learnit.learnit.mypage.dto.CalendarSummaryDTO;
 import com.learnit.learnit.mypage.service.DashboardService;
-import com.learnit.learnit.mypage.service.MyPagePaymentService;
-import com.learnit.learnit.mypage.service.CouponService;
-import com.learnit.learnit.payment.common.LoginRequiredException;
-import com.learnit.learnit.payment.common.dto.UserCouponDTO;
 import com.learnit.learnit.mypage.service.GitHubAnalysisService;
 import com.learnit.learnit.mypage.service.ProfileService;
 import com.learnit.learnit.user.util.SessionUtils;
@@ -28,7 +22,6 @@ import org.springframework.ui.Model;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,8 +40,6 @@ public class MypageController {
     private final UserService userService;
     private final ProfileService profileService;
     private final GitHubAnalysisService githubAnalysisService;
-    private final MyPagePaymentService paymentService;
-    private final CouponService couponService;
 
 
     @GetMapping("/mypage")
@@ -112,53 +103,6 @@ public class MypageController {
         return "mypage/profile/profile";
     }
 
-    //마이페이지 - 구매/혜택 - 결제 내역
-    @GetMapping("/mypage/purchase")
-    public String paymentHistory(HttpSession session, Model model){
-
-        Long userId = SessionUtils.getUserId(session);
-
-        if (userId == null) return "redirect:/login";
-
-        UserDTO user = userService.getUserDTOById(userId);
-
-        List<PaymentHistoryDTO> histories = paymentService.getPaymentHistories(userId);
-
-        model.addAttribute("user", user);
-        model.addAttribute("payments", histories);
-
-        return "mypage/payments/payment_list";
-    }
-
-    //마이페이지 - 구매/혜택 - 영수증 (JSON 반환)
-    @GetMapping("/mypage/purchase/{paymentId}/receipt")
-    @ResponseBody
-    public PaymentReceiptDTO paymentReceipt(@PathVariable long paymentId,
-                                            HttpSession session){
-
-        Long userId = SessionUtils.getUserId(session);
-        if (userId == null) throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
-
-        return paymentService.getReceipt(paymentId, userId);
-    }
-
-    //마이페이지 - 구매/혜택 - 쿠폰함
-    @GetMapping("/mypage/coupons")
-    public String coupons(HttpSession session, Model model){
-
-        Long userId = SessionUtils.getUserId(session);
-        if (userId == null) return "redirect:/login";
-
-        UserDTO user = userService.getUserDTOById(userId);
-
-        List<UserCouponDTO> coupons = couponService.getMyCoupons(userId);
-
-        model.addAttribute("user", user);
-        model.addAttribute("coupons", coupons);
-
-
-        return "mypage/payments/coupon_list";
-    }
 
     /**
      * 주간 학습 데이터 조회 (AJAX용)
