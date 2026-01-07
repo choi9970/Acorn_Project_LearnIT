@@ -54,4 +54,22 @@
         WHERE course_id = #{courseId}
     </update>
 
+    <insert id="insertCourse" parameterType="com.learnit.learnit.admin.AdminCourseCreateDTO" useGeneratedKeys="true" keyProperty="courseId">
+        INSERT INTO course (
+            title, description, category_id, price, user_id,
+        open_start, open_end, status, created_at, updated_at,
+            thumbnail_url, detail_img_url
+        ) VALUES (
+            #{title}, #{description}, #{categoryId}, #{price},
+            <choose>
+                <when test="instructorIds != null and !instructorIds.isEmpty()">
+                    #{instructorIds[0]}
+                </when>
+                <otherwise>NULL</otherwise>
+            </choose>,
+            #{startDate}, #{endDate}, 'ACTIVE', NOW(), NOW(),
+            #{thumbnailUrl}, #{detailImgUrl}
+        )
+    </insert>
+
 </mapper>

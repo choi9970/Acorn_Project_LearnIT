@@ -19,33 +19,24 @@
         <div class="notice-detail-wrap">
 
             <div class="notice-detail-header">
-                <!-- 카테고리 라벨 -->
                 <span class="col-category-text"
                       th:text="${notice.category}"
                       th:classappend="
-                                    ${notice.category == '긴급'} ? ' is-urgent' :
-                                    (${notice.category == '이벤트'} ? ' is-event' : ' is-normal')
-                                  ">
-                                일반
+                        ${notice.category == '긴급'} ? ' is-urgent' :
+                        (${notice.category == '이벤트'} ? ' is-event' : ' is-normal')
+                      ">
                 </span>
 
-                <div class="notice-detail-title" th:text="${notice.title}">
-                    공지사항 글제목
-                </div>
+                <div class="notice-detail-title" th:text="${notice.title}"></div>
 
                 <div class="notice-detail-meta">
-                    <span th:text="${'작성일자 | ' + #dates.format(notice.createdAt, 'yyyy.MM.dd')}">
-                         2025.12.10
-                    </span>
+                    <span th:text="${'작성일자 | ' + #dates.format(notice.createdAt, 'yyyy.MM.dd')}"></span>
                 </div>
             </div>
+
             <div class="notice-detail-divider"></div>
 
-            <!-- 줄바꿈 보이게: th:text + CSS(white-space) 추천 -->
-            <div class="notice-detail-content" th:text="${notice.content}">
-                공지사항 글내용
-            </div>
-
+            <div class="notice-detail-content" th:text="${notice.content}"></div>
 
             <!-- 첨부파일 -->
             <div class="notice-attach"
@@ -56,10 +47,8 @@
                     첨부파일 다운로드
                 </a>
 
-                <span th:with="url=${notice.fileUrl}"
-                      th:text="${url.substring(url.lastIndexOf('/') + 1)}">
-                    파일명
-                </span>
+                <!-- ✅ UUID 말고 원본 파일명 -->
+                <span th:text="${notice.originalFileName != null ? notice.originalFileName : '첨부파일'}"></span>
             </div>
 
             <div class="notice-detail-actions">

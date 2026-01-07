@@ -1,0 +1,74 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{
+        layout/mypage-layout :: layout(
+          ~{::title},
+          ~{::content},
+          ~{::css},
+          ~{::script}
+        )
+      }">
+
+<head>
+    <title th:fragment="title">강의 Q&A</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-navbar.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/qna.css}">
+    </th:block>
+
+    <th:block th:fragment="script">
+        <script th:src="@{/js/mypage/qna.js}"></script>
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+    <h1 class="dashboard-title">강의 Q&A</h1>
+
+    <!-- Q&A 목록 -->
+    <div class="qna-container">
+        <div class="qna-list" th:if="${qnaList != null and !#lists.isEmpty(qnaList)}">
+            <div class="qna-item" th:each="qna : ${qnaList}">
+                <div class="qna-header">
+                    <div class="qna-meta">
+                        <span class="qna-course" th:text="${qna.courseTitle != null ? qna.courseTitle : '강의명 없음'}">강의명</span>
+                        <span class="qna-date" th:text="${#temporals.format(qna.createdAt, 'yyyy. MM. dd. HH:mm')}">2024. 01. 01. 12:00</span>
+                    </div>
+                    <span class="qna-status" 
+                          th:classappend="${qna.isResolved == 'Y'} ? 'status-resolved' : 'status-pending'"
+                          th:text="${qna.isResolved == 'Y'} ? '답변완료' : '답변대기'">답변대기</span>
+                </div>
+                <div class="qna-content">
+                    <p th:text="${qna.content}">질문 내용...</p>
+                </div>
+                <div class="qna-answer" th:if="${qna.answer != null and !qna.answer.isEmpty()}">
+                    <div class="answer-label">답변</div>
+                    <div class="answer-content">
+                        <p th:text="${qna.answer}">답변 내용...</p>
+                        <div class="answer-date" th:if="${qna.answeredAt != null}">
+                            <span th:text="${#temporals.format(qna.answeredAt, 'yyyy. MM. dd. HH:mm')}">2024. 01. 01. 14:00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="qna-actions" th:if="${qna.courseId != null}">
+                    <a th:href="@{'/CourseDetail?courseId=' + ${qna.courseId}}" 
+                       class="course-link-btn"
+                       target="_blank">
+                        강의 상세보기 →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q&A가 없을 경우 -->
+        <div class="empty-message" th:if="${qnaList == null or #lists.isEmpty(qnaList)}">
+            <p>작성한 Q&A가 없습니다.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

@@ -1,8 +1,8 @@
 /* 강의 관리 페이지 스타일 */
 .admin-course-container {
     padding: 2rem;
-    max-width: 1400px;
-    min-width: 1000px; /* 최소 너비 설정으로 뭉개짐 방지 */
+    max-width: 940px;
+    min-width: 740px; /* 최소 너비 설정으로 뭉개짐 방지 */
     margin: 0 auto;
 }
 
@@ -197,32 +197,35 @@
 
 .btn-edit,
 .btn-delete {
-    padding: 0.6rem 1.2rem;
+    padding: 0.5rem 1.1rem; /* 테두리 두께(1px)를 고려하여 패딩 조정 */
     font-size: 1.3rem;
     font-weight: 600;
-    border: none;
     border-radius: 0.6rem;
     cursor: pointer;
     text-decoration: none;
     display: inline-block;
+    transition: all 0.2s ease;
+    background-color: #fff;
 }
 
 .btn-edit {
+    border: 1px solid #007bff;
+    color: #007bff;
+}
+
+.btn-edit:hover {
     background-color: #007bff;
     color: #fff;
 }
 
-.btn-edit:hover {
-    background-color: #0069d9;
-}
-
 .btn-delete {
-    background-color: #dc3545;
-    color: #fff;
+    border: 1px solid #dc3545;
+    color: #dc3545;
 }
 
 .btn-delete:hover {
-    background-color: #c82333;
+    background-color: #dc3545;
+    color: #fff;
 }
 
 .empty-message {
@@ -233,69 +236,43 @@
 }
 
 /* 페이징 */
-.admin-pagination {
+.admin-course-container .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 3rem 0;
+    gap: 8px;
+    margin: 18px 0;
+    flex-wrap: wrap;
 }
 
-.pagination-wrapper {
-    display: flex;
+.admin-course-container .page-link,
+.admin-course-container .page-number a {
+    padding: 8px 12px;
+    border: 1px solid #d5dbe3;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #0A4A7A;
+    font-weight: 800;
+    background: #fff;
+    display: inline-flex; /* notice.css에는 없지만 admin-course.css의 다른 스타일과 조화를 위해 유지/추가 */
     align-items: center;
-    gap: 1rem;
-}
-
-.prev-btn-area, .next-btn-area {
-    display: flex;
     justify-content: center;
 }
 
-.page-numbers-area {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-}
-
-.page-link,
-.page-number a,
-.page-number strong {
+.admin-course-container .page-number strong {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #0A4A7A;
+    color: #fff;
+    font-weight: 900;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 36px;
-    height: 36px;
-    padding: 0 0.8rem;
-    font-size: 1.4rem;
-    border-radius: 0.6rem;
-    text-decoration: none;
-    box-sizing: border-box; /* 패딩이 크기에 영향을 주지 않도록 설정 */
-}
-
-.page-link,
-.page-number a {
-    color: #0A4A7A;
-    border: 1px solid #d5dbe3;
-    background-color: #fff;
-    transition: all 0.2s;
-}
-
-.page-link:hover,
-.page-number a:hover {
-    background-color: #f0f4f8;
-    border-color: #0A4A7A;
-}
-
-.page-number strong {
-    color: #fff;
-    background-color: #0A4A7A;
-    border: 1px solid #0A4A7A;
-    font-weight: 700;
 }
 
 .admin-course-summary {
     text-align: center;
-    margin-top: 2rem;
-    font-size: 1.4rem;
     color: #666;
+    font-size: 14px;
+    margin-top: 10px;
 }

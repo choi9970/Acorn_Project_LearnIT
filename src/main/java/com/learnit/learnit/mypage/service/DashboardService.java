@@ -3,13 +3,17 @@ package com.learnit.learnit.mypage.service;
 import com.learnit.learnit.mypage.repository.DashboardRepository;
 import com.learnit.learnit.mypage.dto.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DashboardService {
@@ -17,17 +21,11 @@ public class DashboardService {
     private final DashboardRepository dashboardRepository;
 
     public DashboardDTO getDashboardData(Long userId) {
-        // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
-        // 현재는 더미 데이터와 실제 데이터를 혼합하여 사용
-        
         DashboardDTO dashboard = new DashboardDTO();
 
         try {
             // 최근 학습 강의
             CourseSummaryDTO recentCourse = dashboardRepository.selectRecentCourse(userId);
-            if (recentCourse == null || recentCourse.getTotalLectures() == null || recentCourse.getTotalLectures() == 0) {
-                recentCourse = getDummyRecentCourse();
-            }
             // 진행률 재계산
             if (recentCourse != null) {
                 if (recentCourse.getTotalLectures() != null && recentCourse.getTotalLectures() > 0) {
@@ -44,17 +42,13 @@ public class DashboardService {
             WeeklyLearningDTO weeklyLearning = getWeeklyLearningData(userId, now.getYear(), now.getMonthValue());
             dashboard.setWeeklyLearning(weeklyLearning);
 
-            // 최근 수료증
-            CertificateDTO latestCertificate = dashboardRepository.selectLatestCertificate(userId);
-            dashboard.setLatestCertificate(latestCertificate);
-
             // 캘린더 데이터
             CalendarSummaryDTO calendarSummary = getCalendarData(userId, now.getYear(), now.getMonthValue());
             dashboard.setCalendarSummary(calendarSummary);
 
         } catch (Exception e) {
-            // DB 조회 실패 시 더미 데이터 반환
-            dashboard = getDummyDashboard();
+            // DB 조회 실패 시 빈 데이터 반환
+            log.error("대시보드 데이터 로드 실패: userId={}", userId, e);
         }
 
         return dashboard;
@@ -63,14 +57,36 @@ public class DashboardService {
     public WeeklyLearningDTO getWeeklyLearningDataByStartDate(Long userId, int year, int month, LocalDate startOfWeek) {
         LocalDate endOfWeek = startOfWeek.plusDays(6);
         
-        WeeklyLearningDTO weeklyLearning = new WeeklyLearningDTO();
-        weeklyLearning.setYear(startOfWeek.getYear());
-        weeklyLearning.setMonth(startOfWeek.getMonthValue());
+        // 주의 시작일(월요일)이 속한 월을 기준으로 표시
+        // 예: 12월 30일(월) ~ 1월 5일(일) 주는 "12월 5주차"로 표시
+        LocalDate displayDate = startOfWeek;
         
-        // 주차 계산
-        int weekNumber = (startOfWeek.getDayOfMonth() - 1) / 7 + 1;
+        WeeklyLearningDTO weeklyLearning = new WeeklyLearningDTO();
+        weeklyLearning.setYear(displayDate.getYear());
+        weeklyLearning.setMonth(displayDate.getMonthValue());
+        
+        // 주차 계산: 해당 월의 첫날부터 몇 주째인지 계산
+        LocalDate firstDayOfMonth = displayDate.withDayOfMonth(1);
+        int firstDayOfWeek = firstDayOfMonth.getDayOfWeek().getValue(); // 1=월요일, 7=일요일
+        
+        // 첫 주의 시작일 계산 (월요일 기준)
+        // 첫날이 월요일이면 첫날, 그렇지 않으면 전 주 월요일
+        LocalDate firstWeekStart = firstDayOfMonth.minusDays(firstDayOfWeek - 1);
+        
+        // startOfWeek는 이미 월요일이므로 그대로 사용
+        LocalDate displayWeekStart = startOfWeek;
+        
+        // 첫 주 시작일부터 displayWeekStart까지의 일수 계산 후 주 수로 변환
+        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(firstWeekStart, displayWeekStart);
+        int weekNumber = (int) (daysBetween / 7) + 1;
+        
+        // 음수나 0이면 1주차로 조정
+        if (weekNumber < 1) {
+            weekNumber = 1;
+        }
+        
         weeklyLearning.setWeekNumber(weekNumber);
-        weeklyLearning.setWeekLabel(String.format("%d년 %d월 %d주차", startOfWeek.getYear(), startOfWeek.getMonthValue(), weekNumber));
+        weeklyLearning.setWeekLabel(String.format("%d년 %d월 %d주차", displayDate.getYear(), displayDate.getMonthValue(), weekNumber));
 
         try {
             String startDateStr = startOfWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -80,8 +96,8 @@ public class DashboardService {
                     userId, startDateStr, endDateStr
             );
             
-            if (dailyLearnings == null || dailyLearnings.isEmpty()) {
-                dailyLearnings = getDummyWeeklyLearning(startOfWeek);
+            if (dailyLearnings == null) {
+                dailyLearnings = new ArrayList<>();
             }
             
             weeklyLearning.setDailyLearnings(dailyLearnings);
@@ -94,12 +110,17 @@ public class DashboardService {
             weeklyLearning.setTotalLectures(totalLectures);
             weeklyLearning.setTotalMinutes(totalMinutes);
             weeklyLearning.setTotalNotes(totalNotes);
+
+            // 현재 주의 목표 조회
+            DailyGoalDTO goal = getCurrentDailyGoal(userId);
+            weeklyLearning.setGoal(goal);
             
         } catch (Exception e) {
-            weeklyLearning.setDailyLearnings(getDummyWeeklyLearning(startOfWeek));
-            weeklyLearning.setTotalLectures(5);
-            weeklyLearning.setTotalMinutes(120);
-            weeklyLearning.setTotalNotes(3);
+            log.error("주간 학습 데이터 로드 실패: userId={}, startOfWeek={}", userId, startOfWeek, e);
+            weeklyLearning.setDailyLearnings(new ArrayList<>());
+            weeklyLearning.setTotalLectures(0);
+            weeklyLearning.setTotalMinutes(0);
+            weeklyLearning.setTotalNotes(0);
         }
 
         return weeklyLearning;
@@ -118,104 +139,113 @@ public class DashboardService {
 
         try {
             List<CalendarSummaryDTO.CalendarDay> days = dashboardRepository.selectCalendarData(userId, year, month);
-            if (days == null || days.isEmpty()) {
-                days = getDummyCalendarDays(year, month);
+            log.debug("캘린더 데이터 조회 결과: userId={}, year={}, month={}, daysCount={}", userId, year, month, days != null ? days.size() : 0);
+            if (days == null) {
+                days = new ArrayList<>();
             }
+            
+            // 해당 월의 모든 할일 조회
+            List<TodoDTO> todos = dashboardRepository.selectTodosByMonth(userId, year, month);
+            
+            // 날짜별로 할일 그룹화
+            Map<Integer, List<CalendarSummaryDTO.TodoItem>> todosByDay = new HashMap<>();
+            if (todos != null) {
+                for (TodoDTO todo : todos) {
+                    int day = todo.getTargetDate().getDayOfMonth();
+                    todosByDay.computeIfAbsent(day, k -> new ArrayList<>()).add(createTodoItem(todo));
+                }
+            }
+            
+            // 각 날짜에 할일 목록 할당
+            for (CalendarSummaryDTO.CalendarDay day : days) {
+                List<CalendarSummaryDTO.TodoItem> dayTodos = todosByDay.get(day.getDay());
+                if (dayTodos != null && !dayTodos.isEmpty()) {
+                    day.setTodos(dayTodos);
+                } else {
+                    day.setTodos(new ArrayList<>());
+                }
+            }
+            
+            // 디버깅: 할일이 있는 날짜 확인
+            days.forEach(day -> {
+                if (day.getHasTodo() != null && day.getHasTodo() && day.getTodoCount() != null && day.getTodoCount() > 0) {
+                    log.debug("할일 있는 날짜: day={}, todoCount={}", day.getDay(), day.getTodoCount());
+                }
+            });
             calendar.setDays(days);
         } catch (Exception e) {
-            calendar.setDays(getDummyCalendarDays(year, month));
+            log.error("캘린더 데이터 로드 실패: userId={}, year={}, month={}", userId, year, month, e);
+            e.printStackTrace();
+            calendar.setDays(new ArrayList<>());
         }
 
         return calendar;
     }
-
-    // 더미 데이터 생성 메서드들
-    private CourseSummaryDTO getDummyRecentCourse() {
-        CourseSummaryDTO course = new CourseSummaryDTO();
-        course.setCourseId(1L);
-        course.setTitle("스프링부트 입문");
-        course.setThumbnailUrl("/images/course-thumbnail.jpg");
-        course.setCurrentLecture(1);
-        course.setTotalLectures(10); // 0이 아닌 값으로 설정
-        course.setProgressRate(10.0); // 진행률 계산
-        course.setEnrollmentId(1L);
-        return course;
+    
+    private CalendarSummaryDTO.TodoItem createTodoItem(TodoDTO todo) {
+        CalendarSummaryDTO.TodoItem item = new CalendarSummaryDTO.TodoItem();
+        item.setTodoId(todo.getTodoId());
+        item.setTitle(todo.getTitle());
+        item.setIsCompleted(todo.getIsCompleted());
+        return item;
     }
 
-    private List<WeeklyLearningDTO.DailyLearning> getDummyWeeklyLearning(LocalDate startOfWeek) {
-        List<WeeklyLearningDTO.DailyLearning> dailyLearnings = new ArrayList<>();
-        String[] dayNames = {"월", "화", "수", "목", "금", "토", "일"};
-
-        for (int i = 0; i < 7; i++) {
-            WeeklyLearningDTO.DailyLearning daily = new WeeklyLearningDTO.DailyLearning();
-            LocalDate date = startOfWeek.plusDays(i);
-            daily.setDayOfWeek(dayNames[i]);
-            daily.setDay(date.getDayOfMonth());
-            
-            // 화요일에만 학습 데이터가 있다고 가정
-            if (i == 1) {
-                daily.setLectureCount(2);
-                daily.setStudyMinutes(45);
-                daily.setNoteCount(1);
-                daily.setHasStudy(true);
-            } else {
-                daily.setLectureCount(0);
-                daily.setStudyMinutes(0);
-                daily.setNoteCount(0);
-                daily.setHasStudy(false);
-            }
-            
-            dailyLearnings.add(daily);
+    /**
+     * 일일 학습 목표 저장
+     */
+    public DailyGoalDTO saveDailyGoal(Long userId, Integer classGoal, Integer timeGoal, Integer interpreterGoal) {
+        if (userId == null) {
+            throw new IllegalArgumentException("사용자 ID가 없습니다.");
         }
 
-        return dailyLearnings;
-    }
-
-    private List<CalendarSummaryDTO.CalendarDay> getDummyCalendarDays(int year, int month) {
-        List<CalendarSummaryDTO.CalendarDay> days = new ArrayList<>();
-        LocalDate firstDay = LocalDate.of(year, month, 1);
-        int daysInMonth = firstDay.lengthOfMonth();
-
-        for (int day = 1; day <= daysInMonth; day++) {
-            CalendarSummaryDTO.CalendarDay calendarDay = new CalendarSummaryDTO.CalendarDay();
-            calendarDay.setDay(day);
-            
-            // 랜덤하게 일부 날짜에만 학습 데이터
-            if (day % 3 == 0 || day == 5 || day == 12) {
-                calendarDay.setLectureCount((int)(Math.random() * 3) + 1);
-                calendarDay.setStudyMinutes((int)(Math.random() * 60) + 30);
-                calendarDay.setHasAttendance(true);
-                calendarDay.setHasStudy(true);
-            } else {
-                calendarDay.setLectureCount(0);
-                calendarDay.setStudyMinutes(0);
-                calendarDay.setHasAttendance(false);
-                calendarDay.setHasStudy(false);
-            }
-            
-            days.add(calendarDay);
-        }
-
-        return days;
-    }
-
-    private DashboardDTO getDummyDashboard() {
-        DashboardDTO dashboard = new DashboardDTO();
-        dashboard.setRecentCourse(getDummyRecentCourse());
-        
+        // 현재 주의 시작일 계산 (월요일)
         LocalDate now = LocalDate.now();
-        dashboard.setWeeklyLearning(getWeeklyLearningData(1L, now.getYear(), now.getMonthValue()));
-        
-        CertificateDTO certificate = new CertificateDTO();
-        certificate.setCertificateId(1L);
-        certificate.setCourseId(1L);
-        certificate.setCourseTitle("초보자를 위한 파워포인트");
-        certificate.setIssuedDate(LocalDate.of(2024, 7, 30));
-        dashboard.setLatestCertificate(certificate);
-        
-        dashboard.setCalendarSummary(getCalendarData(1L, now.getYear(), now.getMonthValue()));
-        
-        return dashboard;
+        LocalDate startOfWeek = now.minusDays(now.getDayOfWeek().getValue() - 1);
+
+        DailyGoalDTO goal = new DailyGoalDTO();
+        goal.setUserId(userId);
+        goal.setClassGoal(classGoal != null ? classGoal : 2);
+        goal.setTimeGoal(timeGoal != null ? timeGoal : 10);
+        goal.setInterpreterGoal(interpreterGoal != null ? interpreterGoal : 2);
+        goal.setStartDate(startOfWeek);
+
+        dashboardRepository.upsertDailyGoal(goal);
+
+        return dashboardRepository.selectCurrentDailyGoal(userId, startOfWeek);
     }
+
+    /**
+     * 현재 주의 일일 학습 목표 조회
+     */
+    public DailyGoalDTO getCurrentDailyGoal(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+
+        LocalDate now = LocalDate.now();
+        LocalDate startOfWeek = now.minusDays(now.getDayOfWeek().getValue() - 1);
+
+        return dashboardRepository.selectCurrentDailyGoal(userId, startOfWeek);
+    }
+
+    /**
+     * 특정 날짜의 수강한 강의 목록 조회
+     */
+    public List<DailyCourseDTO> getDailyCourses(Long userId, int year, int month, int day) {
+        if (userId == null) {
+            throw new IllegalArgumentException("사용자 ID가 없습니다.");
+        }
+
+        try {
+            List<DailyCourseDTO> courses = dashboardRepository.selectDailyCourses(userId, year, month, day);
+            log.debug("일일 강의 목록 조회 결과: userId={}, year={}, month={}, day={}, coursesCount={}", 
+                    userId, year, month, day, courses != null ? courses.size() : 0);
+            return courses != null ? courses : new ArrayList<>();
+        } catch (Exception e) {
+            log.error("일일 강의 목록 로드 실패: userId={}, year={}, month={}, day={}", userId, year, month, day, e);
+            return new ArrayList<>();
+        }
+    }
+
 }
 

@@ -15,11 +15,27 @@ public class HomeService {
 
     //인기강의 불러오기(최대 6개 제한)
     public List<Map<String, Object>> getPopularCourseList(){
-        return courseMapper.selectPopularCourse(5);
+        List<Map<String, Object>> list = courseMapper.selectPopularCourse(5);
+        if (list != null) {
+            for (Map<String, Object> map : list) {
+                if (!map.containsKey("thumbnailUrl") || map.get("thumbnailUrl") == null) {
+                    map.put("thumbnailUrl", ""); // 기본값 설정 (빈 문자열)
+                }
+            }
+        }
+        return list;
     }
 
     //썸네일배너 강의 불러오기(최대 4개 제한)
     public List<Map<String, Object>> getBannerCourse(){
-        return courseMapper.selectBannerCourse(4);
+        List<Map<String, Object>> list = courseMapper.selectBannerCourse(4);
+        if (list != null) {
+            for (Map<String, Object> map : list) {
+                if (!map.containsKey("thumbnailUrl") || map.get("thumbnailUrl") == null) {
+                    map.put("thumbnailUrl", ""); // 기본값 설정 (빈 문자열)
+                }
+            }
+        }
+        return list;
     }
 }

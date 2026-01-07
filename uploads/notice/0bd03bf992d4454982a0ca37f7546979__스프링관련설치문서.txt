@@ -1,0 +1,63 @@
+  
+Spring이란?
+Spring makes it easy to create Java enterprise applications.
+https://spring.io/
+https://docs.spring.io/spring-framework/docs/current/reference/html/overview.html#spring-introduction
+Spring MVC란?
+A Spring MVC is a framework to build web applications. It follows the MVC(Model-View-Controller) design pattern. 
+https://docs.spring.io/spring-framework/docs/3.2.x/spring-framework-reference/html/mvc.html
+
+[참고] MVC패턴이란? https://developer.mozilla.org/ko/docs/Glossary/MVC
+
+
+
+-JDK11 설치
+ 오라클 jdk11 다운로드 
+
+- Tomcat 9 설치 - https://tomcat.apache.org/download-92.cgi
+[Windows] https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.52/bin/apache-tomcat-9.0.52-windows-x64.zip
+[Mac] https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.52/bin/apache-tomcat-9.0.52.tar.gz
+ 
+
+Tomcat의 실행과 종료
+[Windows]
+     > cd C:\apache-tomcat-9.0.50\bin
+     > startup.bat  <--- tomcat실행  
+     > shutdown.bat <--- tomcat종료  
+
+[Mac]
+       $ cd ~/apache-tomcat-9.0.50/bin   <--- tomcat이 설치된 경로의 bin디렉토리로 이동
+       $ ./startup.sh  <--- tomcat실행  
+       $ ./shutdown.sh <--- tomcat종료   
+
+
+
+spring.io
+projects -> springTools4  -> 아래쪽에  springToolsuite3 wiki  클릭
+
+
+STS설치
+STS 3.9.17
+Windows - https://download.springsource.com/release/STS/3.9.17.RELEASE/dist/e4.20/spring-tool-suite-3.9.17.RELEASE-e4.20.0-win32-x86_64.zip
+MacOS - https://download.springsource.com/release/STS/3.9.17.RELEASE/dist/e4.20/spring-tool-suite-3.9.17.RELEASE-e4.20.0-macosx-cocoa-x86_64.dmg
+ 
+ 
+
+ 설치사항
+ - jdk11 
+ - Tomcat9
+ - STS 3.9.17
+ 
+  jdk11설치 ,   JAVA_HOME :변경 ,   PATH: %JAVA_HOME%\bin    path중에서 맨위로 지정함
+  Tomcat9 압축풀기
+  spring-tool-suite-3.9.17.RELEASE-e4.20.0-win32-x86_64.zip  
+ 더블클릭 -> sts-bundle -> sts-3.9.17.RELEASE 폴더 마우스로  
+ c폴더로 드래그함 (자동으로 압축이 풀림)
+
+
+
+
+맥사용자  설치관련 블로그 참조 
+https://limecats0331.github.io/blog/m1_STS/ 
+  
+

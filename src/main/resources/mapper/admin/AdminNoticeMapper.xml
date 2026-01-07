@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.admin.notice.AdminNoticeRepository">
+
+    <select id="selectNotices" resultType="com.learnit.learnit.admin.notice.AdminNoticeDto">
+        SELECT
+        n.notice_id AS noticeId,
+        n.user_id AS userId,
+        n.category,
+        n.title,
+        n.content,
+        n.file_url AS fileUrl,
+        n.created_at AS createdAt,
+        n.updated_at AS updatedAt,
+        u.name AS writerName
+        FROM notice n
+        JOIN users u ON n.user_id = u.user_id
+        <where>
+            <if test="category != null and category != ''">
+                AND n.category = #{category}
+            </if>
+            <if test="search != null and search != ''">
+                AND (
+                n.title LIKE CONCAT('%', #{search}, '%')
+                OR n.content LIKE CONCAT('%', #{search}, '%')
+                OR u.name LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY n.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countNotices" resultType="int">
+        SELECT COUNT(*)
+        FROM notice n
+        JOIN users u ON n.user_id = u.user_id
+        <where>
+            <if test="category != null and category != ''">
+                AND n.category = #{category}
+            </if>
+            <if test="search != null and search != ''">
+                AND (
+                n.title LIKE CONCAT('%', #{search}, '%')
+                OR n.content LIKE CONCAT('%', #{search}, '%')
+                OR u.name LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="selectNoticeById" resultType="com.learnit.learnit.admin.notice.AdminNoticeDto">
+        SELECT
+        n.notice_id AS noticeId,
+        n.user_id AS userId,
+        n.category,
+        n.title,
+        n.content,
+        n.file_url AS fileUrl,
+        n.created_at AS createdAt,
+        n.updated_at AS updatedAt,
+        u.name AS writerName
+        FROM notice n
+        JOIN users u ON n.user_id = u.user_id
+        WHERE n.notice_id = #{noticeId}
+    </select>
+
+    <!-- notice_id 직접 넣어서 insert (AUTO_INCREMENT 미사용) -->
+    <insert id="insertNotice" parameterType="com.learnit.learnit.admin.notice.AdminNoticeDto">
+        INSERT INTO notice (notice_id, user_id, category, title, content, file_url, created_at, updated_at)
+        VALUES (#{noticeId}, #{userId}, #{category}, #{title}, #{content}, #{fileUrl}, NOW(), NOW())
+    </insert>
+
+    <update id="updateNotice" parameterType="com.learnit.learnit.admin.notice.AdminNoticeDto">
+        UPDATE notice
+        SET
+        category = #{category},
+        title = #{title},
+        content = #{content},
+        file_url = #{fileUrl},
+        updated_at = NOW()
+        WHERE notice_id = #{noticeId}
+    </update>
+
+    <delete id="deleteNotice">
+        DELETE FROM notice WHERE notice_id = #{noticeId}
+    </delete>
+
+    <delete id="deleteNoticesByIds">
+        DELETE FROM notice
+        WHERE notice_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 필터 기반 전체 삭제 -->
+    <delete id="deleteAllByFilter">
+        DELETE n
+        FROM notice n
+        JOIN users u ON n.user_id = u.user_id
+        <where>
+            <if test="category != null and category != ''">
+                AND n.category = #{category}
+            </if>
+            <if test="search != null and search != ''">
+                AND (
+                n.title LIKE CONCAT('%', #{search}, '%')
+                OR n.content LIKE CONCAT('%', #{search}, '%')
+                OR u.name LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+        </where>
+    </delete>
+
+    <!-- 동시성 방지: MySQL Named Lock -->
+    <select id="getNoticeIdLock" resultType="int">
+        SELECT GET_LOCK(#{lockName}, 5)
+    </select>
+
+    <select id="releaseNoticeIdLock" resultType="int">
+        SELECT RELEASE_LOCK(#{lockName})
+    </select>
+
+    <!-- 가장 작은 빈 notice_id 찾기 (없으면 마지막+1, 비었으면 1) -->
+    <select id="selectSmallestMissingNoticeId" resultType="int">
+        SELECT COALESCE(
+        (SELECT 1 FROM dual WHERE NOT EXISTS (SELECT 1 FROM notice WHERE notice_id = 1)),
+        (SELECT MIN(n1.notice_id + 1)
+        FROM notice n1
+        LEFT JOIN notice n2 ON n2.notice_id = n1.notice_id + 1
+        WHERE n2.notice_id IS NULL),
+        1
+        ) AS next_id
+    </select>
+
+</mapper>

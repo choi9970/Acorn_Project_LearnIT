@@ -108,6 +108,10 @@ public class CourseVideoService {
         return "ACTIVE".equals(status);
     }
 
+    public void saveInterpreterLog(Long userId, Long courseId, Long chapterId, Integer languageId) {
+        courseVideoMapper.insertInterpreterLog(userId, courseId, chapterId, languageId);
+    }
+
     public Map<String, Object> runInterpreterCode(String sourceCode, String languageId) {
 
         RestTemplate restTemplate = new RestTemplate();

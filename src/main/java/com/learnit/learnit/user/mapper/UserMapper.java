@@ -20,4 +20,7 @@ public interface UserMapper {
     // 사용자 생성 및 수정
     void insertUser(User user);
     void updateUser(User user);
+
+    // 교수자 검색
+    java.util.List<UserDTO> searchInstructors(@Param("keyword") String keyword);
 }

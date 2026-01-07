@@ -3,7 +3,8 @@
       th:replace="~{layout/admin-layout :: layout(
         ~{::title},
         ~{::content},
-        ~{::css}
+        ~{::css},
+        ~{::script}
       )}">
 
 <th:block th:fragment="css">
@@ -66,6 +67,7 @@
             }
         }
     </script>
+    <script th:src="@{/js/admin/admin-course-form.js}"></script>
 </section>
 </body>
 </html>

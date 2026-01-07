@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="courseFile" class="form-section" id="section-file">
-    <h3>강의 영상 및 자료</h3>
-    <p>강의 영상 및 학습 자료 관리 기능이 여기에 구현될 예정입니다.</p>
-    <!-- 임시 placeholder -->
-    <div style="padding: 2rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
-        <button type="button" class="btn-submit" style="background: #6c757d;">+ 챕터 추가</button>
+    <div class="curriculum-header">
+        <h3>커리큘럼 구성</h3>
+        <p class="help-text">섹션과 챕터를 추가하여 강의 커리큘럼을 구성하세요.</p>
+    </div>
+
+    <!-- 섹션 리스트 컨테이너 -->
+    <div id="section-list-container">
+        <!-- JS로 섹션 아이템들이 여기에 추가됨 -->
+    </div>
+
+    <!-- 섹션 추가 버튼 -->
+    <div class="add-section-area">
+        <button type="button" id="btn-add-section" class="btn-add-section">+ 새 섹션 추가</button>
     </div>
 </div>
 </html>

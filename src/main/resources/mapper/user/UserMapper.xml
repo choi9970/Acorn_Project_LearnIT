@@ -94,6 +94,20 @@
         WHERE provider = #{provider} AND provider_id = #{providerId}
     </select>
 
+    <!-- 교수자 검색 (이름 또는 닉네임) -->
+    <select id="searchInstructors" resultType="com.learnit.learnit.user.dto.UserDTO">
+        SELECT
+            user_id AS userId,
+            name,
+            nickname,
+            email,
+            profile_img AS profileImageUrl
+        FROM users
+        WHERE role = 'SUB_ADMIN'
+        AND (name LIKE CONCAT('%', #{keyword}, '%') OR nickname LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY name ASC
+    </select>
+
     <!-- 사용자 생성 -->
     <insert id="insertUser" parameterType="com.learnit.learnit.user.entity.User" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO users (

@@ -1,5 +1,7 @@
 package com.learnit.learnit.admin;
 
+import com.learnit.learnit.category.CategoryService;
+import com.learnit.learnit.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -16,11 +18,23 @@ import java.util.List;
 public class AdminCourseController {
 
     private final AdminCourseService adminCourseService;
+    private final CategoryService categoryService;
+
+    @org.springframework.web.bind.annotation.InitBinder
+    public void initBinder(org.springframework.web.bind.WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new org.springframework.beans.propertyeditors.StringTrimmerEditor(true));
+    }
+
+    @GetMapping("/api/instructors/search")
+    @ResponseBody
+    public List<UserDTO> searchInstructors(@RequestParam("keyword") String keyword) {
+        return adminCourseService.searchInstructors(keyword);
+    }
 
     @GetMapping
     public String courseList(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "8") int size,
+            @RequestParam(value = "size", defaultValue = "7") int size,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "search", required = false) String search,
             Model model) {
@@ -77,14 +91,20 @@ public class AdminCourseController {
 
     @GetMapping("/create")
     public String createCourseForm(Model model) {
-        // TODO: 카테고리 목록 등 필요한 데이터를 모델에 추가
+        model.addAttribute("categories", categoryService.getCategoryList());
         return "admin/adminCourseForm";
     }
 
     @PostMapping("/create")
-    public String createCourse(RedirectAttributes redirectAttributes) {
-        // TODO: 강의 생성 로직 구현
-        redirectAttributes.addFlashAttribute("successMessage", "강의가 성공적으로 등록되었습니다. (임시 메시지)");
+    public String createCourse(AdminCourseCreateDTO dto, RedirectAttributes redirectAttributes) {
+        try {
+            log.info("강의 생성 요청: {}", dto);
+            adminCourseService.createCourse(dto);
+            redirectAttributes.addFlashAttribute("successMessage", "강의가 성공적으로 등록되었습니다.");
+        } catch (Exception e) {
+            log.error("강의 생성 실패: error={}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMessage", "강의 등록 중 오류가 발생했습니다.");
+        }
         return "redirect:/admin/course";
     }
 }

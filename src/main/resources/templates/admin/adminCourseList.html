@@ -3,7 +3,8 @@
       th:replace="~{layout/admin-layout :: layout(
         ~{::title},
         ~{::content},
-        ~{::css}
+        ~{::css},
+        ~{::script}
       )}">
 
 <th:block th:fragment="css">
@@ -70,9 +71,8 @@
                 
                 <!-- 삭제 버튼 -->
                 <form th:action="@{'/admin/course/' + ${course.courseId} + '/delete'}" 
-                      method="post" style="display: inline;"
-                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                  <button type="submit" class="btn-delete">삭제</button>
+                      method="post" style="display: inline;">
+                  <button type="submit" class="btn-delete btn-delete-course">삭제</button>
                 </form>
               </div>
             </td>
@@ -85,32 +85,21 @@
     </div>
 
     <!-- 페이징 -->
-    <div class="admin-pagination" th:if="${totalPages > 0}">
-      <div class="pagination-wrapper">
-        <!-- 이전 버튼 영역 -->
-        <div class="prev-btn-area">
-          <a th:if="${currentPage > 1}" 
-             th:href="@{/admin/course(page=${currentPage - 1}, status=${currentStatus}, search=${searchKeyword})}" 
-             class="page-link">이전</a>
-        </div>
-        
-        <!-- 페이지 숫자 영역 -->
-        <div class="page-numbers-area">
-          <span th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-number">
-            <a th:if="${i != currentPage}" 
-               th:href="@{/admin/course(page=${i}, status=${currentStatus}, search=${searchKeyword})}" 
+    <div class="pagination" th:if="${totalPages > 1}">
+      <a th:if="${startPage > 1}"
+         th:href="@{/admin/course(page=${startPage-1}, status=${currentStatus}, search=${searchKeyword})}"
+         class="page-link">이전</a>
+
+      <span th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-number">
+            <a th:if="${i != currentPage}"
+               th:href="@{/admin/course(page=${i}, status=${currentStatus}, search=${searchKeyword})}"
                th:text="${i}">1</a>
             <strong th:if="${i == currentPage}" th:text="${i}">1</strong>
           </span>
-        </div>
 
-        <!-- 다음 버튼 영역 -->
-        <div class="next-btn-area">
-          <a th:if="${currentPage < totalPages}" 
-             th:href="@{/admin/course(page=${currentPage + 1}, status=${currentStatus}, search=${searchKeyword})}" 
-             class="page-link">다음</a>
-        </div>
-      </div>
+      <a th:if="${endPage < totalPages}"
+         th:href="@{/admin/course(page=${endPage+1}, status=${currentStatus}, search=${searchKeyword})}"
+         class="page-link">다음</a>
     </div>
 
     <div class="admin-course-summary">
