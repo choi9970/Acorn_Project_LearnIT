@@ -32,6 +32,8 @@ public interface CourseVideoMapper {
 
     String selectEnrollmentStatus(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
+    Long selectCourseInstructorId(@Param("courseId") Long courseId);
+
     void insertInterpreterLog(@Param("userId") Long userId,
                               @Param("courseId") Long courseId,
                               @Param("chapterId") Long chapterId,
