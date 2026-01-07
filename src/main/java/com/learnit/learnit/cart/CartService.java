@@ -81,5 +81,16 @@ public class CartService {
 
         return merged;
     }
+    // 강의 목록 카트용 장바구니에 담긴 courseId 목록
+    public List<Long> getCartCourseIds(Long userId) {
+        if (userId == null) return Collections.emptyList();
+        return cartMapper.findCourseIdsByUserId(userId);
+    }
+
+    // 강의 목록 카트용 토글용 로그인 유저 강의 제거: userId + courseId
+    public int removeFromCart(Long userId, Long courseId) {
+        if (userId == null || courseId == null) return 0;
+        return cartMapper.deleteByUserIdAndCourseId(userId, courseId);
+    }
 
 }
