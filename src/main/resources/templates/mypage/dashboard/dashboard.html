@@ -42,25 +42,54 @@
                 <a th:href="@{/mypage/courses}" class="view-all-link">학습 목록 ></a>
             </div>
             <div class="recent-course-content" th:if="${dashboard.recentCourse}">
-                <div class="course-icon">
-                    <div class="play-icon">▶</div>
-                </div>
-                <div class="course-info">
-                    <h3 class="course-title" th:text="${dashboard.recentCourse != null ? dashboard.recentCourse.title : '학습 중인 강의 없음'}">스프링부트 입문</h3>
-                    <div class="course-progress">
-                        <span class="progress-text" th:if="${dashboard.recentCourse != null}">
-                            <span th:text="${dashboard.recentCourse.currentLecture != null ? dashboard.recentCourse.currentLecture : 0}">1</span>강 / 
-                            <span th:if="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}" 
-                                  th:text="${dashboard.recentCourse.totalLectures}">10</span>
-                            <span th:unless="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">-</span>강 
-                            <span th:if="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">
-                                (<span th:text="${dashboard.recentCourse.progressRate != null ? #numbers.formatDecimal(dashboard.recentCourse.progressRate, 1, 2) : '0.00'}">10.00</span>%)
-                            </span>
-                            <span th:unless="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">
-                                (-%)
-                            </span>
-                        </span>
+                <a th:if="${dashboard.recentCourse.lastChapterId != null}"
+                   th:href="@{/course/play(courseId=${dashboard.recentCourse.courseId}, chapterId=${dashboard.recentCourse.lastChapterId})}"
+                   class="recent-course-link" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                    <div class="course-icon">
+                        <div class="play-icon">▶</div>
                     </div>
+                    <div class="course-info">
+                        <h3 class="course-title" th:text="${dashboard.recentCourse != null ? dashboard.recentCourse.title : '학습 중인 강의 없음'}">스프링부트 입문</h3>
+                        <div class="course-progress">
+                            <span class="progress-text" th:if="${dashboard.recentCourse != null}">
+                                <span th:text="${dashboard.recentCourse.currentLecture != null ? dashboard.recentCourse.currentLecture : 0}">1</span>강 / 
+                                <span th:if="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}" 
+                                      th:text="${dashboard.recentCourse.totalLectures}">10</span>
+                                <span th:unless="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">-</span>강 
+                                <span th:if="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">
+                                    (<span th:text="${dashboard.recentCourse.progressRate != null ? #numbers.formatDecimal(dashboard.recentCourse.progressRate, 1, 2) : '0.00'}">10.00</span>%)
+                                </span>
+                                <span th:unless="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">
+                                    (-%)
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                <div th:unless="${dashboard.recentCourse.lastChapterId != null}" style="display: flex; align-items: center;">
+                    <a th:href="@{/CourseDetail(courseId=${dashboard.recentCourse.courseId})}"
+                       class="recent-course-link" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                        <div class="course-icon">
+                            <div class="play-icon">▶</div>
+                        </div>
+                        <div class="course-info">
+                            <h3 class="course-title" th:text="${dashboard.recentCourse != null ? dashboard.recentCourse.title : '학습 중인 강의 없음'}">스프링부트 입문</h3>
+                            <div class="course-progress">
+                                <span class="progress-text" th:if="${dashboard.recentCourse != null}">
+                                    <span th:text="${dashboard.recentCourse.currentLecture != null ? dashboard.recentCourse.currentLecture : 0}">1</span>강 / 
+                                    <span th:if="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}" 
+                                          th:text="${dashboard.recentCourse.totalLectures}">10</span>
+                                    <span th:unless="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">-</span>강 
+                                    <span th:if="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">
+                                        (<span th:text="${dashboard.recentCourse.progressRate != null ? #numbers.formatDecimal(dashboard.recentCourse.progressRate, 1, 2) : '0.00'}">10.00</span>%)
+                                    </span>
+                                    <span th:unless="${dashboard.recentCourse.totalLectures != null and dashboard.recentCourse.totalLectures > 0}">
+                                        (-%)
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
             <div class="recent-course-content" th:unless="${dashboard.recentCourse}">
@@ -76,66 +105,27 @@
                     <span class="gear-icon">⚙</span>
                 </button>
             </div>
-            <div class="weekly-content" th:if="${dashboard.weeklyLearning}">
+            <div class="weekly-content">
                 <div class="week-navigation">
                     <button class="nav-btn prev-week" id="prev-week-btn">‹</button>
-                    <div class="week-label" id="week-label-display" th:text="${dashboard.weeklyLearning.weekLabel}">25년 12월 3주차</div>
+                    <div class="week-label" id="week-label-display">로딩 중...</div>
                     <button class="nav-btn next-week" id="next-week-btn">›</button>
                 </div>
                 <div class="weekly-calendar">
-                    <div class="day-item" th:each="daily, iterStat : ${dashboard.weeklyLearning.dailyLearnings}">
-                        <div class="day-name" th:text="${daily.dayOfWeek}">월</div>
-                        <div class="day-circle day-tooltip-trigger" 
-                             th:classappend="${daily.hasStudy} ? 'has-study' : ''"
-                             th:attr="data-day=${daily.day != null ? daily.day : 0},
-                                      data-day-of-week=${daily.dayOfWeek != null ? daily.dayOfWeek : ''},
-                                      data-lecture-count=${daily.lectureCount != null ? daily.lectureCount : 0},
-                                      data-study-minutes=${daily.studyMinutes != null ? daily.studyMinutes : 0},
-                                      data-note-count=${daily.noteCount != null ? daily.noteCount : 0}">
-                        </div>
-                        <!-- 날짜별 상세 정보 툴팁 -->
-                        <div class="day-tooltip">
-                            <div class="tooltip-date" 
-                                 th:text="${dashboard.weeklyLearning.year} + '. ' + ${dashboard.weeklyLearning.month} + '. ' + ${daily.day != null ? daily.day : 0} + '. ' + ${daily.dayOfWeek != null ? daily.dayOfWeek : ''}">
-                                2025. 12. 17. 수
-                            </div>
-                            <div class="tooltip-stats">
-                                <div class="tooltip-stat-item">
-                                    <span class="tooltip-icon purple">📝</span>
-                                    <span class="tooltip-label">노트</span>
-                                    <span class="tooltip-value" th:text="${daily.noteCount != null ? daily.noteCount : 0} + '개'">0개</span>
-                                </div>
-                                <div class="tooltip-stat-item">
-                                    <span class="tooltip-icon blue">📚</span>
-                                    <span class="tooltip-label">총 학습</span>
-                                    <span class="tooltip-value" th:text="${daily.studyMinutes != null ? daily.studyMinutes : 0} + '분'">0분</span>
-                                </div>
-                                <div class="tooltip-stat-item">
-                                    <span class="tooltip-icon teal">✅</span>
-                                    <span class="tooltip-label">완료 수업</span>
-                                    <span class="tooltip-value" th:text="${daily.lectureCount != null ? daily.lectureCount : 0} + '개'">0개</span>
-                                </div>
-                                <div class="tooltip-stat-item">
-                                    <span class="tooltip-icon orange">▶</span>
-                                    <span class="tooltip-label">재생 시간</span>
-                                    <span class="tooltip-value" th:text="${daily.studyMinutes != null ? daily.studyMinutes : 0} + '분'">0분</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- JavaScript로 동적 생성됨 -->
                 </div>
                 <div class="weekly-stats">
                     <div class="stat-item">
                         <span class="stat-icon">▶</span>
-                        <span class="stat-value" th:text="${dashboard.weeklyLearning.totalLectures}">0</span>
+                        <span class="stat-value">0</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-icon">🕐</span>
-                        <span class="stat-value" th:text="${dashboard.weeklyLearning.totalMinutes} + '분'">0분</span>
+                        <span class="stat-value">0분</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-icon">📄</span>
-                        <span class="stat-value" th:text="${dashboard.weeklyLearning.totalNotes}">0</span>
+                        <span class="stat-value">0</span>
                     </div>
                 </div>
             </div>
@@ -220,10 +210,10 @@
 
                     <hr class="goal-divider">
 
-                    <!-- 노트 작성 목표 -->
+                    <!-- 인터프리터 실행 목표 -->
                     <div class="goal-section">
                         <div class="goal-header">
-                            <span class="goal-title">노트 작성 목표</span>
+                            <span class="goal-title">인터프리터 실행 목표</span>
                             <span class="goal-value" id="note-goal-value">하루 2개</span>
                             <button class="goal-toggle" data-goal="note">
                                 <span class="toggle-icon">▼</span>
@@ -246,7 +236,7 @@
                             </div>
                             <div class="goal-alert">
                                 <span class="alert-icon">⚠</span>
-                                <span>기억에 의존하지 마세요. 필기도 습관입니다.</span>
+                                <span>코드를 직접 실행하며 개념을 익히는 것이 중요합니다.</span>
                             </div>
                         </div>
                     </div>
@@ -257,28 +247,25 @@
             </div>
         </div>
 
-        <!-- 수료증 -->
-        <section class="card card-small certificate-card">
+        <!-- 오늘의 할일 -->
+        <section class="card card-small today-todos-card">
             <div class="card-header">
-            <h2>수료증</h2>
-                <a th:href="@{/mypage/certificates}" class="view-all-link">전체 보기 ></a>
+                <h2>오늘의 할일</h2>
+                <a href="#" class="view-all-link" id="today-todos-more-btn" style="text-decoration: none; color: #666; cursor: pointer;">더 보기 ></a>
             </div>
-            <div class="certificate-content" th:if="${dashboard.latestCertificate}">
-                <div class="certificate-item">
-                    <div class="certificate-icon">📜</div>
-                    <div class="certificate-info">
-                        <div class="certificate-title" th:text="${dashboard.latestCertificate.courseTitle}">초보자를 위한 파워포인트</div>
-                        <div class="certificate-date" th:text="${#temporals.format(dashboard.latestCertificate.issuedDate, 'yyyy. MM. dd.')}">2024. 07. 30.</div>
-                    </div>
-                    <a th:href="@{'/mypage/certificates/' + ${dashboard.latestCertificate.certificateId} + '/download'}" 
-                       class="certificate-download-link" 
-                       download>
-                        다운로드
-                    </a>
+            <div class="today-todos-content" id="today-todos-content">
+                <p class="loading-message">할일 목록을 불러오는 중...</p>
+            </div>
+            <!-- 완료된 항목 섹션 -->
+            <div class="today-completed-section" id="today-completed-section" style="display: none;">
+                <div class="completed-toggle-header" id="today-completed-toggle">
+                    <span class="completed-toggle-icon">▼</span>
+                    <span class="completed-toggle-text">완료된 항목</span>
+                    <span class="completed-count" id="today-completed-count">(0)</span>
                 </div>
-            </div>
-            <div class="certificate-content" th:unless="${dashboard.latestCertificate}">
-                <p class="empty-message">수료증이 없습니다.</p>
+                <div class="today-completed-list" id="today-completed-list">
+                    <!-- 동적으로 추가됨 -->
+                </div>
             </div>
         </section>
 
@@ -321,10 +308,13 @@
                                     <span class="todo-details-text">세부정보</span>
                                 </div>
                                 <div class="todo-date-buttons">
-                                    <button class="todo-date-btn" data-date="today">오늘</button>
-                                    <button class="todo-date-btn" data-date="tomorrow">내일</button>
-                                    <button class="todo-date-btn" id="todo-calendar-btn">📅</button>
-                                    <button class="todo-reorder-btn">⇅</button>
+                                    <div class="todo-date-buttons-left">
+                                        <button class="todo-date-btn" data-date="today">오늘</button>
+                                        <button class="todo-date-btn" data-date="tomorrow">내일</button>
+                                        <button class="todo-date-btn" id="todo-calendar-btn">📅</button>
+                                        <button class="todo-reorder-btn">⇅</button>
+                                    </div>
+                                    <button class="todo-save-btn" id="save-todo-btn">저장</button>
                                 </div>
                             </div>
                         </div>

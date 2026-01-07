@@ -1,0 +1,175 @@
+/* 마이페이지 Q&A 스타일 */
+
+.dashboard-title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 2.4rem;
+    color: #111;
+}
+
+.qna-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-top: 0;
+}
+
+.qna-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.qna-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 2rem;
+    transition: box-shadow 0.2s;
+}
+
+.qna-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.qna-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.qna-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.qna-course {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #111;
+}
+
+.qna-date {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.qna-status {
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-resolved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.qna-content {
+    margin-bottom: 1.6rem;
+}
+
+.qna-content p {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.qna-answer {
+    background: #f8f9fa;
+    border-left: 4px solid #0A4A7A;
+    padding: 1.6rem;
+    border-radius: 6px;
+    margin-bottom: 1.6rem;
+}
+
+.answer-label {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #0A4A7A;
+    margin-bottom: 1rem;
+}
+
+.answer-content p {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 0.8rem;
+}
+
+.answer-date {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.qna-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.course-link-btn {
+    padding: 0.8rem 1.6rem;
+    background: #0A4A7A;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.course-link-btn:hover {
+    background: #083a60;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.empty-message p {
+    font-size: 1.6rem;
+    color: #666;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .qna-item {
+        padding: 1.6rem;
+    }
+
+    .qna-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .qna-course {
+        font-size: 1.4rem;
+    }
+
+    .qna-content p,
+    .answer-content p {
+        font-size: 1.3rem;
+    }
+}
+
