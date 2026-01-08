@@ -101,4 +101,30 @@ public class CartController {
         int deleted = cartService.deletePaidCourses(userId, courseIds);
         return (deleted > 0) ? "OK" : "NOOP";
     }
+    // 강의 목록  카트 빼기 토글용: courseId 기준 삭제 (로그인/비로그인 공통)
+    @PostMapping("/cart/remove")
+    @ResponseBody
+    public String removeFromCart(@RequestParam("courseId") Long courseId, HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+
+        if (userId == null) {
+            guestCartService.remove(session, courseId);
+            return "OK";
+        }
+
+        int deleted = cartService.removeFromCart(userId, courseId);
+        return (deleted > 0) ? "OK" : "NOOP";
+    }
+
+    //강의 목록  카트 현재 세션(로그인/비로그인)의 장바구니 courseId 목록
+    @GetMapping("/cart/ids")
+    @ResponseBody
+    public List<Long> cartCourseIds(HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+
+        if (userId == null) {
+            return guestCartService.getCourseIds(session);
+        }
+        return cartService.getCartCourseIds(userId);
+    }
 }
