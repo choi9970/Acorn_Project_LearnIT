@@ -17,7 +17,6 @@
   display: flex;
   align-items: center;
 }
-
 .logo-img {
   height: 100px;
   width: auto;
@@ -48,9 +47,11 @@
   word-break: keep-all;
 }
 
-.gnb-item {
-  color: var(--text-light);
-  padding: 0.4rem 0;
+/* 강의목록/공지사항 동일 색(검정) */
+.gnb-link {
+  color: #111;
+  text-decoration: none;
+  font-weight: 700;
 }
 
 /* 드롭다운 */
@@ -73,33 +74,19 @@
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
   z-index: 9999;
 }
-
 .submenu a {
   display: block;
   padding: 0.7rem 1.6rem;
   font-size: 1.4rem;
   line-height: 1.4;
-  color: var(--text-normal);
-  white-space: nowrap;
-  word-break: keep-all;
+  color: #111;
+  text-decoration: none;
 }
 
-.gnb-item.has-sub:hover .submenu { display: block; }
-
-.gnb-item.has-sub::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  height: 1.2rem;
-  background: transparent;
-}
-
-/* 검색 */
+/* 검색(크기 유지) */
 .header-search {
   flex: 1;
-  max-width: 42rem;
+  max-width: 48rem;
   display: flex;
   align-items: center;
   padding: 0.6rem 1.2rem;
@@ -117,14 +104,38 @@
   font-size: 1.3rem;
   min-width: 0;
 }
-
 .search-input::placeholder { color: #b5b5b5; }
 .search-btn { font-size: 1.4rem; }
 
-/* 오른쪽 */
+/* =========================
+   오른쪽 (깨짐 방지 핵심)
+========================= */
 .header-right {
   display: flex;
   align-items: center;
+  gap: 10px;
+
+  flex: 0 0 auto;
+  min-width: 0;          /* ✅ 말줄임/축소 허용 */
+  flex-wrap: nowrap;     /* ✅ 줄바꿈 방지 */
+}
+
+/* 관리자 버튼 */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(56, 120, 255, 0.35);
+  background: #fff;
+  color: #1f4fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(31, 79, 255, 0.10);
+  flex: 0 0 auto;
 }
 
 .login-btn {
@@ -138,16 +149,25 @@
   font-size: 1.3rem;
   text-decoration: none;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
+/* ✅ 이름: 길어도 깨지지 않게 말줄임 */
 .user-name {
-  margin-right: 1rem;
   color: #333;
   font-size: 1.3rem;
   font-weight: 500;
   text-decoration: none;
+
+  display: inline-block;      /* ✅ 말줄임 필수 */
+  max-width: 160px;           /* ✅ 여기 숫자만 취향대로(140~220) */
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  word-break: keep-all;
+
+  margin-right: 0.2rem;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .logout-btn {
@@ -159,18 +179,35 @@
   font-size: 1.2rem;
   cursor: pointer;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 /* 장바구니 */
 .cart-btn {
-  margin-right: 1.2rem;
+  position: relative;
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
 }
 .cart-icon {
   width: 22px;
   height: 22px;
   vertical-align: middle;
+}
+.cart-count-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ff3b30;
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  font-weight: 700;
 }
 
 /* 햄버거 버튼 */
@@ -182,77 +219,214 @@
   cursor: pointer;
 }
 
+/* =========================
+   모바일 드로어
+========================= */
+.mobile-nav { position: fixed; inset: 0; pointer-events: none; z-index: 99999; }
+.mobile-nav.is-open { pointer-events: auto; }
 
-.cart-btn {
-    position: relative;   /* ✅ 기준점 */
-    display: inline-flex;
-    align-items: center;
+.mobile-nav__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.mobile-nav.is-open .mobile-nav__overlay { opacity: 1; }
+
+.mobile-nav__panel {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  width: 78%;
+  max-width: 360px;
+  background: #fff;
+  transform: translateX(-100%);
+  transition: transform 0.22s ease;
+  overflow-y: auto;
+}
+.mobile-nav.is-open .mobile-nav__panel { transform: translateX(0); }
+
+/* 헤더 */
+.mobile-nav__header {
+  position: relative;
+  padding: 16px 16px 10px;
+  border-bottom: 1px solid #eee;
 }
 
-
-/* 장바구니 아이콘(또는 버튼) 감싸는 래퍼가 있어야 함 */
-.cart-icon-wrap {
-    position: relative; /* ✅ 뱃지 기준점 */
-    display: inline-block;
+/* X 버튼 */
+.mobile-nav__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 26px;
+  line-height: 40px;
+  cursor: pointer;
 }
 
-/* badge 공통 (PC/모바일 공통으로 absolute) */
-.cart-count-badge {
-    position: absolute;
-    top: -6px;
-    right: -10px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    border-radius: 999px;
-    background: #ff3b30;
-    color: #fff;
-    font-size: 11px;
-    line-height: 18px;
-    text-align: center;
-    font-weight: 700;
+.mobile-nav__logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
 }
-/* 768px 이하에서만 위치 미세조정이 필요하면 여기서만 조절 */
+.mobile-nav__logo {
+  width: 120px;
+  height: auto;
+  display: block;
+}
+
+/* 비로그인: 오른쪽 정렬 */
+.mobile-nav__toprow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mobile-nav__toprow--guest { justify-content: flex-end; }
+
+/* 로그인 상태 */
+.mobile-nav__toprow--login { justify-content: space-between; }
+
+.mobile-nav__rightpack {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-nav__login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.mobile-nav__cart {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 이름 pill */
+.mobile-nav__user-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-nav__logout {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* 카드 영역 */
+.mobile-nav__cards {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mobile-card {
+  border: 1px solid rgba(56, 120, 255, 0.30);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 26px rgba(31, 79, 255, 0.10);
+  padding: 14px;
+}
+
+/* 공지사항 카드: 컴팩트 */
+.mobile-card--compact {
+  padding: 12px 14px;
+}
+
+/* 공지사항 위치 */
+.mobile-card--notice {
+  margin-top: 10px;
+  align-self: stretch;
+}
+
+.mobile-card__title {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111;
+  text-decoration: none;
+  margin-bottom: 5px;
+}
+
+/* 카테고리 */
+.mobile-card__sublist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.mobile-card__sublist--single {
+  grid-template-columns: 1fr;
+}
+
+.mobile-card__sublist a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 120, 255, 0.18);
+  background: rgba(56, 120, 255, 0.06);
+  color: #1a2a5a;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 768px 이하 */
 @media (max-width: 768px) {
-    .cart-count-badge {
-        top: -6px;
-        right: -10px;
-    }
-    .mobile-nav__cart {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-    }
-
-    .header-inner {
-        position: relative;
-        justify-content: center; /* 로고 가운데 정렬 */
-    }
+  .header-inner {
+    position: relative;
+    justify-content: center;
+  }
 
   .menu-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
     position: absolute;
-    left: 0;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    padding: 0 1.2rem;
   }
 
   .header-center,
   .header-right {
     display: none;
   }
-}
-
-/* ✅ 카테고리 링크 스타일 */
-.mobile-submenu a {
-  display: block;
-  padding: 0.9rem 1.2rem;
-  line-height: 1.4;
-  word-break: keep-all;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
