@@ -10,27 +10,34 @@ public interface CartMapper {
 
     List<CartItem> findByUserId(@Param("userId") Long userId);
 
-    // ✅ 비로그인(세션) 장바구니용: courseIds로 강의 목록 조회 (cartId는 null로 내려줌)
+    // 비로그인(세션) 장바구니용: courseIds로 강의 목록 조회 (cartId는 null로 내려줌)
     List<CartItem> findByCourseIds(@Param("courseIds") List<Long> courseIds);
 
-    // ✅ 추가: 중복 체크
+    // 중복 체크
     int exists(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
-    // ✅ 추가: 장바구니 담기
+    // 장바구니 담기
     int insertCart(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
-    // ✅ 전체 삭제
+    // 전체 삭제
     int deleteAllByUserId(@Param("userId") Long userId);
 
-    // ✅ (기존 기능 유지) 단일 삭제: userId + cartId
+    // (기존 기능 유지) 단일 삭제: userId + cartId
     int deleteByUserIdAndCartId(@Param("userId") Long userId,
                                 @Param("cartId") Long cartId);
 
-    // ✅✅ 결제된 강의만 삭제: userId + courseIds(List)
+    // 결제된 강의만 삭제: userId + courseIds(List)
     int deleteByUserIdAndCourseIds(@Param("userId") Long userId,
                                    @Param("courseIds") List<Long> courseIds);
 
     int countByUserId(@Param("userId") Long userId);
+
+    //  courseId 목록 조회 (CourseList 버튼 색 표시용)
+    List<Long> findCourseIdsByUserId(@Param("userId") Long userId);
+
+    //  토글용 제거
+    int deleteByUserIdAndCourseId(@Param("userId") Long userId,
+                                  @Param("courseId") Long courseId);
 
 
 }

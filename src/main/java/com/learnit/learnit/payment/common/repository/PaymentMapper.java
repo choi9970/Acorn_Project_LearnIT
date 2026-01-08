@@ -1,13 +1,11 @@
 package com.learnit.learnit.payment.common.repository;
 
-import com.learnit.learnit.mypage.dto.PaymentHistoryDTO;
 import com.learnit.learnit.payment.common.dto.OrderDTO;
 import com.learnit.learnit.payment.common.dto.PaymentDTO;
 import com.learnit.learnit.payment.common.dto.PaymentDetailDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
 
 @Mapper
 public interface PaymentMapper {

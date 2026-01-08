@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <title th:fragment="title">회사소개 | LearnIT</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/about/about.css}">
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content" class="about-page">
+
+    <!-- HERO -->
+    <section class="about-hero">
+        <div class="about-hero__inner">
+            <p class="about-hero__badge">ABOUT US</p>
+            <h1 class="about-hero__title">배움의 시작을 더 쉽고, 더 가깝게. LearnIT</h1>
+            <p class="about-hero__desc">
+                LearnIT은 온라인 교육 경험을 더 쉽고, 더 깊게 만드는 학습 플랫폼을 만듭니다.
+            </p>
+
+            <div class="about-hero__cta">
+                <a class="btn primary" th:href="@{/CourseList}">강의 보러가기</a>
+                <a class="btn ghost" th:href="@{/notice}">공지 확인</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SUMMARY -->
+    <section class="about-section">
+        <div class="about-container">
+            <div class="about-grid2">
+                <div class="card">
+                    <h2 class="card-title">우리가 하는 일</h2>
+                    <p class="card-text">
+                        학습 콘텐츠, Q&A, 결제/수강/관리자 운영까지 교육 경험 전반을 하나의 흐름으로 연결합니다.
+                    </p>
+                    <ul class="bullet">
+                        <li>강의 탐색/추천/결제/수강</li>
+                        <li>Q&A · 리뷰 </li>
+                        <li>운영/권한/콘텐츠 관리(Admin)</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">핵심 가치</h2>
+                    <div class="value-list">
+                        <div class="value-item">
+                            <div class="value-title">신뢰</div>
+                            <div class="value-desc">정확한 정보, 투명한 운영</div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-title">성장</div>
+                            <div class="value-desc">학습의 성과가 지속되도록</div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-title">속도</div>
+                            <div class="value-desc">빠르게 만들고, 빠르게 개선</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GITHUB (External API) -->
+    <section class="about-section muted">
+        <div class="about-container">
+            <div class="section-head">
+                <h2>개발 활동 (GitHub 연동)</h2>
+                <p>외부 API로 최신 개발 활동을 자동으로 반영합니다.</p>
+            </div>
+
+            <!-- ✅ 여기 data-github-user 값이 GitHub API에 사용됨 -->
+            <div class="github-wrap"
+                 id="githubBox"
+                 th:attr="data-github-user=${githubUser}">
+
+                <div class="card">
+                    <div class="github-top">
+                        <div>
+                            <div class="github-title">GitHub Stats</div>
+                            <div class="github-sub" id="ghSub">불러오는 중...</div>
+                        </div>
+                        <a class="btn small ghost" id="ghLink" href="#" target="_blank" rel="noopener">GitHub 방문</a>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat">
+                            <div class="stat-label">Public Repos</div>
+                            <div class="stat-value" id="ghRepos">-</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Followers</div>
+                            <div class="stat-value" id="ghFollowers">-</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Following</div>
+                            <div class="stat-value" id="ghFollowing">-</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Last Updated</div>
+                            <div class="stat-value" id="ghUpdated">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title-row">
+                        <h3 class="card-title">최근 업데이트 Repo</h3>
+                        <span class="hint">최대 5개</span>
+                    </div>
+                    <div class="repo-list" id="repoList">
+                        <!-- JS로 채움 -->
+                    </div>
+                    <div class="error" id="ghError" style="display:none;"></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT & DIRECTIONS -->
+    <section class="about-section">
+        <div class="about-container">
+            <div class="section-head">
+                <h2>문의 · 오시는 길</h2>
+                <p>문의 방법과 회사 위치를 안내합니다.</p>
+            </div>
+
+            <div class="about-grid2">
+
+                <!-- LEFT : Contact info -->
+                <div class="card">
+                    <h3 class="card-title">연락처</h3>
+
+                    <div class="contact-item">
+                        <strong>이메일</strong>
+                        <p class="card-text">contact@learnit.co.kr</p>
+                    </div>
+
+                    <div class="contact-item" style="margin-top:12px;">
+                        <strong>주소</strong>
+                        <p class="card-text" th:text="${officeAddress}">
+                            서울특별시 마포구 양화로 122 LAB7 빌딩 3층, 4층
+                        </p>
+                    </div>
+
+                    <div class="dir-actions">
+                        <!-- 지도 바로가기 -->
+                        <a class="btn ghost" target="_blank" rel="noopener"
+                           th:href="@{|https://map.kakao.com/link/map/${officeName},${officeLat},${officeLng}|}">
+                            카카오맵에서 보기
+                        </a>
+
+                        <!-- 길찾기 -->
+                        <a class="btn primary" target="_blank" rel="noopener"
+                           th:href="@{|https://map.kakao.com/link/to/${officeName},${officeLat},${officeLng}|}">
+                            길찾기
+                        </a>
+
+                        <button type="button" class="btn ghost" id="btnCopyAddr">
+                            주소 복사
+                        </button>
+                    </div>
+
+                    <p class="hint" style="margin-top:10px;">
+                        ※ 길찾기는 PC/모바일 환경에 따라 카카오맵으로 연결됩니다.
+                    </p>
+                </div>
+
+                <!-- RIGHT : Kakao Map -->
+                <div class="card">
+                    <div id="kakaoMap"
+                         class="kakao-map"
+                         th:attr="data-name=${officeName},
+                              data-lat=${officeLat},
+                              data-lng=${officeLng},
+                              data-addr=${officeAddress}">
+                    </div>
+
+                    <div class="hint" id="kakaoMapHint" style="margin-top:10px;">
+                        지도 로딩 중...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+</div>
+
+<th:block th:fragment="script">
+
+    <!-- ✅ Kakao Maps SDK -->
+    <script th:if="${kakaoMapKey != null and !#strings.isEmpty(kakaoMapKey)}"
+            th:src="@{|//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapKey}&autoload=false|}"></script>
+
+    <!-- ✅ Our Kakao map init -->
+    <script th:src="@{/js/about/kakao-map.js}"></script>
+
+    <!-- ✅ 기존 GitHub -->
+    <script th:src="@{/js/about/github-stats.js}"></script>
+</th:block>
+
+</body>
+</html>

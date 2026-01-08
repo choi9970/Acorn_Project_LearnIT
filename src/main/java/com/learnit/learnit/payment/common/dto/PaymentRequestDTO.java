@@ -49,6 +49,8 @@ public class PaymentRequestDTO {
             dto.setMethod(PaymentMethod.KAKAOPAY);
         }else if(prepare.getPayType() == PaymentMethod.CARD){
             dto.setMethod(PaymentMethod.CARD);
+        }else if(prepare.getPayType() == PaymentMethod.FREE){
+            dto.setMethod(PaymentMethod.FREE);
         }else{
             throw new PaymentException("지원하지 않는 결제 수단입니다.");
         }

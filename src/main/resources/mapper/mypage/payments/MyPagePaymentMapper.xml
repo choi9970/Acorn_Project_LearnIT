@@ -6,44 +6,40 @@
 
     <!--1. 결제 내역 조회(마이페이지)-->
     <select id="findPaymentHistories" parameterType="long" resultType="com.learnit.learnit.mypage.dto.PaymentHistoryDTO">
-
         SELECT
             p.payment_id      AS paymentId,
             o.order_no        AS orderId,
             p.method          AS paymentMethod,
             o.status          AS paymentStatus,
-            o.total_price     AS originAmount,
-            (o.total_price - p.final_price) AS discountAmount,
+            (SELECT SUM(price) FROM payment_detail WHERE payment_id = p.payment_id) AS originAmount,
+            ((SELECT SUM(price) FROM payment_detail WHERE payment_id = p.payment_id) - p.final_price) AS discountAmount,
             p.final_price     AS totalAmount,
             p.created_at      AS paidAt
-        FROM payment p
-                 JOIN orders o ON p.order_id = o.order_id
+        FROM payment p JOIN orders o
+        ON p.order_id = o.order_id
         WHERE o.user_id = #{userId}
         ORDER BY p.created_at DESC;
-
     </select>
     
     
     <!--2. 결제 건별 강의명 목록 조회(요약)-->
     <select id="findCourseTitlesByPaymentId" parameterType="long" resultType="String">
         SELECT c.title
-        FROM payment_detail pd
-        JOIN course c ON pd.course_id = c.course_id
+        FROM payment_detail pd JOIN course c
+        ON pd.course_id = c.course_id
         WHERE pd.payment_id = #{paymentId}
 
     </select>
 
     <!--3. 영수증 조회-->
-    <select id="findPaymentReceipt"
-            resultType="com.learnit.learnit.mypage.dto.PaymentReceiptDTO">
-
+    <select id="findPaymentReceipt" resultType="com.learnit.learnit.mypage.dto.PaymentReceiptDTO">
         SELECT
             p.payment_id        AS paymentId,
             o.order_no          AS orderNo,
             o.status            AS paymentStatus,
             p.method            AS paymentMethod,
-            o.total_price       AS originAmount,
-            (o.total_price - p.final_price) AS discountAmount,
+            (SELECT SUM(price) FROM payment_detail WHERE payment_id = p.payment_id) AS originAmount,
+            ((SELECT SUM(price) FROM payment_detail WHERE payment_id = p.payment_id) - p.final_price) AS discountAmount,
             p.final_price       AS totalAmount,
             p.created_at        AS paidAt
         FROM payment p JOIN orders o

@@ -7,10 +7,22 @@ document.addEventListener('DOMContentLoaded', () => {
         size: 12,
         loading: false,
         last: false,
+
+        // ✅ 장바구니 상태(로그인/비로그인 공통)
+        cartSet: new Set(),   // courseId를 String으로 저장
+        cartLoaded: false
     };
 
     const grid = document.getElementById('courseGrid');
     const sortSelect = document.getElementById('sortSelect');
+
+    // ---------- CSRF (프로젝트에서 CSRF 켜져있으면 필요) ----------
+    function csrfHeaders() {
+        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+        const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
+        if (token && header) return { [header]: token };
+        return {};
+    }
 
     // ---------- URL <-> state ----------
     function readStateFromUrl() {
@@ -64,7 +76,63 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetPaging() {
         state.page = 0;
         state.last = false;
-        grid.innerHTML = '';
+        if (grid) grid.innerHTML = '';
+    }
+
+    // ---------- Cart API ----------
+    async function loadCartIds() {
+        try {
+            const res = await fetch('/cart/ids', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!res.ok) {
+                state.cartSet = new Set();
+                state.cartLoaded = true;
+                return;
+            }
+
+            const ids = await res.json();
+            const s = new Set();
+            (ids || []).forEach(id => s.add(String(id)));
+            state.cartSet = s;
+            state.cartLoaded = true;
+        } catch (e) {
+            console.error('loadCartIds error', e);
+            state.cartSet = new Set();
+            state.cartLoaded = true;
+        }
+    }
+
+    // ✅ CourseDetail의 /cart/add 로직 재사용(폼 인코딩)
+    async function cartAdd(courseId) {
+        const res = await fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                ...csrfHeaders()
+            },
+            body: new URLSearchParams({ courseId })
+        });
+
+        const text = (await res.text()).trim();
+        return text; // OK | DUPLICATE | ...
+    }
+
+    // ✅ CourseList 토글용 제거 API (/cart/remove)
+    async function cartRemove(courseId) {
+        const res = await fetch('/cart/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                ...csrfHeaders()
+            },
+            body: new URLSearchParams({ courseId })
+        });
+
+        const text = (await res.text()).trim();
+        return text; // OK | NOOP | ...
     }
 
     // ---------- API ----------
@@ -147,15 +215,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const price = Number(c.price ?? 0);
         const priceText = (price === 0) ? '무료' : `${price.toLocaleString()}원`;
         const thumb = c.thumbnailUrl ? c.thumbnailUrl : '';
+        const courseId = String(c.courseId);
+
+        // ✅ 장바구니에 담긴 강의면 활성화 색
+        const activeClass = state.cartSet.has(courseId) ? 'is-active' : '';
 
         return `
       <article class="course-card">
-        <a class="course-link" href="/CourseDetail?courseId=${c.courseId}&tab=intro">
+        <a class="course-link" href="/CourseDetail?courseId=${courseId}&tab=intro">
           <div class="thumb-wrap">
             ${thumb
             ? `<img class="thumb" src="${escapeHtml(thumb)}" alt="">`
             : `<div class="thumb thumb-placeholder"></div>`}
-            <button class="cart-btn" type="button" aria-label="장바구니">🛒</button>
+            <button class="cart-btn ${activeClass}"
+                    type="button"
+                    aria-label="장바구니"
+                    data-course-id="${courseId}">🛒</button>
           </div>
           <div class="card-body">
             <h3 class="title">${escapeHtml(c.title ?? '')}</h3>
@@ -175,6 +250,54 @@ document.addEventListener('DOMContentLoaded', () => {
             .replaceAll('>', '&gt;')
             .replaceAll('"', '&quot;')
             .replaceAll("'", '&#039;');
+    }
+
+    // ✅✅ (추가) 🛒 클릭 이벤트 위임 (무한스크롤로 추가되는 카드도 자동 적용)
+    if (grid) {
+        grid.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.cart-btn');
+            if (!btn) return;
+
+            // 카드 링크 이동 막기(🛒만)
+            e.preventDefault();
+            e.stopPropagation();
+
+            const courseId = btn.dataset.courseId;
+            if (!courseId) return;
+
+            // 이미 담김 → 제거
+            if (btn.classList.contains('is-active')) {
+                try {
+                    const text = await cartRemove(courseId);
+                    if (text === 'OK' || text === 'NOOP') {
+                        btn.classList.remove('is-active');
+                        state.cartSet.delete(String(courseId));
+                    } else {
+                        alert('장바구니 제거 실패: ' + text);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('장바구니 제거 중 오류가 발생했습니다.');
+                }
+                return;
+            }
+
+            // 미담김 → 추가
+            try {
+                const text = await cartAdd(courseId);
+                if (text === 'OK' || text === 'DUPLICATE') {
+                    btn.classList.add('is-active');
+                    state.cartSet.add(String(courseId));
+                } else if (text === 'LOGIN_REQUIRED') {
+                    location.href = '/login';
+                } else {
+                    alert('장바구니 담기 실패: ' + text);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('장바구니 담기 중 오류가 발생했습니다.');
+            }
+        });
     }
 
     // ---------- Events ----------
@@ -242,9 +365,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------- init ----------
-    readStateFromUrl();
-    applyControls();
-    syncUrl(false);
-    resetPaging();
-    fetchPageAndAppend();
+    (async function init() {
+        readStateFromUrl();
+        applyControls();
+        syncUrl(false);
+
+        // ✅ 장바구니 상태 먼저 불러와서 카드 생성 시 색 반영
+        await loadCartIds();
+
+        resetPaging();
+        fetchPageAndAppend();
+    })();
 });

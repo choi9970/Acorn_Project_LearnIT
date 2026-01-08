@@ -88,6 +88,20 @@
         WHERE user_id = #{userId}
     </select>
 
+    <!--  현재 유저의 장바구니 courseId 목록 -->
+    <select id="findCourseIdsByUserId" resultType="long">
+        SELECT course_id
+        FROM cart
+        WHERE user_id = #{userId}
+    </select>
+
+    <!--  토글 제거: userId + courseId -->
+    <delete id="deleteByUserIdAndCourseId">
+        DELETE FROM cart
+        WHERE user_id = #{userId}
+        AND course_id = #{courseId}
+    </delete>
+
 
 
 
