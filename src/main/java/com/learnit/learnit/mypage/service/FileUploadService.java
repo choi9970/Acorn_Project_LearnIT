@@ -16,7 +16,7 @@ import java.util.UUID;
 @Service
 public class FileUploadService {
 
-    @Value("${file.upload-dir:src/main/resources/static/uploads/profile}")
+    @Value("${file.upload-dir:uploads/profile}")
     private String uploadDir;
 
     /**

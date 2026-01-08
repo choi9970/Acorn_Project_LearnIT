@@ -44,6 +44,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
         String projectPath = System.getProperty("user.dir").replace("\\", "/");
+        // 프로필 이미지 경로 매핑
+        registry.addResourceHandler("/uploads/profile/**")
+                .addResourceLocations("file:///" + projectPath + "/uploads/profile/");
+        // 기타 uploads 경로도 지원
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:///" + projectPath + "/uploads/");
     }
