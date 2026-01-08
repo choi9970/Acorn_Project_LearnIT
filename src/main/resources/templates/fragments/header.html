@@ -22,7 +22,7 @@
                 <nav class="gnb">
                     <div class="gnb-item has-sub">
                         <a th:href="@{/CourseList}" class="gnb-link">강의목록</a>
-                        <div class="submenu">
+                        <div class="submenu" aria-label="강의 카테고리">
                             <a th:each="cat : ${categories}"
                                th:text="${cat.name}"
                                th:href="@{/CourseList(categoryId=${cat.categoryId})}">
@@ -33,26 +33,23 @@
                     <a th:href="@{/notice}" class="gnb-item gnb-link">공지사항</a>
                 </nav>
 
-                <!-- 검색바 -->
+                <!-- ✅ 검색바 -->
                 <form class="header-search" th:action="@{/search}" method="get">
                     <input type="text" name="keyword" placeholder="검색어를 입력하세요." class="search-input">
-                    <button type="submit" class="search-btn">🔍</button>
+                    <button type="submit" class="search-btn" aria-label="검색">
+                        <img th:src="@{/images/search-bar.png}" alt="검색" class="search-icon-img">
+                    </button>
                 </form>
             </div>
 
             <!-- PC: 오른쪽 -->
             <div class="header-right">
 
-                <!-- ✅ 관리자 버튼 노출 조건
-                     - 로그인 + (ADMIN or SUB_ADMIN)
-                     - AND 현재 URL이 /admin 으로 시작하지 않을 때만 표시 (관리자 페이지에서는 숨김)
-                -->
                 <th:block th:if="${loginUserId != null
                  and (session.LOGIN_USER_ROLE == 'ADMIN' or session.LOGIN_USER_ROLE == 'SUB_ADMIN')
                  and (currentPath == null or !#strings.startsWith(currentPath, '/admin'))}">
                     <a th:href="@{/admin/home}" class="admin-btn" aria-label="관리자 페이지">관리자</a>
                 </th:block>
-
 
                 <a th:href="@{/cart}" class="cart-btn" aria-label="장바구니">
                     <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="cart">
@@ -66,7 +63,6 @@
                 </th:block>
 
                 <th:block th:if="${loginUserId != null}">
-                    <!-- ✅ 이름이 길어져도 깨지지 않게: CSS에서 말줄임 처리 -->
                     <a th:href="@{/mypage}" class="user-name" th:text="${loginUserName} + '님'"></a>
                     <form th:action="@{/logout}" method="post" style="display:inline;">
                         <button type="submit" class="logout-btn">로그아웃</button>
@@ -86,7 +82,6 @@
 
             <div class="mobile-nav__header">
 
-                <!-- X 버튼 -->
                 <button class="mobile-nav__close"
                         id="mobile-nav-close"
                         aria-label="닫기"
@@ -94,12 +89,10 @@
                     &times;
                 </button>
 
-                <!-- 로고 -->
                 <div class="mobile-nav__logo-wrap">
                     <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="mobile-nav__logo">
                 </div>
 
-                <!-- 비로그인 -->
                 <th:block th:if="${loginUserId == null}">
                     <div class="mobile-nav__toprow mobile-nav__toprow--guest">
                         <a th:href="@{/cart}" class="mobile-nav__cart" aria-label="장바구니">
@@ -113,10 +106,9 @@
                     </div>
                 </th:block>
 
-                <!-- 로그인 -->
                 <th:block th:if="${loginUserId != null}">
                     <div class="mobile-nav__toprow mobile-nav__toprow--login">
-                        <a th:href="@{/mypage}" class="mobile-nav__user-pill" th:text="${loginUserName}">사용자</a>
+                        <a th:href="@{/mypage}" class="mobile-nav__user-name" th:text="${loginUserName}">사용자</a>
 
                         <div class="mobile-nav__rightpack">
                             <a th:href="@{/cart}" class="mobile-nav__cart" aria-label="장바구니">
@@ -137,7 +129,6 @@
 
             <div class="mobile-nav__cards">
 
-                <!-- 강의목록 -->
                 <section class="mobile-card">
                     <a class="mobile-card__title" th:href="@{/CourseList}">강의목록</a>
 
@@ -149,9 +140,8 @@
                     </div>
                 </section>
 
-                <!-- 공지사항 -->
                 <section class="mobile-card mobile-card--compact mobile-card--notice">
-                    <a class="mobile-card__title" th:href="@{/notice}">공지사항</a>
+                    <a class="mobile-card__title" th:href="@{/notice}" style="margin-bottom:6px;">공지사항</a>
                 </section>
 
             </div>
