@@ -3,6 +3,10 @@ package com.learnit.learnit.admin.course;
 import com.learnit.learnit.admin.course.AdminChapterDTO;
 import com.learnit.learnit.admin.course.AdminChapterInsertDTO;
 import com.learnit.learnit.admin.course.AdminChapterResourceDTO;
+import com.learnit.learnit.quiz.dto.Question;
+import com.learnit.learnit.quiz.dto.Quiz;
+import com.learnit.learnit.quiz.dto.QuizOption;
+import com.learnit.learnit.quiz.repository.QuizMapper;
 import com.learnit.learnit.user.dto.UserDTO;
 import com.learnit.learnit.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,7 @@ public class AdminCourseService {
 
     private final AdminCourseMapper adminCourseMapper;
     private final UserMapper userMapper;
+    private final QuizMapper quizMapper;
 
     @Value("${file.upload-dir.course:uploads/course}")
     private String courseUploadDir;
@@ -63,7 +68,15 @@ public class AdminCourseService {
         
         // 커리큘럼 매핑
         List<AdminChapterDTO> chapters = adminCourseMapper.selectChaptersWithResources(courseId);
-        dto.setSections(mapChaptersToSections(chapters));
+        List<Quiz> quizzes = quizMapper.selectFullQuizzesByCourseId(courseId);
+        
+        dto.setSections(mapChaptersToSections(chapters, quizzes));
+        
+        // 파이널 퀴즈 매핑
+        quizzes.stream()
+                .filter(q -> "FINAL".equals(q.getType()))
+                .findFirst()
+                .ifPresent(fq -> dto.setFinalQuiz(mapQuizToRequest(fq)));
 
         return dto;
     }
@@ -87,6 +100,7 @@ public class AdminCourseService {
         
         // 신규 생성 시에는 단순 저장
         saveNewCurriculum(dto);
+        syncQuizzes(dto.getCourseId(), dto);
     }
 
     @Transactional
@@ -108,6 +122,7 @@ public class AdminCourseService {
 
         // 커리큘럼 스마트 업데이트 (Diff & Sync)
         syncCurriculum(courseId, dto);
+        syncQuizzes(courseId, dto);
     }
 
     @Transactional
@@ -150,17 +165,23 @@ public class AdminCourseService {
         return url.substring(url.lastIndexOf("/") + 1);
     }
 
-    private List<AdminCourseCreateDTO.SectionRequest> mapChaptersToSections(List<AdminChapterDTO> chapters) {
-        // 섹션별 그룹화 (LinkedHashMap으로 순서 유지)
+    private List<AdminCourseCreateDTO.SectionRequest> mapChaptersToSections(List<AdminChapterDTO> chapters, List<Quiz> quizzes) {
+        // 섹션별 챕터 그룹화 (LinkedHashMap으로 순서 유지)
         Map<String, List<AdminChapterDTO>> sectionsMap = chapters.stream()
                 .collect(Collectors.groupingBy(AdminChapterDTO::getSectionTitle, LinkedHashMap::new, Collectors.toList()));
 
         List<AdminCourseCreateDTO.SectionRequest> sectionRequests = new ArrayList<>();
         
+        // 퀴즈 그룹화
+        Map<String, List<Quiz>> quizzesMap = quizzes.stream()
+                .filter(q -> "SECTION".equals(q.getType()))
+                .collect(Collectors.groupingBy(Quiz::getSectionTitle));
+        
         for (Map.Entry<String, List<AdminChapterDTO>> entry : sectionsMap.entrySet()) {
             AdminCourseCreateDTO.SectionRequest sectionReq = new AdminCourseCreateDTO.SectionRequest();
             sectionReq.setTitle(entry.getKey());
             
+            // 챕터 매핑
             List<AdminCourseCreateDTO.ChapterRequest> chapterReqs = new ArrayList<>();
             for (AdminChapterDTO chapter : entry.getValue()) {
                 AdminCourseCreateDTO.ChapterRequest chapterReq = new AdminCourseCreateDTO.ChapterRequest();
@@ -176,9 +197,45 @@ public class AdminCourseService {
                 chapterReqs.add(chapterReq);
             }
             sectionReq.setChapters(chapterReqs);
+            
+            // 퀴즈 매핑
+            if (quizzesMap.containsKey(entry.getKey())) {
+                List<AdminCourseCreateDTO.QuizRequest> quizReqs = quizzesMap.get(entry.getKey()).stream()
+                        .map(this::mapQuizToRequest)
+                        .collect(Collectors.toList());
+                sectionReq.setQuizzes(quizReqs);
+            }
+            
             sectionRequests.add(sectionReq);
         }
         return sectionRequests;
+    }
+
+    private AdminCourseCreateDTO.QuizRequest mapQuizToRequest(Quiz quiz) {
+        AdminCourseCreateDTO.QuizRequest req = new AdminCourseCreateDTO.QuizRequest();
+        req.setQuizId(quiz.getQuizId());
+        req.setTitle(quiz.getTitle());
+        
+        if (quiz.getQuestions() != null) {
+            req.setQuestions(quiz.getQuestions().stream().map(q -> {
+                AdminCourseCreateDTO.QuestionRequest qReq = new AdminCourseCreateDTO.QuestionRequest();
+                qReq.setQuestionId(q.getQuestionId());
+                qReq.setContent(q.getQuestionContent());
+                qReq.setExplanation(q.getExplanation());
+                
+                if (q.getOptions() != null) {
+                    qReq.setOptions(q.getOptions().stream().map(o -> {
+                        AdminCourseCreateDTO.OptionRequest oReq = new AdminCourseCreateDTO.OptionRequest();
+                        oReq.setOptionId(o.getOptionId());
+                        oReq.setContent(o.getOptionContent());
+                        oReq.setIsCorrect(o.getIsCorrect());
+                        return oReq;
+                    }).collect(Collectors.toList()));
+                }
+                return qReq;
+            }).collect(Collectors.toList()));
+        }
+        return req;
     }
 
     /* --- Helper Methods: Curriculum Logic --- */
@@ -372,5 +429,93 @@ public class AdminCourseService {
     private String extractExtension(String filename) {
         return (filename != null && filename.contains(".")) ? 
                 filename.substring(filename.lastIndexOf(".") + 1) : "";
+    }
+
+    /* --- Helper Methods: Quiz Sync --- */
+
+    private void syncQuizzes(Long courseId, AdminCourseCreateDTO dto) {
+        List<Quiz> existingQuizzes = quizMapper.selectFullQuizzesByCourseId(courseId);
+        Set<Long> processedQuizIds = new HashSet<>();
+
+        // 1. 섹션별 퀴즈 처리
+        if (dto.getSections() != null) {
+            for (AdminCourseCreateDTO.SectionRequest section : dto.getSections()) {
+                if (section.getQuizzes() != null) {
+                    for (AdminCourseCreateDTO.QuizRequest quizReq : section.getQuizzes()) {
+                        saveOrUpdateQuiz(courseId, section.getTitle(), "SECTION", quizReq, processedQuizIds);
+                    }
+                }
+            }
+        }
+
+        // 2. 파이널 퀴즈 처리
+        if (dto.getFinalQuiz() != null && dto.getFinalQuiz().getTitle() != null && !dto.getFinalQuiz().getTitle().isEmpty()) {
+            saveOrUpdateQuiz(courseId, "FINAL", "FINAL", dto.getFinalQuiz(), processedQuizIds);
+        }
+
+        // 3. 삭제 처리 (Orphaned Quizzes)
+        for (Quiz existing : existingQuizzes) {
+            if (!processedQuizIds.contains(existing.getQuizId())) {
+                deleteQuizCascade(existing.getQuizId());
+            }
+        }
+    }
+
+    private void saveOrUpdateQuiz(Long courseId, String sectionTitle, String type, 
+                                  AdminCourseCreateDTO.QuizRequest req, Set<Long> processedIds) {
+        Quiz quiz = new Quiz();
+        quiz.setQuizId(req.getQuizId());
+        quiz.setTitle(req.getTitle());
+        quiz.setSectionTitle(sectionTitle);
+        quiz.setType(type);
+
+        if (req.getQuizId() == null) {
+            quizMapper.insertQuiz(courseId, quiz);
+            req.setQuizId(quiz.getQuizId()); // ID 설정
+        } else {
+            quizMapper.updateQuiz(quiz);
+            // 질문 업데이트: 기존 질문 삭제 후 재등록 (간편한 동기화)
+            // 주의: 옵션도 같이 삭제해야 함. deleteQuizCascade 로직 활용
+            Quiz existing = quizMapper.selectQuizByQuizId(req.getQuizId());
+             if (existing != null && existing.getQuestions() != null) {
+                for (Question q : existing.getQuestions()) {
+                    quizMapper.deleteOptionsByQuestionId(q.getQuestionId());
+                }
+            }
+            quizMapper.deleteQuestionsByQuizId(req.getQuizId());
+        }
+        
+        processedIds.add(req.getQuizId());
+
+        // 질문/옵션 저장
+        if (req.getQuestions() != null) {
+            for (AdminCourseCreateDTO.QuestionRequest qReq : req.getQuestions()) {
+                Question question = new Question();
+                question.setQuestionContent(qReq.getContent());
+                question.setExplanation(qReq.getExplanation());
+                
+                quizMapper.insertQuestion(req.getQuizId(), question);
+                
+                if (qReq.getOptions() != null) {
+                    for (AdminCourseCreateDTO.OptionRequest oReq : qReq.getOptions()) {
+                        QuizOption option = new QuizOption();
+                        option.setOptionContent(oReq.getContent());
+                        option.setIsCorrect(oReq.getIsCorrect());
+                        quizMapper.insertOption(question.getQuestionId(), option);
+                    }
+                }
+            }
+        }
+    }
+
+    private void deleteQuizCascade(Long quizId) {
+        Quiz quiz = quizMapper.selectQuizByQuizId(quizId);
+        if (quiz != null && quiz.getQuestions() != null) {
+            for (Question q : quiz.getQuestions()) {
+                quizMapper.deleteOptionsByQuestionId(q.getQuestionId());
+            }
+            quizMapper.deleteQuestionsByQuizId(quizId);
+        }
+        quizMapper.deleteQuiz(quizId);
     }
 }

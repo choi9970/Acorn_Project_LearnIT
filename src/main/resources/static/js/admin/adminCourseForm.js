@@ -17,15 +17,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // [Edit Mode] 초기화: 기존 선택된 강사가 있다면 Set에 추가 및 이벤트 연결
     document.querySelectorAll('.instructor-tag-item').forEach(item => {
-        const userId = parseInt(item.dataset.userId); // dataset은 string이므로 int 변환
+        const userId = parseInt(item.dataset.userId); 
         if (userId) {
             selectedInstructorIds.add(userId);
             
-            // 삭제 버튼 이벤트 연결
             const btnRemove = item.querySelector('.btn-remove');
             if (btnRemove) {
                 btnRemove.addEventListener('click', function() {
-                    // hidden input도 찾아야 함
                     const input = document.querySelector(`input[name="instructorIds"][value="${userId}"]`);
                     removeInstructor(userId, item, input);
                 });
@@ -36,11 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
     /* --- 강의 오픈 기간 토글 로직 --- */
     const toggleAlwaysOpen = document.getElementById('toggle-always-open');
     const dateSelectionArea = document.getElementById('date-selection-area');
-    const startDateInput = document.querySelector('input[name="startDate"]');
-    const endDateInput = document.querySelector('input[name="endDate"]');
 
     if (toggleAlwaysOpen && dateSelectionArea) {
-        // 초기 상태 설정
         toggleDateInputs(toggleAlwaysOpen.checked);
 
         toggleAlwaysOpen.addEventListener('change', function() {
@@ -50,10 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function toggleDateInputs(isAlwaysOpen) {
         if (isAlwaysOpen) {
-            // 상시 오픈: 날짜 입력 숨김
             dateSelectionArea.style.display = 'none';
         } else {
-            // 기간 설정: 날짜 입력 표시
             dateSelectionArea.style.display = 'block';
         }
     }
@@ -64,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnOpenModal) {
         btnOpenModal.addEventListener('click', function() {
             modal.style.display = 'flex';
-            inputSearch.value = ''; // 열 때 검색어 초기화
+            inputSearch.value = ''; 
             resultList.innerHTML = '<div class="empty-result">검색어를 입력하세요.</div>';
             inputSearch.focus();
         });
@@ -79,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btnCloseModal.addEventListener('click', closeModal);
     }
 
-    // 배경 클릭 시 닫기
     window.addEventListener('click', function(event) {
         if (event.target === modal) {
             closeModal();
@@ -94,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // API 호출
         fetch(`/admin/course/api/instructors/search?keyword=${encodeURIComponent(keyword)}`)
             .then(response => {
                 if (!response.ok) {
@@ -111,16 +102,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // 검색 버튼 클릭
     if (btnSearch) {
         btnSearch.addEventListener('click', searchInstructors);
     }
 
-    // 엔터키 입력
     if (inputSearch) {
         inputSearch.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault(); // 폼 제출 방지
+                e.preventDefault(); 
                 searchInstructors();
             }
         });
@@ -128,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /* --- 결과 렌더링 및 선택 --- */
     function renderResults(users) {
-        resultList.innerHTML = ''; // 초기화
+        resultList.innerHTML = ''; 
 
         if (!users || users.length === 0) {
             resultList.innerHTML = '<div class="empty-result">검색 결과가 없습니다.</div>';
@@ -139,14 +128,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const item = document.createElement('div');
             item.className = 'result-item';
             
-            // 이미 선택된 사용자인지 확인
             const isSelected = selectedInstructorIds.has(user.userId);
             if (isSelected) {
                 item.style.backgroundColor = '#f1f3f5';
                 item.style.cursor = 'default';
             }
 
-            // 사용자 정보 표시
             item.innerHTML = `
                 <div class="result-info" style="${isSelected ? 'color: #adb5bd;' : ''}">
                     <strong>${user.name}</strong> 
@@ -155,7 +142,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="result-sub">ID: ${user.userId}</div>
             `;
             
-            // 클릭 이벤트: 선택 처리 (이미 선택된 경우 무시)
             if (!isSelected) {
                 item.addEventListener('click', function() {
                     addInstructor(user);
@@ -168,13 +154,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function addInstructor(user) {
         if (selectedInstructorIds.has(user.userId)) {
-            return; // 이미 선택됨
+            return; 
         }
 
-        // Set에 추가
         selectedInstructorIds.add(user.userId);
 
-        // 1. 태그 UI 생성
         const tag = document.createElement('div');
         tag.className = 'instructor-tag-item';
         tag.dataset.userId = user.userId;
@@ -183,34 +167,27 @@ document.addEventListener('DOMContentLoaded', function() {
             <button type="button" class="btn-remove">×</button>
         `;
 
-        // 삭제 이벤트
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'instructorIds'; 
+        input.value = user.userId;
+        inputsContainer.appendChild(input);
+
         tag.querySelector('.btn-remove').addEventListener('click', function() {
             removeInstructor(user.userId, tag, input);
         });
 
         selectionArea.appendChild(tag);
-
-        // 2. Hidden Input 생성
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'instructorIds'; // 배열로 받을 수 있게 이름 설정
-        input.value = user.userId;
-        inputsContainer.appendChild(input);
-
-        // 모달 닫기
         closeModal();
     }
 
     function removeInstructor(userId, tagElement, inputElement) {
-        // Set에서 제거
         selectedInstructorIds.delete(userId);
-        // DOM 제거
         tagElement.remove();
-        inputElement.remove();
+        if (inputElement) inputElement.remove();
     }
 
     /* --- 파일 업로드 처리 (썸네일) --- */
-    // 1. 파일 선택 버튼 클릭 이벤트
     const uploadBtns = document.querySelectorAll('.btn-upload');
     uploadBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -222,18 +199,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 2. 파일 변경 이벤트 (프리뷰 표시)
     const fileInputs = document.querySelectorAll('input[type="file"]');
-    
     fileInputs.forEach(input => {
-        // 동적으로 생성된 요소가 아닐 때만 (썸네일 등)
         if (input.closest('.file-upload-container')) {
             input.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 const previewId = e.target.id + '-preview';
                 const previewContainer = document.getElementById(previewId);
                 const fileNameSpan = previewContainer.querySelector('.file-name');
-                // button.btn-upload는 input 바로 다음에 위치
                 const uploadBtn = e.target.nextElementSibling; 
 
                 if (file) {
@@ -251,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetId = this.getAttribute('data-target');
             const input = document.getElementById(targetId);
             const previewContainer = this.parentElement;
-            const uploadBtn = input.nextElementSibling; // button.btn-upload
+            const uploadBtn = input.nextElementSibling; 
 
             input.value = '';
             previewContainer.style.display = 'none';
@@ -259,116 +232,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    /* --- 커리큘럼 빌더 (섹션/챕터 추가) --- */
+    /* --- 커리큘럼 빌더 (섹션/챕터/퀴즈 추가) --- */
     const btnAddSection = document.getElementById('btn-add-section');
     const sectionListContainer = document.getElementById('section-list-container');
     
-    // [Edit Mode] 초기화: 기존 섹션 개수로 시작 인덱스 설정
     let sectionCount = document.querySelectorAll('.section-item').length; 
 
-    // [Edit Mode] 기존 섹션/챕터에 이벤트 리스너 부착
     document.querySelectorAll('.section-item').forEach((sectionItem, sIdx) => {
-        // 섹션 삭제
-        const btnRemoveSection = sectionItem.querySelector('.btn-remove-section');
-        if (btnRemoveSection) {
-            btnRemoveSection.addEventListener('click', function() {
-                if (confirm('섹션을 삭제하시겠습니까? 포함된 챕터도 모두 삭제됩니다.')) {
-                    sectionItem.remove();
-                }
-            });
-        }
-
-        // 챕터 추가 버튼 (기존 섹션용)
-        const btnAddChapter = sectionItem.querySelector('.btn-add-chapter');
-        const chapterList = sectionItem.querySelector('.chapter-list');
-        
-        if (btnAddChapter) {
-            btnAddChapter.addEventListener('click', function() {
-                // 현재 챕터 개수 계산 (인덱스용) -> 단순히 length로 하면 중간 삭제 시 꼬일 수 있으나, 
-                // form submit 시에는 인덱스가 순차적이지 않아도 Spring이 List로 바인딩 시 중간 null을 만들거나
-                // List<List> 구조에서는 인덱스가 중요함.
-                // 여기서는 간단히 timestamp나 uuid 대신 현재 자식 개수를 기준으로 하되, 
-                // 기존 addChapter 로직이 chapterCount를 지역변수로 쓰고 있어서 문제.
-                // 해결: 챕터 추가 시 인덱스를 매번 현재 children.length 등으로 구하거나, 
-                // 각 섹션별로 maxIndex를 관리해야 함.
-                // 가장 쉬운 방법: Date.now()를 인덱스로 쓰면 Spring Binding에서 List Index로 인식 못함 (List는 0,1,2...).
-                // 따라서, 섹션 내의 .chapter-item 개수를 세어서 인덱스로 사용.
-                const currentChapterCount = chapterList.querySelectorAll('.chapter-item').length;
-                // 기존 sIdx는 타임리프 루프 인덱스(0부터 시작). 
-                // 하지만 JS에서 동적으로 추가된 섹션은 sectionCount(기존 개수 + 알파)를 씀.
-                // 기존 섹션의 인덱스를 그대로 써야 함.
-                // sIdx 변수는 forEach의 인덱스이므로 0, 1, 2... 정확함.
-                
-                // 단, 중간에 섹션이 삭제되었다면? forEach 인덱스는 DOM 순서임.
-                // name 속성의 인덱스가 중요함. name="sections[0]..." 
-                // 기존 섹션의 name 속성에서 인덱스를 추출하는 것이 가장 안전함.
-                const sectionInput = sectionItem.querySelector('.section-title-input');
-                const nameMatch = sectionInput.name.match(/sections\[(\d+)\]/);
-                const realSectionIndex = nameMatch ? parseInt(nameMatch[1]) : sIdx;
-
-                // 새 챕터 추가 (인덱스 충돌 방지를 위해 큰 수나 현재 length 사용. 
-                // Spring은 중간 빈 인덱스를 null로 채우므로, 가능한 순차적인 게 좋음)
-                // 기존 챕터가 3개(0,1,2)면 다음은 3.
-                addChapter(chapterList, realSectionIndex, currentChapterCount + Date.now()); // Date.now() 더해서 유니크하게? 아니면 그냥 length?
-                // Spring List 바인딩은 gaps를 허용하지만 리스트 크기가 커짐.
-                // 여기서는 JS로 폼 전송 직전에 인덱스를 재정렬하는 게 베스트지만 복잡함.
-                // 차라리 length로 가고, 겹치지 않게 관리.
-                // 그냥 Date.now()를 쓰면 인덱스가 너무 커져서(메모리 부족) 안됨.
-                // 그냥 length를 쓰되, 기존 요소들의 name 인덱스를 확인해서 max + 1을 찾는 게 안전.
-                
-                let maxIdx = -1;
-                chapterList.querySelectorAll('.chapter-item').forEach(ch => {
-                    const chInput = ch.querySelector('.chapter-title');
-                    const match = chInput.name.match(/chapters\[(\d+)\]/);
-                    if (match) {
-                        const idx = parseInt(match[1]);
-                        if (idx > maxIdx) maxIdx = idx;
-                    }
-                });
-                addChapter(chapterList, realSectionIndex, maxIdx + 1);
-            });
-        }
-
-        // 기존 챕터 이벤트 연결
-        sectionItem.querySelectorAll('.chapter-item').forEach(chapterItem => {
-            // 아코디언
-            const header = chapterItem.querySelector('.chapter-header');
-            header.addEventListener('click', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.classList.contains('btn-remove-chapter')) return;
-                chapterItem.classList.toggle('active');
-            });
-
-            // 삭제
-            chapterItem.querySelector('.btn-remove-chapter').addEventListener('click', function() {
-                chapterItem.remove();
-            });
-
-            // 파일 변경
-            const fileInput = chapterItem.querySelector('input[type="file"]');
-            const fileNameDisplay = chapterItem.querySelector('.file-name-display');
-            const attachBtn = chapterItem.querySelector('.btn-attach-file');
-            
-            if (fileInput) {
-                fileInput.addEventListener('change', function(e) {
-                    if (e.target.files.length > 0) {
-                        fileNameDisplay.textContent = e.target.files[0].name;
-                        attachBtn.textContent = '파일 변경';
-                    } else {
-                        // 파일 취소 시 기존 파일명 복구? 아니면 비움?
-                        // 여기서는 비우는 걸로 (기존 파일 유지 로직은 hidden input이 담당)
-                        // 하지만 사용자가 "파일 선택 -> 취소" 하면 files가 비는데, 
-                        // 이때 hidden input(기존 파일)이 있으면 텍스트를 복구해주는 게 UX상 좋음.
-                        // 복잡하니 패스.
-                        if (!chapterItem.querySelector('input[name*="existingFileName"]').value) {
-                             fileNameDisplay.textContent = '';
-                             attachBtn.textContent = '자료 첨부';
-                        }
-                    }
-                });
-            }
-        });
+        setupSectionEvents(sectionItem, sIdx);
     });
-
 
     if (btnAddSection) {
         btnAddSection.addEventListener('click', function() {
@@ -380,43 +252,91 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentSectionIndex = sectionCount++;
         
         const sectionItem = document.createElement('div');
-        sectionItem.className = 'section-item';
+        sectionItem.className = 'section-item active'; 
         sectionItem.innerHTML = `
             <div class="section-header">
                 <input type="text" name="sections[${currentSectionIndex}].title" class="section-title-input" placeholder="섹션 제목을 입력하세요 (예: 섹션 1. 오리엔테이션)">
                 <button type="button" class="btn-remove-section">삭제</button>
             </div>
-            <div class="chapter-list">
-                <!-- 챕터 아이템들이 여기에 추가됨 -->
+            <div class="section-body">
+                <div class="chapter-list"></div>
+                <button type="button" class="btn-add-chapter" data-section-index="${currentSectionIndex}">+ 챕터 추가</button>
+                <div class="quiz-list"></div>
+                <button type="button" class="btn-add-quiz" data-section-index="${currentSectionIndex}">+ 퀴즈 추가</button>
             </div>
-            <button type="button" class="btn-add-chapter">+ 챕터 추가</button>
         `;
+        
+        sectionListContainer.appendChild(sectionItem);
+        setupSectionEvents(sectionItem, currentSectionIndex);
+    }
 
-        // 섹션 삭제 이벤트
-        sectionItem.querySelector('.btn-remove-section').addEventListener('click', function() {
-            if (confirm('섹션을 삭제하시겠습니까? 포함된 챕터도 모두 삭제됩니다.')) {
-                sectionItem.remove();
-            }
-        });
+    function setupSectionEvents(sectionItem, sectionIndex) {
+        const header = sectionItem.querySelector('.section-header');
+        if (header) {
+            header.addEventListener('click', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.classList.contains('btn-remove-section')) {
+                    return;
+                }
+                sectionItem.classList.toggle('active');
+            });
+        }
 
-        // 챕터 추가 이벤트
+        const btnRemoveSection = sectionItem.querySelector('.btn-remove-section');
+        if (btnRemoveSection) {
+            btnRemoveSection.addEventListener('click', function() {
+                if (confirm('섹션을 삭제하시겠습니까? 포함된 챕터와 퀴즈도 모두 삭제됩니다.')) {
+                    sectionItem.remove();
+                }
+            });
+        }
+
         const btnAddChapter = sectionItem.querySelector('.btn-add-chapter');
         const chapterList = sectionItem.querySelector('.chapter-list');
-        let chapterCount = 0;
+        if (btnAddChapter) {
+            btnAddChapter.addEventListener('click', function() {
+                let maxIdx = -1;
+                chapterList.querySelectorAll('.chapter-item').forEach(ch => {
+                    const chInput = ch.querySelector('.chapter-title');
+                    const match = chInput.name.match(/chapters\[(\d+)\]/);
+                    if (match) {
+                        const idx = parseInt(match[1]);
+                        if (idx > maxIdx) maxIdx = idx;
+                    }
+                });
+                addChapter(chapterList, sectionIndex, maxIdx + 1);
+            });
+        }
 
-        btnAddChapter.addEventListener('click', function() {
-            chapterCount++;
-            addChapter(chapterList, currentSectionIndex, chapterCount - 1); // 인덱스 전달
+        const btnAddQuiz = sectionItem.querySelector('.btn-add-quiz');
+        const quizList = sectionItem.querySelector('.quiz-list');
+        if (btnAddQuiz) {
+            btnAddQuiz.addEventListener('click', function() {
+                 let maxIdx = -1;
+                quizList.querySelectorAll('.quiz-item').forEach(q => {
+                    const qInput = q.querySelector('.quiz-title');
+                    const match = qInput.name.match(/quizzes\[(\d+)\]/);
+                    if (match) {
+                        const idx = parseInt(match[1]);
+                        if (idx > maxIdx) maxIdx = idx;
+                    }
+                });
+                addQuiz(quizList, `sections[${sectionIndex}].quizzes[${maxIdx + 1}]`);
+            });
+        }
+        
+        sectionItem.querySelectorAll('.chapter-item').forEach(chapterItem => {
+            setupChapterEvents(chapterItem);
         });
 
-        sectionListContainer.appendChild(sectionItem);
+        sectionItem.querySelectorAll('.quiz-item').forEach(quizItem => {
+            setupQuizEvents(quizItem);
+        });
     }
 
     function addChapter(container, sectionIndex, chapterIndex) {
         const chapterItem = document.createElement('div');
-        chapterItem.className = 'chapter-item';
+        chapterItem.className = 'chapter-item active'; 
         
-        // 고유 ID 생성 (파일 input 연결용)
         const fileInputId = `file-${sectionIndex}-${chapterIndex}-${Date.now()}`;
 
         chapterItem.innerHTML = `
@@ -435,36 +355,449 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        // 아코디언 토글 이벤트 (헤더 클릭 시)
+        container.appendChild(chapterItem);
+        setupChapterEvents(chapterItem);
+    }
+
+    function setupChapterEvents(chapterItem) {
         const header = chapterItem.querySelector('.chapter-header');
         header.addEventListener('click', function(e) {
-            // 입력창이나 삭제 버튼 클릭 시에는 토글되지 않도록
             if (e.target.tagName === 'INPUT' || e.target.classList.contains('btn-remove-chapter')) {
                 return;
             }
             chapterItem.classList.toggle('active');
         });
 
-        // 챕터 삭제 이벤트
         chapterItem.querySelector('.btn-remove-chapter').addEventListener('click', function() {
             chapterItem.remove();
         });
 
-        // 파일 선택 변경 이벤트 (파일명 표시)
         const fileInput = chapterItem.querySelector('input[type="file"]');
         const fileNameDisplay = chapterItem.querySelector('.file-name-display');
         
-        fileInput.addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                fileNameDisplay.textContent = e.target.files[0].name;
-                chapterItem.querySelector('.btn-attach-file').textContent = '파일 변경';
-            } else {
-                fileNameDisplay.textContent = '';
-                chapterItem.querySelector('.btn-attach-file').textContent = '자료 첨부';
-            }
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    fileNameDisplay.textContent = e.target.files[0].name;
+                    chapterItem.querySelector('.btn-attach-file').textContent = '파일 변경';
+                } else {
+                    if (!chapterItem.querySelector('input[name*="existingFileName"]')?.value) {
+                         fileNameDisplay.textContent = '';
+                         chapterItem.querySelector('.btn-attach-file').textContent = '자료 첨부';
+                    }
+                }
+            });
+        }
+    }
+
+    /* --- 퀴즈 관련 JS --- */
+
+    function addQuiz(container, prefix) {
+        const quizItem = document.createElement('div');
+        quizItem.className = 'quiz-item active'; 
+        
+        quizItem.innerHTML = `
+            <div class="quiz-header">
+                <span class="badge-quiz">QUIZ</span>
+                <input type="text" name="${prefix}.title" class="quiz-input quiz-title" placeholder="퀴즈 제목">
+                <button type="button" class="btn-remove-quiz">×</button>
+            </div>
+            <div class="quiz-body">
+                <div class="question-list"></div>
+                <button type="button" class="btn-add-question">+ 문제 추가</button>
+            </div>
+        `;
+
+        container.appendChild(quizItem);
+        setupQuizEvents(quizItem); 
+    }
+    
+    function setupQuizEvents(quizItem) {
+         const header = quizItem.querySelector('.quiz-header');
+         header.addEventListener('click', function(e) {
+             if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                 return;
+             }
+             quizItem.classList.toggle('active');
+         });
+
+         const btnRemove = quizItem.querySelector('.btn-remove-quiz');
+         if (btnRemove) {
+             btnRemove.addEventListener('click', function() {
+                 if (confirm('퀴즈를 삭제하시겠습니까?')) {
+                     quizItem.remove();
+                 }
+             });
+         }
+
+         const btnAddQuestion = quizItem.querySelector('.btn-add-question');
+         const questionList = quizItem.querySelector('.question-list');
+         
+         const titleInput = quizItem.querySelector('.quiz-title');
+         const prefixMatch = titleInput.name.match(/(.*)\.title/);
+         const quizPrefix = prefixMatch ? prefixMatch[1] : '';
+
+         if (btnAddQuestion && quizPrefix) {
+             btnAddQuestion.addEventListener('click', function() {
+                 let maxIdx = -1;
+                 questionList.querySelectorAll('.question-item').forEach(q => {
+                     const qInput = q.querySelector('.question-input');
+                     const match = qInput.name.match(/questions\[(\d+)\]/);
+                     if (match) {
+                         const idx = parseInt(match[1]);
+                         if (idx > maxIdx) maxIdx = idx;
+                     }
+                 });
+                 addQuestion(questionList, `${quizPrefix}.questions[${maxIdx + 1}]`);
+             });
+         }
+
+         quizItem.querySelectorAll('.question-item').forEach(questionItem => {
+             setupQuestionEvents(questionItem);
+         });
+    }
+
+    function addQuestion(container, prefix) {
+        const questionItem = document.createElement('div');
+        questionItem.className = 'question-item';
+        
+        questionItem.innerHTML = `
+            <div class="question-header">
+                <input type="text" name="${prefix}.content" class="question-input" placeholder="문제 내용">
+                <button type="button" class="btn-remove-question">×</button>
+            </div>
+            <div class="question-body">
+                <textarea name="${prefix}.explanation" class="question-explanation" placeholder="해설을 입력하세요"></textarea>
+                <div class="option-list"></div>
+                <button type="button" class="btn-add-option">+ 보기 추가</button>
+            </div>
+        `;
+        
+        container.appendChild(questionItem);
+        setupQuestionEvents(questionItem);
+    }
+
+    function setupQuestionEvents(questionItem) {
+        questionItem.querySelector('.btn-remove-question').addEventListener('click', function() {
+            questionItem.remove();
         });
 
-        container.appendChild(chapterItem);
+        const btnAddOption = questionItem.querySelector('.btn-add-option');
+        const optionList = questionItem.querySelector('.option-list');
+        
+        const contentInput = questionItem.querySelector('.question-input');
+        const prefixMatch = contentInput.name.match(/(.*)\.content/);
+        const questionPrefix = prefixMatch ? prefixMatch[1] : '';
+
+        if (btnAddOption && questionPrefix) {
+            btnAddOption.addEventListener('click', function() {
+                let maxIdx = -1;
+                optionList.querySelectorAll('.option-item').forEach(o => {
+                    const oInput = o.querySelector('.option-input');
+                    const match = oInput.name.match(/options\[(\d+)\]/);
+                    if (match) {
+                        const idx = parseInt(match[1]);
+                        if (idx > maxIdx) maxIdx = idx;
+                    }
+                });
+                addOption(optionList, `${questionPrefix}.options[${maxIdx + 1}]`, questionPrefix);
+            });
+        }
+        
+        questionItem.querySelectorAll('.option-item').forEach(optionItem => {
+            setupOptionEvents(optionItem, questionPrefix);
+        });
+    }
+
+    function addOption(container, prefix, questionPrefix) {
+        const optionItem = document.createElement('div');
+        optionItem.className = 'option-item';
+        
+        const optionIndexMatch = prefix.match(/options\[(\d+)\]/);
+        const optionIndex = optionIndexMatch ? optionIndexMatch[1] : Date.now();
+        
+        optionItem.innerHTML = `
+            <input type="radio" name="${questionPrefix}.correctOptionIndex" value="${optionIndex}">
+            <input type="hidden" name="${prefix}.isCorrect" class="is-correct-input" value="N">
+            <input type="text" name="${prefix}.content" class="option-input" placeholder="보기 내용">
+            <button type="button" class="btn-remove-option">×</button>
+        `;
+        
+        container.appendChild(optionItem);
+        setupOptionEvents(optionItem, questionPrefix);
+    }
+    
+    function setupOptionEvents(optionItem, questionPrefix) {
+        optionItem.querySelector('.btn-remove-option').addEventListener('click', function() {
+            optionItem.remove();
+        });
+        
+        const radio = optionItem.querySelector('input[type="radio"]');
+        
+        radio.addEventListener('change', function() {
+             const optionList = optionItem.closest('.option-list');
+             optionList.querySelectorAll('.option-item').forEach(item => {
+                 const hidden = item.querySelector('.is-correct-input');
+                 const r = item.querySelector('input[type="radio"]');
+                 if (r.checked) {
+                     hidden.value = 'Y';
+                 } else {
+                     hidden.value = 'N';
+                 }
+             });
+        });
+    }
+
+    /* --- 파이널 퀴즈 --- */
+    const btnCreateFinalQuiz = document.getElementById('btn-create-final-quiz');
+    const finalQuizContainer = document.getElementById('final-quiz-container');
+    
+    if (btnCreateFinalQuiz) {
+        btnCreateFinalQuiz.addEventListener('click', function() {
+            btnCreateFinalQuiz.parentElement.remove();
+            
+            const quizItem = document.createElement('div');
+            quizItem.className = 'quiz-item final-quiz-item active'; 
+            quizItem.innerHTML = `
+                <div class="quiz-header">
+                    <span class="badge-quiz final">FINAL</span>
+                    <input type="text" name="finalQuiz.title" class="quiz-input quiz-title" placeholder="파이널 퀴즈 제목">
+                    <button type="button" class="btn-remove-quiz">×</button>
+                </div>
+                <div class="quiz-body">
+                    <div class="question-list"></div>
+                    <button type="button" class="btn-add-question">+ 문제 추가</button>
+                </div>
+            `;
+            
+            finalQuizContainer.appendChild(quizItem);
+            
+            quizItem.querySelector('.btn-remove-quiz').addEventListener('click', function() {
+                if (confirm('파이널 퀴즈를 삭제하시겠습니까?')) {
+                    finalQuizContainer.innerHTML = `
+                        <div class="empty-final-quiz">
+                            <button type="button" id="btn-create-final-quiz" class="btn-add-quiz final">+ 파이널 퀴즈 생성</button>
+                        </div>
+                    `;
+                    document.getElementById('btn-create-final-quiz').addEventListener('click', createFinalQuiz);
+                }
+            });
+            
+            setupQuizEvents(quizItem);
+        });
+    }
+
+    function createFinalQuiz() {
+         const container = document.getElementById('final-quiz-container');
+         container.innerHTML = '';
+         
+         const quizItem = document.createElement('div');
+         quizItem.className = 'quiz-item final-quiz-item active'; 
+         quizItem.innerHTML = `
+            <div class="quiz-header">
+                <span class="badge-quiz final">FINAL</span>
+                <input type="text" name="finalQuiz.title" class="quiz-input quiz-title" placeholder="파이널 퀴즈 제목">
+                <button type="button" class="btn-remove-quiz">×</button>
+            </div>
+            <div class="quiz-body">
+                <div class="question-list"></div>
+                <button type="button" class="btn-add-question">+ 문제 추가</button>
+            </div>
+         `;
+         container.appendChild(quizItem);
+         setupQuizEvents(quizItem);
+         
+         quizItem.querySelector('.btn-remove-quiz').addEventListener('click', function() {
+            if (confirm('파이널 퀴즈를 삭제하시겠습니까?')) {
+                resetFinalQuizBtn();
+            }
+         });
+    }
+
+    function resetFinalQuizBtn() {
+        const container = document.getElementById('final-quiz-container');
+        container.innerHTML = `
+            <div class="empty-final-quiz">
+                <button type="button" id="btn-create-final-quiz" class="btn-add-quiz final">+ 파이널 퀴즈 생성</button>
+            </div>
+        `;
+        document.getElementById('btn-create-final-quiz').addEventListener('click', createFinalQuiz);
+    }
+    
+    if (btnCreateFinalQuiz) {
+        const clone = btnCreateFinalQuiz.cloneNode(true);
+        btnCreateFinalQuiz.parentNode.replaceChild(clone, btnCreateFinalQuiz);
+        clone.addEventListener('click', createFinalQuiz);
+    }
+    
+    const existingFinalQuiz = document.querySelector('.final-quiz-item');
+    if (existingFinalQuiz) {
+        setupQuizEvents(existingFinalQuiz);
+        existingFinalQuiz.querySelector('.btn-remove-quiz').addEventListener('click', function() {
+             if (confirm('파이널 퀴즈를 삭제하시겠습니까?')) {
+                resetFinalQuizBtn();
+            }
+        });
+    }
+
+    /* --- Form Validation --- */
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const title = form.querySelector('input[name="title"]');
+            if (!title.value.trim()) {
+                alert('강의 제목을 입력하세요.');
+                title.focus();
+                e.preventDefault();
+                return;
+            }
+            
+            const category = form.querySelector('select[name="categoryId"]');
+            if (!category.value) {
+                alert('카테고리를 선택하세요.');
+                category.focus();
+                e.preventDefault();
+                return;
+            }
+            
+            const price = form.querySelector('input[name="price"]');
+            if (!price.value) {
+                alert('가격을 입력하세요.');
+                price.focus();
+                e.preventDefault();
+                return;
+            }
+
+            const sections = document.querySelectorAll('.section-item');
+            if (sections.length === 0) {
+                alert('최소 1개 이상의 섹션이 필요합니다.');
+                e.preventDefault();
+                return;
+            }
+
+            for (let i = 0; i < sections.length; i++) {
+                const section = sections[i];
+                const sectionTitle = section.querySelector('.section-title-input');
+                
+                if (!sectionTitle.value.trim()) {
+                    alert(`섹션 ${i + 1}의 제목을 입력하세요.`);
+                    sectionTitle.focus();
+                    e.preventDefault();
+                    return;
+                }
+
+                const chapters = section.querySelectorAll('.chapter-item');
+                if (chapters.length === 0) {
+                    alert(`섹션 ${i + 1}에 최소 1개 이상의 챕터가 필요합니다.`);
+                    e.preventDefault();
+                    return;
+                }
+
+                for (let j = 0; j < chapters.length; j++) {
+                    const chapter = chapters[j];
+                    const chapterTitle = chapter.querySelector('.chapter-title');
+                    const videoUrl = chapter.querySelector('.chapter-url');
+
+                    if (!chapterTitle.value.trim()) {
+                        alert(`섹션 ${i + 1}, 챕터 ${j + 1}의 제목을 입력하세요.`);
+                        if (!chapter.classList.contains('active')) chapter.classList.add('active');
+                        chapterTitle.focus();
+                        e.preventDefault();
+                        return;
+                    }
+                    if (!videoUrl.value.trim()) {
+                        alert(`섹션 ${i + 1}, 챕터 ${j + 1}의 영상 URL을 입력하세요.`);
+                        if (!chapter.classList.contains('active')) chapter.classList.add('active');
+                        videoUrl.focus();
+                        e.preventDefault();
+                        return;
+                    }
+                }
+                
+                const quizzes = section.querySelectorAll('.quiz-item');
+                for (let k = 0; k < quizzes.length; k++) {
+                    if (!validateQuiz(quizzes[k], `섹션 ${i + 1}의 퀴즈 ${k + 1}`)) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
+            }
+            
+            const finalQuiz = document.querySelector('.final-quiz-item');
+            if (finalQuiz) {
+                if (!validateQuiz(finalQuiz, '파이널 퀴즈')) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+        });
+    }
+
+    function validateQuiz(quizItem, quizName) {
+        const title = quizItem.querySelector('.quiz-title');
+        if (!title.value.trim()) {
+            alert(`${quizName}의 제목을 입력하세요.`);
+            if (!quizItem.classList.contains('active')) quizItem.classList.add('active');
+            title.focus();
+            return false;
+        }
+
+        const questions = quizItem.querySelectorAll('.question-item');
+        if (questions.length === 0) {
+            alert(`${quizName}에 최소 1개 이상의 문제가 필요합니다.`);
+            if (!quizItem.classList.contains('active')) quizItem.classList.add('active');
+            return false;
+        }
+
+        for (let i = 0; i < questions.length; i++) {
+            const q = questions[i];
+            const content = q.querySelector('.question-input');
+            const explanation = q.querySelector('.question-explanation');
+            const options = q.querySelectorAll('.option-item');
+            
+            if (!content.value.trim()) {
+                alert(`${quizName}, 문제 ${i + 1}의 내용을 입력하세요.`);
+                if (!quizItem.classList.contains('active')) quizItem.classList.add('active');
+                content.focus();
+                return false;
+            }
+            
+            if (!explanation.value.trim()) {
+                alert(`${quizName}, 문제 ${i + 1}의 해설을 입력하세요.`);
+                if (!quizItem.classList.contains('active')) quizItem.classList.add('active');
+                explanation.focus();
+                return false;
+            }
+
+            if (options.length < 2) {
+                alert(`${quizName}, 문제 ${i + 1}에 최소 2개 이상의 선택지가 필요합니다.`);
+                if (!quizItem.classList.contains('active')) quizItem.classList.add('active');
+                return false;
+            }
+
+            let hasCorrect = false;
+            for (let j = 0; j < options.length; j++) {
+                const opt = options[j];
+                const optContent = opt.querySelector('.option-input');
+                const radio = opt.querySelector('input[type="radio"]');
+                
+                if (!optContent.value.trim()) {
+                    alert(`${quizName}, 문제 ${i + 1}의 선택지 ${j + 1} 내용을 입력하세요.`);
+                    if (!quizItem.classList.contains('active')) quizItem.classList.add('active');
+                    optContent.focus();
+                    return false;
+                }
+                
+                if (radio.checked) hasCorrect = true;
+            }
+
+            if (!hasCorrect) {
+                alert(`${quizName}, 문제 ${i + 1}의 정답을 선택하세요.`);
+                if (!quizItem.classList.contains('active')) quizItem.classList.add('active');
+                return false;
+            }
+        }
+        return true;
     }
 
 });

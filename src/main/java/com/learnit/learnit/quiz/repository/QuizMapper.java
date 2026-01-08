@@ -9,6 +9,7 @@ import java.util.List;
 @Mapper
 public interface QuizMapper {
     List<Quiz> selectQuizListByCourseId(Long courseId);
+    List<Quiz> selectFullQuizzesByCourseId(Long courseId);
 
     Quiz selectQuizByQuizId(Long quizId);
 
@@ -18,4 +19,21 @@ public interface QuizMapper {
                           @Param("questionId") Long questionId, 
                           @Param("optionId") Long optionId, 
                           @Param("isCorrect") String isCorrect);
+
+    // Admin Methods
+    void insertQuiz(Quiz quiz); // Requires quiz.courseId to be set (not in DTO, need to extend or use map)
+    // Actually Quiz DTO doesn't have courseId.
+    // Let's use @Param for courseId if needed or update Quiz DTO.
+    // But Quiz DTO is in `quiz.dto` package. I shouldn't modify it if it breaks other things.
+    // Use @Param for insertQuiz is better.
+    void insertQuiz(@Param("courseId") Long courseId, @Param("quiz") Quiz quiz);
+
+    void updateQuiz(Quiz quiz);
+    void deleteQuiz(Long quizId);
+
+    void insertQuestion(@Param("quizId") Long quizId, @Param("question") com.learnit.learnit.quiz.dto.Question question);
+    void deleteQuestionsByQuizId(Long quizId);
+
+    void insertOption(@Param("questionId") Long questionId, @Param("option") com.learnit.learnit.quiz.dto.QuizOption option);
+    void deleteOptionsByQuestionId(Long questionId);
 }

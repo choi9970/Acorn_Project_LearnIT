@@ -30,6 +30,25 @@
         WHERE course_id = #{courseId}
     </select>
 
+    <select id="selectFullQuizzesByCourseId" resultMap="QuizResultMap">
+        SELECT
+            q.quiz_id,
+            q.title,
+            q.section_title,
+            q.type,
+            qu.question_id,
+            qu.content AS question_content,
+            qu.explanation,
+            qo.option_id,
+            qo.content AS option_content,
+            qo.is_correct
+        FROM quiz q
+                 LEFT JOIN question qu ON q.quiz_id = qu.quiz_id
+                 LEFT JOIN quiz_option qo ON qu.question_id = qo.question_id
+        WHERE q.course_id = #{courseId}
+        ORDER BY q.quiz_id ASC, qu.question_id ASC, qo.option_id ASC
+    </select>
+
     <select id="selectQuizByQuizId" resultMap="QuizResultMap">
         SELECT
             q.quiz_id,
@@ -60,4 +79,39 @@
         INSERT INTO user_answer (user_id, question_id, sel_option_id, is_correct, answered_at)
         VALUES (#{userId}, #{questionId}, #{optionId}, #{isCorrect}, NOW())
     </insert>
+
+    <insert id="insertQuiz" useGeneratedKeys="true" keyProperty="quiz.quizId">
+        INSERT INTO quiz (course_id, section_title, title, type)
+        VALUES (#{courseId}, #{quiz.sectionTitle}, #{quiz.title}, #{quiz.type})
+    </insert>
+
+    <update id="updateQuiz">
+        UPDATE quiz
+        SET title = #{title},
+            section_title = #{sectionTitle},
+            type = #{type}
+        WHERE quiz_id = #{quizId}
+    </update>
+
+    <delete id="deleteQuiz">
+        DELETE FROM quiz WHERE quiz_id = #{quizId}
+    </delete>
+
+    <insert id="insertQuestion" useGeneratedKeys="true" keyProperty="question.questionId">
+        INSERT INTO question (quiz_id, content, explanation)
+        VALUES (#{quizId}, #{question.questionContent}, #{question.explanation})
+    </insert>
+
+    <delete id="deleteQuestionsByQuizId">
+        DELETE FROM question WHERE quiz_id = #{quizId}
+    </delete>
+
+    <insert id="insertOption" useGeneratedKeys="true" keyProperty="option.optionId">
+        INSERT INTO quiz_option (question_id, content, is_correct)
+        VALUES (#{questionId}, #{option.optionContent}, #{option.isCorrect})
+    </insert>
+
+    <delete id="deleteOptionsByQuestionId">
+        DELETE FROM quiz_option WHERE question_id = #{questionId}
+    </delete>
 </mapper>

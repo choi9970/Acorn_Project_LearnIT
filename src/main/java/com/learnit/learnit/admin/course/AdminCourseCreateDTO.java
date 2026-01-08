@@ -42,11 +42,15 @@ public class AdminCourseCreateDTO {
 
     // 커리큘럼 (섹션 + 챕터)
     private List<SectionRequest> sections;
+    
+    // 파이널 퀴즈
+    private QuizRequest finalQuiz;
 
     @Data
     public static class SectionRequest {
         private String title;
         private List<ChapterRequest> chapters;
+        private List<QuizRequest> quizzes;
     }
 
     @Data
@@ -59,5 +63,27 @@ public class AdminCourseCreateDTO {
         // 기존 파일 정보 (수정 시 사용)
         private String existingFileUrl;
         private String existingFileName;
+    }
+    
+    @Data
+    public static class QuizRequest {
+        private Long quizId;
+        private String title;
+        private List<QuestionRequest> questions;
+    }
+
+    @Data
+    public static class QuestionRequest {
+        private Long questionId;
+        private String content;
+        private String explanation;
+        private List<OptionRequest> options;
+    }
+
+    @Data
+    public static class OptionRequest {
+        private Long optionId;
+        private String content;
+        private String isCorrect; // "Y" or "N"
     }
 }
