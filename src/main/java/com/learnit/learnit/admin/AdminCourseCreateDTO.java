@@ -16,6 +16,10 @@ public class AdminCourseCreateDTO {
     private int price;
     private List<Long> instructorIds; // UI에서 여러 명 선택 가능
     
+    // 화면 표시용 (수정 폼 등)
+    private String instructorName;
+    private String instructorNickname;
+    
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
     
@@ -31,6 +35,10 @@ public class AdminCourseCreateDTO {
     // 파일 경로 (DB 저장용)
     private String thumbnailUrl;
     private String detailImgUrl;
+    
+    // 화면 표시용 파일명
+    private String thumbnailFileName;
+    private String detailThumbnailFileName;
 
     // 커리큘럼 (섹션 + 챕터)
     private List<SectionRequest> sections;
@@ -43,8 +51,13 @@ public class AdminCourseCreateDTO {
 
     @Data
     public static class ChapterRequest {
+        private Long chapterId; // 수정 시 식별용
         private String title;
         private String videoUrl;
         private MultipartFile file; // 챕터 자료 파일
+        
+        // 기존 파일 정보 (수정 시 사용)
+        private String existingFileUrl;
+        private String existingFileName;
     }
 }

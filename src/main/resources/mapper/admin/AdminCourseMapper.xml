@@ -88,4 +88,118 @@
         )
     </insert>
 
+    <select id="selectCourseById" resultType="com.learnit.learnit.admin.AdminCourseDetailDTO">
+        SELECT
+            c.course_id      AS courseId,
+            c.title          AS title,
+            c.description    AS description,
+            c.category_id    AS categoryId,
+            c.price          AS price,
+            c.user_id        AS instructorId,
+            u.name           AS instructorName,
+            u.nickname       AS instructorNickname,
+            c.open_start     AS startDate,
+            c.open_end       AS endDate,
+            c.thumbnail_url  AS thumbnailUrl,
+            c.detail_img_url AS detailImgUrl,
+            c.status         AS status
+        FROM course c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        WHERE c.course_id = #{courseId} AND c.delete_flg = 0
+    </select>
+
+    <resultMap id="ChapterResultMap" type="com.learnit.learnit.admin.AdminChapterDTO">
+        <id property="chapterId" column="chapter_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="sectionTitle" column="section_title"/>
+        <result property="title" column="title"/>
+        <result property="orderIndex" column="order_index"/>
+        <result property="videoUrl" column="video_url"/>
+        <collection property="resources" ofType="com.learnit.learnit.admin.AdminChapterResourceDTO">
+            <result property="resourceId" column="resource_id"/>
+            <result property="fileUrl" column="file_url"/>
+            <result property="originalFilename" column="resource_title"/>
+            <result property="fileType" column="file_type"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectChaptersWithResources" resultMap="ChapterResultMap">
+        SELECT
+            ch.chapter_id,
+            ch.course_id,
+            ch.section_title,
+            ch.title,
+            ch.order_index,
+            ch.video_url,
+            res.resource_id,
+            res.title as resource_title,
+            res.file_url,
+            res.file_type
+        FROM chapter ch
+        LEFT JOIN chapter_resource res ON ch.chapter_id = res.chapter_id
+        WHERE ch.course_id = #{courseId}
+        ORDER BY ch.order_index ASC
+    </select>
+    
+    <update id="updateCourse">
+        UPDATE course
+        SET
+            title = #{title},
+            description = #{description},
+            category_id = #{categoryId},
+            price = #{price},
+            user_id = <choose>
+                <when test="instructorIds != null and !instructorIds.isEmpty()">
+                    #{instructorIds[0]}
+                </when>
+                <otherwise>NULL</otherwise>
+            </choose>,
+            open_start = #{startDate},
+            open_end = #{endDate},
+            thumbnail_url = #{thumbnailUrl},
+            detail_img_url = #{detailImgUrl},
+            updated_at = NOW()
+        WHERE course_id = #{courseId}
+    </update>
+
+    <delete id="deleteChapterResourcesByCourseId">
+        DELETE FROM chapter_resource
+        WHERE chapter_id IN (
+            SELECT chapter_id FROM chapter WHERE course_id = #{courseId}
+        )
+    </delete>
+
+    <delete id="deleteChaptersByCourseId">
+        DELETE FROM chapter WHERE course_id = #{courseId}
+    </delete>
+
+    <update id="updateChapter">
+        UPDATE chapter
+        SET section_title = #{sectionTitle},
+            title = #{title},
+            order_index = #{orderIndex},
+            video_url = #{videoUrl}
+        WHERE chapter_id = #{chapterId}
+    </update>
+
+    <delete id="deleteChapter">
+        DELETE FROM chapter WHERE chapter_id = #{chapterId}
+    </delete>
+
+    <update id="updateChapterResource">
+        UPDATE chapter_resource
+        SET title = #{title},
+            file_url = #{fileUrl},
+            file_type = #{fileType}
+        WHERE resource_id = #{resourceId}
+    </update>
+
+    <delete id="deleteChapterResource">
+        DELETE FROM chapter_resource WHERE resource_id = #{resourceId}
+    </delete>
+
+    <delete id="deleteChapterResourcesByChapterId">
+        DELETE FROM chapter_resource WHERE chapter_id = #{chapterId}
+    </delete>
+
 </mapper>

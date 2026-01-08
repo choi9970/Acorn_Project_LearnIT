@@ -19,10 +19,11 @@
 <section th:fragment="content">
     <div class="admin-form-container">
         <div class="form-header">
-            <h2>강의 등록</h2>
+            <h2 th:text="${isEdit} ? '강의 수정' : '강의 등록'">강의 등록</h2>
         </div>
 
-        <form action="/admin/course/create" method="post" enctype="multipart/form-data">
+        <form th:action="${isEdit} ? @{/admin/course/{id}/edit(id=${course.courseId})} : @{/admin/course/create}" 
+              method="post" enctype="multipart/form-data" th:object="${course != null ? course : new com.learnit.learnit.admin.AdminCourseCreateDTO()}">
             
             <!-- 탭 네비게이션 -->
             <div class="form-tabs">

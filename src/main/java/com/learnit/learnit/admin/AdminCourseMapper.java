@@ -27,4 +27,24 @@ public interface AdminCourseMapper {
                                @Param("title") String title,
                                @Param("fileUrl") String fileUrl,
                                @Param("fileType") String fileType);
+
+    AdminCourseDetailDTO selectCourseById(Long courseId);
+    
+    List<AdminChapterDTO> selectChaptersWithResources(Long courseId);
+    
+    void updateCourse(AdminCourseCreateDTO course);
+    
+    void deleteChapterResourcesByCourseId(Long courseId);
+
+    void deleteChaptersByCourseId(Long courseId);
+    
+    // Smart Update methods
+    void updateChapter(AdminChapterInsertDTO chapter);
+    void deleteChapter(Long chapterId);
+    void updateChapterResource(@Param("resourceId") Long resourceId, 
+                               @Param("title") String title,
+                               @Param("fileUrl") String fileUrl,
+                               @Param("fileType") String fileType);
+    void deleteChapterResource(Long resourceId);
+    void deleteChapterResourcesByChapterId(Long chapterId);
 }

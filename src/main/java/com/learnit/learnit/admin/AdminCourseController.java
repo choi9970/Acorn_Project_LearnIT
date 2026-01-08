@@ -107,4 +107,33 @@ public class AdminCourseController {
         }
         return "redirect:/admin/course";
     }
+
+    @GetMapping("/{courseId}/edit")
+    public String editCourseForm(@PathVariable Long courseId, Model model) {
+        try {
+            AdminCourseCreateDTO course = adminCourseService.getCourseDetail(courseId);
+            model.addAttribute("course", course);
+            model.addAttribute("categories", categoryService.getCategoryList());
+            // 수정 모드임을 뷰에 알림
+            model.addAttribute("isEdit", true);
+            
+            return "admin/adminCourseForm";
+        } catch (Exception e) {
+            log.error("강의 수정 폼 로딩 실패", e);
+            return "redirect:/admin/course";
+        }
+    }
+
+    @PostMapping("/{courseId}/edit")
+    public String updateCourse(@PathVariable Long courseId, AdminCourseCreateDTO dto, RedirectAttributes redirectAttributes) {
+        try {
+            log.info("강의 수정 요청: courseId={}, dto={}", courseId, dto);
+            adminCourseService.updateCourse(courseId, dto);
+            redirectAttributes.addFlashAttribute("successMessage", "강의가 성공적으로 수정되었습니다.");
+        } catch (Exception e) {
+            log.error("강의 수정 실패: error={}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMessage", "강의 수정 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/course";
+    }
 }
