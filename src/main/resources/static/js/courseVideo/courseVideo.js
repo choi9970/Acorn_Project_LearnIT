@@ -347,16 +347,16 @@ function loadQuiz(chapterId) {
 function startQuizLogic() {
     if (!state.quizData?.questions?.length) return alert("퀴즈 데이터를 불러올 수 없습니다.");
     showStep('question');
-    renderQuestion();
+    renderQuizQuestion();
 }
 
-function renderQuestion() {
+function renderQuizQuestion() {
     state.isGraded = false;
     const question = state.quizData.questions[state.currentQIndex];
 
     document.getElementById('total-q-count').innerText = state.quizData.questions.length;
     document.getElementById('current-q-num').innerText = state.currentQIndex + 1;
-    document.getElementById('question-content').innerText = question.content;
+    document.getElementById('question-content').innerText = question.questionContent;
 
     const expText = question.explanation ? question.explanation : "별도의 해설이 없습니다.";
     document.getElementById('explanation-text').innerText = expText;
@@ -369,7 +369,7 @@ function renderQuestion() {
     question.options.forEach(opt => {
         const btn = document.createElement('div');
         btn.className = 'option-item';
-        btn.innerText = opt.content;
+        btn.innerText = opt.optionContent;
         btn.onclick = () => {
             if (!state.isGraded) selectOption(btn, question.questionId, opt.optionId);
         };
@@ -436,7 +436,7 @@ function nextQuestion() {
     if (state.currentQIndex === state.quizData.questions.length - 1) submitQuizFinal();
     else {
         state.currentQIndex++;
-        renderQuestion();
+        renderQuizQuestion();
     }
 }
 
@@ -453,7 +453,7 @@ function showQuizResultUI() {
     if (finalQuizId && String(currentQuizId) === String(finalQuizId)) {
         btn.innerText = "수강 완료 (메인으로)";
         btn.style.backgroundColor = "#333";
-        btn.onclick = () => { location.href = `/course/detail?courseId=${state.courseId}` };
+        btn.onclick = () => { location.href = '/' };
         document.getElementById('is-final-submitted').value = 'true';
     }
     // 2. 마지막 섹션 퀴즈 (다음 강의 없음)

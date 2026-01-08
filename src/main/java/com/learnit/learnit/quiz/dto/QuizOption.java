@@ -4,6 +4,6 @@ import lombok.Data;
 @Data
 public class QuizOption {
     private Long optionId;
-    private String content;
+    private String optionContent;
     private String isCorrect;
 }

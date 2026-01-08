@@ -10,11 +10,11 @@
         <result property="type" column="type"/>
         <collection property="questions" ofType="com.learnit.learnit.quiz.dto.Question">
             <id property="questionId" column="question_id"/>
-            <result property="content" column="question_content"/>
+            <result property="questionContent" column="question_content"/>
             <result property="explanation" column="explanation"/>
             <collection property="options" ofType="com.learnit.learnit.quiz.dto.QuizOption">
                 <id property="optionId" column="option_id"/>
-                <result property="content" column="option_content"/>
+                <result property="optionContent" column="option_content"/>
                 <result property="isCorrect" column="is_correct"/>
             </collection>
         </collection>

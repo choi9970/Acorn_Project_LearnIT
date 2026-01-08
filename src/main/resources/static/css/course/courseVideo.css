@@ -618,17 +618,31 @@ body {
    7. Responsive (Mobile <= 768px)
    ========================================= */
 @media (max-width: 768px) {
-    .main-container { flex-direction: column; padding-bottom: 70px; }
+    .main-container {
+        flex-direction: column;
+        padding-bottom: 70px;
+        height: calc(100vh - 60px); /* 헤더 제외 전체 높이 */
+    }
     .header-right { gap: 2px; }
 
     .side-panel-wrapper {
-        position: relative; width: 100% !important; height: 0;
-        border-left: none; border-top: 1px solid #ddd;
-        border-radius: 20px 20px 0 0; transition: height 0.3s ease-in-out;
-        order: 2; z-index: 200;
+        position: relative;
+        width: 100% !important;
+        height: 0;
+        display: none; /* 기본 상태에서 숨김 */
+        border-left: none;
+        border-top: 1px solid #ddd;
+        border-radius: 20px 20px 0 0;
+        transition: height 0.3s ease-in-out;
+        z-index: 200;
+        background-color: #ffffff;
+        flex-shrink: 0; /* 높이 고정 유지 */
     }
-    .side-panel-wrapper.open { height: 45vh; }
-    .panel-content-box { width: 100%; }
+    .side-panel-wrapper.open {
+        display: flex; /* 열렸을 때만 표시 */
+        height: 50%;   /* 부모 높이의 50% */
+    }
+    .panel-content-box { width: 100%; height: 100%; }
 
     .right-sidebar {
         position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
@@ -646,12 +660,21 @@ body {
     .console-area { flex: 1; min-height: 120px; }
 
     .video-section {
+        flex: 1;            /* 남은 공간 모두 차지 */
+        min-height: 0;      /* 패널이 열릴 때 줄어들 수 있도록 설정 */
         padding: 10px;
-        justify-content: flex-start; /* 모바일은 위에서부터 배치 */
+        justify-content: center;
+        background-color: #000; /* 영상 배경 검은색 */
+        display: flex;
+        align-items: center;
+    }
+
+    .video-wrapper {
+        max-height: 100%;   /* 부모 크기를 넘지 않도록 */
     }
 
     .video-wrapper.quiz-active {
-        min-height: 370px; /* 모바일 폰 높이에 맞춘 최소 세로폭 */
+        min-height: 200px;  /* 패널이 열렸을 때 최소 높이 */
     }
 
     /* [모바일 퀴즈 수정] 모바일 전용 최소 크기 설정 */
@@ -913,7 +936,7 @@ body {
 
 /* 사이드 패널이 화면 높이를 갖도록 */
 .side-panel-wrapper {
-  height: 100vh;
+  /* height: 100vh; */
 }
 
 /* 패널 박스는 세로 레이아웃 */
