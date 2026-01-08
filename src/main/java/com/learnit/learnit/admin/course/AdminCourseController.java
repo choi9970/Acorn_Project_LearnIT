@@ -1,4 +1,4 @@
-package com.learnit.learnit.admin;
+package com.learnit.learnit.admin.course;
 
 import com.learnit.learnit.category.CategoryService;
 import com.learnit.learnit.user.dto.UserDTO;

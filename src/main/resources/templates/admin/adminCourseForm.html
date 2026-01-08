@@ -23,7 +23,7 @@
         </div>
 
         <form th:action="${isEdit} ? @{/admin/course/{id}/edit(id=${course.courseId})} : @{/admin/course/create}" 
-              method="post" enctype="multipart/form-data" th:object="${course != null ? course : new com.learnit.learnit.admin.AdminCourseCreateDTO()}">
+              method="post" enctype="multipart/form-data" th:object="${course != null ? course : new com.learnit.learnit.admin.course.AdminCourseCreateDTO()}">
             
             <!-- 탭 네비게이션 -->
             <div class="form-tabs">

@@ -1,4 +1,4 @@
-package com.learnit.learnit.admin;
+package com.learnit.learnit.admin.course;
 
 import lombok.Data;
 import java.time.LocalDate;

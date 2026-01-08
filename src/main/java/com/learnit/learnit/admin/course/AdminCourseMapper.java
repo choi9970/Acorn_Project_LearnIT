@@ -1,5 +1,7 @@
-package com.learnit.learnit.admin;
+package com.learnit.learnit.admin.course;
 
+import com.learnit.learnit.admin.AdminChapterDTO;
+import com.learnit.learnit.admin.AdminChapterInsertDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

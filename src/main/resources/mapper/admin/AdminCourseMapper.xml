@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.learnit.learnit.admin.AdminCourseMapper">
+<mapper namespace="com.learnit.learnit.admin.course.AdminCourseMapper">
 
-    <select id="selectCourses" resultType="com.learnit.learnit.admin.AdminCourse">
+    <select id="selectCourses" resultType="com.learnit.learnit.admin.course.AdminCourse">
         SELECT
             c.course_id      AS courseId,
             c.title          AS title,
@@ -54,7 +54,7 @@
         WHERE course_id = #{courseId}
     </update>
 
-    <insert id="insertCourse" parameterType="com.learnit.learnit.admin.AdminCourseCreateDTO" useGeneratedKeys="true" keyProperty="courseId">
+    <insert id="insertCourse" parameterType="com.learnit.learnit.admin.course.AdminCourseCreateDTO" useGeneratedKeys="true" keyProperty="courseId">
         INSERT INTO course (
             title, description, category_id, price, user_id,
         open_start, open_end, status, created_at, updated_at,
@@ -88,7 +88,7 @@
         )
     </insert>
 
-    <select id="selectCourseById" resultType="com.learnit.learnit.admin.AdminCourseDetailDTO">
+    <select id="selectCourseById" resultType="com.learnit.learnit.admin.course.AdminCourseDetailDTO">
         SELECT
             c.course_id      AS courseId,
             c.title          AS title,

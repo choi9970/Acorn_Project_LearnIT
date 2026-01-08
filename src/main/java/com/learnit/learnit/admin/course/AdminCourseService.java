@@ -1,6 +1,8 @@
-package com.learnit.learnit.admin;
+package com.learnit.learnit.admin.course;
 
-import com.learnit.learnit.category.CategoryService;
+import com.learnit.learnit.admin.AdminChapterDTO;
+import com.learnit.learnit.admin.AdminChapterInsertDTO;
+import com.learnit.learnit.admin.AdminChapterResourceDTO;
 import com.learnit.learnit.user.dto.UserDTO;
 import com.learnit.learnit.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
