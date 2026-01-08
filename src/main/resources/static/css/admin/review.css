@@ -48,62 +48,70 @@
 }
 
 /* 필터 섹션 */
-.review-filters {
-    margin-bottom: 2rem;
-    padding: 1.6rem;
+.admin-review-container .filters {
     background: #f8f9fa;
-    border-radius: 0.8rem;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
 }
 
-.filter-form {
+.admin-review-container .filter-form {
     display: flex;
-    gap: 1.2rem;
     align-items: center;
-    flex-wrap: wrap;
+    gap: 10px;
+    flex-wrap: nowrap;
+    min-width: 0;
 }
 
-.filter-select,
-.search-input {
-    padding: 0.8rem 1.2rem;
-    font-size: 1.2rem;
+.admin-review-container .filter-select {
+    padding: 10px 12px;
     border: 1px solid #d5dbe3;
-    border-radius: 0.6rem;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 140px;
+    flex: 0 0 auto;
+    background: #fff;
 }
 
-.search-input {
-    flex: 1;
-    min-width: 300px;
+.admin-review-container .search-input {
+    padding: 10px 12px;
+    border: 1px solid #d5dbe3;
+    border-radius: 8px;
+    font-size: 14px;
+    flex: 1 1 auto;
+    min-width: 0;
+    background: #fff;
 }
 
-.btn-search,
-.btn-reset {
-    padding: 0.8rem 1.6rem;
-    font-size: 1.2rem;
-    font-weight: 600;
+/* 버튼 */
+.admin-review-container .btn-search,
+.admin-review-container .btn-reset {
     border: none;
-    border-radius: 0.6rem;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 800;
     cursor: pointer;
     text-decoration: none;
-    display: inline-block;
-    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    height: 40px;
+    line-height: 1;
 }
 
-.btn-search {
-    background-color: #0A4A7A;
+.admin-review-container .btn-search {
+    background: #0A4A7A;
     color: #fff;
 }
 
-.btn-search:hover {
-    background-color: #083d63;
-}
-
-.btn-reset {
-    background-color: #6c757d;
+.admin-review-container .btn-reset {
+    background: #6c757d;
     color: #fff;
 }
 
-.btn-reset:hover {
-    background-color: #5a6268;
+.admin-review-container .btn-reset:hover {
+    filter: brightness(0.95);
 }
 
 /* 리뷰 테이블 */
@@ -767,7 +775,7 @@ textarea.form-control {
         padding: 1.2rem;
     }
     
-    .search-input {
+    .admin-review-container .search-input {
         min-width: 100%;
     }
     

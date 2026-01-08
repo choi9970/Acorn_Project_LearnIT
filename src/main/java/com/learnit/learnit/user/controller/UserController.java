@@ -83,12 +83,12 @@ public class UserController {
             session.removeAttribute("GUEST_CART_COURSE_IDS");
         }
 
-        // 관리자 계정인 경우 관리자 페이지로 리다이렉트 (최우선) - ADMIN 또는 SUB_ADMIN
+        // 관리자 계정인 경우 메인 페이지로 리다이렉트 - ADMIN 또는 SUB_ADMIN
         String userRole = user.getRole();
         if (userRole != null && ("ADMIN".equals(userRole.trim()) || "SUB_ADMIN".equals(userRole.trim()))) {
-            // 관리자는 redirect 파라미터 무시하고 항상 관리자 홈으로
+            // 관리자는 redirect 파라미터 무시하고 항상 메인 페이지로
             session.removeAttribute("REDIRECT_AFTER_LOGIN");
-            return "redirect:/admin/home";
+            return "redirect:/home";
         }
 
         // ✅ redirect 우선 (안전한 경로만 허용)
@@ -199,10 +199,10 @@ public class UserController {
         
         // ACTIVE 상태면 이미 가입 완료된 사용자이므로 홈으로 리다이렉트
         if (User.STATUS_ACTIVE.equals(user.getStatus())) {
-            // 관리자 계정인 경우 관리자 페이지로 리다이렉트
+            // 관리자 계정인 경우 메인 페이지로 리다이렉트 - ADMIN 또는 SUB_ADMIN
             String userRole = user.getRole();
-            if (userRole != null && "ADMIN".equals(userRole.trim())) {
-                return "redirect:/admin/home";
+            if (userRole != null && ("ADMIN".equals(userRole.trim()) || "SUB_ADMIN".equals(userRole.trim()))) {
+                return "redirect:/home";
             }
             return "redirect:/home";
         }
@@ -239,10 +239,10 @@ public class UserController {
             // 세션 갱신 (ACTIVE 상태로 변경된 사용자 정보로)
             sessionService.setLoginSession(session, updatedUser);
             
-            // 관리자 계정인 경우 관리자 페이지로 리다이렉트
+            // 관리자 계정인 경우 메인 페이지로 리다이렉트 - ADMIN 또는 SUB_ADMIN
             String userRole = updatedUser.getRole();
-            if (userRole != null && "ADMIN".equals(userRole.trim())) {
-                return "redirect:/admin/home";
+            if (userRole != null && ("ADMIN".equals(userRole.trim()) || "SUB_ADMIN".equals(userRole.trim()))) {
+                return "redirect:/home";
             }
             
             return "redirect:/home";

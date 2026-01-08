@@ -28,7 +28,7 @@
     <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
     <!-- 검색 및 필터 -->
-    <div class="review-filters">
+    <div class="filters">
       <form method="get" action="/admin/review" class="filter-form" id="filterForm">
         <input type="hidden" name="commentStatus" th:value="${currentCommentStatus}">
         <select name="searchType" class="filter-select">
@@ -99,15 +99,11 @@
             <td th:text="${review.reviewId}">1</td>
             <td th:text="${review.courseId}">1</td>
             <td onclick="event.stopPropagation();">
-              <a th:href="@{'/admin/review/' + ${review.reviewId}}" class="course-link" 
+              <a th:if="${review.courseId != null}"
+                 th:href="@{'/CourseDetail?courseId=' + ${review.courseId}}" 
+                 class="course-link" 
                  th:text="${review.courseTitle != null ? review.courseTitle : '강의명 없음'}">강의명</a>
-              <span th:if="${review.courseId != null}">
-                <a th:href="@{'/CourseDetail?courseId=' + ${review.courseId}}" 
-                   target="_blank" 
-                   class="course-detail-link">
-                  [강의 상세보기]
-                </a>
-              </span>
+              <span th:if="${review.courseId == null}" th:text="${review.courseTitle != null ? review.courseTitle : '강의명 없음'}">강의명</span>
             </td>
             <td th:text="${review.userName != null ? review.userName : '작성자 없음'}">작성자</td>
             <td>
