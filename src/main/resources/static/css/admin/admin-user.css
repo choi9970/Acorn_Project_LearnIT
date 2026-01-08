@@ -1,0 +1,413 @@
+/* ===============================
+   Admin Role Page (coupon-style)
+=============================== */
+.admin-role{
+    padding: 2.4rem;
+}
+.admin-role-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* section card */
+.role-section {
+  background: #fff;
+  border: 1px solid #e9edf3;
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 6px 20px rgba(16, 24, 40, 0.06);
+}
+
+.managed {
+    display: flex;
+    flex-direction: column; /* 세로 정렬 */
+    align-items: left;
+    gap: 4px;
+}
+
+.sub-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+/* select 박스 고정 */
+.course-select {
+  flex: 1;                /* 남은 영역 차지 */
+  min-width: 0;           /* ⭐ flex overflow 핵심 */
+  max-width: 280px;       /* 👉 원하는 고정 폭 */
+  height: 36px;
+  padding: 6px 10px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* + 버튼 */
+.btn-course-add {
+  flex-shrink: 0;         /* ⭐ 줄어들지 않게 */
+  width: 36px;
+  height: 36px;
+
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+
+/* title */
+.section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0A4A7A;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+/* ===============================
+   Search / Toolbar
+=============================== */
+
+.admin-role-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px;
+  border: 1px solid #edf1f7;
+  border-radius: 12px;
+  background: #fafbff;
+}
+
+.admin-role-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-role-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* inputs */
+.admin-role-toolbar select,
+.admin-role-toolbar input {
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #d9e1ee;
+  background: #fff;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+}
+
+.admin-role-toolbar input {
+  min-width: 240px;
+}
+
+.admin-role-toolbar select:focus,
+.admin-role-toolbar input:focus {
+  border-color: #7c87ff;
+  box-shadow: 0 0 0 3px rgba(124, 135, 255, 0.18);
+}
+
+/* buttons */
+#btnSearch,
+.btn-reset {
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.04s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+#btnSearch {
+  background: #4f46e5;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.18);
+}
+
+#btnSearch:hover { opacity: 0.95; }
+#btnSearch:active { transform: translateY(1px); }
+
+.btn-reset {
+  background: #fff;
+  color: #374151;
+  border-color: #d9e1ee;
+}
+
+.btn-reset:hover {
+  background: #f6f8ff;
+}
+
+.btn-reset:active { transform: translateY(1px); }
+
+/* applied filter chips */
+.applied-filters {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.applied-filters:empty {
+  display: none;
+}
+
+.applied-filters .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid #e6eaf3;
+  background: #f7f9ff;
+  font-size: 12.5px;
+  color: #374151;
+}
+
+.applied-filters .chip button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ===============================
+   Table
+=============================== */
+
+.table-wrapper {
+  margin-top: 12px;
+  border: 1px solid #edf1f7;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.admin-role-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.admin-role-table thead  {
+  position: sticky; /* 옵션: 스크롤 영역 있으면 유용 */
+  top: 0;
+  background: #f7f9fc;
+  color: #111827;
+  font-weight: 700;
+  text-align: left;
+  padding: 12px 12px;
+  border-bottom: 1px solid #edf1f7;
+  white-space: nowrap;
+}
+
+.admin-role-table tbody td {
+  padding: 12px 12px;
+  border-bottom: 1px solid #f0f3f8;
+  color: #111827;
+  vertical-align: middle;
+}
+
+.admin-role-table tbody tr:hover td {
+  background: #fbfcff;
+}
+
+/* ID column slightly muted */
+.admin-role-table td:first-child {
+  color: #4b5563;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===============================
+   Column Filter UI
+   - [PATCH] filter-popup을 body로 이동+fixed로 띄우는 JS 패치와 함께 사용
+   - 중복 .filter-popup 블록 제거(정리)
+=============================== */
+
+.th-filter {
+  position: relative;
+}
+
+.filter-btn {
+  margin-left: 8px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #d9e1ee;
+  background: #fff;
+  color: #374151;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  background: #f6f8ff;
+}
+
+/* ✅ 단일 정의로 통합 (중복 제거) */
+.filter-popup {
+  display: none;
+
+  /* JS(showPopup)에서 top/left를 넣기 때문에 기본은 fixed만 */
+  position: fixed;
+  width: 240px;
+
+  background: #fff;
+  opacity: 1;
+  border: 1px solid #e5e9f2;
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+
+  /* 합성/비침 방지(브라우저 케이스 대응) */
+  isolation: isolate;
+  filter: none;
+  backdrop-filter: none;
+  transform: translateZ(0);
+
+  z-index: 999999;
+}
+
+.filter-popup .filter-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.filter-popup .filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-popup label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #111827;
+  cursor: pointer;
+}
+
+/* popup 내부 요소가 기존 JS에서 생성될 수 있어 기본 스타일만 */
+.filter-popup input[type="text"],
+.filter-popup input[type="search"] {
+  width: 100%;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #d9e1ee;
+  padding: 0 10px;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.filter-popup .filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.filter-popup button {
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #d9e1ee;
+  background: #fff;
+  cursor: pointer;
+  padding: 0 12px;
+  font-weight: 600;
+}
+
+.filter-popup button.primary {
+  background: #4f46e5;
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ===============================
+   Pagination / Total Count
+=============================== */
+
+.admin-pagination {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.admin-pagination a,
+.admin-pagination button,
+.admin-pagination .page-item {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid #d9e1ee;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.admin-pagination a:hover,
+.admin-pagination button:hover {
+  background: #f6f8ff;
+}
+
+.admin-pagination .active,
+.admin-pagination a.active {
+  background: #4f46e5;
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.18);
+}
+
+.admin-total-count {
+  margin-top: 10px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* ===============================
+   Responsive
+=============================== */
+
+@media (max-width: 720px) {
+  .admin-role-toolbar {
+    padding: 10px;
+  }
+
+  .admin-role-toolbar input {
+    min-width: 160px;
+    flex: 1;
+  }
+
+  #btnSearch,
+  .btn-reset {
+    width: 100%;
+  }
+}

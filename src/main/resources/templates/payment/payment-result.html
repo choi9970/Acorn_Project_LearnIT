@@ -35,7 +35,7 @@
                 </dl>
                 <dl>
                     <dt>결제 금액</dt>
-                    <dd th:text="${#numbers.formatInteger(order.totalPrice,3,'COMMA')} + '원'">0원</dd>
+                    <dd th:text="${#numbers.formatInteger(order.totalPrice,0,'COMMA')} + '원'">0원</dd>
                 </dl>
                 <dl>
                     <dt>결제 수단</dt>

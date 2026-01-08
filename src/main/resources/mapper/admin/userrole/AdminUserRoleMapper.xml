@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.admin.userrole.AdminUserRoleMapper">
+
+    <select id="isGlobalAdmin" resultType="int">
+        SELECT COUNT(*)
+        FROM admin_user_role aur
+        JOIN admin_role ar ON ar.admin_role_id = aur.admin_role_id
+        WHERE aur.user_id = #{userId}
+        AND ar.code = 'ADMIN'
+    </select>
+
+    <select id="findAdminRoleIdByCode" resultType="int">
+        SELECT admin_role_id
+        FROM admin_role
+        WHERE code = #{code}
+    </select>
+
+    <select id="findUserPolicy" resultType="map">
+        SELECT
+        user_id AS userId,
+        status  AS status,
+        role    AS role,
+        provider AS provider
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
+    <sql id="userSearchWhere">
+        <where>
+            <if test="type == 'email' and keyword != null and keyword != ''">
+                AND email LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'name' and keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'userId' and keyword != null and keyword != ''">
+                AND user_id = #{keyword}
+            </if>
+
+            <!-- ✅ 상태/권한 필터(다중 선택) -->
+            <if test="statuses != null and statuses.size() > 0">
+                AND status IN
+                <foreach collection="statuses" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
+            </if>
+            <if test="roles != null and roles.size() > 0">
+                AND role IN
+                <foreach collection="roles" item="r" open="(" separator="," close=")">
+                    #{r}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <select id="countUsers" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        <include refid="userSearchWhere"/>
+    </select>
+
+    <select id="searchUsers" resultType="map">
+        SELECT
+        user_id AS userId,
+        name    AS name,
+        email   AS email,
+        status  AS status,
+        role    AS role,
+        provider AS provider
+        FROM users
+        <include refid="userSearchWhere"/>
+        ORDER BY user_id DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- ✅ 필터 목록 (전체 결과 기준) -->
+    <select id="groupUsersByStatus" resultType="map">
+        SELECT
+        status AS value,
+        COUNT(*) AS cnt
+        FROM users
+        <where>
+            <if test="type == 'email' and keyword != null and keyword != ''">
+                AND email LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'name' and keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'userId' and keyword != null and keyword != ''">
+                AND user_id = #{keyword}
+            </if>
+            <!-- status facet에서는 'roles'만 반영(roles 필터 ON 상태 유지) -->
+            <if test="roles != null and roles.size() > 0">
+                AND role IN
+                <foreach collection="roles" item="r" open="(" separator="," close=")">
+                    #{r}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY status
+        ORDER BY cnt DESC
+    </select>
+
+    <select id="groupUsersByRole" resultType="map">
+        SELECT
+        role AS value,
+        COUNT(*) AS cnt
+        FROM users
+        <where>
+            <if test="type == 'email' and keyword != null and keyword != ''">
+                AND email LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'name' and keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="type == 'userId' and keyword != null and keyword != ''">
+                AND user_id = #{keyword}
+            </if>
+            <!-- role facet에서는 'statuses'만 반영(statuses 필터 ON 상태 유지) -->
+            <if test="statuses != null and statuses.size() > 0">
+                AND status IN
+                <foreach collection="statuses" item="s" open="(" separator="," close=")">
+                    #{s}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY role
+        ORDER BY cnt DESC
+    </select>
+
+    <select id="findManagedCourses" resultType="map">
+        SELECT
+        c.course_id AS courseId,
+        c.title     AS title
+        FROM admin_user_role aur
+        JOIN admin_role ar ON ar.admin_role_id = aur.admin_role_id
+        JOIN course c ON c.course_id = aur.course_id
+        WHERE aur.user_id = #{userId}
+        AND ar.code = 'SUB_ADMIN'
+        ORDER BY c.course_id DESC
+    </select>
+
+    <update id="updateUserRole">
+        UPDATE users
+        SET role = #{role}, updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateUserStatus">
+        UPDATE users
+        SET status = #{status}, updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="forceActivateSocialPending">
+        UPDATE users
+        SET
+        nickname = #{nickname},
+        phone = #{phone},
+        status = 'ACTIVE',
+        email_verified = 'Y',
+        updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteAdminUserRoles">
+        DELETE FROM admin_user_role
+        WHERE user_id = #{userId}
+    </delete>
+
+    <insert id="insertAdminUserRole">
+        INSERT INTO admin_user_role (user_id, admin_role_id, course_id)
+        VALUES (#{userId}, #{adminRoleId}, #{courseId})
+    </insert>
+
+    <!-- ✅ 강의 검색: 빈칸이면 전체(생성일 빠른순), 검색어 있으면 course_id/title 부분일치 + 대소문자 무시 -->
+    <select id="countCourses" resultType="int">
+        SELECT COUNT(*)
+        FROM course
+        WHERE delete_flg = 0
+        <if test="keyword != null and keyword.trim() != ''">
+            AND (
+            CAST(course_id AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+            OR LOWER(title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+            )
+        </if>
+    </select>
+
+    <select id="searchCourses" resultType="map">
+        SELECT
+        course_id AS courseId,
+        title     AS title
+        FROM course
+        WHERE delete_flg = 0
+        <if test="keyword != null and keyword.trim() != ''">
+            AND (
+            CAST(course_id AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+            OR LOWER(title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+            )
+        </if>
+        ORDER BY created_at ASC, course_id ASC
+    </select>
+
+    <!-- ✅ 추가: SUB_ADMIN 관리강의 카운트/삭제 -->
+    <select id="countSubAdminCourses" resultType="int">
+        SELECT COUNT(*)
+        FROM admin_user_role
+        WHERE user_id = #{userId}
+        AND admin_role_id = #{adminRoleId}
+        AND course_id IS NOT NULL
+    </select>
+
+    <delete id="deleteSubAdminCourse">
+        DELETE FROM admin_user_role
+        WHERE user_id = #{userId}
+        AND admin_role_id = #{adminRoleId}
+        AND course_id = #{courseId}
+    </delete>
+
+</mapper>

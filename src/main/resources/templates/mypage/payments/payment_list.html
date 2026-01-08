@@ -44,7 +44,7 @@
                     <ul class="price-info">
                         <li>
                             <span>금액</span>
-                            <strong th:text="${#numbers.formatInteger(payment.originAmount, 3, 'COMMA')} + '원'"></strong>
+                            <strong th:text="${#numbers.formatInteger(payment.originAmount, 0, 'COMMA')} + '원'"></strong>
                         </li>
                         <li>
                             <span>할인</span>
@@ -52,7 +52,7 @@
                         </li>
                         <li class="total">
                             <span>합계</span>
-                            <strong th:text="${#numbers.formatInteger(payment.totalAmount, 3, 'COMMA')} + '원'"></strong>
+                            <strong th:text="${#numbers.formatInteger(payment.totalAmount, 0, 'COMMA')} + '원'"></strong>
                         </li>
                     </ul>
 

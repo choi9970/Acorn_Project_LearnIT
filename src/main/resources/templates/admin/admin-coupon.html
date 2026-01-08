@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+    <title th:fragment="title">관리자 - 쿠폰 관리</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/admin/adminUser-tab.css}">
+        <link rel="stylesheet" th:href="@{/css/admin/admin-coupon.css}">
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content" class="admin-coupon">
+
+    <th:block th:replace="admin/adminFragments/adminUser-tab :: tab('coupon')" />
+
+    <!-- ===============================
+         1. 쿠폰 지급 설정
+    ================================ -->
+    <section class="coupon-section">
+        <h2 class="section-title">쿠폰 지급 설정</h2>
+
+        <!-- 쿠폰 선택 -->
+        <div class="coupon-container">
+            <div class="form-block">
+                <h3 class="block-title">쿠폰 선택</h3>
+
+                <div class="coupon-mode-tabs">
+                    <label class="mode-tab">
+                        <input type="radio" name="couponMode" value="existing" checked onclick="toggleCouponMode('existing')">
+                        <span class="tab-label">기존 쿠폰 부여</span>
+                    </label>
+                    <label class="mode-tab">
+                        <input type="radio" name="couponMode" value="new" onclick="toggleCouponMode('new')">
+                        <span class="tab-label">새 쿠폰 생성</span>
+                    </label>
+                </div>
+
+                <div id="existingCouponArea" class="coupon-mode-panel">
+                    <label class="input-label">지급할 쿠폰</label>
+                    <select id="selectedCouponId" class="form-control">
+                        <option value="">쿠폰을 선택하세요</option>
+                        <option th:each="c : ${coupons}"
+                                th:value="${c.couponId}"
+                                th:text="${c.name} + ' (' + ${c.discountAmount} + '원)'">
+                        </option>
+                    </select>
+                </div>
+
+                <div id="newCouponArea" class="coupon-mode-panel" style="display:none;">
+                    <div class="coupon-create-grid">
+                        <input type="text" id="couponName" placeholder="쿠폰명" class="form-control">
+                        <input type="number" id="minPrice" placeholder="최소 주문 금액" class="form-control">
+                        <input type="number" id="discountAmount" placeholder="할인 금액" class="form-control">
+                        <input type="date" id="expireDate" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 대상 선택 -->
+        <div class="form-block">
+            <h3 class="block-title">지급 대상</h3>
+
+            <div class="target-selector">
+                <label>
+                    <input type="radio" name="grantTarget" value="all"
+                           onclick="toggleUserSearch(false)">
+                    회원 전원
+                </label>
+                <label>
+                    <input type="radio" name="grantTarget" value="specific" checked
+                           onclick="toggleUserSearch(true)">
+                    특정 회원
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===============================
+         2. 회원 선택
+    ================================ -->
+    <section class="coupon-section" id="userSearchContent">
+        <h2 class="section-title">회원 선택</h2>
+            <div class="user-select-grid">
+                <div class="search-panel">
+                    <div class="user-search-form">
+                        <select id="searchType" class="form-control">
+                            <option value="all">전체</option>
+                            <option value="name">이름</option>
+                            <option value="email">이메일</option>
+                        </select>
+                        <input type="text" id="searchKeyword" class="form-control" placeholder="검색어 입력">
+                        <button type="button" class="btn-search" onclick="searchUsers()">검색</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>이름</th><th>이메일</th><th>ID</th><th></th></tr></thead>
+                            <tbody id="userSearchResult"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="transfer-indicator">≫</div>
+
+                <div class="selected-panel">
+                    <h3 class="block-title">선택된 회원</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>ID</th><th>이름</th><th>이메일</th><th></th></tr></thead>
+                            <tbody id="issueTargetList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    </section>
+
+    <!-- ===============================
+         3. 쿠폰 지급 버튼
+    ================================ -->
+    <section class="issue-action">
+        <button type="button" class="btn-issue-coupon" onclick="handleIssueCoupon()">
+            쿠폰 지급
+        </button>
+    </section>
+
+</div>
+
+<th:block th:fragment="script">
+    <script th:src="@{/js/admin/admin-coupon.js}"></script>
+</th:block>
+
+</body>
+</html>

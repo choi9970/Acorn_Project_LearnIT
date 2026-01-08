@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.admin.coupon.AdminCouponMapper">
+
+    <!--쿠폰 목록 조회-->
+    <select id="selectCouponList" resultType="com.learnit.learnit.admin.coupon.AdminCouponDTO">
+        SELECT
+            coupon_id AS couponId,
+            name,
+            type,
+            discount_amount AS discountAmount,
+            min_price AS minPrice,
+            expire_date AS expireDate,
+            created_at AS createdAt
+        FROM coupon
+        ORDER BY created_at DESC
+    </select>
+
+    <!--쿠폰 생성-->
+    <insert id="insertCoupon" parameterType="com.learnit.learnit.admin.coupon.AdminCouponDTO"
+            useGeneratedKeys="true" keyProperty="couponId">
+        INSERT INTO coupon (name, type, discount_amount, min_price, expire_date)
+        VALUES ( #{name}, #{type}, #{discountAmount}, #{minPrice}, #{expireDate})
+    </insert>
+
+    <!--전체 회원 검색-->
+    <select id="selectAllUserIds" resultType="long">
+        SELECT user_id
+        FROM users
+        WHERE role = 'USER' AND status = 'ACTIVE'
+    </select>
+
+
+    <!--특정 회원 검색-->
+    <select id="searchUsers" resultType="com.learnit.learnit.user.dto.UserDTO">
+
+        SELECT
+            user_id AS userId,
+            email,
+            name,
+            nickname,
+            phone,
+            status
+        FROM users
+        WHERE status = 'ACTIVE'
+        <if test='keyword != null and keyword != ""'>
+            AND (
+                name LIKE CONCAT('%', #{keyword}, '%')
+                OR email LIKE CONCAT('%', #{keyword}, '%')
+                OR phone LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY created_at DESC
+    </select>
+
+
+    <!--쿠폰 발급-->
+    <insert id="insertUserCoupon">
+        INSERT INTO user_coupon(user_id, coupon_id, is_used, issued_at)
+        VALUES (#{userId}, #{couponId}, 'N', NOW())
+    </insert>
+
+    <!--쿠폰 존재 확인-->
+    <select id="existsUserCoupon" resultType="int">
+        SELECT COUNT(*)
+        FROM user_coupon
+        WHERE user_id = #{userId} AND coupon_id = #{couponId}
+    </select>
+
+</mapper>

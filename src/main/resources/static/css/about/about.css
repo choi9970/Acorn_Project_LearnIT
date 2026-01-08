@@ -1,0 +1,104 @@
+.about-page { padding-bottom: 40px; }
+.about-container { width: min(1100px, calc(100% - 40px)); margin: 0 auto; }
+
+.about-hero {
+  padding: 56px 0 44px;
+  background: linear-gradient(180deg, #f5f7ff 0%, #ffffff 70%);
+  border-bottom: 1px solid #eef2f7;
+}
+.about-hero__inner { width: min(1100px, calc(100% - 40px)); margin: 0 auto; }
+.about-hero__badge {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.8px;
+  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.10);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.about-hero__title { margin: 12px 0 10px; font-size: 34px; line-height: 1.2; color: #111827; }
+.about-hero__desc { margin: 0 0 18px; color: #4b5563; font-size: 15px; max-width: 720px; }
+
+.about-hero__cta { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.about-section { padding: 34px 0; }
+.about-section.muted { background: #f9fafb; border-top: 1px solid #eef2f7; border-bottom: 1px solid #eef2f7; }
+
+.section-head h2 { margin: 0 0 6px; font-size: 20px; color: #111827; }
+.section-head p { margin: 0 0 18px; color: #6b7280; font-size: 14px; }
+
+.about-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 860px) { .about-grid2 { grid-template-columns: 1fr; } }
+
+.card {
+  background: #fff;
+  border: 1px solid #e9edf3;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 6px 20px rgba(16, 24, 40, 0.06);
+}
+.card-title { margin: 0 0 10px; font-size: 18px; color: #111827; }
+.card-text { margin: 0; color: #4b5563; line-height: 1.6; }
+
+.bullet { margin: 12px 0 0; padding-left: 18px; color: #374151; }
+.bullet li { margin: 6px 0; }
+
+.value-list { display: grid; gap: 10px; margin-top: 8px; }
+.value-item { padding: 12px; border: 1px solid #eef2f7; border-radius: 12px; background: #fbfdff; }
+.value-title { font-weight: 800; color: #111827; margin-bottom: 4px; }
+.value-desc { color: #6b7280; font-size: 13px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 14px;
+  border-radius: 12px; border: 1px solid transparent;
+  font-weight: 700; font-size: 14px; text-decoration: none;
+}
+.btn.primary { background: #4f46e5; color: #fff; }
+.btn.ghost { background: #fff; border-color: #e5e7eb; color: #111827; }
+.btn.small { height: 34px; font-size: 13px; padding: 0 12px; }
+
+.github-wrap { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 14px; }
+@media (max-width: 860px) { .github-wrap { grid-template-columns: 1fr; } }
+
+.github-top { display:flex; align-items:center; justify-content:space-between; gap: 12px; }
+.github-title { font-size: 16px; font-weight: 800; color:#111827; }
+.github-sub { font-size: 13px; color:#6b7280; margin-top: 4px; }
+
+.stats-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.stat { padding: 12px; border: 1px solid #eef2f7; border-radius: 12px; background:#fbfbff; }
+.stat-label { font-size: 12px; color:#6b7280; }
+.stat-value { margin-top: 6px; font-size: 20px; font-weight: 900; color:#111827; }
+
+.card-title-row { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom: 10px; }
+.hint { font-size: 12px; color:#9ca3af; }
+
+.repo-list { display: grid; gap: 10px; }
+.repo {
+  padding: 12px;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  background: #fff;
+}
+.repo a { font-weight: 800; color:#111827; text-decoration: none; }
+.repo a:hover { text-decoration: underline; }
+.repo-meta { margin-top: 6px; font-size: 12px; color:#6b7280; display:flex; gap:10px; flex-wrap: wrap; }
+.badge { padding: 3px 8px; border-radius: 999px; background:#f3f4f6; color:#374151; font-weight:700; }
+
+.error { margin-top: 10px; color:#b91c1c; font-size: 13px; }
+
+.kakao-map {
+  width: 100%;
+  height: 320px;
+  border-radius: 14px;
+  border: 1px solid #e9edf3;
+  overflow: hidden;
+}
+
+.dir-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
