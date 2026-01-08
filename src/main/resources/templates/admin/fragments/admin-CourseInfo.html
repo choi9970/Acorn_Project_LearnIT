@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="courseInfo" class="form-section active" id="section-info">
+    <!-- 강의 교수 선택 (가장 위로 이동) -->
+    <div class="form-group">
+        <div class="label-with-btn">
+            <label class="form-label">강의 교수</label>
+            <button type="button" id="btn-open-instructor-modal" class="btn-add-instructor" title="교수자 추가">+</button>
+        </div>
+        <div id="instructor-selection-area" class="selected-instructors-container">
+            <!-- 선택된 교수자들이 여기에 태그 형태로 추가됨 -->
+            <th:block th:if="${course != null and course.instructorIds != null}">
+                <div class="instructor-tag-item" th:data-user-id="${course.instructorIds[0]}">
+                    <span th:text="${course.instructorName}">교수자명</span>
+                    <button type="button" class="btn-remove">×</button>
+                </div>
+            </th:block>
+        </div>
+        <!-- 폼 전송용 컨테이너 (JS에서 input hidden 추가) -->
+        <div id="instructor-inputs-container">
+            <th:block th:if="${course != null and course.instructorIds != null}">
+                <input type="hidden" name="instructorIds" th:value="${course.instructorIds[0]}">
+            </th:block>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">강의 제목</label>
+        <input type="text" name="title" class="form-input" placeholder="강의 제목을 입력하세요"
+               th:value="${course?.title}">
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">강의 설명</label>
+        <textarea name="description" class="form-input" rows="5" placeholder="강의 설명을 입력하세요"
+                  th:text="${course?.description}"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">카테고리</label>
+        <select name="categoryId" class="form-input">
+            <option value="">카테고리 선택</option>
+            <option th:each="cat : ${categories}" 
+                    th:value="${cat.categoryId}" 
+                    th:text="${cat.name}"
+                    th:selected="${course?.categoryId == cat.categoryId}">프로그래밍</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label class="form-label">강의 오픈 기간</label>
+        <div class="period-setting">
+            <!-- 상시 오픈 토글 (텍스트 왼쪽, 스위치 오른쪽) -->
+            <div class="toggle-wrapper">
+                <span class="toggle-label">상시 오픈</span>
+                <label class="switch">
+                    <input type="checkbox" name="alwaysOpen" id="toggle-always-open"
+                           th:checked="${course?.alwaysOpen}">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <!-- 날짜 선택 (년, 월, 일까지만) -->
+            <div id="date-selection-area" style="display: block; margin-top: 1rem;">
+                <div class="date-row">
+                    <div class="date-group">
+                        <label>강의 Open</label>
+                        <input type="date" name="startDate" class="form-input"
+                               th:value="${course?.startDate}">
+                    </div>
+                    <div class="date-group">
+                        <label>강의 Close</label>
+                        <input type="date" name="endDate" class="form-input"
+                               th:value="${course?.endDate}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="form-label">수강료</label>
+        <input type="number" name="price" class="form-input" placeholder="0"
+               th:value="${course?.price}">
+    </div>
+
+    <!-- 교수자 검색 모달 -->
+    <div id="instructor-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>교수자 검색</h3>
+                <button type="button" class="btn-close-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-box">
+                    <input type="text" id="instructor-search-input" placeholder="이름 또는 닉네임 검색">
+                    <button type="button" id="btn-search-instructor">검색</button>
+                </div>
+                <div class="search-result-list" id="instructor-list">
+                    <!-- 검색 결과 아이템들이 여기에 추가됨 -->
+                    <div class="empty-result">검색어를 입력하세요.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

@@ -40,8 +40,10 @@ public class CourseVideoController {
         boolean isEnrolled = courseVideoService.isUserEnrolled(userId, courseId);
         boolean isInstructor = isSubAdmin && courseVideoService.isInstructor(userId, courseId);
 
-        // 관리자도 아니고, 해당 강의 강사도 아니고, 수강생도 아니면 접근 불가
-        if (!isAdmin && !isInstructor && !isEnrolled) return "redirect:/CourseDetail?courseId=" + courseId + "&tab=intro";
+        // 관리자도 아니고, 해당 강의 강사도 아니고, 수강생도 아니면 접근 불가 -> 결제 페이지로 이동
+        if (!isAdmin && !isInstructor && !isEnrolled) {
+            return "redirect:/payment?courseIds=" + courseId;
+        }
 
         // 현재 챕터 정보 로딩
         CourseVideo chapter = courseVideoService.getChapterDetail(chapterId);

@@ -38,7 +38,14 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
                         "/css/**", "/js/**", "/images/**", "/files/**", 
-                        "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**", "/oauth2/**", "/api/**");
+                        "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**", "/oauth2/**", "/api/**", "/uploads/**");
+    }
+
+    @Override
+    public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
+        String projectPath = System.getProperty("user.dir").replace("\\", "/");
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:///" + projectPath + "/uploads/");
     }
 
     @Bean

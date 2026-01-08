@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="courseFile" class="form-section" id="section-file">
+    <div class="curriculum-header">
+        <h3>커리큘럼 구성</h3>
+        <p class="help-text">섹션과 챕터를 추가하여 강의 커리큘럼을 구성하세요.</p>
+    </div>
+
+    <!-- 섹션 리스트 컨테이너 -->
+    <div id="section-list-container">
+        <!-- JS로 섹션 아이템들이 여기에 추가됨 -->
+        <!-- 수정 모드일 때 기존 데이터 렌더링 -->
+        <th:block th:if="${course != null and course.sections != null}">
+            <div class="section-item" th:each="section, sStat : ${course.sections}">
+                <div class="section-header">
+                    <input type="text" th:name="|sections[${sStat.index}].title|" class="section-title-input" 
+                           placeholder="섹션 제목을 입력하세요" th:value="${section.title}">
+                    <button type="button" class="btn-remove-section">삭제</button>
+                </div>
+                <div class="chapter-list">
+                    <div class="chapter-item" th:each="chapter, cStat : ${section.chapters}">
+                        <div class="chapter-header">
+                            <input type="text" th:name="|sections[${sStat.index}].chapters[${cStat.index}].title|" 
+                                   class="chapter-input chapter-title" placeholder="챕터 제목" th:value="${chapter.title}">
+                            <!-- 챕터 ID (수정 시 식별용) -->
+                            <input type="hidden" th:name="|sections[${sStat.index}].chapters[${cStat.index}].chapterId|" 
+                                   th:value="${chapter.chapterId}">
+                                   
+                            <button type="button" class="btn-remove-chapter" title="챕터 삭제">×</button>
+                        </div>
+                        <div class="chapter-body">
+                            <input type="text" th:name="|sections[${sStat.index}].chapters[${cStat.index}].videoUrl|" 
+                                   class="chapter-input chapter-url" placeholder="영상 URL" th:value="${chapter.videoUrl}">
+                            
+                            <div class="file-attach-area">
+                                <!-- 기존 파일 정보 hidden input -->
+                                <input type="hidden" th:name="|sections[${sStat.index}].chapters[${cStat.index}].existingFileUrl|" 
+                                       th:value="${chapter.existingFileUrl}">
+                                <input type="hidden" th:name="|sections[${sStat.index}].chapters[${cStat.index}].existingFileName|" 
+                                       th:value="${chapter.existingFileName}">
+
+                                <input type="file" th:id="|file-${sStat.index}-${cStat.index}-exist|" 
+                                       th:name="|sections[${sStat.index}].chapters[${cStat.index}].file|" style="display: none;">
+                                <button type="button" class="btn-attach-file" 
+                                        th:onclick="|document.getElementById('file-${sStat.index}-${cStat.index}-exist').click()|"
+                                        th:text="${chapter.existingFileName != null ? '파일 변경' : '자료 첨부'}">자료 첨부</button>
+                                <span class="file-name-display" style="font-size: 1.2rem; color: #666; margin-left: 0.5rem;"
+                                      th:text="${chapter.existingFileName}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-add-chapter" th:data-section-index="${sStat.index}">+ 챕터 추가</button>
+            </div>
+        </th:block>
+    </div>
+
+    <!-- 섹션 추가 버튼 -->
+    <div class="add-section-area">
+        <button type="button" id="btn-add-section" class="btn-add-section">+ 새 섹션 추가</button>
+    </div>
+</div>
+</html>

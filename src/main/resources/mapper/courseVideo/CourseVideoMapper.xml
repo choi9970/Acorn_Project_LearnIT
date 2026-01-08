@@ -84,9 +84,15 @@
         ORDER BY c.order_index ASC
     </select>
 
-    <select id="selectCourseResources" resultType="com.learnit.learnit.courseVideo.dto.CourseFile">
+    <resultMap id="CourseFileMap" type="com.learnit.learnit.courseVideo.dto.CourseFile">
+        <result property="chapterId" column="chapter_id"/>
+        <result property="title" column="title"/>
+        <result property="fileUrl" column="file_url"/>
+        <result property="fileType" column="file_type"/>
+    </resultMap>
+
+    <select id="selectCourseResources" resultMap="CourseFileMap">
         SELECT
-            r.resource_id,
             r.chapter_id,
             r.title,
             r.file_url,
@@ -94,7 +100,7 @@
         FROM chapter_resource r
                  JOIN chapter c ON r.chapter_id = c.chapter_id
         WHERE c.course_id = #{courseId}
-        ORDER BY c.order_index ASC, r.resource_id ASC
+        ORDER BY c.order_index ASC
     </select>
 
     <select id="selectEnrollmentStatus" resultType="String">

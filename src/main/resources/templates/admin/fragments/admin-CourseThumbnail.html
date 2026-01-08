@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="courseThumbnail" class="form-section" id="section-thumbnail">
+    <div class="form-group">
+        <label class="form-label">강의 썸네일</label>
+        <div class="file-upload-container">
+            <input type="file" id="course-thumbnail" name="thumbnail" accept="image/*" class="file-upload-input">
+            <button type="button" class="btn-upload" data-target="course-thumbnail" 
+                    th:style="${course?.thumbnailUrl != null ? 'display: none;' : ''}">파일 선택</button>
+            <div id="course-thumbnail-preview" class="file-preview" 
+                 th:style="${course?.thumbnailUrl != null ? 'display: flex;' : 'display: none;'}">
+                <span class="file-name" th:text="${course?.thumbnailFileName ?: '기존 썸네일'}"></span>
+                <button type="button" class="btn-remove-file" data-target="course-thumbnail">×</button>
+            </div>
+        </div>
+        <p class="help-text">권장 사이즈: 1280x720 (16:9), 최대 5MB</p>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">강의 상세 썸네일</label>
+        <div class="file-upload-container">
+            <input type="file" id="course-detail-thumbnail" name="detailThumbnail" accept="image/*,application/pdf" class="file-upload-input">
+            <button type="button" class="btn-upload" data-target="course-detail-thumbnail"
+                    th:style="${course?.detailImgUrl != null ? 'display: none;' : ''}">파일 선택</button>
+            <div id="course-detail-thumbnail-preview" class="file-preview"
+                 th:style="${course?.detailImgUrl != null ? 'display: flex;' : 'display: none;'}">
+                <span class="file-name" th:text="${course?.detailThumbnailFileName ?: '기존 상세이미지'}"></span>
+                <button type="button" class="btn-remove-file" data-target="course-detail-thumbnail">×</button>
+            </div>
+        </div>
+        <p class="help-text">강의 상세 페이지 상단에 표시될 이미지 또는 PDF 파일입니다.</p>
+    </div>
+</div>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(
+        ~{::title},
+        ~{::content},
+        ~{::css},
+        ~{::script}
+      )}">
+
+<th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/admin/admin-course-form.css}">
+</th:block>
+
+<head>
+    <title>강의 등록</title>
+</head>
+
+<body>
+<section th:fragment="content">
+    <div class="admin-form-container">
+        <div class="form-header">
+            <h2 th:text="${isEdit} ? '강의 수정' : '강의 등록'">강의 등록</h2>
+        </div>
+
+        <form th:action="${isEdit} ? @{/admin/course/{id}/edit(id=${course.courseId})} : @{/admin/course/create}" 
+              method="post" enctype="multipart/form-data" th:object="${course != null ? course : new com.learnit.learnit.admin.course.AdminCourseCreateDTO()}">
+            
+            <!-- 탭 네비게이션 -->
+            <div class="form-tabs">
+                <div class="tab-item active" onclick="switchTab('info')">강의 정보</div>
+                <div class="tab-item" onclick="switchTab('thumbnail')">썸네일</div>
+                <div class="tab-item" onclick="switchTab('file')">커리큘럼</div>
+            </div>
+
+            <!-- 프래그먼트 포함 -->
+            <th:block th:replace="~{admin/fragments/admin-CourseInfo :: courseInfo}"></th:block>
+            <th:block th:replace="~{admin/fragments/admin-CourseThumbnail :: courseThumbnail}"></th:block>
+            <th:block th:replace="~{admin/fragments/admin-CourseFile :: courseFile}"></th:block>
+
+            <div class="form-actions">
+                <a href="/admin/course" class="btn-cancel">취소</a>
+                <button type="submit" class="btn-submit">등록 완료</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    function switchTab(tabName) {
+        // 탭 스타일 활성화
+        const tabs = document.querySelectorAll('.tab-item');
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // 섹션 표시 전환
+        const sections = document.querySelectorAll('.form-section');
+        sections.forEach(section => {
+            section.classList.remove('active');
+        });
+
+        if (tabName === 'info') {
+            document.getElementById('section-info').classList.add('active');
+        } else if (tabName === 'thumbnail') {
+            document.getElementById('section-thumbnail').classList.add('active');
+        } else if (tabName === 'file') {
+            document.getElementById('section-file').classList.add('active');
+        }
+    }
+</script>
+<script th:src="@{/js/admin/admin-course-form.js}"></script>
+</body>
+</html>

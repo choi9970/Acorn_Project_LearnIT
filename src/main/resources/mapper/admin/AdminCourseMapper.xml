@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.admin.course.AdminCourseMapper">
+
+    <select id="selectCourses" resultType="com.learnit.learnit.admin.course.AdminCourse">
+        SELECT
+            c.course_id      AS courseId,
+            c.title          AS title,
+            u.name           AS instructorName,
+            c.status         AS status,
+            c.created_at     AS createdAt,
+            c.updated_at     AS updatedAt
+        FROM course c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        WHERE c.delete_flg = 0
+        <if test="status != null and status != ''">
+            AND c.status = #{status}
+        </if>
+        <if test="search != null and search != ''">
+            AND (c.title LIKE CONCAT('%', #{search}, '%')
+                 OR u.name LIKE CONCAT('%', #{search}, '%'))
+        </if>
+        ORDER BY c.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countCourses" resultType="int">
+        SELECT COUNT(*)
+        FROM course c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        WHERE c.delete_flg = 0
+        <if test="status != null and status != ''">
+            AND c.status = #{status}
+        </if>
+        <if test="search != null and search != ''">
+            AND (c.title LIKE CONCAT('%', #{search}, '%')
+                 OR u.name LIKE CONCAT('%', #{search}, '%'))
+        </if>
+    </select>
+
+    <update id="updateCourseStatus">
+        UPDATE course
+        SET status = #{status},
+            updated_at = NOW()
+        WHERE course_id = #{courseId}
+    </update>
+
+    <update id="deleteCourse" flushCache="true">
+        UPDATE course
+        SET delete_flg = 1,
+            updated_at = NOW()
+        WHERE course_id = #{courseId}
+    </update>
+
+    <insert id="insertCourse" parameterType="com.learnit.learnit.admin.course.AdminCourseCreateDTO" useGeneratedKeys="true" keyProperty="courseId">
+        INSERT INTO course (
+            title, description, category_id, price, user_id,
+        open_start, open_end, status, created_at, updated_at,
+            thumbnail_url, detail_img_url
+        ) VALUES (
+            #{title}, #{description}, #{categoryId}, #{price},
+            <choose>
+                <when test="instructorIds != null and !instructorIds.isEmpty()">
+                    #{instructorIds[0]}
+                </when>
+                <otherwise>NULL</otherwise>
+            </choose>,
+            #{startDate}, #{endDate}, 'ACTIVE', NOW(), NOW(),
+            #{thumbnailUrl}, #{detailImgUrl}
+        )
+    </insert>
+
+    <insert id="insertChapter" parameterType="com.learnit.learnit.admin.AdminChapterInsertDTO" useGeneratedKeys="true" keyProperty="chapterId">
+        INSERT INTO chapter (
+            course_id, section_title, title, order_index, video_url
+        ) VALUES (
+            #{courseId}, #{sectionTitle}, #{title}, #{orderIndex}, #{videoUrl}
+        )
+    </insert>
+
+    <insert id="insertChapterResource">
+        INSERT INTO chapter_resource (
+            chapter_id, title, file_url, file_type
+        ) VALUES (
+            #{chapterId}, #{title}, #{fileUrl}, #{fileType}
+        )
+    </insert>
+
+    <select id="selectCourseById" resultType="com.learnit.learnit.admin.course.AdminCourseDetailDTO">
+        SELECT
+            c.course_id      AS courseId,
+            c.title          AS title,
+            c.description    AS description,
+            c.category_id    AS categoryId,
+            c.price          AS price,
+            c.user_id        AS instructorId,
+            u.name           AS instructorName,
+            u.nickname       AS instructorNickname,
+            c.open_start     AS startDate,
+            c.open_end       AS endDate,
+            c.thumbnail_url  AS thumbnailUrl,
+            c.detail_img_url AS detailImgUrl,
+            c.status         AS status
+        FROM course c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        WHERE c.course_id = #{courseId} AND c.delete_flg = 0
+    </select>
+
+    <resultMap id="ChapterResultMap" type="com.learnit.learnit.admin.AdminChapterDTO">
+        <id property="chapterId" column="chapter_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="sectionTitle" column="section_title"/>
+        <result property="title" column="title"/>
+        <result property="orderIndex" column="order_index"/>
+        <result property="videoUrl" column="video_url"/>
+        <collection property="resources" ofType="com.learnit.learnit.admin.AdminChapterResourceDTO">
+            <result property="resourceId" column="resource_id"/>
+            <result property="fileUrl" column="file_url"/>
+            <result property="originalFilename" column="resource_title"/>
+            <result property="fileType" column="file_type"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectChaptersWithResources" resultMap="ChapterResultMap">
+        SELECT
+            ch.chapter_id,
+            ch.course_id,
+            ch.section_title,
+            ch.title,
+            ch.order_index,
+            ch.video_url,
+            res.resource_id,
+            res.title as resource_title,
+            res.file_url,
+            res.file_type
+        FROM chapter ch
+        LEFT JOIN chapter_resource res ON ch.chapter_id = res.chapter_id
+        WHERE ch.course_id = #{courseId}
+        ORDER BY ch.order_index ASC
+    </select>
+    
+    <update id="updateCourse">
+        UPDATE course
+        SET
+            title = #{title},
+            description = #{description},
+            category_id = #{categoryId},
+            price = #{price},
+            user_id = <choose>
+                <when test="instructorIds != null and !instructorIds.isEmpty()">
+                    #{instructorIds[0]}
+                </when>
+                <otherwise>NULL</otherwise>
+            </choose>,
+            open_start = #{startDate},
+            open_end = #{endDate},
+            thumbnail_url = #{thumbnailUrl},
+            detail_img_url = #{detailImgUrl},
+            updated_at = NOW()
+        WHERE course_id = #{courseId}
+    </update>
+
+    <delete id="deleteChapterResourcesByCourseId">
+        DELETE FROM chapter_resource
+        WHERE chapter_id IN (
+            SELECT chapter_id FROM chapter WHERE course_id = #{courseId}
+        )
+    </delete>
+
+    <delete id="deleteChaptersByCourseId">
+        DELETE FROM chapter WHERE course_id = #{courseId}
+    </delete>
+
+    <update id="updateChapter">
+        UPDATE chapter
+        SET section_title = #{sectionTitle},
+            title = #{title},
+            order_index = #{orderIndex},
+            video_url = #{videoUrl}
+        WHERE chapter_id = #{chapterId}
+    </update>
+
+    <delete id="deleteChapter">
+        DELETE FROM chapter WHERE chapter_id = #{chapterId}
+    </delete>
+
+    <update id="updateChapterResource">
+        UPDATE chapter_resource
+        SET title = #{title},
+            file_url = #{fileUrl},
+            file_type = #{fileType}
+        WHERE resource_id = #{resourceId}
+    </update>
+
+    <delete id="deleteChapterResource">
+        DELETE FROM chapter_resource WHERE resource_id = #{resourceId}
+    </delete>
+
+    <delete id="deleteChapterResourcesByChapterId">
+        DELETE FROM chapter_resource WHERE chapter_id = #{chapterId}
+    </delete>
+
+</mapper>

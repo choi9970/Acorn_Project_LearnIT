@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin-layout :: layout(
+        ~{::title},
+        ~{::content},
+        ~{::css},
+        ~{::script}
+      )}">
+
+<th:block th:fragment="css">
+  <link rel="stylesheet" th:href="@{/css/admin/admin-course.css}">
+</th:block>
+
+<head>
+  <title>강의 관리</title>
+</head>
+<body>
+<section th:fragment="content">
+  <div class="admin-course-container">
+    <h2>강의 관리</h2>
+
+    <!-- 성공/에러 메시지 -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+    <!-- 검색 및 필터 -->
+    <div class="admin-course-filters">
+      <form method="get" action="/admin/course" class="admin-filter-form">
+        <select name="status" class="admin-filter-select">
+          <option value="">전체 상태</option>
+          <option value="ACTIVE" th:selected="${currentStatus == 'ACTIVE'}">ACTIVE</option>
+          <option value="CLOSE" th:selected="${currentStatus == 'CLOSE'}">CLOSE</option>
+        </select>
+        <input type="text" name="search" placeholder="강의명, 교수명 검색" 
+               th:value="${searchKeyword}" class="admin-search-input">
+        <button type="submit" class="btn-search">검색</button>
+        <a href="/admin/course" class="btn-reset">초기화</a>
+      </form>
+      
+      <!-- 강의 생성 버튼 (오른쪽) -->
+      <a href="/admin/course/create" class="btn-create">강의 생성</a>
+    </div>
+
+    <!-- 강의 목록 -->
+    <div class="course-list">
+      <table class="course-table">
+        <thead>
+          <tr>
+            <th>강의ID</th>
+            <th>강의명</th>
+            <th>강의교수</th>
+            <th>강의 상태</th>
+            <th>등록일</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="course : ${courses}">
+            <td th:text="${course.courseId}">1</td>
+            <td th:text="${course.title}">자바 기초</td>
+            <td th:text="${course.instructorName != null ? course.instructorName : '알수없음'}">홍길동</td>
+            <td>
+              <span th:class="'status-badge ' + (${course.status == 'ACTIVE'} ? 'status-active' : 'status-close')"
+                    th:text="${course.status}">ACTIVE</span>
+            </td>
+            <td th:text="${course.createdAt != null ? #temporals.format(course.createdAt, 'yyyy-MM-dd') : '-'}">2024-01-01</td>
+            <td class="action-cell">
+              <div class="action-buttons">
+                <!-- 수정 버튼 -->
+                <a th:href="@{'/admin/course/' + ${course.courseId} + '/edit'}" class="btn-edit">수정</a>
+                
+                <!-- 삭제 버튼 -->
+                <form th:action="@{'/admin/course/' + ${course.courseId} + '/delete'}" 
+                      method="post" style="display: inline;">
+                  <button type="submit" class="btn-delete btn-delete-course">삭제</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <tr th:if="${courses == null or #lists.isEmpty(courses)}">
+            <td colspan="6" class="empty-message">등록된 강의가 없습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 페이징 -->
+    <div class="pagination" th:if="${totalPages > 1}">
+      <a th:if="${startPage > 1}"
+         th:href="@{/admin/course(page=${startPage-1}, status=${currentStatus}, search=${searchKeyword})}"
+         class="page-link">이전</a>
+
+      <span th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-number">
+            <a th:if="${i != currentPage}"
+               th:href="@{/admin/course(page=${i}, status=${currentStatus}, search=${searchKeyword})}"
+               th:text="${i}">1</a>
+            <strong th:if="${i == currentPage}" th:text="${i}">1</strong>
+          </span>
+
+      <a th:if="${endPage < totalPages}"
+         th:href="@{/admin/course(page=${endPage+1}, status=${currentStatus}, search=${searchKeyword})}"
+         class="page-link">다음</a>
+    </div>
+
+    <div class="admin-course-summary">
+      <p>총 <strong th:text="${totalCount}">0</strong>개의 강의</p>
+    </div>
+  </div>
+</section>
+<script th:src="@{/js/admin/admin-course.js}"></script>
+</body>
+</html>
