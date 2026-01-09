@@ -48,7 +48,7 @@ public class CourseDetailController {
             boolean isEnrolled = isLoggedIn && (isAdmin || isInstructor || courseDetailService.isEnrolled(loginUserId, courseId));
 
             setCommonModel(model, course, tab, isLoggedIn, isEnrolled, loginUserId);
-            return "courseDetail/CourseDetail";
+            return "courseDetail/courseDetail";
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -30,6 +30,6 @@ public class SearchController {
         model.addAttribute("list", list);
         model.addAttribute("keyword", keyword);
 
-        return "home/search-result";
+        return "home/searchResult";
     }
 }

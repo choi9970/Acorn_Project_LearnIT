@@ -86,7 +86,7 @@ public class PaymentController {
         model.addAttribute("order", order);
         model.addAttribute("payment", payment);
 
-        return "payment/payment-result";
+        return "payment/paymentResult";
     }
 
 
