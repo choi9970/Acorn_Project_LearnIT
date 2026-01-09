@@ -2,9 +2,10 @@
           th:fragment="detailSidebar(course, isLoggedIn, isEnrolled, instructorName, periodText, lastWatchedChapterId)">
 
     <aside class="cd-sidebar">
-        <div class="cd-price">
+        <div class="cd-price" th:if="${!(isLoggedIn and isEnrolled)}">
             <span th:text="${course.price == 0 ? '무료' : #numbers.formatInteger(course.price, 0, 'COMMA') + '원'}">0원</span>
         </div>
+
 
         <!-- ✅ 로그인 + 수강중: 이어보기 -->
         <button type="button" class="cd-btn primary"
