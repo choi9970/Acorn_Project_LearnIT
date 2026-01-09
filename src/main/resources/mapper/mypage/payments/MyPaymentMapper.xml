@@ -4,8 +4,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.learnit.learnit.mypage.repository.MyPaymentMapper">
 
-    <!--1. 결제 내역 조회(마이페이지)-->
-    <select id="findPaymentHistories" parameterType="long" resultType="com.learnit.learnit.mypage.dto.MyPaymentHistoryDTO">
+    <!--1. 결제 내역 조회(마이페이지) - 페이징 -->
+    <select id="findPaymentHistories" resultType="com.learnit.learnit.mypage.dto.MyPaymentHistoryDTO">
         SELECT
             p.payment_id      AS paymentId,
             o.order_no        AS orderId,
@@ -18,7 +18,8 @@
         FROM payment p JOIN orders o
         ON p.order_id = o.order_id
         WHERE o.user_id = #{userId}
-        ORDER BY p.created_at DESC;
+        ORDER BY p.created_at DESC
+        LIMIT #{limit} OFFSET #{offset};
     </select>
     
     
@@ -29,6 +30,14 @@
         ON pd.course_id = c.course_id
         WHERE pd.payment_id = #{paymentId}
 
+    </select>
+
+    <!--2. 결제 내역 총 개수-->
+    <select id="countPaymentHistories" resultType="int">
+        SELECT COUNT(*)
+        FROM payment p
+        JOIN orders o ON p.order_id = o.order_id
+        WHERE o.user_id = #{userId}
     </select>
 
     <!--3. 영수증 조회-->

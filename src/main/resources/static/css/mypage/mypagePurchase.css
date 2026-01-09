@@ -366,6 +366,73 @@
     margin-bottom: 24px;
 }
 
+/* 페이징 (구매/혜택) */
+.pagination {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.page-link {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 4px;
+    text-decoration: none;
+    color: #007bff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.page-link:hover {
+    background-color: #f8f9fa;
+    color: #0056b3;
+}
+
+.page-number {
+    display: inline-block;
+}
+
+.page-number a {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 4px;
+    text-decoration: none;
+    color: #007bff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.page-number a:hover {
+    background-color: #f8f9fa;
+    color: #0056b3;
+}
+
+.page-number strong {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 4px;
+    color: #fff;
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+}
+
+/* 결제 내역 총 개수 표시 */
+.qna-summary {
+    margin-top: 20px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.qna-summary p {
+    font-size: 1.4rem;
+}
+
+.qna-summary strong {
+    color: #007bff;
+    font-weight: 600;
+}
 
 /* =========================================================
    반응형
@@ -442,3 +509,7 @@
         width: 100%;
     }
 }
+
+
+
+

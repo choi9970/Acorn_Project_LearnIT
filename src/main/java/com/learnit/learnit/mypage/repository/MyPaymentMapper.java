@@ -12,7 +12,12 @@ import java.util.List;
 public interface MyPaymentMapper {
 
     // 마이페이지 결제 내역 조회
-    List<MyPaymentHistoryDTO> findPaymentHistories(@Param("userId") Long userId);
+        List<MyPaymentHistoryDTO> findPaymentHistories(@Param("userId") Long userId,
+                                                       @Param("offset") int offset,
+                                                       @Param("limit") int limit);
+
+        // 마이페이지 결제 내역 총 개수
+        int countPaymentHistories(@Param("userId") Long userId);
 
     // 강의명 요약
     List<String> findCourseTitlesByPaymentId(@Param("paymentId") Long paymentId);
