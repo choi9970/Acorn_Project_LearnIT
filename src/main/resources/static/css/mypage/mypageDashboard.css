@@ -412,6 +412,10 @@
     cursor: pointer;
     transition: all 0.2s;
     background: #fff;
+    /* 캘린더 칸 너비 고정용 */
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .calendar-day:hover {

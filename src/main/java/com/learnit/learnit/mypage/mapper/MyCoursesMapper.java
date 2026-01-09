@@ -8,5 +8,16 @@ import java.util.List;
 
 @Mapper
 public interface MyCoursesMapper {
-    List<MyCourseSummaryDTO> selectMyCourses(@Param("userId") Long userId);
+
+    /**
+     * 내 학습 강의 목록 조회 (페이징)
+     */
+    List<MyCourseSummaryDTO> selectMyCourses(@Param("userId") Long userId,
+                                             @Param("offset") int offset,
+                                             @Param("limit") int limit);
+
+    /**
+     * 내 학습 강의 총 개수
+     */
+    int countMyCourses(@Param("userId") Long userId);
 }
