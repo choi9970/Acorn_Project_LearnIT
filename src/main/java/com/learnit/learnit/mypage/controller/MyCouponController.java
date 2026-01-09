@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -27,9 +28,15 @@ public class MyCouponController {
     private final MyPaymentService paymentService;
     private final MyCouponService couponService;
 
-    //마이페이지 - 구매/혜택 - 결제 내역
+    private static final int PAGE_BLOCK_SIZE = 5;
+
+    //마이페이지 - 구매/혜택 - 결제 내역 (페이징)
     @GetMapping("/mypage/purchase")
-    public String paymentHistory(HttpSession session, Model model){
+    public String paymentHistory(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "4") int size,
+            HttpSession session,
+            Model model){
 
         Long userId = SessionUtils.getUserId(session);
 
@@ -37,10 +44,27 @@ public class MyCouponController {
 
         UserDTO user = userService.getUserDTOById(userId);
 
-        List<MyPaymentHistoryDTO> histories = paymentService.getPaymentHistories(userId);
+        // 페이징 처리
+        int totalCount = paymentService.getPaymentHistoriesCount(userId);
+        int totalPages = (int) Math.ceil((double) totalCount / size);
+        if (totalPages <= 0) totalPages = 1;
+
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+        int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
+
+        List<MyPaymentHistoryDTO> histories = paymentService.getPaymentHistories(userId, page, size);
 
         model.addAttribute("user", user);
-        model.addAttribute("payments", histories);
+        model.addAttribute("payments", histories != null ? histories : java.util.List.of());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
 
         return "mypage/payments/myPaymentList";
     }
@@ -57,20 +81,40 @@ public class MyCouponController {
         return paymentService.getReceipt(paymentId, userId);
     }
 
-    //마이페이지 - 구매/혜택 - 쿠폰함
+    //마이페이지 - 구매/혜택 - 쿠폰함 (페이징)
     @GetMapping("/mypage/coupons")
-    public String coupons(HttpSession session, Model model){
+    public String coupons(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "4") int size,
+            HttpSession session,
+            Model model){
 
         Long userId = SessionUtils.getUserId(session);
         if (userId == null) return "redirect:/login";
 
         UserDTO user = userService.getUserDTOById(userId);
 
-        List<UserCouponDTO> coupons = couponService.getMyCoupons(userId);
+        // 페이징 처리
+        int totalCount = couponService.getMyCouponsCount(userId);
+        int totalPages = (int) Math.ceil((double) totalCount / size);
+        if (totalPages <= 0) totalPages = 1;
+
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+        int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
+
+        List<UserCouponDTO> coupons = couponService.getMyCouponsPaged(userId, page, size);
 
         model.addAttribute("user", user);
-        model.addAttribute("coupons", coupons);
-
+        model.addAttribute("coupons", coupons != null ? coupons : java.util.List.of());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
 
         return "mypage/payments/myCouponList";
     }

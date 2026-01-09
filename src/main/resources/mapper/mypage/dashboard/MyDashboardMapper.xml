@@ -160,7 +160,7 @@
             ch.chapter_id AS chapterId,
             ch.title AS chapterTitle,
             ch.order_index AS chapterOrder,
-            TIME(sl.created_at) AS studiedTime,
+            TIME(MIN(sl.created_at)) AS studiedTime,
             SUM(sl.studied_sec) / 60 AS studiedMinutes
         FROM study_log sl
         JOIN course c ON sl.course_id = c.course_id
@@ -169,8 +169,8 @@
           AND YEAR(sl.created_at) = #{year}
           AND MONTH(sl.created_at) = #{month}
           AND DAY(sl.created_at) = #{day}
-        GROUP BY c.course_id, c.title, ch.chapter_id, ch.title, ch.order_index, TIME(sl.created_at)
-        ORDER BY sl.created_at ASC
+        GROUP BY c.course_id, c.title, ch.chapter_id, ch.title, ch.order_index
+        ORDER BY MIN(sl.created_at) ASC
     </select>
 
     <!-- 일일 학습 목표 저장 또는 업데이트 -->

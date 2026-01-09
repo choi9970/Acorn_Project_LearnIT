@@ -18,7 +18,14 @@ public interface CouponMapper {
     //결제 페이지 유저 보유 쿠폰 목록
     List<UserCouponDTO> findUsableCoupons(@Param("userId") Long userId);
 
-    //마이페이지 쿠폰함
+    //마이페이지 쿠폰함 전체 목록 (비페이징)
     List<UserCouponDTO> findMyCoupons(@Param("userId") Long userId);
 
+    //마이페이지 쿠폰함 페이징 목록
+    List<UserCouponDTO> findMyCouponsPaged(@Param("userId") Long userId,
+                                           @Param("offset") int offset,
+                                           @Param("limit") int limit);
+
+    //마이페이지 쿠폰함 총 개수
+    int countMyCoupons(@Param("userId") Long userId);
 }

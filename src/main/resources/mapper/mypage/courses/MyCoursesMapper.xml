@@ -4,7 +4,7 @@
 
 <mapper namespace="com.learnit.learnit.mypage.mapper.MyCoursesMapper">
 
-    <!-- 내 학습 강의 목록 조회 -->
+    <!-- 내 학습 강의 목록 조회 (페이징) -->
     <select id="selectMyCourses" resultType="com.learnit.learnit.mypage.dto.MyCourseSummaryDTO">
         SELECT 
             c.course_id AS courseId,
@@ -38,6 +38,16 @@
           AND e.status = 'ACTIVE'
         GROUP BY e.enrollment_id, c.course_id, c.title, c.thumbnail_url
         ORDER BY MAX(sl.created_at) DESC, e.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 내 학습 강의 총 개수 -->
+    <select id="countMyCourses" resultType="int">
+        SELECT COUNT(*)
+        FROM enrollment e
+        JOIN course c ON e.course_id = c.course_id
+        WHERE e.user_id = #{userId}
+          AND e.status = 'ACTIVE'
     </select>
 
 </mapper>

@@ -62,6 +62,32 @@
         </div>
     </div>
 
+    <!-- 페이징 -->
+    <div class="pagination" th:if="${totalPages != null and totalPages > 1}">
+        <a th:if="${startPage > 1}"
+           th:href="@{/mypage/purchase(page=${startPage - 1}, size=${pageSize})}"
+           class="page-link">
+            이전
+        </a>
+        <span th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-number">
+            <a th:if="${i != currentPage}"
+               th:href="@{/mypage/purchase(page=${i}, size=${pageSize})}"
+               th:text="${i}">1</a>
+            <strong th:if="${i == currentPage}"
+                    th:text="${i}">1</strong>
+        </span>
+        <a th:if="${endPage < totalPages}"
+           th:href="@{/mypage/purchase(page=${endPage + 1}, size=${pageSize})}"
+           class="page-link">
+            다음
+        </a>
+    </div>
+
+    <!-- 총 결제 건수 -->
+    <div class="qna-summary" th:if="${totalCount != null}">
+        <p>총 <strong th:text="${totalCount}">0</strong>건의 결제 내역</p>
+    </div>
+
     <div id="receiptModal" class="modal-overlay">
         <div class="modal-content receipt-modal">
             <div class="modal-header">

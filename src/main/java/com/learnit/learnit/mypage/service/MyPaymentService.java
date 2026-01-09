@@ -18,9 +18,12 @@ public class MyPaymentService {
 
     private final MyPaymentMapper myPaymentMapper;
 
-    public List<MyPaymentHistoryDTO> getPaymentHistories(Long userId){
-
-        List<MyPaymentHistoryDTO> histories = myPaymentMapper.findPaymentHistories(userId);
+    /**
+     * 결제 내역 조회 (페이징)
+     */
+    public List<MyPaymentHistoryDTO> getPaymentHistories(Long userId, int page, int size){
+        int offset = (page - 1) * size;
+        List<MyPaymentHistoryDTO> histories = myPaymentMapper.findPaymentHistories(userId, offset, size);
 
         for(MyPaymentHistoryDTO dto : histories){
             List<String> titles = myPaymentMapper.findCourseTitlesByPaymentId(dto.getPaymentId());
@@ -35,6 +38,13 @@ public class MyPaymentService {
         }
 
         return histories;
+    }
+
+    /**
+     * 결제 내역 총 개수
+     */
+    public int getPaymentHistoriesCount(Long userId) {
+        return myPaymentMapper.countPaymentHistories(userId);
     }
 
     public MyPaymentReceiptDTO getReceipt(Long paymentId, Long userId){

@@ -80,12 +80,11 @@
             if (hasAttendance) dayClass += ' has-attendance';
             if (hasTodo) dayClass += ' has-todo';
             
-            let statsHtml = '';
-            if (lectureCount > 0 || studyMinutes > 0) {
-                statsHtml = '<div class="calendar-day-stats">';
-                if (lectureCount > 0) statsHtml += lectureCount + '강';
-                if (studyMinutes > 0) statsHtml += ' ' + studyMinutes + '분';
-                statsHtml += '</div>';
+            // 학습 표시 (할일처럼 초록색 점만 표시 - 강의명은 모달에서 확인)
+            let studyHtml = '';
+            if (hasStudy) {
+                // 학습이 있는 경우 - 초록색 점만 표시 (강의명은 모달에서 확인)
+                studyHtml = '<div class="calendar-study-indicator" title="학습 기록 있음"></div>';
             }
             
             // 할일 표시 (구글 캘린더처럼 제목 표시)
@@ -112,8 +111,8 @@
             
             html += '<div class="' + dayClass + '" data-day="' + day + '" data-year="' + year + '" data-month="' + month + '">';
             html += '<div class="calendar-day-number">' + day + '</div>';
+            html += studyHtml;
             html += todoHtml;
-            html += statsHtml;
             html += '</div>';
         }
         
@@ -1291,13 +1290,70 @@
     // 오늘 수강한 강의 목록 로드
     function loadDailyCourses(year, month, day) {
         const coursesList = document.getElementById('daily-courses-list');
-        if (!coursesList) return;
-        
-        coursesList.innerHTML = '';
-        
-        // TODO: 서버 API 호출하여 강의 목록 가져오기
-        // 현재는 빈 목록 표시
-        coursesList.innerHTML = '<p class="empty-courses">오늘 수강한 강의가 없습니다.</p>';
+        if (!coursesList) {
+            console.error('daily-courses-list 요소를 찾을 수 없습니다.');
+            return;
+        }
+
+        console.log('일일 강의 목록 로드 시작:', { year, month, day });
+
+        // 로딩 메시지 표시
+        coursesList.innerHTML = '<p class="loading-message">오늘 수강한 강의를 불러오는 중...</p>';
+
+        const params = new URLSearchParams({
+            year: String(year),
+            month: String(month),
+            day: String(day)
+        });
+
+        const apiUrl = `/api/mypage/daily-courses?${params.toString()}`;
+        console.log('API 호출 URL:', apiUrl);
+
+        apiCall(apiUrl)
+            .then(data => {
+                console.log('API 응답 데이터:', data);
+                
+                if (!data || data.success === false) {
+                    console.error('일일 강의 목록 로드 실패:', data && data.error);
+                    coursesList.innerHTML = '<p class="empty-courses">오늘 수강한 강의가 없습니다.</p>';
+                    return;
+                }
+
+                const courses = data.courses || [];
+                console.log('강의 목록:', courses);
+
+                if (!courses.length) {
+                    console.log('강의 목록이 비어있습니다.');
+                    coursesList.innerHTML = '<p class="empty-courses">오늘 수강한 강의가 없습니다.</p>';
+                    return;
+                }
+
+                coursesList.innerHTML = '';
+
+                courses.forEach(course => {
+                    const item = document.createElement('div');
+                    item.className = 'daily-course-item';
+
+                    const courseTitle = course.courseTitle || '제목 없는 강의';
+                    const chapterTitle = course.chapterTitle;
+                    const studiedMinutes = course.studiedMinutes ? Math.round(course.studiedMinutes) : null;
+
+                    item.innerHTML = `
+                        <div class="daily-course-info">
+                            <span class="daily-course-dot"></span>
+                            <span class="daily-course-title">${courseTitle}</span>
+                            ${chapterTitle ? `<span class="daily-course-chapter">・ ${chapterTitle}</span>` : ''}
+                            ${studiedMinutes ? `<span class="daily-course-time">${studiedMinutes}분 학습</span>` : ''}
+                        </div>
+                    `;
+
+                    coursesList.appendChild(item);
+                });
+            })
+            .catch(error => {
+                console.error('일일 강의 목록 로드 실패:', error);
+                coursesList.innerHTML = '<p class="empty-courses">오늘 수강한 강의가 없습니다.</p>';
+            });
     }
 
     // 수료증 전체 보기 모달 관련

@@ -184,6 +184,87 @@
     color: #111;
 }
 
+/* 페이징 스타일 (강의 Q&A와 유사) */
+.pagination {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.page-link {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 4px;
+    text-decoration: none;
+    color: #007bff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.page-link:hover {
+    background-color: #f8f9fa;
+    color: #0056b3;
+}
+
+.page-number {
+    display: inline-block;
+}
+
+.page-number a {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 4px;
+    text-decoration: none;
+    color: #007bff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.page-number a:hover {
+    background-color: #f8f9fa;
+    color: #0056b3;
+}
+
+.page-number strong {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 4px;
+    color: white;
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+}
+
+/* 강의 개수 요약 (Q&A와 유사 스타일) */
+.qna-summary {
+    margin-top: 20px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.qna-summary p {
+    font-size: 1.4rem;
+}
+
+.qna-summary strong {
+    color: #007bff;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .pagination {
+        margin-top: 20px;
+    }
+
+    .page-link,
+    .page-number a,
+    .page-number strong {
+        padding: 6px 10px;
+        font-size: 1.2rem;
+    }
+}
+
 @media (max-width: 768px) {
     .course-card-horizontal {
         flex-direction: column;
