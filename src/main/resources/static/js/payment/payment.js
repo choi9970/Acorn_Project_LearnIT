@@ -47,8 +47,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 const minPrice = Number(opt.dataset.minPrice || 0);
                 const couponDiscount = Number(opt.dataset.discount || 0);
 
-                if ((basePrice - couponDiscount) < minPrice) {
-                    warningText.textContent = `할인 후 결제 금액이 최소 ${minPrice.toLocaleString()}원 이상이어야 이 쿠폰을 사용할 수 있습니다.`;
+                if (basePrice < minPrice) {
+                    warningText.textContent = `결제 금액이 ${minPrice.toLocaleString()}원 이상일 때만 사용 가능한 쿠폰입니다.`;
                     warningText.style.display = "flex";
                     couponSelect.classList.add("invalid");
 
