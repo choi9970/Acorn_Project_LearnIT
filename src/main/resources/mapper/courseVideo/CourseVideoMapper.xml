@@ -54,12 +54,23 @@
         SELECT COUNT(*) FROM chapter WHERE course_id = #{courseId}
     </select>
 
+    <!-- duration_sec > 0인 챕터 수 카운트 (수료증 발급용) -->
+    <select id="countTotalChaptersWithDuration" resultType="int">
+        SELECT COUNT(*) 
+        FROM chapter 
+        WHERE course_id = #{courseId}
+          AND duration_sec > 0
+    </select>
+
+    <!-- 95% 이상 수강한 챕터 수 (수료증 발급용) - JOIN으로 개선 -->
     <select id="countCompletedChapters" resultType="int">
-        SELECT COUNT(*)
-        FROM study_log
-        WHERE user_id = #{userId}
-          AND course_id = #{courseId}
-          AND (studied_sec / (SELECT duration_sec FROM chapter WHERE chapter_id = study_log.chapter_id)) >= 0.95
+        SELECT COUNT(DISTINCT sl.chapter_id)
+        FROM study_log sl
+        JOIN chapter ch ON sl.chapter_id = ch.chapter_id
+        WHERE sl.user_id = #{userId}
+          AND sl.course_id = #{courseId}
+          AND ch.duration_sec > 0
+          AND (sl.studied_sec / ch.duration_sec) >= 0.95
     </select>
 
     <update id="updateChapterDuration">
@@ -138,6 +149,48 @@
         FROM chapter
         WHERE course_id = #{courseId}
         ORDER BY order_index ASC
+        LIMIT 1
+    </select>
+
+    <!-- enrollment_id 조회 -->
+    <select id="selectEnrollmentId" resultType="Long">
+        SELECT enrollment_id
+        FROM enrollment
+        WHERE user_id = #{userId}
+          AND course_id = #{courseId}
+        LIMIT 1
+    </select>
+
+    <!-- enrollment 완강 처리 (completed_at 업데이트) -->
+    <update id="updateEnrollmentCompleted">
+        UPDATE enrollment
+        SET completed_at = NOW(),
+            progress_rate = 100
+        WHERE enrollment_id = #{enrollmentId}
+          AND completed_at IS NULL
+    </update>
+
+    <!-- 수료증 존재 여부 확인 -->
+    <select id="existsCertificate" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM certificate
+        WHERE enrollment_id = #{enrollmentId}
+    </select>
+
+    <!-- 사용자가 수강 중인 모든 강의 ID 조회 -->
+    <select id="selectEnrolledCourseIds" resultType="Long">
+        SELECT DISTINCT course_id
+        FROM enrollment
+        WHERE user_id = #{userId}
+          AND status = 'ACTIVE'
+    </select>
+
+    <!-- 특정 챕터의 학습 시간 조회 (디버깅용) -->
+    <select id="selectStudiedSec" resultType="Integer">
+        SELECT studied_sec
+        FROM study_log
+        WHERE user_id = #{userId}
+          AND chapter_id = #{chapterId}
         LIMIT 1
     </select>
 
