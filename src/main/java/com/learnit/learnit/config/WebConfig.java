@@ -18,6 +18,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -44,13 +47,47 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
-        String projectPath = System.getProperty("user.dir").replace("\\", "/");
-        // 프로필 이미지 경로 매핑
-        registry.addResourceHandler("/uploads/profile/**")
-                .addResourceLocations("file:///" + projectPath + "/uploads/profile/");
-        // 기타 uploads 경로도 지원
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:///" + projectPath + "/uploads/");
+        try {
+            String projectPath = System.getProperty("user.dir");
+            Path profileDir = Paths.get(projectPath, "uploads", "profile");
+            
+            // 디렉토리가 없으면 생성
+            if (!Files.exists(profileDir)) {
+                Files.createDirectories(profileDir);
+                log.info("프로필 이미지 디렉토리 생성: {}", profileDir);
+            }
+            
+            // Windows 경로를 file:// URL 형식으로 변환
+            String profilePath = profileDir.toAbsolutePath().toString().replace("\\", "/");
+            // Windows 드라이브 경로 처리 (C:/ -> file:/C:/)
+            if (profilePath.matches("^[A-Za-z]:/.*")) {
+                profilePath = "file:/" + profilePath;
+            } else {
+                profilePath = "file:" + profilePath;
+            }
+            
+            // 프로필 이미지 경로 매핑
+            registry.addResourceHandler("/uploads/profile/**")
+                    .addResourceLocations(profilePath + "/");
+            
+            // 기타 uploads 경로도 지원
+            Path uploadsDir = Paths.get(projectPath, "uploads");
+            String uploadsPath = uploadsDir.toAbsolutePath().toString().replace("\\", "/");
+            if (uploadsPath.matches("^[A-Za-z]:/.*")) {
+                uploadsPath = "file:/" + uploadsPath;
+            } else {
+                uploadsPath = "file:" + uploadsPath;
+            }
+            
+            registry.addResourceHandler("/uploads/**")
+                    .addResourceLocations(uploadsPath + "/");
+            
+            log.info("정적 리소스 경로 매핑 완료:");
+            log.info("  프로필 이미지: {} -> {}", "/uploads/profile/**", profilePath + "/");
+            log.info("  기타 업로드: {} -> {}", "/uploads/**", uploadsPath + "/");
+        } catch (Exception e) {
+            log.error("정적 리소스 경로 매핑 실패", e);
+        }
     }
 
     @Bean

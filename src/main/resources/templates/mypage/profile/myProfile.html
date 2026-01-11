@@ -78,7 +78,9 @@
         <section class="profile-section certificate-section">
             <div class="section-header">
                 <h2 class="section-title">수료증</h2>
-                <button class="view-all-link" id="view-all-certificates-btn" style="background: none; border: none; cursor: pointer; color: #666; text-decoration: none; font-size: 1.4rem;">전체 보기 ></button>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="view-all-link" id="view-all-certificates-btn" style="background: none; border: none; cursor: pointer; color: #666; text-decoration: none; font-size: 1.4rem;">전체 보기 ></button>
+                </div>
             </div>
             <div class="certificate-content">
                 <div th:if="${certificates != null && !certificates.isEmpty()}" class="certificate-list">

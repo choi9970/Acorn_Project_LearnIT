@@ -36,9 +36,11 @@
                         <span class="qna-course" th:text="${qna.courseTitle != null ? qna.courseTitle : '강의명 없음'}">강의명</span>
                         <span class="qna-date" th:text="${#temporals.format(qna.createdAt, 'yyyy. MM. dd. HH:mm')}">2024. 01. 01. 12:00</span>
                     </div>
-                    <span class="qna-status" 
-                          th:classappend="${qna.isResolved == 'Y'} ? 'status-resolved' : 'status-pending'"
-                          th:text="${qna.isResolved == 'Y'} ? '답변완료' : '답변대기'">답변대기</span>
+                    <div class="qna-status-wrapper">
+                        <span class="qna-status" 
+                              th:classappend="${qna.isResolved == 'Y'} ? 'status-resolved' : 'status-pending'"
+                              th:text="${qna.isResolved == 'Y'} ? '답변완료' : '답변대기'">답변대기</span>
+                    </div>
                 </div>
                 <div class="qna-content">
                     <p th:text="${qna.content}">질문 내용...</p>
@@ -52,9 +54,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="qna-actions" th:if="${qna.courseId != null and qna.firstChapterId != null}">
-                    <a th:href="@{'/course/play?courseId=' + ${qna.courseId} + '&chapterId=' + ${qna.firstChapterId} + '&openTab=qna'}"
-                       class="course-link-btn">
+                <!-- 강의 상세보기 버튼 (구분선 아래) - 모든 Q&A 항목에 표시 -->
+                <div class="qna-actions" th:if="${qna.courseId != null}">
+                    <a th:href="${qna.firstChapterId != null} 
+                           ? @{'/course/play?courseId=' + ${qna.courseId} + '&chapterId=' + ${qna.firstChapterId} + '&openTab=qna'}
+                           : @{'/CourseDetail?courseId=' + ${qna.courseId}}"
+                       class="course-detail-btn">
                         강의 상세보기 →
                     </a>
                 </div>

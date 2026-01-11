@@ -71,6 +71,43 @@ public class QuizService {
         return quizMapper.countUserQuizHistory(userId, quizId) > 0;
     }
 
+    // 퀴즈 통과 여부 확인 (정답률 60% 이상)
+    public boolean isQuizPassed(Long userId, Long quizId) {
+        if (userId == null || quizId == null) return false;
+        return quizMapper.isQuizPassed(userId, quizId);
+    }
+
+    // 강의의 모든 필수 퀴즈 통과 여부 확인
+    public boolean areAllRequiredQuizzesPassed(Long userId, Long courseId) {
+        if (userId == null || courseId == null) return false;
+        
+        List<Quiz> quizList = quizMapper.selectQuizListByCourseId(courseId);
+        if (quizList == null || quizList.isEmpty()) {
+            return true; // 퀴즈가 없으면 통과로 간주
+        }
+        
+        // FINAL 퀴즈가 있다면 반드시 통과해야 함
+        Long finalQuizId = getFinalQuizId(courseId);
+        if (finalQuizId != null) {
+            if (!isQuizSubmitted(userId, finalQuizId)) {
+                return false; // FINAL 퀴즈를 아직 응시하지 않음
+            }
+            if (!isQuizPassed(userId, finalQuizId)) {
+                return false; // FINAL 퀴즈를 통과하지 못함
+            }
+        }
+        
+        // 모든 퀴즈를 통과했는지 확인
+        for (Quiz quiz : quizList) {
+            // 퀴즈를 응시했다면 통과해야 함
+            if (isQuizSubmitted(userId, quiz.getQuizId()) && !isQuizPassed(userId, quiz.getQuizId())) {
+                return false; // 응시했지만 통과하지 못한 퀴즈가 있음
+            }
+        }
+        
+        return true;
+    }
+
     @Transactional
     public void submitQuiz(Long userId, QuizSubmitRequest request) {
         if (userId == null || request == null) return;

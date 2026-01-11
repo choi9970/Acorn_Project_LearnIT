@@ -11,18 +11,18 @@
             c.title,
             c.thumbnail_url AS thumbnailUrl,
             COALESCE(MAX(ch.order_index), 0) AS currentLecture,
-            COALESCE((SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id), 0) AS totalLectures,
+            COALESCE((SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id AND duration_sec > 0), 0) AS totalLectures,
             CASE 
-                WHEN (SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id) > 0 
+                WHEN (SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id AND duration_sec > 0) > 0 
                 THEN ROUND(
-                    (SELECT COUNT(*) 
+                    (SELECT COUNT(DISTINCT sl_sub.chapter_id)
                      FROM study_log sl_sub 
                      JOIN chapter ch_sub ON sl_sub.chapter_id = ch_sub.chapter_id 
                      WHERE sl_sub.user_id = e.user_id 
                        AND sl_sub.course_id = c.course_id 
                        AND ch_sub.duration_sec > 0
                        AND (sl_sub.studied_sec / ch_sub.duration_sec) >= 0.95
-                    ) * 100.0 / (SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id), 0)
+                    ) * 100.0 / (SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id AND duration_sec > 0), 0)
                 ELSE 0
             END AS progressRate,
             e.enrollment_id AS enrollmentId,

@@ -67,12 +67,38 @@
         ORDER BY qu.question_id ASC, qo.option_id ASC
     </select>
 
+    <!-- 퀴즈 ID로 courseId 조회 -->
+    <select id="selectCourseIdByQuizId" resultType="Long">
+        SELECT course_id
+        FROM quiz
+        WHERE quiz_id = #{quizId}
+    </select>
+
     <select id="countUserQuizHistory" resultType="int">
         SELECT COUNT(*)
         FROM user_answer ua
                  JOIN question q ON ua.question_id = q.question_id
         WHERE ua.user_id = #{userId}
           AND q.quiz_id = #{quizId}
+    </select>
+
+    <!-- 퀴즈 통과 여부 확인 (정답률 60% 이상) -->
+    <select id="isQuizPassed" resultType="boolean">
+        SELECT 
+            CASE 
+                WHEN total_questions = 0 THEN false
+                WHEN correct_count * 100.0 / total_questions >= 60 THEN true
+                ELSE false
+            END AS passed
+        FROM (
+            SELECT 
+                COUNT(DISTINCT q.question_id) AS total_questions,
+                COUNT(CASE WHEN ua.is_correct = 'Y' THEN 1 END) AS correct_count
+            FROM question q
+            LEFT JOIN user_answer ua ON q.question_id = ua.question_id 
+                AND ua.user_id = #{userId}
+            WHERE q.quiz_id = #{quizId}
+        ) AS quiz_result
     </select>
 
     <insert id="insertUserAnswer">

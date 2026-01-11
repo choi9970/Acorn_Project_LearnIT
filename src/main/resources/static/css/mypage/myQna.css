@@ -58,6 +58,13 @@
     color: #666;
 }
 
+.qna-status-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.8rem;
+}
+
 .qna-status {
     padding: 0.6rem 1.2rem;
     border-radius: 20px;
@@ -73,6 +80,24 @@
 .status-resolved {
     background: #d4edda;
     color: #155724;
+}
+
+.course-detail-btn {
+    padding: 0.6rem 1.2rem;
+    background: #0A4A7A;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.course-detail-btn:hover {
+    background: #083a60;
 }
 
 .qna-content {
