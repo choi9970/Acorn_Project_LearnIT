@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 페이지 로드 시 수료증 목록 자동 로드
+    loadCertificates();
+
     // 수료증 전체 보기 버튼 클릭
     const viewAllCertificatesBtn = document.getElementById('view-all-certificates-btn');
     const certificatesModal = document.getElementById('certificates-modal');
@@ -41,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 페이지 로드 시 Thymeleaf에서 전달된 데이터가 있으면 먼저 표시
     if (window.savedSkillChart && window.savedSkillChart.skillNames && window.savedSkillChart.skillNames.length > 0) {
-        console.log('Thymeleaf 데이터로 차트 표시:', window.savedSkillChart);
         displaySkillChart(window.savedSkillChart);
         if (window.savedAnalysis) {
             displayAnalysisResult(window.savedAnalysis);
@@ -57,6 +59,70 @@ document.addEventListener('DOMContentLoaded', function() {
         loadSavedAnalysis();
     }
 });
+
+/**
+ * 수료증 목록 로드 (페이지 로드 시 자동 호출)
+ */
+function loadCertificates() {
+    fetch('/api/mypage/certificates', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('서버 응답 오류: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                updateCertificateList(data.certificates || []);
+            }
+        })
+        .catch(error => {
+            // 에러 발생 시 조용히 처리 (초기 로드 실패는 무시)
+        });
+}
+
+/**
+ * 수료증 목록 업데이트 (페이지 새로고침 없이)
+ */
+function updateCertificateList(certificates) {
+    const certificateContent = document.querySelector('.certificate-content');
+    if (!certificateContent) return;
+    
+    if (certificates.length === 0) {
+        certificateContent.innerHTML = '<p class="empty-message">수료증이 없습니다.</p>';
+        return;
+    }
+    
+    let html = '<div class="certificate-list">';
+    certificates.forEach(cert => {
+        const issueDate = cert.issuedDate ? new Date(cert.issuedDate).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).replace(/\./g, '. ').replace(/\s+/g, ' ') : '';
+        
+        html += `
+            <div class="certificate-item">
+                <div class="certificate-icon">📜</div>
+                <div class="certificate-info">
+                    <div class="certificate-title">${cert.courseTitle || '강의명 없음'}</div>
+                    <div class="certificate-date">${issueDate}</div>
+                </div>
+                <a href="${cert.certificateUrl || '#'}" class="certificate-download-btn" download>
+                    다운로드
+                </a>
+            </div>
+        `;
+    });
+    html += '</div>';
+    certificateContent.innerHTML = html;
+}
 
 /**
  * 수료증 전체 목록 로드
@@ -408,9 +474,7 @@ function displayAnalysisResult(analysis) {
  * 스킬 차트 표시
  */
 function displaySkillChart(skillChartData) {
-    console.log('차트 데이터:', skillChartData);
-    console.log('언어 목록:', skillChartData?.skillNames);
-    console.log('스킬 레벨:', skillChartData?.skillLevels);
+    // 디버그 로그 제거 (필요시 주석 해제)
     
     const containerEl = document.getElementById('skill-chart-container');
     const emptyEl = document.getElementById('skill-chart-empty');

@@ -13,7 +13,17 @@ public interface QuizMapper {
 
     Quiz selectQuizByQuizId(Long quizId);
 
+    /**
+     * 퀴즈 ID로 courseId 조회
+     */
+    Long selectCourseIdByQuizId(@Param("quizId") Long quizId);
+
     int countUserQuizHistory(@Param("userId") Long userId, @Param("quizId") Long quizId);
+
+    /**
+     * 퀴즈 통과 여부 확인 (정답률 60% 이상)
+     */
+    boolean isQuizPassed(@Param("userId") Long userId, @Param("quizId") Long quizId);
 
     void insertUserAnswer(@Param("userId") Long userId, 
                           @Param("questionId") Long questionId, 

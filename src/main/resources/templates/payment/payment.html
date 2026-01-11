@@ -51,7 +51,8 @@
                     <select id="couponSelect" class="coupon-select">
                         <option value="">쿠폰 선택 안 함</option>
                         <option th:each="coupon : ${coupons}"
-                                th:value="${coupon.userCouponId}"
+                                th:value="${coupon.couponId}"
+                                th:data-user-coupon-id="${coupon.userCouponId}"
                                 th:data-discount="${coupon.discountAmount}"
                                 th:data-min-price="${coupon.minPrice}"
                                 th:text="${coupon.name + ' ( -' + coupon.discountAmount + '원 )'}">

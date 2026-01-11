@@ -27,9 +27,12 @@ public class MyQnAService {
         
         // 각 Q&A에 대해 첫 번째 챕터 ID 조회 및 설정
         for (MyQnADTO qna : qnaList) {
-            if (qna.getCourseId() != null) {
+            if (qna.getCourseId() != null && qna.getCourseId() > 0) {
+                // 강의 영상 페이지로 이동하기 위해 첫 번째 챕터 ID를 반드시 조회
                 Long firstChapterId = courseVideoService.getFirstChapterId(qna.getCourseId().longValue());
                 qna.setFirstChapterId(firstChapterId);
+                // firstChapterId가 null이면 강의 영상 페이지로 갈 수 없으므로, 
+                // null인 경우에도 일단 설정 (강의에 챕터가 없는 경우는 드뭅지만 가능)
             }
         }
         

@@ -23,4 +23,19 @@
           AND cert.is_approved = 'Y'
     </select>
 
+    <!-- 수료증 생성 (완강 시 자동 발급) -->
+    <insert id="insertCertificate">
+        INSERT INTO certificate (
+            enrollment_id,
+            certificate_number,
+            is_approved,
+            issued_at
+        ) VALUES (
+            #{enrollmentId},
+            #{certificateNumber},
+            'Y',
+            NOW()
+        )
+    </insert>
+
 </mapper>

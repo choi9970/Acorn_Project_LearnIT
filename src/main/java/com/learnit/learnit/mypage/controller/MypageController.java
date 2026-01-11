@@ -9,6 +9,7 @@ import com.learnit.learnit.mypage.dto.MyProfileDTO;
 import com.learnit.learnit.mypage.dto.MySkillChartDTO;
 import com.learnit.learnit.mypage.dto.MyWeeklyLearningDTO;
 import com.learnit.learnit.mypage.dto.MyCalendarSummaryDTO;
+import com.learnit.learnit.courseVideo.service.CourseVideoService;
 import com.learnit.learnit.mypage.service.MyDashboardService;
 import com.learnit.learnit.mypage.service.MyGitHubAnalysisService;
 import com.learnit.learnit.mypage.service.MyProfileService;
@@ -40,6 +41,7 @@ public class MypageController {
     private final UserService userService;
     private final MyProfileService profileService;
     private final MyGitHubAnalysisService githubAnalysisService;
+    private final CourseVideoService courseVideoService;
 
 
     @GetMapping("/mypage")
@@ -258,6 +260,38 @@ public class MypageController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("error", "수료증 목록을 불러오는데 실패했습니다: " + e.getMessage());
+            return response;
+        }
+    }
+
+    /**
+     * 완료된 강의에 대해 수료증 발급 체크 (AJAX용)
+     */
+    @PostMapping("/api/mypage/certificates/check")
+    @ResponseBody
+    public Map<String, Object> checkAndIssueCertificates(HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+        
+        Map<String, Object> response = new HashMap<>();
+        if (userId == null) {
+            response.put("success", false);
+            response.put("error", "로그인이 필요한 서비스입니다.");
+            return response;
+        }
+
+        try {
+            // 모든 완료된 강의에 대해 수료증 발급 체크
+            courseVideoService.checkAndIssueCertificatesForAllCompletedCourses(userId);
+            
+            // 수료증 목록 다시 조회
+            List<MyCertificateDTO> certificates = profileService.getCertificates(userId);
+            response.put("success", true);
+            response.put("message", "수료증 발급 체크가 완료되었습니다.");
+            response.put("certificates", certificates != null ? certificates : new java.util.ArrayList<>());
+            return response;
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "수료증 발급 체크에 실패했습니다: " + e.getMessage());
             return response;
         }
     }
