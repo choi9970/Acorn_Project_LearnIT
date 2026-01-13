@@ -96,6 +96,53 @@ public class AdminQnaController {
 
         return "admin/qna/adminQnaManage";
     }
+    // ✅✅✅ (신규) 강의 화면(/course/play)로 이동
+    @GetMapping("/{qnaId}/go-course")
+    public String goCourseQna(
+            @PathVariable int qnaId,
+            RedirectAttributes ra,
+            HttpSession session
+    ) {
+        AdminQnaDTO detail = service.getDetail(qnaId);
+        if (detail == null) {
+            ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
+            return "redirect:/admin/qna";
+        }
+
+        if (!auth.canManageRow(session, detail.getCourseId())) {
+            ra.addFlashAttribute("errorMessage", "권한이 없습니다.");
+            return "redirect:/admin/qna";
+        }
+
+        if (detail.getCourseId() == null) {
+            ra.addFlashAttribute("errorMessage", "전체 Q&A는 강의 화면으로 이동할 수 없습니다.");
+            return "redirect:/admin/qna";
+        }
+
+        // SUB_ADMIN이면 내 강의만
+        Long loginUserId = auth.loginUserId(session);
+        if (auth.isSubAdmin(session) && !auth.isAdmin(session)) {
+            Long ownerId = service.getInstructorUserIdByCourseId(detail.getCourseId());
+            if (ownerId == null || loginUserId == null || !ownerId.equals(loginUserId)) {
+                ra.addFlashAttribute("errorMessage", "권한이 없습니다. (내 강의 Q&A만 처리 가능)");
+                return "redirect:/admin/qna";
+            }
+        }
+
+        // ✅✅ chapterId가 필요하니까 "첫 챕터" 가져와서 붙임
+        Integer chapterId = service.getFirstChapterIdByCourseId(detail.getCourseId());
+        if (chapterId == null) {
+            ra.addFlashAttribute("errorMessage", "강의 챕터 정보를 찾을 수 없습니다.");
+            return "redirect:/admin/qna";
+        }
+
+        // ✅ 너가 보여준 URL 패턴 그대로
+        String url = "/course/play?courseId=" + detail.getCourseId()
+                + "&chapterId=" + chapterId
+                + "&openQna=1&qnaId=" + qnaId;
+
+        return "redirect:" + url;
+    }
 
     // ✅ 답변+상태 저장
     @PostMapping("/{qnaId}/save")

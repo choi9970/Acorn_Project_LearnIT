@@ -53,9 +53,10 @@
 
                 <a th:href="@{/cart}" class="header-cart-btn" aria-label="장바구니">
                     <img th:src="@{/images/cart-icon.png}" class="header-cart-icon" alt="cart">
+                    <!-- ✅ 항상 렌더링(0이면 숨김) → JS로 실시간 갱신 가능 -->
                     <span class="cart-count-badge"
-                          th:if="${cartCount > 0}"
-                          th:text="${cartCount}">0</span>
+                          th:text="${cartCount}"
+                          th:classappend="${cartCount > 0} ? '' : ' is-hidden'">0</span>
                 </a>
 
                 <th:block th:if="${loginUserId == null}">
@@ -97,9 +98,10 @@
                     <div class="mobile-nav__toprow mobile-nav__toprow--guest">
                         <a th:href="@{/cart}" class="mobile-nav__cart" aria-label="장바구니">
                             <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="cart">
+                            <!-- ✅ 항상 렌더링(0이면 숨김) → JS로 실시간 갱신 가능 -->
                             <span class="cart-count-badge"
-                                  th:if="${cartCount > 0}"
-                                  th:text="${cartCount}">0</span>
+                                  th:text="${cartCount}"
+                                  th:classappend="${cartCount > 0} ? '' : ' is-hidden'">0</span>
                         </a>
 
                         <a th:href="@{/login(redirect=${currentUrl})}" class="mobile-nav__login">로그인</a>
@@ -113,9 +115,10 @@
                         <div class="mobile-nav__rightpack">
                             <a th:href="@{/cart}" class="mobile-nav__cart" aria-label="장바구니">
                                 <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="cart">
+                                <!-- ✅ 항상 렌더링(0이면 숨김) → JS로 실시간 갱신 가능 -->
                                 <span class="cart-count-badge"
-                                      th:if="${cartCount > 0}"
-                                      th:text="${cartCount}">0</span>
+                                      th:text="${cartCount}"
+                                      th:classappend="${cartCount > 0} ? '' : ' is-hidden'">0</span>
                             </a>
 
                             <form th:action="@{/logout}" method="post" style="display:inline;">

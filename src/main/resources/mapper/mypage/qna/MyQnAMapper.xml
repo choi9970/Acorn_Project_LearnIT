@@ -16,6 +16,50 @@
             q.is_resolved AS isResolved,
             q.created_at AS createdAt,
             a.content AS answer,
+            a.created_at AS answeredAt,
+            a.user_id AS answerUserId
+        FROM qna_question q
+        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
+        LEFT JOIN users u ON q.user_id = u.user_id
+        LEFT JOIN (
+            SELECT a1.qna_id, a1.content, a1.created_at, a1.user_id
+            FROM qna_answer a1
+            INNER JOIN (
+                SELECT qna_id, MAX(created_at) AS max_created_at
+                FROM qna_answer
+                WHERE delete_flg = 0 
+                  AND parent_answer_id IS NULL
+                GROUP BY qna_id
+            ) a2 ON a1.qna_id = a2.qna_id 
+                AND a1.created_at = a2.max_created_at
+                AND a1.delete_flg = 0
+                AND a1.parent_answer_id IS NULL
+        ) a ON q.qna_id = a.qna_id
+        WHERE q.user_id = #{userId}
+          AND (q.delete_flg = 0 OR q.delete_flg IS NULL)
+        ORDER BY q.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countMyQnAList" resultType="int">
+        SELECT COUNT(*)
+        FROM qna_question q
+        WHERE q.user_id = #{userId}
+          AND (q.delete_flg = 0 OR q.delete_flg IS NULL)
+    </select>
+
+    <!-- 관리자(ADMIN)가 볼 수 있는 모든 Q&A 목록 조회 (챗봇 질문 포함) -->
+    <select id="selectAdminQnAList" resultType="com.learnit.learnit.mypage.dto.MyQnADTO">
+        SELECT 
+            q.qna_id AS qnaId,
+            q.course_id AS courseId,
+            c.title AS courseTitle,
+            q.user_id AS userId,
+            u.name AS userName,
+            q.content,
+            q.is_resolved AS isResolved,
+            q.created_at AS createdAt,
+            a.content AS answer,
             a.created_at AS answeredAt
         FROM qna_question q
         LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
@@ -34,17 +78,76 @@
                 AND a1.delete_flg = 0
                 AND a1.parent_answer_id IS NULL
         ) a ON q.qna_id = a.qna_id
-        WHERE q.user_id = #{userId}
-          AND q.delete_flg = 0
+        WHERE (q.delete_flg = 0 OR q.delete_flg IS NULL)
         ORDER BY q.created_at DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <select id="countMyQnAList" resultType="int">
+    <!-- 관리자(ADMIN)가 볼 수 있는 모든 Q&A 총 개수 조회 (챗봇 질문 포함) -->
+    <select id="countAdminQnAList" resultType="int">
         SELECT COUNT(*)
         FROM qna_question q
-        WHERE q.user_id = #{userId}
-          AND q.delete_flg = 0
+        WHERE (q.delete_flg = 0 OR q.delete_flg IS NULL)
+    </select>
+
+    <!-- 서브 어드민(SUB_ADMIN)이 관리하는 강의의 Q&A 목록 조회 -->
+    <select id="selectSubAdminQnAList" resultType="com.learnit.learnit.mypage.dto.MyQnADTO">
+        SELECT 
+            q.qna_id AS qnaId,
+            q.course_id AS courseId,
+            c.title AS courseTitle,
+            q.user_id AS userId,
+            u.name AS userName,
+            q.content,
+            q.is_resolved AS isResolved,
+            q.created_at AS createdAt,
+            a.content AS answer,
+            a.created_at AS answeredAt
+        FROM qna_question q
+        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
+        LEFT JOIN users u ON q.user_id = u.user_id
+        LEFT JOIN (
+            SELECT a1.qna_id, a1.content, a1.created_at
+            FROM qna_answer a1
+            INNER JOIN (
+                SELECT qna_id, MAX(created_at) AS max_created_at
+                FROM qna_answer
+                WHERE delete_flg = 0 
+                  AND parent_answer_id IS NULL
+                GROUP BY qna_id
+            ) a2 ON a1.qna_id = a2.qna_id 
+                AND a1.created_at = a2.max_created_at
+                AND a1.delete_flg = 0
+                AND a1.parent_answer_id IS NULL
+        ) a ON q.qna_id = a.qna_id
+        WHERE (q.delete_flg = 0 OR q.delete_flg IS NULL)
+          AND q.course_id IN
+          <foreach collection="managedCourseIds" item="courseId" open="(" separator="," close=")">
+              #{courseId}
+          </foreach>
+        ORDER BY q.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 서브 어드민(SUB_ADMIN)이 관리하는 강의의 Q&A 총 개수 조회 (챗봇 질문 포함) -->
+    <select id="countSubAdminQnAList" resultType="int">
+        SELECT COUNT(*)
+        FROM qna_question q
+        WHERE (q.delete_flg = 0 OR q.delete_flg IS NULL)
+          AND q.course_id IN
+          <foreach collection="managedCourseIds" item="courseId" open="(" separator="," close=")">
+              #{courseId}
+          </foreach>
+    </select>
+
+    <!-- 서브 어드민이 관리하는 강의 ID 목록 조회 -->
+    <select id="selectManagedCourseIds" resultType="int">
+        SELECT DISTINCT aur.course_id
+        FROM admin_user_role aur
+        INNER JOIN admin_role ar ON aur.admin_role_id = ar.admin_role_id
+        WHERE aur.user_id = #{userId}
+          AND ar.code = 'SUB_ADMIN'
+          AND aur.course_id IS NOT NULL
     </select>
 
 </mapper>

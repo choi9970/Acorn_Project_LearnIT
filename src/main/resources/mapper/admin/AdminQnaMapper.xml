@@ -4,19 +4,48 @@
 
 <mapper namespace="com.learnit.learnit.admin.qna.AdminQnaRepository">
 
-    <sql id="latestAnswerJoin">
-        LEFT JOIN (
-        SELECT a1.*
-        FROM qna_answer a1
-        JOIN (
-        SELECT qna_id, MAX(created_at) AS max_created
-        FROM qna_answer
-        WHERE delete_flg = 0
-        GROUP BY qna_id
-        ) m ON a1.qna_id = m.qna_id AND a1.created_at = m.max_created
-        WHERE a1.delete_flg = 0
-        ) a ON q.qna_id = a.qna_id
+    <!-- ✅ "관리자(ADMIN) 또는 해당 강의 SUB_ADMIN"인지 검사 -->
+    <sql id="isStaffForThisQna">
+        EXISTS (
+        SELECT 1
+        FROM admin_user_role aur
+        JOIN admin_role ar ON aur.admin_role_id = ar.admin_role_id
+        WHERE aur.user_id = a2.user_id
+        AND (
+        ar.code = 'ADMIN'
+        OR (ar.code = 'SUB_ADMIN' AND aur.course_id = q.course_id)
+        )
+        )
+    </sql>
+
+    <!-- ✅ 최신 답변: "학생 글" 제외, ADMIN/SUB_ADMIN 답변만 -->
+    <sql id="latestStaffAnswerJoin">
+        LEFT JOIN qna_answer a
+        ON a.answer_id = (
+        SELECT a2.answer_id
+        FROM qna_answer a2
+        WHERE a2.qna_id = q.qna_id
+        AND a2.delete_flg = 0
+        AND <include refid="isStaffForThisQna"/>
+        ORDER BY a2.created_at DESC
+        LIMIT 1
+        )
         LEFT JOIN users au ON a.user_id = au.user_id
+    </sql>
+
+    <!-- ✅ 최신 "학생(비-스태프)" 글 1개 JOIN (관리자 화면에서 질문을 이걸로 교체해 보여줌) -->
+    <sql id="latestStudentAnswerJoin">
+        LEFT JOIN qna_answer sa
+        ON sa.answer_id = (
+        SELECT a2.answer_id
+        FROM qna_answer a2
+        WHERE a2.qna_id = q.qna_id
+        AND a2.delete_flg = 0
+        AND a2.parent_answer_id IS NULL
+        AND NOT (<include refid="isStaffForThisQna"/>)
+        ORDER BY a2.created_at DESC
+        LIMIT 1
+        )
     </sql>
 
     <sql id="baseWhere">
@@ -67,6 +96,7 @@
                     AND (
                     LOWER(IFNULL(c.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
                     OR LOWER(IFNULL(q.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(IFNULL(q.content,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
                     )
                 </when>
 
@@ -97,21 +127,30 @@
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
 
+        -- ✅ 최신 학생 글(질문 교체 표시용)
+        sa.content AS latestStudentContent,
+        sa.created_at AS latestStudentCreatedAt,
+
+        -- ✅ 최신 관리자/서브관리자 답변(답변란 표시용)
         a.answer_id AS answerId,
         a.user_id AS answerUserId,
         au.name AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
+
         FROM qna_question q
         LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
-        <include refid="latestAnswerJoin"/>
+
+        <include refid="latestStudentAnswerJoin"/>
+        <include refid="latestStaffAnswerJoin"/>
 
         <where>
             <include refid="baseWhere"/>
         </where>
 
-        ORDER BY q.created_at DESC
+        <!-- ✅ 정렬: 최신 학생 글이 있으면 그 시간 기준으로 위로 올라오게 -->
+        ORDER BY COALESCE(sa.created_at, q.updated_at, q.created_at) DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
@@ -140,25 +179,45 @@
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
 
+        sa.content AS latestStudentContent,
+        sa.created_at AS latestStudentCreatedAt,
+
         a.answer_id AS answerId,
         a.user_id AS answerUserId,
         au.name AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
+
         FROM qna_question q
         LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
-        <include refid="latestAnswerJoin"/>
+
+        <include refid="latestStudentAnswerJoin"/>
+        <include refid="latestStaffAnswerJoin"/>
+
         WHERE q.qna_id = #{qnaId}
         AND q.delete_flg = 0
     </select>
 
-    <select id="selectLatestAnswerId" resultType="java.lang.Integer">
-        SELECT answer_id
-        FROM qna_answer
-        WHERE qna_id = #{qnaId}
-        AND delete_flg = 0
-        ORDER BY created_at DESC
+    <!-- ✅ 관리자/서브관리자 답변만 최신으로 잡기 -->
+    <select id="selectLatestStaffAnswerId" resultType="java.lang.Integer">
+        SELECT a.answer_id
+        FROM qna_answer a
+        JOIN qna_question q ON q.qna_id = a.qna_id
+        WHERE a.qna_id = #{qnaId}
+        AND a.delete_flg = 0
+        AND q.delete_flg = 0
+        AND EXISTS (
+        SELECT 1
+        FROM admin_user_role aur
+        JOIN admin_role ar ON aur.admin_role_id = ar.admin_role_id
+        WHERE aur.user_id = a.user_id
+        AND (
+        ar.code = 'ADMIN'
+        OR (ar.code = 'SUB_ADMIN' AND aur.course_id = q.course_id)
+        )
+        )
+        ORDER BY a.created_at DESC
         LIMIT 1
     </select>
 
@@ -195,11 +254,17 @@
         WHERE qna_id = #{qnaId}
     </update>
 
-    <!-- ✅ 추가: 강사(강의 소유자) 조회 -->
     <select id="selectInstructorUserIdByCourseId" resultType="java.lang.Long">
         SELECT user_id
         FROM course
         WHERE course_id = #{courseId}
+        LIMIT 1
+    </select>
+    <select id="selectFirstChapterIdByCourseId" resultType="java.lang.Integer">
+        SELECT ch.chapter_id
+        FROM chapter ch
+        WHERE ch.course_id = #{courseId}
+        ORDER BY ch.order_index ASC, ch.chapter_id ASC
         LIMIT 1
     </select>
 

@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 페이지 로드 시 수료증 목록 자동 로드
-    loadCertificates();
+    // 수료증은 Thymeleaf 렌더(서버 사이드) 기준으로 우선 표시한다.
+    // (기존 loadCertificates()는 DOM을 교체하면서 S3 직접 URL/📜 아이콘으로 되돌리는 문제가 있어 호출하지 않음)
 
     // 수료증 전체 보기 버튼 클릭
     const viewAllCertificatesBtn = document.getElementById('view-all-certificates-btn');
@@ -61,70 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * 수료증 목록 로드 (페이지 로드 시 자동 호출)
- */
-function loadCertificates() {
-    fetch('/api/mypage/certificates', {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json'
-        },
-        credentials: 'same-origin'
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('서버 응답 오류: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                updateCertificateList(data.certificates || []);
-            }
-        })
-        .catch(error => {
-            // 에러 발생 시 조용히 처리 (초기 로드 실패는 무시)
-        });
-}
-
-/**
- * 수료증 목록 업데이트 (페이지 새로고침 없이)
- */
-function updateCertificateList(certificates) {
-    const certificateContent = document.querySelector('.certificate-content');
-    if (!certificateContent) return;
-    
-    if (certificates.length === 0) {
-        certificateContent.innerHTML = '<p class="empty-message">수료증이 없습니다.</p>';
-        return;
-    }
-    
-    let html = '<div class="certificate-list">';
-    certificates.forEach(cert => {
-        const issueDate = cert.issuedDate ? new Date(cert.issuedDate).toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).replace(/\./g, '. ').replace(/\s+/g, ' ') : '';
-        
-        html += `
-            <div class="certificate-item">
-                <div class="certificate-icon">📜</div>
-                <div class="certificate-info">
-                    <div class="certificate-title">${cert.courseTitle || '강의명 없음'}</div>
-                    <div class="certificate-date">${issueDate}</div>
-                </div>
-                <a href="${cert.certificateUrl || '#'}" class="certificate-download-btn" download>
-                    다운로드
-                </a>
-            </div>
-        `;
-    });
-    html += '</div>';
-    certificateContent.innerHTML = html;
-}
-
-/**
  * 수료증 전체 목록 로드
  */
 function loadAllCertificates() {
@@ -170,14 +106,22 @@ function loadAllCertificates() {
                     day: '2-digit'
                 }).replace(/\./g, '. ').replace(/\s+/g, ' ') : '';
                 
+                const certificateId = cert.certificateId;
+
+                // 서버 경유 썸네일/다운로드 (S3 Private이어도 OK)
+                const thumbUrl = certificateId ? `/mypage/certificates/${certificateId}/thumb` : '';
+                const downloadUrl = certificateId ? `/mypage/certificates/${certificateId}/download` : '#';
+
                 html += `
                     <div class="certificate-item">
-                        <div class="certificate-icon">📜</div>
+                        <div class="certificate-icon">
+                            ${thumbUrl ? `<img src="${thumbUrl}" alt="수료증 썸네일" class="certificate-thumbnail" onerror="this.style.display='none';">` : '📜'}
+                        </div>
                         <div class="certificate-info">
                             <div class="certificate-title">${cert.courseTitle || '강의명 없음'}</div>
                             <div class="certificate-date">${issueDate}</div>
                         </div>
-                        <a href="${cert.certificateUrl || '#'}" class="certificate-download-link" download>
+                        <a href="${downloadUrl}" class="certificate-download-btn">
                             다운로드
                         </a>
                     </div>

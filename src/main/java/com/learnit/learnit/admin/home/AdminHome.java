@@ -15,6 +15,7 @@ public class AdminHome {
 
     @Data
     public static  class AdminNotice{
+        private int noticeId;
         private String category;
         private String title;
         private String content;
@@ -25,5 +26,6 @@ public class AdminHome {
     public static class AdminCertificate{
         private String title;
         private String name;
+        private String issuedAt;
     }
 }

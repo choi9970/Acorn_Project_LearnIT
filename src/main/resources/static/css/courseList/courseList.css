@@ -211,16 +211,28 @@
     background:#e5e7eb;
 }
 
+/* ✅ 장바구니 버튼: 이제 "가격 라인 오른쪽"에 들어가므로 absolute 제거 */
 .cart-btn{
-    position:absolute;
-    right:10px;
-    bottom:10px;
-    border:none;
+    position:static;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid #3764be30;
     background:#fff;
-    border-radius:50%;
+
+    border-radius:10px;        /* 톤 맞춤(둥글게) */
     width:34px;
     height:34px;
+
     cursor:pointer;
+    line-height:1;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.cart-btn:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
 }
 
 .card-body{
@@ -239,15 +251,17 @@
     margin-bottom:10px;
 }
 
+/* ✅ 가격(왼쪽) + 장바구니(오른쪽) 한 줄 */
 .meta{
     display:flex;
-    justify-content:space-between;
     align-items:center;
+    gap:10px;
 }
 
 .price{
     font-size:13px;
     font-weight:700;
+    margin-right:auto; /* ✅ 가격을 왼쪽에 고정 */
 }
 
 /*추가*/
@@ -300,9 +314,11 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
+
 .cart-btn.is-active{
-  background:#111;
+  background:#3764be30;
   color:#fff;
+  border-color:#3764be30;
   box-shadow: 0 8px 18px rgba(0,0,0,0.18);
   transform: translateY(-1px);
 }
@@ -389,4 +405,24 @@
     .course-empty p {
         font-size: 13px;
     }
+
+    /* 모바일에서 버튼 너무 튀면 살짝 줄여도 됨 */
+    .cart-btn{
+        width:32px;
+        height:32px;
+        border-radius:10px;
+    }
+}
+/* 썸네일 우상단 수강중 뱃지 */
+.course-badge{
+  position:absolute;
+  right:10px;
+  top:10px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  background:#2f6fed;
+  color:#fff;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
 }

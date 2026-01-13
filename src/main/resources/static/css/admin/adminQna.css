@@ -15,6 +15,12 @@ html, body { max-width: 100%; }
   min-width: 0;
 }
 
+.highlight-qna{
+  outline: 2px solid #e5484d;
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
 /* 컨테이너 */
 .admin-qna-container{
   padding: 2rem 0;
@@ -60,10 +66,7 @@ html, body { max-width: 100%; }
   min-width: 0;
 }
 
-/* =========================
-   ✅ select 공통(핵심)
-   - HTML이 qnaid-select를 쓰고 있어서 "둘 다" 먹게 처리
-========================= */
+/* select 공통 */
 .admin-qna-container .filter-select,
 .admin-qna-container .qnaid-select,
 .admin-qna-container .status-select{
@@ -83,7 +86,6 @@ html, body { max-width: 100%; }
   appearance: none;
   -moz-appearance: none;
 
-  /* ✅ 커스텀 화살표(▼) */
   background-image:
     linear-gradient(45deg, transparent 50%, #111 50%),
     linear-gradient(135deg, #111 50%, transparent 50%);
@@ -98,19 +100,16 @@ html, body { max-width: 100%; }
   box-shadow: 0 1px 0 rgba(0,0,0,.02);
 }
 
-/* 상단 검색 필터 select 폭 */
 .admin-qna-container .filter-select,
 .admin-qna-container .qnaid-select{
   width: 160px;
   flex: 0 0 auto;
 }
 
-/* status select는 내용이 짧으니 폭 줄임 */
 .admin-qna-container .status-select{
   width: 160px;
 }
 
-/* IE/레거시 화살표 제거 */
 .admin-qna-container .filter-select::-ms-expand,
 .admin-qna-container .qnaid-select::-ms-expand,
 .admin-qna-container .status-select::-ms-expand{
@@ -165,17 +164,16 @@ html, body { max-width: 100%; }
 }
 
 /* =========================
-   table (notice 스펙)
+   table
 ========================= */
 .admin-qna-container .table-wrap{
   width:100%;
   background:#fff;
   border-radius: 10px;
-  overflow-x: hidden; /* ✅ notice처럼 기본은 스크롤 안 보이게 */
+  overflow-x: hidden;
   box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
 
-/* 화면이 너무 좁을 때만 가로 스크롤 */
 @media (max-width: 900px){
   .admin-qna-container .table-wrap{ overflow-x:auto; }
 }
@@ -205,7 +203,6 @@ html, body { max-width: 100%; }
 .admin-qna-container .qna-table tbody tr.main-row{ cursor:pointer; }
 .admin-qna-container .qna-table tbody tr.main-row:hover{ background:#f8f9fa; }
 
-/* 컬럼 폭(860 근처) */
 .admin-qna-container .qna-table th:nth-child(1),
 .admin-qna-container .qna-table td:nth-child(1){ width: 90px; }
 .admin-qna-container .qna-table th:nth-child(2),
@@ -217,7 +214,6 @@ html, body { max-width: 100%; }
 .admin-qna-container .qna-table th:nth-child(6),
 .admin-qna-container .qna-table td:nth-child(6){ width: 120px; }
 
-/* 강좌명/제목만 왼쪽 */
 .admin-qna-container .qna-table th:nth-child(3),
 .admin-qna-container .qna-table td:nth-child(3){
   text-align: left;
@@ -249,7 +245,7 @@ html, body { max-width: 100%; }
   color:#999;
 }
 
-/* 구분 헤더 필터(유지) */
+/* 구분 헤더 필터 */
 .th-filter{ position: relative; }
 .filter-icon{ margin-left: 6px; cursor: pointer; opacity: .9; font-weight: 900; }
 .filter-icon:hover{ opacity: 1; }
@@ -323,7 +319,7 @@ html, body { max-width: 100%; }
 }
 .popup-btn:hover{ background:#f1f4f8; }
 
-/* accordion detail (관리 리스트 내부) */
+/* accordion detail */
 .detail-row td{
   background:#fafafa;
   border-bottom: 1px solid #eee;
@@ -385,13 +381,7 @@ html, body { max-width: 100%; }
 }
 .status-label{ font-weight: 900; color:#333; }
 
-/* =========================
-   ✅ 버튼 통일 (여기부터가 핵심 수정)
-   - 수정/삭제: 크기/모양 동일
-   - 삭제: 빨간색만 다르게
-========================= */
-
-/* 공통 큰 버튼 베이스 (수정/삭제 같이 사용) */
+/* 버튼 통일 */
 .btn-primary,
 .btn-danger{
   border: none;
@@ -402,32 +392,15 @@ html, body { max-width: 100%; }
   white-space: nowrap;
   height: 44px;
   line-height: 1;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  /* 버튼 너비가 글자에 따라 들쭉날쭉해 보이면 아래 주석 해제 */
-  /* min-width: 84px; */
 }
-
-/* 수정(파랑) */
-.btn-primary{
-  background:#0A4A7A;
-  color:#fff;
-}
-
-/* 삭제(빨강) - 모양은 동일, 색만 변경 */
-.btn-danger{
-  background:#dc3545;
-  color:#fff;
-}
-
-/* hover */
+.btn-primary{ background:#0A4A7A; color:#fff; }
+.btn-danger{ background:#dc3545; color:#fff; }
 .btn-primary:hover{ filter: brightness(0.95); }
 .btn-danger:hover{ filter: brightness(0.95); }
 
-/* 작은 버튼 (기존 유지) */
 .btn-mini{
   border:1px solid #d5dbe3;
   background:#fff;
@@ -496,4 +469,53 @@ html, body { max-width: 100%; }
     width: 100%;
     flex: 1 1 100%;
   }
+}
+
+/* =========================
+   ✅✅✅ 강의 Q&A로 이동 버튼 (우하단 배치)
+========================= */
+.answer-box{
+  padding-bottom: 12px; /* 기본 패딩만 */
+}
+
+.btn-go-course{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height: 44px;                 /* ✅ 수정/삭제(44px)랑 라인 맞춤 */
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #d5dbe3;
+  background:#fff;
+  color:#0A4A7A;
+  font-weight: 900;
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-go-course:hover{
+  background:#0A4A7A;
+  border-color:#0A4A7A;
+  color:#fff;
+}
+
+.btn-go-course--bottom{
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+}
+/* ✅ 버튼 줄을 좌/우로 배치 (수정/삭제 왼쪽, 이동 버튼 오른쪽) */
+.btn-row.btn-row--space{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* 수정/삭제 묶음 */
+.btn-left{
+  display:flex;
+  align-items:center;
+  gap: 10px;
 }

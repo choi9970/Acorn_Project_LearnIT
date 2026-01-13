@@ -59,12 +59,11 @@
           <img src="/images/admin/icon-admin-plus-btn.png" class="plus-btn"></a>
         <div class="list-container">
 
-          <div class="list-item" th:each="notice : ${dashboard.latestNotices}">
+          <a th:href="@{/admin/notice/{id}/edit(id=${notice.noticeId})}" class="list-item" th:each="notice : ${dashboard.latestNotices}" style="text-decoration: none; color: inherit; display: block;">
             <div class="item-header">
               <span class="item-title" th:text="|[${notice.category}] ${notice.title}|">[카테고리] 공지 제목</span>
-              <img src="/images/admin/icon-admin-down-arrow.png">
             </div>
-          </div>
+          </a>
           <div class="list-item" th:if="${#lists.isEmpty(dashboard.latestNotices)}">
             <span class="item-title" style="color:#999">등록된 공지가 없습니다.</span>
           </div>
@@ -72,16 +71,25 @@
       </div>
 
       <div class="certificate-wrap">
-        <h3>수료증 수여 대기 강의</h3>
-        <a href="/admin/certificate">
-          <img src="/images/admin/icon-admin-plus-btn.png" class="plus-btn"></a>
+        <h3>최근 수료증 발급 현황</h3>
         <div class="list-container">
 
-          <div class="list-item" th:each="cert : ${dashboard.pendingCertificates}">
-            <span class="item-title" th:text="|${cert.title} - ${cert.name}|"></span>
+          <div class="list-item" th:each="cert : ${dashboard.pendingCertificates}" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+            <div style="flex: 1; min-width: 0; display: flex; align-items: center;">
+              <span th:text="${cert.title}" 
+                    style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; color: #333; flex: 1;">
+                강의명
+              </span>
+              <span th:text="| - ${cert.name}|" 
+                    style="flex-shrink: 0; white-space: nowrap; font-weight: 500; color: #333; margin-left: 5px;">
+                 - 유저명
+              </span>
+            </div>
+            <span class="item-date" th:text="${cert.issuedAt}" 
+                  style="font-size: 0.9em; color: #666; flex-shrink: 0; margin-left: 10px;">2024-01-01</span>
           </div>
           <div class="list-item" th:if="${#lists.isEmpty(dashboard.pendingCertificates)}">
-            <span class="item-title" style="color:#999">대기 중인 수료증이 없습니다.</span>
+            <span class="item-title" style="color:#999">발급된 수료증이 없습니다.</span>
           </div>
         </div>
       </div>

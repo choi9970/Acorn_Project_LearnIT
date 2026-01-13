@@ -120,11 +120,23 @@
     margin-bottom: 1.6rem;
 }
 
+.qna-answer-notice {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1.6rem;
+    border-radius: 6px;
+    margin-bottom: 1.6rem;
+}
+
 .answer-label {
     font-size: 1.3rem;
     font-weight: 600;
     color: #0A4A7A;
     margin-bottom: 1rem;
+}
+
+.qna-answer-notice .answer-label {
+    color: #856404;
 }
 
 .answer-content p {
@@ -133,6 +145,14 @@
     color: #333;
     white-space: pre-wrap;
     word-break: break-word;
+    margin-bottom: 0.8rem;
+}
+
+.answer-notice-text {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    color: #856404;
+    font-weight: 500;
     margin-bottom: 0.8rem;
 }
 

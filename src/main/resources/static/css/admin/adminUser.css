@@ -1,188 +1,157 @@
 /* ===============================
-   Admin Role Page (coupon-style)
+   Admin User Page CSS (Notice-style) - FINAL
+   - 공지관리(Notice) 톤으로 통일
+   - 상단 검색바: adminUser.html(.admin-role-toolbar) 구조 기준
+   - 상태/권한: select + 버튼 한 줄 정렬 + 말줄임
+   - 필터 팝업: fixed + shadow + 둥글게 + body 이동 JS와 호환
+   - SUB_ADMIN 강의 검색 UI: ✅큰 박스 + ✅좌측정렬 + ✅접기/펼치기 + ✅길이 제어
 =============================== */
+
+/* ✅ 폰트 통일 */
+.admin-role,
+.admin-role *{
+  font-family: "Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+
 .admin-role{
-    padding: 2.4rem;
-}
-.admin-role-page {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* section card */
-.role-section {
-  background: #fff;
-  border: 1px solid #e9edf3;
-  border-radius: 14px;
-  padding: 18px 18px 16px;
-  box-shadow: 0 6px 20px rgba(16, 24, 40, 0.06);
-}
-
-.managed {
-    display: flex;
-    flex-direction: column; /* 세로 정렬 */
-    align-items: left;
-    gap: 4px;
-}
-
-.sub-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  padding: 2rem 0;
   width: 100%;
+  box-sizing: border-box;
+  color: #111;
 }
 
-/* select 박스 고정 */
-.course-select {
-  flex: 1;                /* 남은 영역 차지 */
-  min-width: 0;           /* ⭐ flex overflow 핵심 */
-  max-width: 280px;       /* 👉 원하는 고정 폭 */
-  height: 36px;
-  padding: 6px 10px;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.role-section{
+  background:#fff;
+  border:1px solid #e9edf3;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
 }
 
-/* + 버튼 */
-.btn-course-add {
-  flex-shrink: 0;         /* ⭐ 줄어들지 않게 */
-  width: 36px;
-  height: 36px;
-
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-
-/* title */
-.section-title {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #0A4A7A;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 1.2rem;
-    margin-bottom: 2rem;
+.section-title{
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: #111;
+  margin: 0 0 1.2rem 0;
 }
 
 /* ===============================
-   Search / Toolbar
+   ✅ 상단 검색바 (adminUser.html 구조)
 =============================== */
-
-.admin-role-toolbar {
-  display: flex;
+.admin-role-toolbar{
+  display:flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  align-items:center;
+  gap: 10px;
   flex-wrap: wrap;
-  padding: 12px;
-  border: 1px solid #edf1f7;
+
+  padding: 10px 12px;
   border-radius: 12px;
-  background: #fafbff;
+  border: 1px solid #e6ebf2;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(16, 24, 40, 0.06);
 }
 
-.admin-role-search {
-  display: flex;
-  align-items: center;
+.admin-role-search{
+  display:flex;
+  align-items:center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
-.admin-role-actions {
-  display: flex;
-  align-items: center;
+.admin-role-actions{
+  display:flex;
+  align-items:center;
   gap: 10px;
+  flex: 0 0 auto;
 }
 
-/* inputs */
 .admin-role-toolbar select,
-.admin-role-toolbar input {
+.admin-role-toolbar input{
   height: 38px;
   border-radius: 10px;
-  border: 1px solid #d9e1ee;
+  border: 1px solid #d5dbe3;
   background: #fff;
   padding: 0 12px;
   font-size: 14px;
-  color: #111827;
+  font-weight: 700;
+  color: #111;
   outline: none;
 }
 
-.admin-role-toolbar input {
+.admin-role-toolbar input#searchKeyword{
   min-width: 240px;
+  flex: 1 1 auto;
 }
 
 .admin-role-toolbar select:focus,
-.admin-role-toolbar input:focus {
-  border-color: #7c87ff;
-  box-shadow: 0 0 0 3px rgba(124, 135, 255, 0.18);
+.admin-role-toolbar input:focus{
+  border-color: #0A4A7A;
+  box-shadow: 0 0 0 4px rgba(10, 74, 122, 0.12);
 }
 
-/* buttons */
-#btnSearch,
-.btn-reset {
+/* 검색 버튼 */
+.admin-role-toolbar #btnSearch{
   height: 38px;
   border-radius: 10px;
-  border: 1px solid transparent;
+  border: none;
   padding: 0 14px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 900;
   cursor: pointer;
-  transition: transform 0.04s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-}
-
-#btnSearch {
-  background: #4f46e5;
+  background: #0A4A7A;
   color: #fff;
-  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.18);
+  box-shadow: 0 8px 16px rgba(10, 74, 122, 0.18);
 }
+.admin-role-toolbar #btnSearch:hover{ filter: brightness(.98); }
+.admin-role-toolbar #btnSearch:active{ transform: translateY(1px); }
 
-#btnSearch:hover { opacity: 0.95; }
-#btnSearch:active { transform: translateY(1px); }
-
-.btn-reset {
-  background: #fff;
-  color: #374151;
-  border-color: #d9e1ee;
+/* 검색/필터 초기화 버튼 */
+.admin-role-toolbar #btnResetAll{
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #0A4A7A;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  background:#fff;
+  color:#0A4A7A;
 }
+.admin-role-toolbar #btnResetAll:hover{ background:#f3f7fb; }
+.admin-role-toolbar #btnResetAll:active{ transform: translateY(1px); }
 
-.btn-reset:hover {
-  background: #f6f8ff;
-}
-
-.btn-reset:active { transform: translateY(1px); }
-
-/* applied filter chips */
-.applied-filters {
+/* ===============================
+   applied filters chips
+=============================== */
+.applied-filters{
   margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
+.applied-filters:empty{ display:none; }
 
-.applied-filters:empty {
-  display: none;
-}
-
-.applied-filters .chip {
-  display: inline-flex;
-  align-items: center;
+.filter-chip{
+  display:inline-flex;
+  align-items:center;
   gap: 8px;
   padding: 7px 10px;
   border-radius: 999px;
-  border: 1px solid #e6eaf3;
-  background: #f7f9ff;
+  border: 1px solid #e6ebf2;
+  background: #f3f7fb;
+  color:#0A4A7A;
   font-size: 12.5px;
-  color: #374151;
+  font-weight: 900;
 }
-
-.applied-filters .chip button {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: #6b7280;
+.filter-chip .chip-del{
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  color:#0A4A7A;
   font-size: 14px;
   line-height: 1;
 }
@@ -190,224 +159,503 @@
 /* ===============================
    Table
 =============================== */
-
-.table-wrapper {
+.table-wrapper{
   margin-top: 12px;
   border: 1px solid #edf1f7;
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
 }
 
-.admin-role-table {
+.admin-role-table{
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
   font-size: 14px;
 }
 
-.admin-role-table thead  {
-  position: sticky; /* 옵션: 스크롤 영역 있으면 유용 */
-  top: 0;
-  background: #f7f9fc;
-  color: #111827;
-  font-weight: 700;
-  text-align: left;
-  padding: 12px 12px;
-  border-bottom: 1px solid #edf1f7;
+/* 헤더(공지관리 바 색) */
+.admin-role-table thead{
+  background:#0A4A7A;
+  color:#fff;
+}
+.admin-role-table thead th{
+  padding: 12px 10px;
+  font-weight: 900;
+  letter-spacing: -0.15px;
+  text-align: center;
   white-space: nowrap;
+  color:#fff;
 }
 
-.admin-role-table tbody td {
-  padding: 12px 12px;
-  border-bottom: 1px solid #f0f3f8;
-  color: #111827;
+.admin-role-table tbody td{
+  padding: 12px 10px;
+  border-bottom: 1px solid #eef2f6;
+  color:#111;
+  font-weight: 700;
+  text-align:center;
   vertical-align: middle;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.admin-role-table tbody tr:hover td {
+.admin-role-table tbody tr:hover td{
   background: #fbfcff;
 }
 
-/* ID column slightly muted */
-.admin-role-table td:first-child {
-  color: #4b5563;
-  font-variant-numeric: tabular-nums;
+/* 컬럼 폭 */
+.admin-role-table th:nth-child(1),
+.admin-role-table td:nth-child(1){ width: 60px; }    /* ID */
+.admin-role-table th:nth-child(2),
+.admin-role-table td:nth-child(2){ width: 90px; }    /* 이름 */
+.admin-role-table th:nth-child(3),
+.admin-role-table td:nth-child(3){ width: 220px; }   /* 이메일 */
+.admin-role-table th:nth-child(4),
+.admin-role-table td:nth-child(4){ width: 120px; }   /* 가입구분 */
+.admin-role-table th:nth-child(5),
+.admin-role-table td:nth-child(5){ width: 210px; }   /* 상태 */
+.admin-role-table th:nth-child(6),
+.admin-role-table td:nth-child(6){ width: 260px; }   /* 권한 */
+
+/* ✅ 상태/권한 셀은 줄바꿈 금지(한 줄 유지) */
+.admin-role-table td:nth-child(5),
+.admin-role-table td:nth-child(6){
+  white-space: nowrap;
+  overflow: visible; /* 내부 요소가 말줄임 처리되므로 td는 visible */
+  text-overflow: clip;
 }
 
 /* ===============================
-   Column Filter UI
-   - [PATCH] filter-popup을 body로 이동+fixed로 띄우는 JS 패치와 함께 사용
-   - 중복 .filter-popup 블록 제거(정리)
+   ✅ select 말줄임(핵심)
 =============================== */
-
-.th-filter {
-  position: relative;
-}
-
-.filter-btn {
-  margin-left: 8px;
-  height: 26px;
-  padding: 0 10px;
+.admin-role-table select{
+  height: 32px;
+  width: 120px;
+  max-width: 120px;
   border-radius: 8px;
-  border: 1px solid #d9e1ee;
+  border: 1px solid #d5dbe3;
   background: #fff;
-  color: #374151;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.filter-btn:hover {
-  background: #f6f8ff;
-}
-
-/* ✅ 단일 정의로 통합 (중복 제거) */
-.filter-popup {
-  display: none;
-
-  /* JS(showPopup)에서 top/left를 넣기 때문에 기본은 fixed만 */
-  position: fixed;
-  width: 240px;
-
-  background: #fff;
-  opacity: 1;
-  border: 1px solid #e5e9f2;
-  border-radius: 12px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
-  padding: 12px;
-
-  /* 합성/비침 방지(브라우저 케이스 대응) */
-  isolation: isolate;
-  filter: none;
-  backdrop-filter: none;
-  transform: translateZ(0);
-
-  z-index: 999999;
-}
-
-.filter-popup .filter-title {
+  padding: 0 28px 0 10px;
   font-size: 13px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 10px;
-}
-
-.filter-popup .filter-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.filter-popup label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #111827;
-  cursor: pointer;
-}
-
-/* popup 내부 요소가 기존 JS에서 생성될 수 있어 기본 스타일만 */
-.filter-popup input[type="text"],
-.filter-popup input[type="search"] {
-  width: 100%;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid #d9e1ee;
-  padding: 0 10px;
+  font-weight: 800;
+  color: #111;
   outline: none;
-  margin-bottom: 10px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-role-table select:focus{
+  border-color: #0A4A7A;
+  box-shadow: 0 0 0 3px rgba(10, 74, 122, 0.12);
 }
 
-.filter-popup .filter-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.filter-popup button {
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid #d9e1ee;
-  background: #fff;
-  cursor: pointer;
-  padding: 0 12px;
-  font-weight: 600;
-}
-
-.filter-popup button.primary {
-  background: #4f46e5;
-  border-color: transparent;
-  color: #fff;
-}
-
-/* ===============================
-   Pagination / Total Count
-=============================== */
-
-.admin-pagination {
-  margin-top: 14px;
-  display: flex;
+/* ✅ 상태/권한 셀 내부를 "무조건 한 줄"로 */
+.cell-line{
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
-.admin-pagination a,
-.admin-pagination button,
-.admin-pagination .page-item {
-  min-width: 34px;
-  height: 34px;
-  padding: 0 10px;
-  border-radius: 10px;
-  border: 1px solid #d9e1ee;
+/* ===============================
+   ✅ 수정/저장 버튼 (공지관리 btn-mini 톤)
+=============================== */
+.btn-status,
+.btn-role,
+.btn-course-search{
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #d5dbe3;
   background: #fff;
-  color: #374151;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0A4A7A;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
+  transition: background .12s ease, box-shadow .12s ease;
 }
 
-.admin-pagination a:hover,
-.admin-pagination button:hover {
-  background: #f6f8ff;
+.btn-status:hover,
+.btn-role:hover,
+.btn-course-search:hover{
+  background: #f3f7fb;
+  box-shadow: 0 2px 8px rgba(16,24,40,.08);
 }
 
-.admin-pagination .active,
-.admin-pagination a.active {
-  background: #4f46e5;
-  color: #fff;
+/* 저장 모드 강조 */
+.status-editing .btn-status,
+.role-editing .btn-role{
+  background:#0A4A7A;
+  color:#fff;
   border-color: transparent;
-  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.18);
+  box-shadow: 0 8px 16px rgba(10,74,122,.18);
 }
 
-.admin-total-count {
-  margin-top: 10px;
-  text-align: center;
-  color: #6b7280;
+/* ===============================
+   가입구분 배지
+=============================== */
+.signup-badge{
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #d5dbe3;
+  font-weight: 900;
+  font-size: 12px;
+  background:#fff;
+  color:#111;
+}
+.signup-badge em{ font-style: normal; opacity:.9; }
+
+.role-lock-hint{
+  margin-top: 6px;
+  font-size: 12px;
+  color:#6b7280;
+  font-weight: 800;
+}
+
+/* ===============================
+   Filter UI (thead 버튼/팝업)
+=============================== */
+.th-filter{ position: relative; }
+
+.filter-btn{
+  margin-left: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.6);
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background .12s ease, transform .05s ease;
+}
+.filter-btn:hover{ background: rgba(255,255,255,.22); }
+.filter-btn:active{ transform: translateY(1px); }
+
+.filter-btn.filter-on{
+  background: rgba(255,255,255,.28);
+  border-color: rgba(255,255,255,.9);
+}
+
+/* 팝업 */
+.filter-popup{
+  display: none;
+  position: fixed !important;
+  width: 240px;
+
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.16);
+  padding: 12px;
+  z-index: 999999 !important;
+
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+.filter-popup .filter-title{
   font-size: 13px;
+  font-weight: 900;
+  color:#111;
+  margin: 0 0 10px 0;
+}
+
+.filter-popup .filter-list{
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-popup label{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color:#111;
+  cursor: pointer;
+}
+
+.filter-popup input[type="checkbox"]{
+  width: 16px;
+  height: 16px;
+}
+
+.filter-popup .filter-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.filter-popup .filter-actions button{
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #d5dbe3;
+  background:#fff;
+  cursor:pointer;
+  padding: 0 12px;
+  font-weight: 900;
+}
+
+.filter-popup .filter-actions .filter-apply{
+  background:#0A4A7A;
+  border-color: transparent;
+  color:#fff;
+}
+
+/* ===============================
+   ✅ SUB_ADMIN 강의 검색 영역 (큰 박스 + 정렬 통일)
+=============================== */
+.subadmin-box{
+  margin-top: 10px;
+  padding: 10px 10px 12px;
+  border: 1px solid #e6ebf2;
+  border-radius: 12px;
+  background: #f8fafc;
+  box-shadow: 0 2px 10px rgba(16, 24, 40, 0.06);
+
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+/* ✅ SUB_ADMIN 헤더(타이틀 + 토글버튼) */
+.subadmin-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e6ebf2;
+  margin-bottom: 10px;
+}
+
+.subadmin-title{
+  font-size: 13px;
+  font-weight: 900;
+  color:#111;
+}
+
+/* 토글 버튼 */
+.subadmin-toggle{
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid #d5dbe3;
+  background:#fff;
+  color:#0A4A7A;
+  font-size: 12.5px;
+  font-weight: 900;
+  cursor:pointer;
+}
+.subadmin-toggle:hover{
+  background:#f3f7fb;
+}
+
+/* ✅ 줄(한 줄씩) = 무조건 왼쪽 기준선 */
+.sub-line{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+.sub-line:first-child{ margin-top: 0; }
+
+/* ✅ 인풋/셀렉트는 남는 공간을 먹고, 버튼은 고정 */
+.course-keyword{
+  height: 32px;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+
+  border-radius: 10px;
+  border: 1px solid #d5dbe3;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color:#111;
+  outline:none;
+  background:#fff;
+}
+.course-keyword::placeholder{
+  color:#9aa3af;
+  font-weight: 800;
+}
+.course-keyword:focus{
+  border-color:#0A4A7A;
+  box-shadow: 0 0 0 3px rgba(10,74,122,.12);
+}
+
+.btn-course-search{
+  flex: 0 0 auto;
+}
+
+/* 강의 select */
+.course-select{
+  height: 32px;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+
+  border-radius: 10px;
+  border: 1px solid #d5dbe3;
+  background:#fff;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color:#111;
+
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* + 버튼 */
+.btn-course-add{
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #d5dbe3;
+  background:#fff;
+  cursor:pointer;
+  font-weight: 900;
+  color:#0A4A7A;
+  transition: background .12s ease, box-shadow .12s ease;
+}
+.btn-course-add:hover{
+  background:#f3f7fb;
+  box-shadow: 0 2px 8px rgba(16,24,40,.08);
+}
+
+/* ✅ 태그 영역: wrap 정렬 */
+.managed{
+  margin-top: 10px;
+  display:flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  border: 1px solid #e6ebf2;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #fff;
+  max-width: 100%;
+}
+
+.tag-text{
+  font-size: 12.5px;
+  font-weight: 900;
+  color:#111;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.tag-del{
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  font-size: 16px;
+  line-height: 1;
+  color:#6b7280;
+}
+.tag-del:hover{ color:#dc3545; }
+
+/* ✅ 접힘/펼침 제어 */
+.subadmin-body.is-collapsed .sub-line{
+  display:none;
+}
+.subadmin-body.is-collapsed .managed{
+  margin-top: 0;
+}
+
+/* ✅ 접힌 상태에서는 태그만 보이게, 너무 길면 스크롤 */
+.subadmin-body.is-collapsed .managed{
+  max-height: 74px;      /* 2줄 정도 */
+  overflow:auto;
+  padding-top: 8px;
+}
+
+/* 펼친 상태에서는 제한 해제 */
+.subadmin-body:not(.is-collapsed) .managed{
+  max-height: none;
+  overflow: visible;
+}
+
+/* ===============================
+   Pagination
+=============================== */
+.admin-pagination{
+  margin-top: 18px;
+  display:flex;
+  justify-content:center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-pagination .page-link,
+.admin-pagination .page-number{
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #d5dbe3;
+  background:#fff;
+  color:#0A4A7A;
+  font-weight: 900;
+  cursor:pointer;
+}
+
+.admin-pagination .page-number.active{
+  background:#0A4A7A;
+  color:#fff;
+  border-color: transparent;
+}
+
+.admin-total-count{
+  margin-top: 10px;
+  text-align:center;
+  color:#6b7280;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 /* ===============================
    Responsive
 =============================== */
+@media (max-width: 1024px){
+  .admin-role-toolbar{ flex-wrap: wrap; }
+  .admin-role-toolbar input#searchKeyword{ min-width: 100%; flex: 1 1 100%; }
+}
 
-@media (max-width: 720px) {
-  .admin-role-toolbar {
-    padding: 10px;
-  }
-
-  .admin-role-toolbar input {
-    min-width: 160px;
-    flex: 1;
-  }
-
-  #btnSearch,
-  .btn-reset {
+@media (max-width: 720px){
+  .admin-role-toolbar #btnSearch,
+  .admin-role-toolbar #btnResetAll{
     width: 100%;
   }
+  .admin-role-actions{ width:100%; }
 }

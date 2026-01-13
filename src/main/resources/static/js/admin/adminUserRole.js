@@ -104,19 +104,18 @@ function escapeHtml(str) {
 // ✅ 서버 전이 규칙과 동일하게(현재 상태 유지 포함)
 function allowedNextStatuses(current) {
   if (current === "SIGNUP_PENDING") return ["SIGNUP_PENDING", "ACTIVE"];
-  if (current === "ACTIVE") return ["ACTIVE", "BANNED", "DELETE"]; // SIGNUP_PENDING 불가
+  if (current === "ACTIVE") return ["ACTIVE", "BANNED", "DELETE"];
   if (current === "BANNED") return ["BANNED", "ACTIVE"];
   if (current === "DELETE") return ["DELETE", "ACTIVE"];
   return ["SIGNUP_PENDING", "ACTIVE", "BANNED", "DELETE"];
 }
 
-// ✅ 전이 불가 옵션은 disabled가 아니라 "옵션 자체를 제거"해서 아예 안 보이게 함
+// ✅ 전이 불가 옵션은 disabled가 아니라 "옵션 자체를 제거"
 function applyStatusTransitionRules(statusSelectEl, curr) {
   if (!statusSelectEl) return;
 
   const allowed = allowedNextStatuses(curr);
 
-  // ✅ 원본 option(text) 백업 (처음 1회)
   if (!statusSelectEl.dataset.allOptionsJson) {
     const all = Array.from(statusSelectEl.options).map(o => ({
       value: o.value,
@@ -127,7 +126,6 @@ function applyStatusTransitionRules(statusSelectEl, curr) {
 
   const allOptions = JSON.parse(statusSelectEl.dataset.allOptionsJson);
 
-  // ✅ 허용된 옵션만 다시 렌더링 (불가 옵션은 "목록에서 사라짐")
   statusSelectEl.innerHTML = allowed
     .map(v => {
       const found = allOptions.find(x => x.value === v);
@@ -136,7 +134,6 @@ function applyStatusTransitionRules(statusSelectEl, curr) {
     })
     .join("");
 
-  // ✅ 기본 선택값은 항상 현재 상태
   statusSelectEl.value = curr;
 }
 
@@ -181,9 +178,6 @@ function setRoleEditMode(tr, on) {
   if (btn) btn.textContent = on ? "저장" : "수정";
 }
 
-/**
- * ✅ SUB_ADMIN 관리강의 태그 표시를 "courseId - title"로 통일
- */
 function buildManagedTag(courseId, title) {
   const label = `${courseId} - ${title}`;
   return `
@@ -210,10 +204,9 @@ async function loadUsers(page = currentPage) {
 
   const data = await apiFetch(`/api/admin/users?${qs.toString()}`, { method: "GET" });
 
-  // ✅ 서버 GROUP BY 결과로 필터 목록 생성 (전체 페이징 기준)
   renderFilterPopups(data.facets || {}, data.appliedFilters || {});
-  renderAppliedChips();        // ✅ 상단 칩 표시
-  updateFilterButtonState();   // ✅ 필터 버튼 강조
+  renderAppliedChips();
+  updateFilterButtonState();
 
   renderUsers(data.items || []);
   renderPagination(data.page, data.totalPages);
@@ -221,10 +214,8 @@ async function loadUsers(page = currentPage) {
 }
 
 /* ===============================
-   [PATCH] Filter popup positioning fix
-   - filter-popup을 body로 이동해서 th/overflow/sticky/opacity 영향 제거
+   ✅ Filter popup positioning fix (STABLE)
 =============================== */
-
 function closeAllFilterPopups() {
   document.querySelectorAll(".filter-popup").forEach(p => hidePopup(p));
 }
@@ -235,10 +226,9 @@ function toggleFilterPopup(which) {
     : document.getElementById("roleFilterPopup");
 
   const btn = document.querySelector(`.filter-btn[data-filter="${which}"]`);
-
   if (!popup) return;
 
-  // 다른 팝업은 닫고
+  // 다른 팝업 닫기
   document.querySelectorAll(".filter-popup").forEach(p => {
     if (p !== popup) hidePopup(p);
   });
@@ -259,27 +249,33 @@ function showPopup(popup, anchorBtn) {
     });
   }
 
-  // 먼저 보이게 해서 width 계산
-  popup.style.display = "block";
+  // ✅ 1) 먼저 body로 이동
+  if (popup.parentNode !== document.body) {
+    document.body.appendChild(popup);
+  }
 
+  // ✅ 2) 보여주기
+  popup.style.display = "block";
+  popup.style.position = "fixed";
+  popup.style.zIndex = "999999";
+  popup.style.pointerEvents = "auto";
+
+  // ✅ 3) 좌표 계산
   const rect = anchorBtn.getBoundingClientRect();
 
-  // body로 옮겨서(부모의 overflow/opacity 영향 끊기)
-  document.body.appendChild(popup);
+  // ✅ 4) width 계산
+  const w = popup.offsetWidth || 260;
 
-  // fixed 배치
-  popup.style.position = "fixed";
-  popup.style.top = `${rect.bottom + 8}px`;
+  // top: 버튼 아래
+  const top = rect.bottom + 8;
 
-  const w = popup.offsetWidth || 240;
-
-  // 버튼 오른쪽 기준 정렬 + 화면 밖 방지(clamp)
+  // 버튼 오른쪽 정렬 기준 + 화면 밖 방지
   let left = rect.right - w;
   left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
 
+  popup.style.top = `${top}px`;
   popup.style.left = `${left}px`;
   popup.style.right = "auto";
-  popup.style.zIndex = "999999";
 }
 
 function hidePopup(popup) {
@@ -291,7 +287,9 @@ function hidePopup(popup) {
   popup.style.left = "";
   popup.style.right = "";
   popup.style.zIndex = "";
+  popup.style.pointerEvents = "";
 
+  // 원래 자리로 복구
   const origin = popupOrigins.get(popup);
   if (origin?.parent) {
     origin.parent.insertBefore(popup, origin.next);
@@ -375,7 +373,6 @@ function renderAppliedChips() {
 }
 
 function renderFilterPopups(facets, applied) {
-  // 서버가 내려준 appliedFilters 기준으로 체크 상태 복구
   if (Array.isArray(applied.statuses)) statusFilters = applied.statuses;
   if (Array.isArray(applied.roles)) roleFilters = applied.roles;
 
@@ -421,7 +418,6 @@ function renderFilterPopups(facets, applied) {
 function renderSingleFilterPopup({ popupEl, title, items, selected, onApply, onClear }) {
   if (!popupEl) return;
 
-  // items: [{value:'ACTIVE', cnt: 10}, ...]
   const normalized = items
     .map(it => ({
       value: String(it.value ?? ""),
@@ -465,6 +461,10 @@ function renderSingleFilterPopup({ popupEl, title, items, selected, onApply, onC
   });
 }
 
+/* ===============================
+   ✅ 유저 렌더/저장/페이징
+=============================== */
+
 function renderUsers(users) {
   const tbody = document.getElementById("userTbody");
   if (!tbody) return;
@@ -473,7 +473,6 @@ function renderUsers(users) {
   users.forEach(u => {
     const tr = document.createElement("tr");
 
-    // ✅ 소셜가입(provider != local) : ADMIN/SUB_ADMIN 부여 불가 + 화면에서 선택지 잠금
     const isSocial = u.provider && String(u.provider).toLowerCase() !== "local";
     const providerLabel = isSocial ? String(u.provider).toUpperCase() : "LOCAL";
 
@@ -481,8 +480,6 @@ function renderUsers(users) {
       ? `<span class="signup-badge social">SOCIAL <em>(${escapeHtml(providerLabel)})</em></span>`
       : `<span class="signup-badge local">LOCAL</span>`;
 
-    // ✅ 소셜가입이면 ADMIN/SUB_ADMIN 옵션을 아예 안 보이게
-    // (혹시 DB에 이상값으로 ADMIN/SUB_ADMIN이 이미 들어있으면 '표시만' 되고 변경은 못 하게)
     const baseRoleOptions = isSocial ? ["USER"] : ["USER", "SUB_ADMIN", "ADMIN"];
     const roleOptions = (isSocial && u.role && !baseRoleOptions.includes(u.role))
       ? [u.role, ...baseRoleOptions]
@@ -494,20 +491,9 @@ function renderUsers(users) {
 
     tr.innerHTML = `
       <td>${u.userId}</td>
-      <td>
-        <div class="name-line">
-          <span class="name-text">${escapeHtml(u.name || "")}</span>
-        </div>
-      </td>
-      <td>
-        <div class="email-line">
-          <span class="email-text">${escapeHtml(u.email || "")}</span>
-        </div>
-      </td>
-
-      <td>
-        ${signupBadge}
-      </td>
+      <td><span class="name-text">${escapeHtml(u.name || "")}</span></td>
+      <td><span class="email-text">${escapeHtml(u.email || "")}</span></td>
+      <td>${signupBadge}</td>
 
       <td>
         <div class="cell-line">
@@ -531,7 +517,6 @@ function renderUsers(users) {
           <select class="role" disabled>
             ${roleOptions.map(r => {
               const selected = (u.role === r) ? "selected" : "";
-              // ✅ isSocial인데 현재 role이 USER가 아니라면(표시 전용) 해당 옵션만 선택 가능, 그 외는 제거되어 안 보이거나 비활성
               const disabled = (isSocial && r !== "USER" && r !== u.role) ? "disabled" : "";
               return `<option value="${r}" ${selected} ${disabled}>${r}</option>`;
             }).join("")}
@@ -542,22 +527,28 @@ function renderUsers(users) {
         ${isSocial ? `<div class="role-lock-hint">🔒 소셜가입: 관리자 권한 부여 불가</div>` : ""}
 
         <div class="subadmin-box" style="display:${u.role==="SUB_ADMIN" ? "block" : "none"};">
-          <div class="sub-line">
-            <input class="course-keyword" placeholder="강의 검색" disabled />
-            <button class="btn-course-search" type="button" disabled>검색</button>
+          <div class="subadmin-head">
+            <span class="subadmin-title">SUB_ADMIN 강의 관리</span>
+            <button type="button" class="subadmin-toggle" aria-expanded="false">펼치기</button>
           </div>
-          <div class="sub-line">
-            <select class="course-select" disabled></select>
-            <button class="btn-course-add" type="button" disabled>+</button>
+
+          <div class="subadmin-body is-collapsed">
+            <div class="sub-line">
+              <input class="course-keyword" placeholder="강의 검색" disabled />
+              <button class="btn-course-search" type="button" disabled>검색</button>
+            </div>
+            <div class="sub-line">
+              <select class="course-select" disabled></select>
+              <button class="btn-course-add" type="button" disabled>+</button>
+            </div>
+            <div class="managed">${managedHtml}</div>
           </div>
-          <div class="managed">${managedHtml}</div>
         </div>
       </td>
     `;
 
     tbody.appendChild(tr);
 
-    // ✅ 전이 불가 옵션은 아예 안 보이게(옵션 제거)
     const statusSel = tr.querySelector(".status");
     applyStatusTransitionRules(statusSel, u.status);
 
@@ -565,11 +556,36 @@ function renderUsers(users) {
     const roleSel = tr.querySelector(".role");
     const subBox = tr.querySelector(".subadmin-box");
 
-    roleSel?.addEventListener("change", () => {
-      if (subBox) subBox.style.display = (roleSel.value === "SUB_ADMIN") ? "block" : "none";
+    // ✅ SUB_ADMIN 박스 접기/펼치기
+    tr.querySelector(".subadmin-toggle")?.addEventListener("click", () => {
+      const box = tr.querySelector(".subadmin-box");
+      const body = tr.querySelector(".subadmin-body");
+      const btn = tr.querySelector(".subadmin-toggle");
+      if (!box || !body || !btn) return;
+
+      const collapsed = body.classList.toggle("is-collapsed");
+      btn.textContent = collapsed ? "펼치기" : "접기";
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
     });
 
-    // ✅ change에서 전이룰 재적용하면 선택값이 초기화되므로 여기서는 pending box만 제어
+    roleSel?.addEventListener("change", () => {
+      if (!subBox) return;
+
+      const isSub = (roleSel.value === "SUB_ADMIN");
+      subBox.style.display = isSub ? "block" : "none";
+
+      // ✅ SUB_ADMIN으로 바꾸면 기본은 "접힘"
+      if (isSub) {
+        const body = subBox.querySelector(".subadmin-body");
+        const btn = subBox.querySelector(".subadmin-toggle");
+        body?.classList.add("is-collapsed");
+        if (btn) {
+          btn.textContent = "펼치기";
+          btn.setAttribute("aria-expanded", "false");
+        }
+      }
+    });
+
     statusSel?.addEventListener("change", () => {
       if (u.status === "SIGNUP_PENDING" && statusSel.value === "ACTIVE" && isSocial) {
         if (pendingBox) pendingBox.style.display = "block";
@@ -578,32 +594,31 @@ function renderUsers(users) {
       }
     });
 
-    // 기본은 보기모드(전부 비활성화)
     setStatusEditMode(tr, false);
     setRoleEditMode(tr, false);
 
-    // ✅ 상태: 수정 -> 저장 토글
     tr.querySelector(".btn-status")?.addEventListener("click", async () => {
       const editing = tr.classList.contains("status-editing");
-      if (!editing) {
-        setStatusEditMode(tr, true);
-        return;
-      }
+      if (!editing) { setStatusEditMode(tr, true); return; }
       await saveStatus(u, tr);
     });
 
-    // ✅ 권한: 수정 -> 저장 토글
     tr.querySelector(".btn-role")?.addEventListener("click", async () => {
-      // ✅ 소셜가입이면 '수정' 자체를 막는다(옵션도 숨겼지만 2중 방어)
       if (isSocial) return;
       const editing = tr.classList.contains("role-editing");
       if (!editing) {
         setRoleEditMode(tr, true);
 
-        // ✅ UX: 수정 눌렀을 때 (SUB_ADMIN이면) 기본으로 전체 강의 로딩
         const roleValue = tr.querySelector(".role")?.value;
         if (roleValue === "SUB_ADMIN") {
-          searchCourse(tr); // 빈칸이면 전체 호출됨
+          // ✅ 편집 시작하면 펼쳐서 작업하기 편하게
+          const subBox = tr.querySelector(".subadmin-box");
+          const body = subBox?.querySelector(".subadmin-body");
+          const btn = subBox?.querySelector(".subadmin-toggle");
+          body?.classList.remove("is-collapsed");
+          if (btn) { btn.textContent = "접기"; btn.setAttribute("aria-expanded", "true"); }
+
+          searchCourse(tr);
         }
         return;
       }
@@ -620,7 +635,6 @@ function renderUsers(users) {
       addCourse(tr);
     });
 
-    // ✅ SUB_ADMIN 태그 "삭제(×)" - 수정모드에서만 + 즉시 서버 반영
     tr.querySelector(".managed")?.addEventListener("click", (ev) => {
       const btn = ev.target.closest?.(".tag-del");
       if (!btn) return;
@@ -710,13 +724,6 @@ async function saveRole(u, tr) {
   }
 }
 
-/**
- * ✅ 강의 검색
- * - 빈칸이면 전체 호출: /api/admin/courses
- * - 검색어 있으면: /api/admin/courses?keyword=...
- * - 응답이 배열(List) 또는 {items:[...]} 둘 다 대응
- * - 표시: course_id - 강의명
- */
 async function searchCourse(tr) {
   const kw = tr.querySelector(".course-keyword")?.value?.trim() || "";
 
@@ -742,11 +749,7 @@ async function searchCourse(tr) {
 
       const opt = document.createElement("option");
       opt.value = String(courseId);
-
-      // ✅ 표시: course_id - 강의명
       opt.textContent = `${courseId} - ${title}`;
-
-      // ✅ 실제 title은 dataset에 보관 (addCourse에서 그대로 사용)
       opt.dataset.title = String(title);
 
       sel.appendChild(opt);
@@ -757,11 +760,6 @@ async function searchCourse(tr) {
   }
 }
 
-/**
- * ✅ 강의 추가
- * - option 표시(text)는 "id - title"
- * - 실제 title은 option.dataset.title에서 가져와 태그 생성
- */
 function addCourse(tr) {
   const sel = tr.querySelector(".course-select");
   if (!sel || !sel.value) return;
@@ -775,7 +773,6 @@ function addCourse(tr) {
   if (exists) return;
 
   const title = sel.selectedOptions[0]?.dataset?.title || "";
-
   list.insertAdjacentHTML("beforeend", buildManagedTag(courseId, title));
 }
 
@@ -788,7 +785,6 @@ async function deleteManagedCourse(userId, courseId, tagEl) {
   }
 }
 
-// ✅ 공지(/admin/notice)와 동일한 "5개 단위 페이지 블록" 페이징
 function renderPagination(page, totalPages) {
   const el = document.getElementById("pagination");
   if (!el) return;
@@ -802,7 +798,6 @@ function renderPagination(page, totalPages) {
   const startPage = Math.floor((safePage - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
   const endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, safeTotal);
 
-  // ✅ 이전(블록 단위)
   if (startPage > 1) {
     const prev = document.createElement("button");
     prev.type = "button";
@@ -812,7 +807,6 @@ function renderPagination(page, totalPages) {
     el.appendChild(prev);
   }
 
-  // ✅ 페이지 번호(블록)
   for (let p = startPage; p <= endPage; p++) {
     const b = document.createElement("button");
     b.type = "button";
@@ -823,7 +817,6 @@ function renderPagination(page, totalPages) {
     el.appendChild(b);
   }
 
-  // ✅ 다음(블록 단위)
   if (endPage < safeTotal) {
     const next = document.createElement("button");
     next.type = "button";

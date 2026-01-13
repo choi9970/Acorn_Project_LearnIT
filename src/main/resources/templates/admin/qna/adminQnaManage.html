@@ -11,8 +11,6 @@
     <link rel="stylesheet" th:href="@{/css/admin/adminQna.css}">
 </th:block>
 
-<!-- ✅ 기존에 여기 들어있던 <script>...</script> 코드는 전부 제거하고
-     외부 JS 파일만 로드하도록 변경 -->
 <th:block th:fragment="script">
     <script th:src="@{/js/admin/adminQna.js}"></script>
 </th:block>
@@ -29,7 +27,6 @@
         <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
-        <!-- 상단 검색 영역 -->
         <div class="filters">
             <form method="get" th:action="@{/admin/qna}" class="filter-form">
 
@@ -51,8 +48,6 @@
 
                 <button type="submit" class="btn-search">검색</button>
                 <a th:href="@{/admin/qna(size=${pageSize})}" class="btn-reset">초기화</a>
-
-                <!-- ✅ (요청사항) SUB_ADMIN 문구 제거 -->
             </form>
         </div>
 
@@ -99,9 +94,8 @@
 
                         <td class="title-cell"
                             th:text="${q.courseId != null
-                                    ? (q.courseTitle + ' / ' + (q.questionTitle != null ? q.questionTitle : '(제목없음)'))
-                                    : (q.questionTitle != null ? q.questionTitle : '전체 Q&A')}">
-                            -
+                            ? (q.courseTitle + ' / ' + q.questionTitleDisplay)
+                            : q.questionTitleDisplay}">
                         </td>
 
                         <td th:text="${q.questionUserName}">작성자</td>
@@ -146,12 +140,12 @@
                                     </span>
                                 </div>
 
-                                <div class="detail-title" th:text="${q.questionTitle != null ? q.questionTitle : '(제목없음)'}"></div>
+                                <div class="detail-title" th:text="${q.questionTitleDisplay}"></div>
 
                                 <div class="detail-body">
                                     <div class="question-box">
                                         <div class="box-title">질문</div>
-                                        <div class="box-content" th:text="${q.questionContent}">질문 내용</div>
+                                        <div class="box-content" th:text="${q.questionContentDisplay}">질문 내용</div>
                                     </div>
 
                                     <div class="answer-box">
@@ -180,16 +174,25 @@
                                                 <input type="hidden" name="page" th:value="${currentPage}">
                                                 <input type="hidden" name="size" th:value="${pageSize}">
 
-                                                <div class="btn-row">
-                                                    <button type="submit" class="btn-primary">수정</button>
+                                                <!-- ✅✅✅ 버튼 줄: 수정/삭제 라인에 맞춰서 "강의 Q&A로 이동"을 같은 줄 오른쪽으로 -->
+                                                <div class="btn-row btn-row--space">
+                                                    <div class="btn-left">
+                                                        <button type="submit" class="btn-primary">수정</button>
 
-                                                    <button type="submit"
-                                                            class="btn-danger"
-                                                            th:formaction="@{'/admin/qna/' + ${q.qnaId} + '/delete'}"
-                                                            formmethod="post"
-                                                            onclick="return confirm('정말 삭제하시겠습니까?');">
-                                                        삭제
-                                                    </button>
+                                                        <button type="submit"
+                                                                class="btn-danger"
+                                                                th:formaction="@{'/admin/qna/' + ${q.qnaId} + '/delete'}"
+                                                                formmethod="post"
+                                                                onclick="return confirm('정말 삭제하시겠습니까?');">
+                                                            삭제
+                                                        </button>
+                                                    </div>
+
+                                                    <a class="btn-go-course"
+                                                       th:if="${q.courseId != null}"
+                                                       th:href="@{'/admin/qna/' + ${q.qnaId} + '/go-course'}">
+                                                        강의 Q&A로 이동
+                                                    </a>
                                                 </div>
                                             </form>
                                         </th:block>

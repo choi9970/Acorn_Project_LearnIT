@@ -29,4 +29,11 @@
 
     </insert>
 
+    <select id="selectActiveCourseIds" resultType="long">
+        SELECT course_id
+        FROM enrollment
+        WHERE user_id = #{userId}
+        AND status = 'ACTIVE'
+    </select>
+
 </mapper>

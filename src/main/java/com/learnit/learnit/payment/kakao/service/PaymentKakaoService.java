@@ -36,6 +36,9 @@ public class PaymentKakaoService {
     @Value("${kakao.pay.cid}")
     private String cid;
 
+    @Value("${app.base-url:https://learnit24.com}")
+    private String baseUrl;
+
     private final PaymentPrepareRepository paymentPrepareRepository;
     private final PaymentService paymentService;
 
@@ -64,9 +67,9 @@ public class PaymentKakaoService {
         params.add("total_amount", String.valueOf(amount));
         params.add("tax_free_amount", "0");
 
-        params.add("approval_url", "http://localhost:8080/payments/kakao/success?orderNo=" + orderNo);
-        params.add("cancel_url", "http://localhost:8080/payments/kakao/cancel?orderNo=" + orderNo);
-        params.add("fail_url", "http://localhost:8080/payments/kakao/fail?orderNo=" + orderNo);
+        params.add("approval_url", baseUrl + "/payments/kakao/success?orderNo=" + orderNo);
+        params.add("cancel_url", baseUrl + "/payments/kakao/cancel?orderNo=" + orderNo);
+        params.add("fail_url", baseUrl + "/payments/kakao/fail?orderNo=" + orderNo);
 
         //4. 요청 객체 생성
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
