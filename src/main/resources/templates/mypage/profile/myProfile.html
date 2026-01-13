@@ -79,18 +79,36 @@
             <div class="section-header">
                 <h2 class="section-title">수료증</h2>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <button class="view-all-link" id="view-all-certificates-btn" style="background: none; border: none; cursor: pointer; color: #666; text-decoration: none; font-size: 1.4rem;">전체 보기 ></button>
+                    <button
+                            class="view-all-link"
+                            id="view-all-certificates-btn"
+                            style="background: none; border: none; cursor: pointer; color: #666; text-decoration: none; font-size: 1.4rem;"
+                    >
+                        전체 보기 >
+                    </button>
                 </div>
             </div>
             <div class="certificate-content">
                 <div th:if="${certificates != null && !certificates.isEmpty()}" class="certificate-list">
                     <div th:each="cert : ${certificates}" class="certificate-item">
-                        <div class="certificate-icon">📜</div>
+                        <!-- 기존 📜 아이콘 → 서버 경유 썸네일(S3 Private이어도 OK) -->
+                        <div class="certificate-icon">
+                            <img
+                                    th:src="@{'/mypage/certificates/' + ${cert.certificateId} + '/thumb'}"
+                                    alt="수료증 썸네일"
+                                    class="certificate-thumbnail"
+                                    onerror="this.style.display='none';"
+                            />
+                        </div>
                         <div class="certificate-info">
                             <div class="certificate-title" th:text="${cert.courseTitle}">강의명</div>
                             <div class="certificate-date" th:text="${#temporals.format(cert.issuedDate, 'yyyy. MM. dd.')}">2024. 01. 01.</div>
                         </div>
-                        <a th:href="@{${cert.certificateUrl}}" class="certificate-download-btn" download>
+                        <!-- 다운로드: 서버가 attachment로 내려줘서 "페이지 이동"이 아니라 "파일 다운로드"가 보장됨 -->
+                        <a
+                                th:href="@{'/mypage/certificates/' + ${cert.certificateId} + '/download'}"
+                                class="certificate-download-btn"
+                        >
                             다운로드
                         </a>
                     </div>
@@ -161,13 +179,6 @@
             </div>
         </section>
 
-        <!-- 참여 / 완료 스터디 섹션 -->
-        <section class="profile-section study-section">
-            <h2 class="section-title">참여 / 완료 스터디</h2>
-            <div class="study-content">
-                <p class="empty-message">참여한 스터디가 없습니다.</p>
-            </div>
-        </section>
     </div>
 </div>
 

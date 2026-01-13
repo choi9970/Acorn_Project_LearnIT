@@ -3,6 +3,8 @@ package com.learnit.learnit.enroll;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface EnrollmentMapper {
 
@@ -19,5 +21,8 @@ public interface EnrollmentMapper {
     void insertEnrollment(@Param("userId") Long userId,
                           @Param("courseId") Long courseId
     );
+
+    List<Long> selectActiveCourseIds(@Param("userId") Long userId);
+
 
 }

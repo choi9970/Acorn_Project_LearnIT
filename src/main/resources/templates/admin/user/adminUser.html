@@ -8,7 +8,6 @@
 
     <th:block th:fragment="css">
         <link rel="stylesheet" th:href="@{/css/admin/adminUserTab.css}">
-        <!-- ROLE 전용 CSS (없으면 새로 만들거나 기존 role css 연결) -->
         <link rel="stylesheet" th:href="@{/css/admin/adminUser.css}">
     </th:block>
 </head>
@@ -17,15 +16,11 @@
 
 <div th:fragment="content" class="admin-role">
 
-    <!-- ✅ 쿠폰 페이지처럼 탭 fragment 호출 -->
     <th:block th:replace="admin/fragments/adminUserTab :: tab('user')" />
 
-    <!-- ===============================
-         1. 회원 검색 / 초기화
-    ================================ -->
     <section class="role-section">
-        <h2 class="section-title">회원 검색</h2>
 
+        <!-- ✅ 상단 검색 라인 (공지관리 톤으로 통일) -->
         <div class="admin-role-toolbar">
             <div class="admin-role-search">
                 <select id="searchType">
@@ -33,7 +28,9 @@
                     <option value="name">이름</option>
                     <option value="userId">회원ID</option>
                 </select>
+
                 <input id="searchKeyword" placeholder="검색어 입력" />
+
                 <button id="btnSearch" type="button">검색</button>
             </div>
 
@@ -45,30 +42,25 @@
         </div>
 
         <div id="appliedFilters" class="applied-filters" aria-live="polite"></div>
-    </section>
 
-    <!-- ===============================
-         2. 회원 목록
-    ================================ -->
-    <section class="role-section">
-        <h2 class="section-title">회원 목록</h2>
+        <h2 class="section-title section-title-under">회원 목록</h2>
 
         <div class="table-wrapper">
             <table class="admin-role-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>이름</th>
-                    <th>이메일</th>
-                    <th>가입구분</th>
+                    <th class="col-id">ID</th>
+                    <th class="col-name th-name">이름</th>
+                    <th class="col-email">이메일</th>
+                    <th class="col-provider">가입구분</th>
 
-                    <th class="th-filter">
+                    <th class="th-filter col-status">
                         상태
                         <button type="button" class="filter-btn" data-filter="status" aria-label="상태 필터">▾</button>
                         <div class="filter-popup" id="statusFilterPopup"></div>
                     </th>
 
-                    <th class="th-filter">
+                    <th class="th-filter col-role">
                         권한
                         <button type="button" class="filter-btn" data-filter="role" aria-label="권한 필터">▾</button>
                         <div class="filter-popup" id="roleFilterPopup"></div>

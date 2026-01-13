@@ -2,7 +2,6 @@ package com.learnit.learnit.admin.qna;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
 
 @Mapper
@@ -16,7 +15,7 @@ public interface AdminQnaRepository {
             @Param("searchField") String searchField,
             @Param("search") String search,
             @Param("searchQnaId") Integer searchQnaId,
-            @Param("instructorUserId") Long instructorUserId   // ✅ 추가
+            @Param("instructorUserId") Long instructorUserId
     );
 
     int countQnas(
@@ -25,12 +24,12 @@ public interface AdminQnaRepository {
             @Param("searchField") String searchField,
             @Param("search") String search,
             @Param("searchQnaId") Integer searchQnaId,
-            @Param("instructorUserId") Long instructorUserId   // ✅ 추가
+            @Param("instructorUserId") Long instructorUserId
     );
 
     AdminQnaDTO selectQnaDetail(@Param("qnaId") int qnaId);
 
-    Integer selectLatestAnswerId(@Param("qnaId") int qnaId);
+    Integer selectLatestStaffAnswerId(@Param("qnaId") int qnaId);
 
     void insertAnswer(
             @Param("qnaId") int qnaId,
@@ -49,9 +48,10 @@ public interface AdminQnaRepository {
     );
 
     void softDeleteAnswersByQnaId(@Param("qnaId") int qnaId);
-
     void softDeleteQuestionById(@Param("qnaId") int qnaId);
 
-    // ✅ 추가: 강의 소유자(강사) 확인
     Long selectInstructorUserIdByCourseId(@Param("courseId") int courseId);
+
+    // ✅✅✅ 추가: 강의 첫 챕터 id 조회 (관리자 -> 강의 재생 화면으로 이동할 때 필요)
+    Integer selectFirstChapterIdByCourseId(@Param("courseId") int courseId);
 }

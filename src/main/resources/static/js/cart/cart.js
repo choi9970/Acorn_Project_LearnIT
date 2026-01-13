@@ -87,6 +87,8 @@ async function addToCart(courseId) {
         return;
     }
     if (text === 'OK') {
+        // 헤더 뱃지 실시간 갱신
+        document.dispatchEvent(new CustomEvent('cart:updated'));
         alert('장바구니에 담았습니다!');
         return;
     }

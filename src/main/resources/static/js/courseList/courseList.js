@@ -8,20 +8,32 @@ document.addEventListener('DOMContentLoaded', () => {
         loading: false,
         last: false,
 
-        // ✅ 장바구니 상태(로그인/비로그인 공통)
-        cartSet: new Set(),   // courseId를 String으로 저장
-        cartLoaded: false
+        // 장바구니 상태
+        cartSet: new Set(),   // courseId String
+        cartLoaded: false,
+
+        // 수강중 상태
+        enrolledSet: new Set(), // courseId String
+        enrolledLoaded: false
     };
 
     const grid = document.getElementById('courseGrid');
     const sortSelect = document.getElementById('sortSelect');
 
-    // ---------- CSRF (프로젝트에서 CSRF 켜져있으면 필요) ----------
+    // ✅ "수강중/장바구니" 로딩이 끝나기 전에는 절대로 렌더링하지 않게 하는 게이트
+    let readyResolve;
+    const readyPromise = new Promise((resolve) => { readyResolve = resolve; });
+
+    // ---------- CSRF ----------
     function csrfHeaders() {
         const token = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
         const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
         if (token && header) return { [header]: token };
         return {};
+    }
+
+    function notifyCartUpdated() {
+        document.dispatchEvent(new CustomEvent('cart:updated'));
     }
 
     // ---------- URL <-> state ----------
@@ -31,11 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const cid = p.get('categoryId');
         state.categoryId = (cid !== null && cid !== '') ? Number(cid) : null;
 
-        const tab = p.get('tab');
-        state.tab = tab ? tab : 'all';
-
-        const sort = p.get('sort');
-        state.sort = sort ? sort : 'popular';
+        state.tab = p.get('tab') || 'all';
+        state.sort = p.get('sort') || 'popular';
     }
 
     function syncUrl(push = true) {
@@ -79,33 +88,52 @@ document.addEventListener('DOMContentLoaded', () => {
         if (grid) grid.innerHTML = '';
     }
 
-    // ---------- Cart API ----------
+    // ---------- APIs ----------
+    async function safeGetJson(url) {
+        const res = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
+        const ct = (res.headers.get('content-type') || '').toLowerCase();
+
+        if (!res.ok) {
+            const body = await res.text().catch(() => '');
+            throw new Error(`${url} HTTP ${res.status} (ct=${ct}) body=${body.slice(0, 120)}`);
+        }
+
+        if (!ct.includes('application/json')) {
+            const body = await res.text().catch(() => '');
+            throw new Error(`${url} NOT JSON (ct=${ct}) body=${body.slice(0, 120)}`);
+        }
+
+        return await res.json();
+    }
+
     async function loadCartIds() {
         try {
-            const res = await fetch('/cart/ids', {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' }
-            });
-
-            if (!res.ok) {
-                state.cartSet = new Set();
-                state.cartLoaded = true;
-                return;
-            }
-
-            const ids = await res.json();
+            const ids = await safeGetJson('/cart/ids');
             const s = new Set();
             (ids || []).forEach(id => s.add(String(id)));
             state.cartSet = s;
-            state.cartLoaded = true;
         } catch (e) {
-            console.error('loadCartIds error', e);
+            console.error('[CourseList] loadCartIds failed:', e);
             state.cartSet = new Set();
+        } finally {
             state.cartLoaded = true;
         }
     }
 
-    // ✅ CourseDetail의 /cart/add 로직 재사용(폼 인코딩)
+    async function loadEnrolledIds() {
+        try {
+            const ids = await safeGetJson('/api/enrollmentsIds');
+            const s = new Set();
+            (ids || []).forEach(id => s.add(String(id)));
+            state.enrolledSet = s;
+        } catch (e) {
+            console.error('[CourseList] loadEnrolledIds failed:', e);
+            state.enrolledSet = new Set();
+        } finally {
+            state.enrolledLoaded = true;
+        }
+    }
+
     async function cartAdd(courseId) {
         const res = await fetch('/cart/add', {
             method: 'POST',
@@ -115,12 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: new URLSearchParams({ courseId })
         });
-
-        const text = (await res.text()).trim();
-        return text; // OK | DUPLICATE | ...
+        return (await res.text()).trim();
     }
 
-    // ✅ CourseList 토글용 제거 API (/cart/remove)
     async function cartRemove(courseId) {
         const res = await fetch('/cart/remove', {
             method: 'POST',
@@ -130,13 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: new URLSearchParams({ courseId })
         });
-
-        const text = (await res.text()).trim();
-        return text; // OK | NOOP | ...
+        return (await res.text()).trim();
     }
 
-    // ---------- API ----------
+    // ---------- Course list fetch ----------
     async function fetchPageAndAppend() {
+        await readyPromise;
+
         if (!grid) return;
         if (state.loading || state.last) return;
 
@@ -149,18 +174,14 @@ document.addEventListener('DOMContentLoaded', () => {
         p.set('page', String(state.page));
         p.set('size', String(state.size));
 
-        // 첫 페이지면 로딩 표시
         if (state.page === 0) {
             grid.innerHTML = `<div class="loading">로딩중...</div>`;
         }
 
         try {
-            const res = await fetch(`/api/courses?${p.toString()}`, {
-                headers: { 'Accept': 'application/json' }
-            });
+            const res = await fetch(`/api/courses?${p.toString()}`, { headers: { 'Accept': 'application/json' } });
 
-            // ✅ JSON이 아닐 수도 있어서 확인
-            const ct = res.headers.get('content-type') || '';
+            const ct = (res.headers.get('content-type') || '').toLowerCase();
             if (!res.ok) {
                 const text = await res.text().catch(() => '');
                 console.error('API ERROR', res.status, text);
@@ -168,23 +189,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            let data;
-            if (ct.includes('application/json')) {
-                data = await res.json();
-            } else {
-                const text = await res.text();
+            if (!ct.includes('application/json')) {
+                const text = await res.text().catch(() => '');
                 console.error('NOT JSON', text);
                 grid.innerHTML = `<div class="error">JSON이 아닌 응답(로그인/에러페이지 가능)</div>`;
                 return;
             }
 
-            // ✅ List or Page 모두 대응
+            const data = await res.json();
             const content = Array.isArray(data) ? data : (data.content ?? []);
             const isLast = Array.isArray(data) ? (content.length < state.size) : !!data.last;
 
             if (state.page === 0) grid.innerHTML = '';
+
             if (!content || content.length === 0) {
-                if (state.page === 0) grid.innerHTML = `
+                if (state.page === 0) {
+                    grid.innerHTML = `
                         <div class="course-empty">
                             <h2>표시할 강의가 없어요.</h2>
                             <p>
@@ -192,8 +212,9 @@ document.addEventListener('DOMContentLoaded', () => {
                               다른 카테고리나 필터를 선택해보세요.
                             </p>
                             <a href="/CourseList" class="btn-home">전체 강의 보기</a>
-                          </div>
-                        `;
+                        </div>
+                    `;
+                }
                 state.last = true;
                 return;
             }
@@ -217,26 +238,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const thumb = c.thumbnailUrl ? c.thumbnailUrl : '';
         const courseId = String(c.courseId);
 
-        // ✅ 장바구니에 담긴 강의면 활성화 색
+        // ✅ 수강중 여부
+        const isEnrolled = state.enrolledSet.has(courseId);
+
+        // ✅ 장바구니 활성화
         const activeClass = state.cartSet.has(courseId) ? 'is-active' : '';
+
+        // ✅ 썸네일 우상단: 수강중이면 뱃지, 아니면 아무것도(장바구니 버튼은 meta로만)
+        const actionInThumb = isEnrolled
+            ? `<span class="course-badge">수강중</span>`
+            : ``;
+
+        // ✅ 가격 라인 오른쪽: 수강중이면 버튼 X, 아니면 장바구니 버튼 O
+        const actionInMeta = isEnrolled
+            ? ``
+            : `<button class="cart-btn ${activeClass}"
+                      type="button"
+                      aria-label="장바구니"
+                      data-course-id="${courseId}">🛒</button>`;
 
         return `
       <article class="course-card">
         <a class="course-link" href="/CourseDetail?courseId=${courseId}&tab=intro">
           <div class="thumb-wrap">
             ${thumb
-            ? `<img class="thumb" src="${escapeHtml(thumb)}" alt="">`
-            : `<div class="thumb thumb-placeholder"></div>`}
-            <button class="cart-btn ${activeClass}"
-                    type="button"
-                    aria-label="장바구니"
-                    data-course-id="${courseId}">🛒</button>
+                ? `<img class="thumb" src="${escapeHtml(thumb)}" alt="">`
+                : `<div class="thumb thumb-placeholder"></div>`}
+            ${actionInThumb}
           </div>
+
           <div class="card-body">
             <h3 class="title">${escapeHtml(c.title ?? '')}</h3>
             <p class="desc">${escapeHtml(String(c.description ?? '').slice(0, 80))}</p>
+
             <div class="meta">
               <span class="price">${priceText}</span>
+              ${actionInMeta}
             </div>
           </div>
         </a>
@@ -252,13 +289,12 @@ document.addEventListener('DOMContentLoaded', () => {
             .replaceAll("'", '&#039;');
     }
 
-    // ✅✅ (추가) 🛒 클릭 이벤트 위임 (무한스크롤로 추가되는 카드도 자동 적용)
+    // ---------- Click (장바구니) ----------
     if (grid) {
         grid.addEventListener('click', async (e) => {
             const btn = e.target.closest('.cart-btn');
             if (!btn) return;
 
-            // 카드 링크 이동 막기(🛒만)
             e.preventDefault();
             e.stopPropagation();
 
@@ -272,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (text === 'OK' || text === 'NOOP') {
                         btn.classList.remove('is-active');
                         state.cartSet.delete(String(courseId));
+                        notifyCartUpdated();
                     } else {
                         alert('장바구니 제거 실패: ' + text);
                     }
@@ -285,14 +322,39 @@ document.addEventListener('DOMContentLoaded', () => {
             // 미담김 → 추가
             try {
                 const text = await cartAdd(courseId);
+
                 if (text === 'OK' || text === 'DUPLICATE') {
                     btn.classList.add('is-active');
                     state.cartSet.add(String(courseId));
-                } else if (text === 'LOGIN_REQUIRED') {
-                    location.href = '/login';
-                } else {
-                    alert('장바구니 담기 실패: ' + text);
+                    notifyCartUpdated();
+                    return;
                 }
+
+                if (text === 'ALREADY_ENROLLED') {
+                    // ✅ 서버가 수강중이라면: 세트에 추가 후 "현재 카드"를 뱃지로 갱신하고 버튼 제거
+                    state.enrolledSet.add(String(courseId));
+
+                    const card = btn.closest('.course-card');
+                    if (card) {
+                        // meta 버튼 제거
+                        btn.remove();
+
+                        // thumb에 수강중 배지 없으면 추가
+                        const thumbWrap = card.querySelector('.thumb-wrap');
+                        if (thumbWrap && !thumbWrap.querySelector('.course-badge')) {
+                            thumbWrap.insertAdjacentHTML('beforeend', '<span class="course-badge">수강중</span>');
+                        }
+                    }
+                    return;
+                }
+
+                if (text === 'LOGIN_REQUIRED') {
+                    location.href = '/login';
+                    return;
+                }
+
+                alert('장바구니 담기 실패: ' + text);
+
             } catch (err) {
                 console.error(err);
                 alert('장바구니 담기 중 오류가 발생했습니다.');
@@ -304,12 +366,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.cat-item[data-category-id]').forEach(catEl => {
         catEl.addEventListener('click', (e) => {
             e.preventDefault();
-
             state.categoryId = Number(catEl.dataset.categoryId);
             applyControls();
-
             syncUrl(true);
-
             resetPaging();
             fetchPageAndAppend();
         });
@@ -318,12 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.tab[data-tab]').forEach(tabEl => {
         tabEl.addEventListener('click', (e) => {
             e.preventDefault();
-
             state.tab = tabEl.dataset.tab;
             applyControls();
-
             syncUrl(true);
-
             resetPaging();
             fetchPageAndAppend();
         });
@@ -332,15 +388,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sortSelect) {
         sortSelect.addEventListener('change', () => {
             state.sort = sortSelect.value;
-
             syncUrl(true);
-
             resetPaging();
             fetchPageAndAppend();
         });
     }
 
-    // ✅ 무한 스크롤 (바닥 근처에서 다음 페이지)
     window.addEventListener('scroll', () => {
         const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
         if (nearBottom) fetchPageAndAppend();
@@ -348,7 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('popstate', (e) => {
         const s = e.state;
-
         if (s) {
             state.categoryId = s.categoryId ?? null;
             state.tab = s.tab ?? 'all';
@@ -359,7 +411,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         applyControls();
         syncUrl(false);
-
         resetPaging();
         fetchPageAndAppend();
     });
@@ -370,8 +421,10 @@ document.addEventListener('DOMContentLoaded', () => {
         applyControls();
         syncUrl(false);
 
-        // ✅ 장바구니 상태 먼저 불러와서 카드 생성 시 색 반영
+        await loadEnrolledIds();
         await loadCartIds();
+
+        readyResolve();
 
         resetPaging();
         fetchPageAndAppend();

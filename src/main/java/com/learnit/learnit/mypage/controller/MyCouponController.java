@@ -31,6 +31,9 @@ public class MyCouponController {
     private static final int PAGE_BLOCK_SIZE = 5;
 
     //마이페이지 - 구매/혜택 - 결제 내역 (페이징)
+    // 관리자(ADMIN): 모든 결제 내역 조회
+    // 서브 어드민(SUB_ADMIN): 관리하는 강의의 결제 내역만 조회
+    // 일반 사용자: 본인의 결제 내역만 조회
     @GetMapping("/mypage/purchase")
     public String paymentHistory(
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -42,10 +45,16 @@ public class MyCouponController {
 
         if (userId == null) return "redirect:/login";
 
+        // 사용자 권한 확인
+        String userRole = (String) session.getAttribute("LOGIN_USER_ROLE");
+        if (userRole == null) {
+            userRole = "USER"; // 기본값
+        }
+
         UserDTO user = userService.getUserDTOById(userId);
 
-        // 페이징 처리
-        int totalCount = paymentService.getPaymentHistoriesCount(userId);
+        // 페이징 처리 (권한에 따라 분기)
+        int totalCount = paymentService.getPaymentHistoriesCount(userId, userRole);
         int totalPages = (int) Math.ceil((double) totalCount / size);
         if (totalPages <= 0) totalPages = 1;
 
@@ -55,7 +64,8 @@ public class MyCouponController {
         int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
         int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
 
-        List<MyPaymentHistoryDTO> histories = paymentService.getPaymentHistories(userId, page, size);
+        // 결제 내역 조회 (권한에 따라 분기)
+        List<MyPaymentHistoryDTO> histories = paymentService.getPaymentHistories(userId, userRole, page, size);
 
         model.addAttribute("user", user);
         model.addAttribute("payments", histories != null ? histories : java.util.List.of());

@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 public class MyCertificateService {
 
     private final MyCertificateMapper certificateMapper;
+    private final S3Service s3Service;
 
     /**
      * 수료증 조회
@@ -33,6 +34,22 @@ public class MyCertificateService {
             throw new IllegalArgumentException("수료증 ID 또는 사용자 ID가 없습니다.");
         }
         return certificateMapper.selectCertificateById(certificateId, userId);
+    }
+
+    /**
+     * 수료증 생성 및 S3 업로드
+     */
+    public void uploadCertificateToS3(Long certificateId, Long userId) {
+        try {
+            MyCertificateDTO certificate = getCertificate(certificateId, userId);
+            if (certificate != null) {
+                byte[] pdfBytes = generateCertificatePdf(certificate);
+                String fileName = "Certificate_" + certificate.getCourseId() + "_" + userId + ".pdf";
+                s3Service.uploadFile("certificates/pdf/", fileName, pdfBytes);
+            }
+        } catch (Exception e) {
+            log.error("Failed to upload certificate to S3: {}", e.getMessage());
+        }
     }
 
     /**

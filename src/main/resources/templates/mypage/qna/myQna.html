@@ -9,7 +9,7 @@
       }">
 
 <head>
-    <title th:fragment="title">강의 Q&A</title>
+    <title th:fragment="title">마이 Q&A</title>
 
     <th:block th:fragment="css">
         <link rel="stylesheet" th:href="@{/css/mypage/mypage.css}">
@@ -25,7 +25,7 @@
 <body>
 
 <div th:fragment="content">
-    <h1 class="dashboard-title">강의 Q&A</h1>
+    <h1 class="dashboard-title">마이 Q&A</h1>
 
     <!-- Q&A 목록 -->
     <div class="qna-container">
@@ -45,7 +45,8 @@
                 <div class="qna-content">
                     <p th:text="${qna.content}">질문 내용...</p>
                 </div>
-                <div class="qna-answer" th:if="${qna.answer != null and !qna.answer.isEmpty()}">
+                <!-- 관리자/서브어드민: 답변 내용 표시 -->
+                <div class="qna-answer" th:if="${(userRole == 'ADMIN' or userRole == 'SUB_ADMIN') and qna.answer != null and !qna.answer.isEmpty()}">
                     <div class="answer-label">답변</div>
                     <div class="answer-content">
                         <p th:text="${qna.answer}">답변 내용...</p>
@@ -54,12 +55,36 @@
                         </div>
                     </div>
                 </div>
-                <!-- 강의 상세보기 버튼 (구분선 아래) - 모든 Q&A 항목에 표시 -->
+                
+                <!-- 일반 사용자: 챗봇 질문(course_id가 NULL)의 답변은 바로 표시 -->
+                <div class="qna-answer" th:if="${userRole != 'ADMIN' and userRole != 'SUB_ADMIN' and (qna.courseId == null or qna.courseId == 0) and qna.answer != null and !qna.answer.isEmpty()}">
+                    <div class="answer-label">답변</div>
+                    <div class="answer-content">
+                        <p th:text="${qna.answer}">답변 내용...</p>
+                        <div class="answer-date" th:if="${qna.answeredAt != null}">
+                            <span th:text="${#temporals.format(qna.answeredAt, 'yyyy. MM. dd. HH:mm')}">2024. 01. 01. 14:00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 일반 사용자: 강의 관련 질문의 답변 등록 여부만 표시 (답변 내용은 숨김) -->
+                <div class="qna-answer-notice" th:if="${userRole != 'ADMIN' and userRole != 'SUB_ADMIN' and qna.courseId != null and qna.courseId > 0 and qna.answeredAt != null}">
+                    <div class="answer-label">답변</div>
+                    <div class="answer-content">
+                        <p class="answer-notice-text">답변이 등록되었습니다. 강의 영상 페이지에서 확인하실 수 있습니다.</p>
+                        <div class="answer-date" th:if="${qna.answeredAt != null}">
+                            <span th:text="${#temporals.format(qna.answeredAt, 'yyyy. MM. dd. HH:mm')}">2024. 01. 01. 14:00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 버튼: 관리자/서브어드민은 "강의 상세보기", 일반 사용자는 "답변 상세보기" -->
                 <div class="qna-actions" th:if="${qna.courseId != null}">
                     <a th:href="${qna.firstChapterId != null} 
                            ? @{'/course/play?courseId=' + ${qna.courseId} + '&chapterId=' + ${qna.firstChapterId} + '&openTab=qna'}
                            : @{'/CourseDetail?courseId=' + ${qna.courseId}}"
-                       class="course-detail-btn">
+                       class="course-detail-btn"
+                       th:text="${(userRole == 'ADMIN' or userRole == 'SUB_ADMIN') ? '강의 상세보기 →' : '답변 상세보기 →'}">
                         강의 상세보기 →
                     </a>
                 </div>

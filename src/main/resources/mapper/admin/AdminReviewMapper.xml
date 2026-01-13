@@ -63,7 +63,14 @@
                 </choose>
             </if>
             <if test="commentStatus != null and commentStatus != ''">
-                AND r.comment_status = #{commentStatus}
+                <choose>
+                    <when test="commentStatus == 'Active'">
+                        AND (r.comment_status = 'Active' OR r.comment_status IS NULL)
+                    </when>
+                    <otherwise>
+                        AND r.comment_status = #{commentStatus}
+                    </otherwise>
+                </choose>
             </if>
             <if test="managedCourseIds != null and managedCourseIds.size() > 0">
                 AND c.course_id IN
@@ -98,7 +105,14 @@
                 </choose>
             </if>
             <if test="commentStatus != null and commentStatus != ''">
-                AND r.comment_status = #{commentStatus}
+                <choose>
+                    <when test="commentStatus == 'Active'">
+                        AND (r.comment_status = 'Active' OR r.comment_status IS NULL)
+                    </when>
+                    <otherwise>
+                        AND r.comment_status = #{commentStatus}
+                    </otherwise>
+                </choose>
             </if>
             <if test="managedCourseIds != null and managedCourseIds.size() > 0">
                 AND c.course_id IN

@@ -15,6 +15,11 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
+/* ✅ (선택) 첫 섹션에서 h2를 제거했으니, 위로 살짝 당기고 싶으면 사용 */
+.coupon-section:first-of-type{
+    padding-top: 2rem;
+}
+
 .section-title {
     font-size: 1.6rem;
     font-weight: 700;
@@ -34,7 +39,7 @@
 .block-title {
     font-size: 1.4rem;
     font-weight: 600;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.8rem;
     color: #374151;
 }
 
@@ -84,7 +89,7 @@
     justify-content: center;
 
     font-size: 1.4rem;
-    font-weight: 600;
+    font-weight: 700;
 
     color: #64748b;
     background: transparent;
@@ -93,11 +98,11 @@
     transition: all 0.2s ease;
 }
 
-/* 선택된 탭 */
+/* ✅ 선택된 탭: 요청대로 "공지관리 파랑(#0A4A7A) + 흰 글자" */
 .mode-tab input:checked + .tab-label {
-    background: #ffffff;
-    color: #2563eb;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: #0A4A7A;
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(10, 74, 122, 0.18);
 }
 
 /* =========================
@@ -208,21 +213,23 @@
     overflow-x: hidden;
 }
 
-table {
+.admin-coupon table {
     width: 100%;
     border-collapse: collapse;
     font-size: 1.3rem;
 }
 
-th {
+/* ✅ 요청: 회원 선택 테이블 헤더 색을 파랑(#0A4A7A)으로 */
+.admin-coupon table thead th {
     padding: 1rem;
-    background: #f3f4f6;
-    color: #4b5563;
-    border-bottom: 1px solid #e5e7eb;
+    background: #0A4A7A;
+    color: #ffffff;
+    border-bottom: 1px solid #0A4A7A;
     text-align: left;
+    font-weight: 800;
 }
 
-td {
+.admin-coupon table td {
     padding: 1rem;
     border-bottom: 1px solid #f3f4f6;
     vertical-align: middle;
@@ -266,19 +273,24 @@ td {
 /* =========================
    버튼
 ========================= */
-.btn-search {
-    background: #111827;
-    color: #ffffff;
-    border: none;
-    height: 4.2rem;
-    border-radius: 0.6rem;
-    cursor: pointer;
+.btn-search{
+  background: #ffffff;          /* ✅ 흰 배경 */
+  color: #0A4A7A;               /* ✅ 파란 글자 */
+  border: 1px solid #0A4A7A;    /* ✅ 파란 테두리 */
+  height: 4.2rem;
+  border-radius: 0.8rem;        /* ✅ 둥글게(수정버튼 느낌) */
+  cursor: pointer;
+  font-weight: 800;
+  transition: background .12s ease, box-shadow .12s ease, transform .05s ease;
 }
 
-.btn-search:hover {
-    opacity: 0.9;
+.btn-search:hover{
+  background: #f3f7fb;          /* ✅ 살짝 파란 톤 */
+  box-shadow: 0 2px 8px rgba(16,24,40,.08);
 }
-
+.btn-search:active{
+  transform: translateY(1px);
+}
 /* ➕ */
 .btn-add {
     width: 32px;
@@ -342,4 +354,12 @@ td {
 
 .btn-issue-coupon:hover {
     opacity: 0.9;
+}
+/* ✅ 회원 선택 테이블 박스 둥글게(캡처 4 느낌) */
+.admin-coupon .search-panel .table-wrapper,
+.admin-coupon .selected-panel .table-wrapper{
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;  /* ✅ 헤더(파란색)도 모서리 같이 둥글게 핵심 */
+  background: #fff;
 }

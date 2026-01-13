@@ -362,76 +362,121 @@
     color: #856404;
 }
 
-/* 댓글 상태 필터 */
-.status-filter-header {
+/* 댓글 상태 필터 - 유저 페이지 스타일 적용 */
+.th-filter {
     position: relative;
-    overflow: visible;
-    z-index: 10001;
 }
 
-.status-filter-label {
+.th-content-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.filter-btn {
+    margin-left: 8px;
+    height: 32px;
+    width: 32px;
+    padding: 0;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.4);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
     cursor: pointer;
-    user-select: none;
-    display: inline-block;
-    color: white !important;
-    font-size: 1rem;
-    transition: color 0.2s ease, text-decoration 0.2s ease;
-    white-space: nowrap;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    line-height: 1;
 }
 
-.status-filter-label:hover {
-    color: #ffd700 !important;
-    text-decoration: underline;
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
 }
 
-.filter-indicator {
-    color: #ffd700 !important;
-    font-size: 1rem;
-    margin-left: 4px;
+.filter-btn.filter-on {
+    background: rgba(255, 215, 0, 0.8);
+    border-color: rgba(255, 215, 0, 1);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 6px rgba(255, 215, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
-.status-filter-dropdown {
+.filter-popup {
     display: none;
-    position: absolute;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 0.4rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    z-index: 10000;
-    width: 100%;
-    max-width: 110px;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    top: 100%;
-    left: 0;
-    margin-top: 0.5rem;
+    position: fixed;
+    width: 240px;
+    background: #fff;
+    opacity: 1;
+    border: 1px solid #e5e9f2;
+    border-radius: 12px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+    padding: 12px;
+    isolation: isolate;
+    filter: none;
+    backdrop-filter: none;
+    transform: translateZ(0);
+    z-index: 999999;
 }
 
-.filter-option {
-    padding: 0.7rem 0.9rem;
+.filter-popup .filter-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 10px;
+}
+
+.filter-popup .filter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-popup label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #111827;
     cursor: pointer;
-    border-bottom: 1px solid #eee;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    color: #333 !important;
-    position: relative;
-    white-space: nowrap;
-    text-align: center;
 }
 
-.filter-option:last-child {
-    border-bottom: none;
+.filter-popup input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
 }
 
-.filter-option:hover {
-    background-color: #f8f9fa !important;
-    color: #0A4A7A !important;
+.filter-popup .filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
 }
 
-.filter-option.active {
-    background-color: #0A4A7A !important;
-    color: #fff !important;
+.filter-popup button {
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid #d9e1ee;
+    background: #fff;
+    cursor: pointer;
+    padding: 0 12px;
     font-weight: 600;
+    font-size: 13px;
+}
+
+.filter-popup button.primary {
+    background: #4f46e5;
+    border-color: transparent;
+    color: #fff;
 }
 
 .action-cell {

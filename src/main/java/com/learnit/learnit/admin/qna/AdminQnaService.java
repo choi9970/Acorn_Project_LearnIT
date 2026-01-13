@@ -12,27 +12,22 @@ public class AdminQnaService {
 
     private final AdminQnaRepository repo;
 
-    public int getTotalCount(String type, String status, String searchField, String search, Integer searchQnaId, Long instructorUserId) {
+    public int getTotalCount(String type, String status, String searchField, String search,
+                             Integer searchQnaId, Long instructorUserId) {
         return repo.countQnas(type, status, searchField, search, searchQnaId, instructorUserId);
     }
 
     public List<AdminQnaDTO> getList(String type, String status, String searchField, String search,
                                      Integer searchQnaId, int offset, int size, Long instructorUserId) {
         List<AdminQnaDTO> list = repo.selectQnas(offset, size, type, status, searchField, search, searchQnaId, instructorUserId);
-        // typeLabel과 statusLabel 설정
+
         for (AdminQnaDTO dto : list) {
-            // typeLabel 설정
-            if (dto.getCourseId() != null) {
-                dto.setTypeLabel("강의 Q&A");
-            } else {
-                dto.setTypeLabel("전체 Q&A");
-            }
-            // statusLabel 설정
-            if ("Y".equals(dto.getIsResolved())) {
-                dto.setStatusLabel("PASS");
-            } else {
-                dto.setStatusLabel("ACTIVE");
-            }
+            dto.setTypeLabel(dto.getCourseId() != null ? "강의 Q&A" : "전체 Q&A");
+            dto.setStatusLabel("Y".equals(dto.getIsResolved()) ? "PASS" : "ACTIVE");
+
+            String displayContent = pickLatestStudentContent(dto);
+            dto.setQuestionContentDisplay(displayContent);
+            dto.setQuestionTitleDisplay(makeTitle(dto.getQuestionTitle(), displayContent));
         }
         return list;
     }
@@ -40,18 +35,12 @@ public class AdminQnaService {
     public AdminQnaDTO getDetail(int qnaId) {
         AdminQnaDTO dto = repo.selectQnaDetail(qnaId);
         if (dto != null) {
-            // typeLabel과 statusLabel 설정
-            if (dto.getCourseId() != null) {
-                dto.setTypeLabel("강의 Q&A");
-            } else {
-                dto.setTypeLabel("전체 Q&A");
-            }
-            // statusLabel 설정
-            if ("Y".equals(dto.getIsResolved())) {
-                dto.setStatusLabel("PASS");
-            } else {
-                dto.setStatusLabel("ACTIVE");
-            }
+            dto.setTypeLabel(dto.getCourseId() != null ? "강의 Q&A" : "전체 Q&A");
+            dto.setStatusLabel("Y".equals(dto.getIsResolved()) ? "PASS" : "ACTIVE");
+
+            String displayContent = pickLatestStudentContent(dto);
+            dto.setQuestionContentDisplay(displayContent);
+            dto.setQuestionTitleDisplay(makeTitle(dto.getQuestionTitle(), displayContent));
         }
         return dto;
     }
@@ -61,9 +50,15 @@ public class AdminQnaService {
         return repo.selectInstructorUserIdByCourseId(courseId);
     }
 
+    // ✅✅✅ 추가
+    public Integer getFirstChapterIdByCourseId(Integer courseId) {
+        if (courseId == null) return null;
+        return repo.selectFirstChapterIdByCourseId(courseId);
+    }
+
     @Transactional
     public void saveAnswerAndStatus(int qnaId, long adminUserId, String content, String newStatus) {
-        Integer answerId = repo.selectLatestAnswerId(qnaId);
+        Integer answerId = repo.selectLatestStaffAnswerId(qnaId);
 
         if (content != null) {
             String trimmed = content.trim();
@@ -81,5 +76,27 @@ public class AdminQnaService {
     public void delete(int qnaId) {
         repo.softDeleteAnswersByQnaId(qnaId);
         repo.softDeleteQuestionById(qnaId);
+    }
+
+    private String pickLatestStudentContent(AdminQnaDTO dto) {
+        String s = (dto.getLatestStudentContent() == null) ? "" : dto.getLatestStudentContent().trim();
+        if (!s.isEmpty()) return s;
+
+        String q = (dto.getQuestionContent() == null) ? "" : dto.getQuestionContent().trim();
+        if (!q.isEmpty()) return q;
+
+        return "질문";
+    }
+
+    private String makeTitle(String title, String content) {
+        String t = (title == null) ? "" : title.trim();
+        if (!t.isEmpty()) return t;
+
+        String c = (content == null) ? "" : content.trim();
+        if (c.isEmpty()) return "질문";
+
+        int max = 18;
+        if (c.length() <= max) return c;
+        return c.substring(0, max) + "…";
     }
 }

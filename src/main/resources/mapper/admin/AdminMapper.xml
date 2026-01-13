@@ -21,7 +21,8 @@
     </select>
 
     <select id="selectLatestNotices" resultType="com.learnit.learnit.admin.home.AdminHome$AdminNotice">
-        SELECT COALESCE(category, '') as category,
+        SELECT notice_id as noticeId,
+               COALESCE(category, '') as category,
                COALESCE(title, '') as title,
                COALESCE(DATE_FORMAT(created_at, '%Y-%m-%d'), '') as createdAt
         FROM notice
@@ -30,13 +31,14 @@
     </select>
 
     <select id="selectPendingCertificates" resultType="com.learnit.learnit.admin.home.AdminHome$AdminCertificate">
-        SELECT COALESCE(c.title, '') as title, COALESCE(u.name, '') as name
+        SELECT COALESCE(c.title, '') as title, 
+               COALESCE(u.name, '') as name,
+               COALESCE(DATE_FORMAT(cert.issued_at, '%Y-%m-%d'), '') as issuedAt
         FROM certificate cert
             INNER JOIN enrollment e ON cert.enrollment_id = e.enrollment_id
             LEFT JOIN course c ON e.course_id = c.course_id
             LEFT JOIN users u ON e.user_id = u.user_id
-        WHERE cert.is_approved = 'N'
-        ORDER BY COALESCE(cert.issued_at, cert.cert_id) DESC
+        ORDER BY cert.issued_at DESC
             LIMIT 4
     </select>
 </mapper>
