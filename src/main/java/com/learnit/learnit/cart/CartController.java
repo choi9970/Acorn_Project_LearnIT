@@ -1,5 +1,6 @@
 package com.learnit.learnit.cart;
 
+import com.learnit.learnit.enroll.EnrollmentMapper;
 import com.learnit.learnit.user.util.SessionUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -15,6 +18,7 @@ public class CartController {
 
     private final CartService cartService;
     private final GuestCartService guestCartService;
+    private final EnrollmentMapper enrollmentMapper;
 
     // ✅ 장바구니 페이지 (로그인이든 비로그인이든 진입 가능)
     @GetMapping("/cart")
@@ -61,7 +65,7 @@ public class CartController {
     @PostMapping("/cart/delete")
     public String deleteItem(@RequestParam("cartId") Long cartId, HttpSession session) {
         Long userId = SessionUtils.getUserId(session);
-        if (userId == null) return "redirect:/cart"; // 비로그인은 이 엔드포인트를 쓰지 않게 템플릿에서 분기함
+        if (userId == null) return "redirect:/cart";
 
         cartService.deleteItem(userId, cartId);
         return "redirect:/cart";
@@ -101,6 +105,7 @@ public class CartController {
         int deleted = cartService.deletePaidCourses(userId, courseIds);
         return (deleted > 0) ? "OK" : "NOOP";
     }
+
     // 강의 목록  카트 빼기 토글용: courseId 기준 삭제 (로그인/비로그인 공통)
     @PostMapping("/cart/remove")
     @ResponseBody
@@ -126,5 +131,66 @@ public class CartController {
             return guestCartService.getCourseIds(session);
         }
         return cartService.getCartCourseIds(userId);
+    }
+
+    /**
+     * 헤더 장바구니 뱃지(개수) 실시간 갱신용 API
+     * - 로그인: DB 기반 count
+     * - 비로그인: 세션 기반 count
+     */
+    @GetMapping("/cart/count")
+    @ResponseBody
+    public int cartCount(HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+        if (userId == null) {
+            return guestCartService.getCourseIds(session).size();
+        }
+        return cartService.countByUserId(userId);
+    }
+
+    /**
+     * ✅✅ 로그인 직후 UX 정리용(프론트에서 1회 호출)
+     * - 로그인 상태면:
+     *   1) (세션) GUEST_CART_COURSE_IDS에서도 "이미 수강중" 강의 제거
+     *   2) (DB) 회원 장바구니에서도 "이미 수강중" 강의 제거
+     *   3) 최종 count 반환(헤더 뱃지 즉시 동기화)
+     */
+    @PostMapping("/cart/cleanup-enrolled")
+    @ResponseBody
+    public Map<String, Object> cleanupEnrolled(HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+
+        Map<String, Object> res = new HashMap<>();
+
+        // 비로그인: 그냥 현재 게스트 카트 수만 반환
+        if (userId == null) {
+            res.put("loggedIn", false);
+            res.put("removedGuest", 0);
+            res.put("removedUser", 0);
+            res.put("count", guestCartService.getCourseIds(session).size());
+            return res;
+        }
+
+        // 1) 수강중 강의 목록
+        List<Long> enrolledIds = enrollmentMapper.selectActiveCourseIds(userId);
+
+        // 2) (세션) 게스트 장바구니에서도 제거 → UX 플래시 방지
+        int removedGuest = 0;
+        if (enrolledIds != null && !enrolledIds.isEmpty()) {
+            int before = guestCartService.getCourseIds(session).size();
+            guestCartService.removeMany(session, enrolledIds);
+            int after = guestCartService.getCourseIds(session).size();
+            removedGuest = Math.max(0, before - after);
+        }
+
+        // 3) (DB) 회원 장바구니에서도 제거 → 서버 일관성 보장
+        int removedUser = cartService.deleteEnrolledCoursesFromCart(userId);
+
+        // 4) 최종 카운트
+        res.put("loggedIn", true);
+        res.put("removedGuest", removedGuest);
+        res.put("removedUser", removedUser);
+        res.put("count", cartService.countByUserId(userId));
+        return res;
     }
 }

@@ -40,6 +40,64 @@
         WHERE o.user_id = #{userId}
     </select>
 
+    <!-- 관리자(ADMIN)가 볼 수 있는 모든 결제 내역 조회 (페이징) -->
+    <select id="findAdminPaymentHistories" resultType="com.learnit.learnit.mypage.dto.MyPaymentHistoryDTO">
+        SELECT
+            p.payment_id      AS paymentId,
+            o.order_no        AS orderId,
+            p.method          AS paymentMethod,
+            o.status          AS paymentStatus,
+            (SELECT SUM(price) FROM payment_detail WHERE payment_id = p.payment_id) AS originAmount,
+            ((SELECT SUM(price) FROM payment_detail WHERE payment_id = p.payment_id) - p.final_price) AS discountAmount,
+            p.final_price     AS totalAmount,
+            p.created_at      AS paidAt
+        FROM payment p JOIN orders o
+        ON p.order_id = o.order_id
+        ORDER BY p.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 관리자(ADMIN)가 볼 수 있는 모든 결제 내역 총 개수 -->
+    <select id="countAdminPaymentHistories" resultType="int">
+        SELECT COUNT(*)
+        FROM payment p
+        JOIN orders o ON p.order_id = o.order_id
+    </select>
+
+    <!-- 서브 어드민(SUB_ADMIN)이 관리하는 강의의 결제 내역 조회 (페이징) -->
+    <select id="findSubAdminPaymentHistories" resultType="com.learnit.learnit.mypage.dto.MyPaymentHistoryDTO">
+        SELECT DISTINCT
+            p.payment_id      AS paymentId,
+            o.order_no        AS orderId,
+            p.method          AS paymentMethod,
+            o.status          AS paymentStatus,
+            (SELECT SUM(price) FROM payment_detail WHERE payment_id = p.payment_id) AS originAmount,
+            ((SELECT SUM(price) FROM payment_detail WHERE payment_id = p.payment_id) - p.final_price) AS discountAmount,
+            p.final_price     AS totalAmount,
+            p.created_at      AS paidAt
+        FROM payment p 
+        JOIN orders o ON p.order_id = o.order_id
+        JOIN payment_detail pd ON p.payment_id = pd.payment_id
+        WHERE pd.course_id IN
+        <foreach collection="managedCourseIds" item="courseId" open="(" separator="," close=")">
+            #{courseId}
+        </foreach>
+        ORDER BY p.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 서브 어드민(SUB_ADMIN)이 관리하는 강의의 결제 내역 총 개수 -->
+    <select id="countSubAdminPaymentHistories" resultType="int">
+        SELECT COUNT(DISTINCT p.payment_id)
+        FROM payment p
+        JOIN orders o ON p.order_id = o.order_id
+        JOIN payment_detail pd ON p.payment_id = pd.payment_id
+        WHERE pd.course_id IN
+        <foreach collection="managedCourseIds" item="courseId" open="(" separator="," close=")">
+            #{courseId}
+        </foreach>
+    </select>
+
     <!--3. 영수증 조회-->
     <select id="findPaymentReceipt" resultType="com.learnit.learnit.mypage.dto.MyPaymentReceiptDTO">
         SELECT

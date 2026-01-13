@@ -86,6 +86,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
             // ✅ 로그인 세션 세팅
             sessionService.setLoginSession(session, user);
+
             @SuppressWarnings("unchecked")
             List<Long> guestCourseIds =
                     (List<Long>) session.getAttribute("GUEST_CART_COURSE_IDS");
@@ -95,7 +96,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 session.removeAttribute("GUEST_CART_COURSE_IDS");
             }
 
-
+            // ✅✅ OAuth 로그인 직후 DB 장바구니 정리(이미 수강중 강의 제거)
+            cartService.deleteEnrolledCoursesFromCart(user.getUserId());
 
             // ✅ 추가정보 입력 페이지 우선
             if (User.STATUS_SIGNUP_PENDING.equals(user.getStatus())) {
@@ -157,8 +159,3 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         return true;
     }
 }
-
-
-
-
-

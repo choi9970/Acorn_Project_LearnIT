@@ -24,18 +24,33 @@
     </select>
 
     <!-- 수료증 생성 (완강 시 자동 발급) -->
-    <insert id="insertCertificate">
-        INSERT INTO certificate (
-            enrollment_id,
-            certificate_number,
-            is_approved,
-            issued_at
-        ) VALUES (
-            #{enrollmentId},
-            #{certificateNumber},
-            'Y',
-            NOW()
-        )
-    </insert>
-
-</mapper>
+        <insert id="insertCertificate">
+            INSERT INTO certificate (
+                enrollment_id,
+                certificate_number,
+                is_approved,
+                issued_at
+            ) VALUES (
+                #{enrollmentId},
+                #{certificateNumber},
+                'Y',
+                NOW()
+            )
+        </insert>
+    
+        <!-- 수강 ID로 수료증 조회 -->
+        <select id="selectCertificateByEnrollmentId" resultType="com.learnit.learnit.mypage.dto.MyCertificateDTO">
+            SELECT 
+                cert.cert_id AS certificateId,
+                c.course_id AS courseId,
+                c.title AS courseTitle,
+                u.name AS userName,
+                cert.issued_at AS issuedDate,
+                cert.certificate_number AS certificateNumber
+            FROM certificate cert
+            JOIN enrollment e ON cert.enrollment_id = e.enrollment_id
+            JOIN course c ON e.course_id = c.course_id
+            JOIN users u ON e.user_id = u.user_id
+            WHERE cert.enrollment_id = #{enrollmentId}
+        </select>
+    </mapper>

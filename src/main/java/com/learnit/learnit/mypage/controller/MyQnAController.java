@@ -27,6 +27,9 @@ public class MyQnAController {
 
     /**
      * 마이페이지 강의 Q&A 목록 조회
+     * 관리자(ADMIN): 모든 Q&A 조회
+     * 서브 어드민(SUB_ADMIN): 관리하는 강의의 Q&A만 조회
+     * 일반 사용자: 본인이 작성한 Q&A만 조회
      */
     @GetMapping
     public String qnaList(
@@ -40,12 +43,18 @@ public class MyQnAController {
             return "redirect:/login";
         }
 
+        // 사용자 권한 확인
+        String userRole = (String) session.getAttribute("LOGIN_USER_ROLE");
+        if (userRole == null) {
+            userRole = "USER"; // 기본값
+        }
+
         // 사용자 정보 조회
         UserDTO user = userService.getUserDTOById(userId);
         model.addAttribute("user", user);
 
-        // 페이징 처리
-        int totalCount = qnAService.getMyQnACount(userId);
+        // 페이징 처리 (권한에 따라 분기)
+        int totalCount = qnAService.getMyQnACount(userId, userRole);
         int totalPages = (int) Math.ceil((double) totalCount / size);
         if (totalPages <= 0) totalPages = 1;
 
@@ -55,8 +64,8 @@ public class MyQnAController {
         int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
         int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
 
-        // 사용자가 작성한 Q&A 목록 조회
-        List<MyQnADTO> qnaList = qnAService.getMyQnAList(userId, page, size);
+        // Q&A 목록 조회 (권한에 따라 분기)
+        List<MyQnADTO> qnaList = qnAService.getMyQnAList(userId, userRole, page, size);
         model.addAttribute("qnaList", qnaList != null ? qnaList : new java.util.ArrayList<>());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
@@ -64,6 +73,7 @@ public class MyQnAController {
         model.addAttribute("pageSize", size);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
+        model.addAttribute("userRole", userRole); // 권한 정보도 전달
 
         return "mypage/qna/myQna";
     }

@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 1) 비로그인: 로그인 필요
       if (action === "login") {
-        // 여기서 바로 로그인으로 보내도 됨
         location.href = "/login";
         return;
       }
@@ -58,14 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
             body: new URLSearchParams({ courseId }),
           });
 
-          // 서버가 401로 주는 케이스(만약 바꿨다면)
           if (res.status === 401) {
             location.href = "/login";
             return;
           }
 
           const text = (await res.text()).trim();
-          // ✅ CartController가 주는 값에 맞춰 처리
           if (text === "LOGIN_REQUIRED") {
             location.href = "/login";
             return;
@@ -77,6 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           if (text === "OK") {
+            // 헤더 뱃지 실시간 갱신
+            document.dispatchEvent(new CustomEvent("cart:updated"));
             if (modalAdded) modalAdded.style.display = "flex";
             return;
           }

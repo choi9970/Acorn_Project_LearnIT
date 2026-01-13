@@ -22,7 +22,8 @@
          1. 쿠폰 지급 설정
     ================================ -->
     <section class="coupon-section">
-        <h2 class="section-title">쿠폰 지급 설정</h2>
+        <!-- ✅ 요청: '쿠폰 지급 설정' 글 삭제 -->
+        <!-- <h2 class="section-title">쿠폰 지급 설정</h2> -->
 
         <!-- 쿠폰 선택 -->
         <div class="coupon-container">
@@ -86,37 +87,38 @@
     ================================ -->
     <section class="coupon-section" id="userSearchContent">
         <h2 class="section-title">회원 선택</h2>
-            <div class="user-select-grid">
-                <div class="search-panel">
-                    <div class="user-search-form">
-                        <select id="searchType" class="form-control">
-                            <option value="all">전체</option>
-                            <option value="name">이름</option>
-                            <option value="email">이메일</option>
-                        </select>
-                        <input type="text" id="searchKeyword" class="form-control" placeholder="검색어 입력">
-                        <button type="button" class="btn-search" onclick="searchUsers()">검색</button>
-                    </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead><tr><th>이름</th><th>이메일</th><th>ID</th><th></th></tr></thead>
-                            <tbody id="userSearchResult"></tbody>
-                        </table>
-                    </div>
+        <div class="user-select-grid">
+            <div class="search-panel">
+                <div class="user-search-form">
+                    <select id="searchType" class="form-control">
+                        <option value="all">전체</option>
+                        <option value="name">이름</option>
+                        <option value="email">이메일</option>
+                    </select>
+                    <input type="text" id="searchKeyword" class="form-control" placeholder="검색어 입력">
+                    <button type="button" class="btn-search" onclick="searchUsers()">검색</button>
                 </div>
 
-                <div class="transfer-indicator">≫</div>
-
-                <div class="selected-panel">
-                    <h3 class="block-title">선택된 회원</h3>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead><tr><th>ID</th><th>이름</th><th>이메일</th><th></th></tr></thead>
-                            <tbody id="issueTargetList"></tbody>
-                        </table>
-                    </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>이름</th><th>이메일</th><th>ID</th><th></th></tr></thead>
+                        <tbody id="userSearchResult"></tbody>
+                    </table>
                 </div>
             </div>
+
+            <div class="transfer-indicator">≫</div>
+
+            <div class="selected-panel">
+                <h3 class="block-title">선택된 회원</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>ID</th><th>이름</th><th>이메일</th><th></th></tr></thead>
+                        <tbody id="issueTargetList"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- ===============================

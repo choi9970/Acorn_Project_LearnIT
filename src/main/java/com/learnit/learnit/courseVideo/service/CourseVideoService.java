@@ -6,6 +6,8 @@ import com.learnit.learnit.courseVideo.dto.CourseVideo;
 import com.learnit.learnit.courseVideo.dto.CurriculumSection;
 import com.learnit.learnit.courseVideo.repository.CourseVideoMapper;
 import com.learnit.learnit.mypage.mapper.MyCertificateMapper;
+import com.learnit.learnit.mypage.service.MyCertificateService;
+import com.learnit.learnit.mypage.dto.MyCertificateDTO;
 import com.learnit.learnit.quiz.dto.Quiz;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class CourseVideoService {
     private final CourseVideoMapper courseVideoMapper;
     private final MyCertificateMapper certificateMapper;
+    private final MyCertificateService certificateService;
 
     @Value("${rapid-api.key}")
     private String rapidApiKey;
@@ -183,6 +186,16 @@ public class CourseVideoService {
         certificateMapper.insertCertificate(enrollmentId, certificateNumber);
         log.info("Certificate created: enrollmentId={}, certificateNumber={}", 
             enrollmentId, certificateNumber);
+
+        // S3에 PDF 업로드 (추가된 부분)
+        try {
+            MyCertificateDTO cert = certificateMapper.selectCertificateByEnrollmentId(enrollmentId);
+            if (cert != null) {
+                certificateService.uploadCertificateToS3(cert.getCertificateId(), userId);
+            }
+        } catch (Exception e) {
+            log.error("Failed to upload certificate to S3: {}", e.getMessage());
+        }
     }
 
     public int getProgressPercent(Long userId, Long courseId) {

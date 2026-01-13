@@ -16,4 +16,9 @@ public interface MyCertificateMapper {
      */
     void insertCertificate(@Param("enrollmentId") Long enrollmentId, 
                           @Param("certificateNumber") String certificateNumber);
+
+    /**
+     * 수강 ID로 수료증 조회
+     */
+    MyCertificateDTO selectCertificateByEnrollmentId(@Param("enrollmentId") Long enrollmentId);
 }

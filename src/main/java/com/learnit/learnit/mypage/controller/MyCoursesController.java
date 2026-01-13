@@ -26,6 +26,9 @@ public class MyCoursesController {
 
     /**
      * 내 학습 강의 페이지 조회 (페이징)
+     * 관리자(ADMIN): 모든 학습 강의 조회
+     * 서브 어드민(SUB_ADMIN): 관리하는 강의의 학습 강의만 조회
+     * 일반 사용자: 본인의 학습 강의만 조회
      */
     @GetMapping
     public String myCourses(
@@ -40,12 +43,18 @@ public class MyCoursesController {
             return "redirect:/login";
         }
 
+        // 사용자 권한 확인
+        String userRole = (String) session.getAttribute("LOGIN_USER_ROLE");
+        if (userRole == null) {
+            userRole = "USER"; // 기본값
+        }
+
         // 사용자 정보 조회
         UserDTO user = userService.getUserDTOById(userId);
         model.addAttribute("user", user);
 
-        // 전체 강의 개수 조회
-        int totalCount = mypageCoursesService.getMyCoursesCount(userId);
+        // 전체 강의 개수 조회 (권한에 따라 분기)
+        int totalCount = mypageCoursesService.getMyCoursesCount(userId, userRole);
         int totalPages = (int) Math.ceil((double) totalCount / size);
         if (totalPages <= 0) totalPages = 1;
 
@@ -55,8 +64,8 @@ public class MyCoursesController {
         int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
         int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
 
-        // 수강 중인 강의 목록 조회 (페이징)
-        List<MyCourseSummaryDTO> myCourses = mypageCoursesService.getMyCourses(userId, page, size);
+        // 학습 강의 목록 조회 (페이징, 권한에 따라 분기)
+        List<MyCourseSummaryDTO> myCourses = mypageCoursesService.getMyCourses(userId, userRole, page, size);
         model.addAttribute("courses", myCourses != null ? myCourses : new java.util.ArrayList<>());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);

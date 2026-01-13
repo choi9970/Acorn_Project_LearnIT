@@ -11,7 +11,6 @@
     <link rel="stylesheet" th:href="@{/css/admin/adminQna.css}">
 </th:block>
 
-<!-- ✅ 상세도 Q&A 공통 JS를 로드(있어도 안전함) -->
 <th:block th:fragment="script">
     <script th:src="@{/js/admin/adminQna.js}"></script>
 </th:block>
@@ -39,7 +38,7 @@
                             <b>강의</b> : <span th:text="${qna.courseTitle}"></span>
                         </span>
                     </div>
-                    <div class="qtitle" th:text="${qna.questionTitle != null ? qna.questionTitle : '(제목없음)'}"></div>
+                    <div class="qtitle" th:text="${qna.questionTitleDisplay}"></div>
                 </div>
 
                 <div class="detail-actions">
@@ -56,14 +55,14 @@
             </div>
 
             <form th:action="@{'/admin/qna/' + ${qna.qnaId} + '/status'}" method="post" class="status-form" style="margin-bottom:12px;">
-                <select name="status" class="status-select">
+                <select name="newStatus" class="status-select">
                     <option value="ACTIVE" th:selected="${qna.statusLabel == 'ACTIVE'}">ACTIVE</option>
                     <option value="PASS" th:selected="${qna.statusLabel == 'PASS'}">PASS</option>
                 </select>
                 <button type="submit" class="btn-mini">상태변경</button>
 
                 <input type="hidden" name="type" th:value="${currentType}">
-                <input type="hidden" name="statusFilter" th:value="${currentStatus}">
+                <input type="hidden" name="status" th:value="${currentStatus}">
                 <input type="hidden" name="search" th:value="${searchKeyword}">
                 <input type="hidden" name="page" th:value="${currentPage}">
                 <input type="hidden" name="size" th:value="${pageSize}">
@@ -72,21 +71,25 @@
             <div class="detail-body">
                 <div class="question-box">
                     <div class="box-title">질문</div>
-                    <div class="box-content" th:text="${qna.questionContent}">질문 내용</div>
+                    <!-- ✅ 최신 학생 글 있으면 그걸로 교체 표시 -->
+                    <div class="box-content" th:text="${qna.questionContentDisplay}">질문 내용</div>
                 </div>
 
                 <div class="answer-box">
                     <div class="box-title">답변</div>
 
-                    <form th:action="@{'/admin/qna/' + ${qna.qnaId} + '/answer'}" method="post" class="answer-form">
+                    <form th:action="@{'/admin/qna/' + ${qna.qnaId} + '/save'}" method="post" class="answer-form">
                         <textarea name="content" rows="6"
                                   placeholder="답변을 입력하세요"
                                   th:text="${qna.answerContent}"></textarea>
 
-                        <label class="check">
-                            <input type="checkbox" name="markResolved" value="true" checked>
-                            답변 저장 시 PASS 처리
-                        </label>
+                        <div class="status-inline">
+                            <label class="status-label">상태</label>
+                            <select name="newStatus" class="status-select">
+                                <option value="ACTIVE" th:selected="${qna.statusLabel == 'ACTIVE'}">ACTIVE</option>
+                                <option value="PASS" th:selected="${qna.statusLabel == 'PASS'}">PASS</option>
+                            </select>
+                        </div>
 
                         <input type="hidden" name="type" th:value="${currentType}">
                         <input type="hidden" name="status" th:value="${currentStatus}">

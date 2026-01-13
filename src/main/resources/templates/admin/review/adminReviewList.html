@@ -30,7 +30,7 @@
     <!-- 검색 및 필터 -->
     <div class="filters">
       <form method="get" action="/admin/review" class="filter-form" id="filterForm">
-        <input type="hidden" name="commentStatus" th:value="${currentCommentStatus}">
+        <input type="hidden" name="commentStatus" th:value="${currentCommentStatus}" id="hiddenCommentStatus">
         <select name="searchType" class="filter-select">
           <option value="">선택</option>
           <option value="courseId" th:selected="${currentSearchType == 'courseId'}">강좌 ID</option>
@@ -54,36 +54,12 @@
             <th>강좌명</th>
             <th>작성자</th>
             <th>평점</th>
-            <th>
-              <div class="status-filter-header">
-                <span class="status-filter-label"
-                      onclick="toggleStatusFilter(event)">
-                  댓글 상태
-                  <span class="filter-indicator" th:if="${currentCommentStatus != null and currentCommentStatus != ''}">●</span>
-                </span>
-                <div id="statusFilterDropdown" class="status-filter-dropdown">
-                  <div class="filter-option"
-                       onclick="filterByStatus('')"
-                       th:classappend="${currentCommentStatus == null or currentCommentStatus == ''} ? 'active' : ''">
-                    전체
-                  </div>
-                  <div class="filter-option"
-                       onclick="filterByStatus('Active')"
-                       th:classappend="${currentCommentStatus == 'Active'} ? 'active' : ''">
-                    Active
-                  </div>
-                  <div class="filter-option"
-                       onclick="filterByStatus('Approved')"
-                       th:classappend="${currentCommentStatus == 'Approved'} ? 'active' : ''">
-                    Approved
-                  </div>
-                  <div class="filter-option"
-                       onclick="filterByStatus('Rejected')"
-                       th:classappend="${currentCommentStatus == 'Rejected'} ? 'active' : ''">
-                    Rejected
-                  </div>
-                </div>
+            <th class="th-filter">
+              <div class="th-content-wrapper">
+                <span>댓글 상태</span>
+                <button type="button" class="filter-btn" data-filter="commentStatus" aria-label="댓글 상태 필터">▾</button>
               </div>
+              <div class="filter-popup" id="commentStatusFilterPopup"></div>
             </th>
             <th>요약</th>
             <th>등록일</th>

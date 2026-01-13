@@ -1,17 +1,22 @@
 package com.learnit.learnit.cart;
 
+import com.learnit.learnit.enroll.EnrollmentMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CartService {
 
     private final CartMapper cartMapper;
+    private final EnrollmentMapper enrollmentMapper;
 
-    public CartService(CartMapper cartMapper) {
+    public CartService(CartMapper cartMapper, EnrollmentMapper enrollmentMapper) {
         this.cartMapper = cartMapper;
+        this.enrollmentMapper = enrollmentMapper;
     }
 
     public List<CartItem> getCartItems(Long userId) {
@@ -42,9 +47,16 @@ public class CartService {
     }
 
     // ✅ 중복 담기 방지 + 담기
+    // ✅ 이미 수강중이면 담기 자체를 막는다(서버 최종 보장)
     public boolean addToCart(Long userId, Long courseId) {
+        if (userId != null && courseId != null) {
+            boolean enrolled = enrollmentMapper.existsEnrollment(userId, courseId);
+            if (enrolled) return false;
+        }
+
         int cnt = cartMapper.exists(userId, courseId);
         if (cnt > 0) return false;
+
         cartMapper.insertCart(userId, courseId);
         return true;
     }
@@ -57,6 +69,7 @@ public class CartService {
     }
 
     // ✅✅ 로그인 성공 시: (게스트) 장바구니를 (회원) 장바구니로 "추가 병합" (덮어쓰기 X)
+    // ✅ 이미 수강중인 강의는 병합 대상에서 제외
     public int mergeGuestCartToUser(Long userId, List<Long> guestCourseIds) {
         if (userId == null) return 0;
         if (guestCourseIds == null || guestCourseIds.isEmpty()) return 0;
@@ -67,9 +80,17 @@ public class CartService {
                 .distinct()
                 .toList();
 
+        // 수강중 강의 Set(빠른 contains)
+        Set<Long> enrolledSet = new HashSet<>(
+                enrollmentMapper.selectActiveCourseIds(userId)
+        );
+
         int merged = 0;
 
         for (Long courseId : distinctIds) {
+            // ✅ 이미 수강중이면 병합 제외
+            if (enrolledSet.contains(courseId)) continue;
+
             // ✅ 회원 장바구니에 이미 있으면 스킵
             int exists = cartMapper.exists(userId, courseId);
             if (exists > 0) continue;
@@ -81,6 +102,20 @@ public class CartService {
 
         return merged;
     }
+
+    /**
+     * ✅ 로그인 직후(또는 필요 시점)에
+     * "이미 수강중인 강의"가 회원 장바구니(DB)에 남아있지 않도록 정리
+     */
+    public int deleteEnrolledCoursesFromCart(Long userId) {
+        if (userId == null) return 0;
+
+        List<Long> enrolledIds = enrollmentMapper.selectActiveCourseIds(userId);
+        if (enrolledIds == null || enrolledIds.isEmpty()) return 0;
+
+        return cartMapper.deleteByUserIdAndCourseIds(userId, enrolledIds);
+    }
+
     // 강의 목록 카트용 장바구니에 담긴 courseId 목록
     public List<Long> getCartCourseIds(Long userId) {
         if (userId == null) return Collections.emptyList();
@@ -93,4 +128,9 @@ public class CartService {
         return cartMapper.deleteByUserIdAndCourseId(userId, courseId);
     }
 
+    // ✅ 헤더 뱃지(장바구니 개수) 조회
+    public int countByUserId(Long userId) {
+        if (userId == null) return 0;
+        return cartMapper.countByUserId(userId);
+    }
 }
