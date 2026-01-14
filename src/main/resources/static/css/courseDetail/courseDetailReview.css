@@ -16,6 +16,33 @@
   margin-bottom:20px;
 }
 
+.review-title-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.review-my-btn{
+  padding:8px 12px;
+  border-radius:12px;
+  border:1px solid #dee2e6;
+  background:#fff;
+  cursor:pointer;
+  font-weight:800;
+  font-size:13px;
+}
+
+.review-gate-notice{
+  margin: 12px 0 16px;
+  padding: 12px;
+  border: 1px solid #eef1f4;
+  border-radius: 12px;
+  background: #fafbfc;
+  font-size: 13px;
+  color: #8b95a1;
+}
+
 .review-title{
   font-size:18px;
   font-weight:900;
@@ -110,6 +137,11 @@
   border-radius:16px;
   padding:16px;
   background:#fff;
+}
+
+.review-card.is-highlight{
+  outline: 2px solid #111;
+  outline-offset: 2px;
 }
 
 .review-top{

@@ -1,14 +1,17 @@
 // =====================================================
-// course-detail-review.js (FULL, COPY-PASTE)
-// UX 요구사항:
-// - 최초 진입: 별점 5, textarea 빈값, 버튼 "등록" (자동 edit 진입 금지)
-// - 등록 시 409(이미 리뷰 있음): 경고만 표시, 폼 상태 유지(등록 모드 유지)
-// - 사용자가 리스트에서 "수정" 눌렀을 때만: 기존 내용 채우고 버튼 "수정"
-// - 삭제/수정 API 호출 + CSRF + /login 리다이렉트 감지
+// courseDetailReview.js
+// =====================================================
+// UX 요구사항
+// 1) 리뷰 폼 노출 조건: (로그인) && (수강중) && (작성 가능)
+// 2) 이미 리뷰를 작성한 유저: "내 수강평 보기" 버튼 → 내 리뷰 카드로 스크롤 이동
+// 3) 수정/삭제 로직은 기존 방식 유지 (내 리뷰 카드에만 버튼 노출)
+// 4) 302(/login) 리다이렉트 감지 + CSRF 처리
 // =====================================================
 
 let REVIEW_MODE = "create"; // "create" | "edit"
 let EDIT_REVIEW_ID = null;
+
+let LAST_REVIEWS = [];
 
 // ================================
 // courseId
@@ -64,7 +67,7 @@ function toDateSafe(v) {
 }
 
 // ================================
-// UI message
+// UI helpers
 // ================================
 function setMessage(msg, type = "info") {
   const el = document.getElementById("reviewMessage");
@@ -73,6 +76,40 @@ function setMessage(msg, type = "info") {
   el.textContent = msg || "";
   el.className = "";
   if (msg) el.classList.add("review-message", `is-${type}`);
+}
+
+function setGateNotice(msg) {
+  const el = document.getElementById("reviewGateNotice");
+  if (!el) return;
+
+  if (!msg) {
+    el.style.display = "none";
+    el.textContent = "";
+    return;
+  }
+
+  el.style.display = "";
+  el.textContent = msg;
+}
+
+function showFormWrapper() {
+  const wrapper = document.getElementById("reviewFormWrapper");
+  if (wrapper) wrapper.style.display = "";
+}
+
+function hideFormWrapper() {
+  const wrapper = document.getElementById("reviewFormWrapper");
+  if (wrapper) wrapper.style.display = "none";
+}
+
+function showMyReviewBtn() {
+  const btn = document.getElementById("myReviewBtn");
+  if (btn) btn.style.display = "";
+}
+
+function hideMyReviewBtn() {
+  const btn = document.getElementById("myReviewBtn");
+  if (btn) btn.style.display = "none";
 }
 
 // ================================
@@ -104,7 +141,9 @@ async function apiFetch(url, options = {}) {
   const text = await res.text();
 
   let data = null;
-  try { data = JSON.parse(text); } catch {}
+  try {
+    data = JSON.parse(text);
+  } catch {}
 
   return { ok: res.ok && !redirectedToLogin, res, data, text, redirectedToLogin };
 }
@@ -116,7 +155,7 @@ function setFormModeCreate() {
   REVIEW_MODE = "create";
   EDIT_REVIEW_ID = null;
 
-  const btn = document.querySelector("#reviewForm button[type='submit']");
+  const btn = document.querySelector('#reviewForm button[type="submit"]');
   if (btn) btn.textContent = "수강평 등록";
 
   const ratingEl = document.getElementById("rating");
@@ -126,10 +165,14 @@ function setFormModeCreate() {
 }
 
 function setFormModeEdit(review) {
+  // 수정 진입 시에는 폼을 강제로 열어준다
+  showFormWrapper();
+  setGateNotice("");
+
   REVIEW_MODE = "edit";
   EDIT_REVIEW_ID = review?.reviewId ?? null;
 
-  const btn = document.querySelector("#reviewForm button[type='submit']");
+  const btn = document.querySelector('#reviewForm button[type="submit"]');
   if (btn) btn.textContent = "수강평 수정";
 
   const ratingEl = document.getElementById("rating");
@@ -171,6 +214,7 @@ function renderReviews(reviews) {
     const card = document.createElement("div");
     card.className = "review-card";
     card.setAttribute("data-review-id", r.reviewId ?? "");
+    if (isMine) card.setAttribute("data-mine", "true");
 
     card.innerHTML = `
       <div class="review-top">
@@ -196,6 +240,33 @@ function renderReviews(reviews) {
   list.appendChild(frag);
 }
 
+function getMyReviewIdFrom(reviews) {
+  if (!Array.isArray(reviews)) return null;
+  const mine = reviews.find((r) => r && (r.mine === true || r.isMine === true));
+  return mine ? mine.reviewId : null;
+}
+
+function scrollToMyReview() {
+  const myId = getMyReviewIdFrom(LAST_REVIEWS);
+  if (!myId) {
+    setMessage("내 수강평을 찾을 수 없습니다.", "warn");
+    return;
+  }
+
+  const card =
+    document.querySelector(`.review-card[data-review-id="${myId}"]`) ||
+    document.querySelector('.review-card[data-mine="true"]');
+
+  if (!card) {
+    setMessage("내 수강평을 찾을 수 없습니다.", "warn");
+    return;
+  }
+
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
+  card.classList.add("is-highlight");
+  window.setTimeout(() => card.classList.remove("is-highlight"), 1200);
+}
+
 // ================================
 // load list + summary
 // return { reviews }
@@ -208,14 +279,15 @@ async function loadReviews() {
 
   if (listRes.redirectedToLogin) {
     setMessage("로그인이 필요합니다. 로그인 후 다시 시도해 주세요.", "warn");
+    LAST_REVIEWS = [];
+    renderReviews([]);
     return { reviews: [] };
   }
 
-  const reviews = Array.isArray(listRes.data)
-    ? listRes.data
-    : (listRes.data?.items ?? listRes.data?.data ?? []);
+  const reviews = Array.isArray(listRes.data) ? listRes.data : (listRes.data?.items ?? listRes.data?.data ?? []);
+  LAST_REVIEWS = Array.isArray(reviews) ? reviews : [];
 
-  renderReviews(reviews);
+  renderReviews(LAST_REVIEWS);
 
   const summary = await apiFetch(`/api/reviews/summary?courseId=${encodeURIComponent(courseId)}`);
   if (summary.ok && summary.data) {
@@ -234,7 +306,70 @@ async function loadReviews() {
     }
   }
 
-  return { reviews };
+  return { reviews: LAST_REVIEWS };
+}
+
+// ================================
+// gate (폼 노출/내 리뷰 보기 버튼 제어)
+// ================================
+async function applyReviewGate() {
+  const courseId = getCourseId();
+  if (!courseId) return;
+
+  // 비로그인
+  if (window.IS_LOGGED_IN !== true) {
+    hideFormWrapper();
+    hideMyReviewBtn();
+    setGateNotice("수강평은 로그인 후 작성할 수 있습니다.");
+    return;
+  }
+
+  const res = await apiFetch(`/api/reviews/check-enrollment?courseId=${encodeURIComponent(courseId)}`);
+  if (!res.ok || !res.data) {
+    hideFormWrapper();
+    hideMyReviewBtn();
+    setGateNotice("수강평 작성 가능 여부를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.");
+    return;
+  }
+
+  const loggedIn = res.data.loggedIn === true;
+  const enrolled = res.data.enrolled === true;
+  const canWriteReview = res.data.canWriteReview === true;
+
+  if (!loggedIn) {
+    hideFormWrapper();
+    hideMyReviewBtn();
+    setGateNotice("수강평은 로그인 후 작성할 수 있습니다.");
+    return;
+  }
+
+  if (!enrolled) {
+    hideFormWrapper();
+    hideMyReviewBtn();
+    setGateNotice("수강 신청(수강중)인 회원만 수강평을 작성할 수 있습니다.");
+    return;
+  }
+
+  if (canWriteReview) {
+    // 수강중 + 아직 리뷰 없음 → 작성 폼 노출
+    showFormWrapper();
+    hideMyReviewBtn();
+    setGateNotice("");
+    return;
+  }
+
+  // 수강중 + 이미 리뷰 있음 → 폼 숨김 + '내 수강평 보기' 제공
+  hideFormWrapper();
+  setFormModeCreate();
+
+  const myId = getMyReviewIdFrom(LAST_REVIEWS);
+  if (myId) {
+    showMyReviewBtn();
+    setGateNotice("이미 수강평을 작성했습니다. ‘내 수강평 보기’로 이동하세요.");
+  } else {
+    hideMyReviewBtn();
+    setGateNotice("이미 수강평을 작성했습니다.");
+  }
 }
 
 // ================================
@@ -264,7 +399,7 @@ function bindFormSubmit() {
       return;
     }
 
-    // ✅ CREATE
+    // CREATE
     if (REVIEW_MODE === "create") {
       const res = await apiFetch(`/api/reviews?courseId=${encodeURIComponent(courseId)}`, {
         method: "POST",
@@ -279,8 +414,9 @@ function bindFormSubmit() {
 
       if (!res.ok) {
         if (res.res && res.res.status === 409) {
-          // ✅ 요구사항: 409이면 경고만, 폼은 그대로(등록 유지/내용 유지)
-          setMessage("이미 작성한 수강평이 있어요. 목록에서 ‘수정’으로 변경해 주세요.", "warn");
+          setMessage("이미 작성한 수강평이 있어요. ‘내 수강평 보기’로 이동해 수정/삭제할 수 있습니다.", "warn");
+          await loadReviews();
+          await applyReviewGate();
           return;
         }
         if (res.res && (res.res.status === 401 || res.res.status === 403)) {
@@ -293,14 +429,11 @@ function bindFormSubmit() {
 
       setMessage("수강평이 등록되었습니다.", "ok");
       await loadReviews();
-
-      // ✅ 요구사항: 등록 성공 후에도 자동 edit 진입 X
-      // 폼은 등록 모드 그대로 두되, textarea 비우고 싶으면 아래 주석 해제
-      // setFormModeCreate();
+      await applyReviewGate();
       return;
     }
 
-    // ✅ EDIT
+    // EDIT
     if (REVIEW_MODE === "edit") {
       if (!EDIT_REVIEW_ID) {
         setMessage("수정할 리뷰를 찾지 못했습니다.", "error");
@@ -329,6 +462,7 @@ function bindFormSubmit() {
 
       setMessage("수강평이 수정되었습니다.", "ok");
       await loadReviews();
+      await applyReviewGate();
       return;
     }
   });
@@ -349,9 +483,9 @@ function bindListActions() {
     const id = btn.getAttribute("data-id");
     if (!id) return;
 
-    // ✅ EDIT (사용자가 눌렀을 때만 기존 내용 채우기)
+    // EDIT
     if (action === "edit") {
-      setMessage(""); // 문구는 원하면 여기서만 띄워도 됨
+      setMessage("");
 
       const { reviews } = await loadReviews();
       const target = Array.isArray(reviews) ? reviews.find((r) => Number(r.reviewId) === Number(id)) : null;
@@ -365,7 +499,7 @@ function bindListActions() {
       return;
     }
 
-    // ✅ DELETE
+    // DELETE
     if (action === "delete") {
       const ok = confirm("정말 삭제하시겠습니까?");
       if (!ok) return;
@@ -388,11 +522,23 @@ function bindListActions() {
 
       setMessage("수강평이 삭제되었습니다.", "ok");
       await loadReviews();
-
-      // 삭제 후엔 다시 등록 모드로 초기화(요구 UX에 자연스러움)
       setFormModeCreate();
+      await applyReviewGate();
       return;
     }
+  });
+}
+
+// ================================
+// my review button
+// ================================
+function bindMyReviewBtn() {
+  const btn = document.getElementById("myReviewBtn");
+  if (!btn) return;
+
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    scrollToMyReview();
   });
 }
 
@@ -400,13 +546,12 @@ function bindListActions() {
 // init
 // ================================
 document.addEventListener("DOMContentLoaded", async () => {
-  const wrapper = document.getElementById("reviewFormWrapper");
-  if (wrapper) wrapper.style.display = window.IS_LOGGED_IN === true ? "" : "none";
-
-  // ✅ 최초 진입은 무조건 등록 모드로 시작
   setFormModeCreate();
 
   bindFormSubmit();
   bindListActions();
+  bindMyReviewBtn();
+
   await loadReviews();
+  await applyReviewGate();
 });
