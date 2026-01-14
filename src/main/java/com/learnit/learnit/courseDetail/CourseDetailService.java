@@ -60,12 +60,20 @@ public class CourseDetailService {
         return courseDetailMapper.selectCategoryNameByCategoryId(categoryId);
     }
 
+    /**
+     * comment_status 값이 REJECTED(대소문자 혼재 포함)인지 여부
+     * - 운영 중 상태값이 'Rejected'로 들어오는 케이스 방어
+     */
+    private boolean isRejectedStatus(String status) {
+        return status != null && status.trim().equalsIgnoreCase("REJECTED");
+    }
+
     public List<ReviewDTO> getReviewsByCourseId(Long courseId) {
         List<ReviewDTO> list = courseDetailRepository.findByCourseIdAndDeleteFlg(courseId, 0);
 
-        // comment_status가 null 이거나 'REJECTED'가 아닌 것만 노출
+        // comment_status가 null 이거나 'Rejected/REJECTED'가 아닌 것만 노출
         return list.stream()
-                .filter(r -> r.getCommentStatus() == null || !"REJECTED".equals(r.getCommentStatus()))
+                .filter(r -> r.getCommentStatus() == null || !isRejectedStatus(r.getCommentStatus()))
                 .toList();
     }
 
@@ -74,7 +82,7 @@ public class CourseDetailService {
         List<ReviewDTO> list = courseDetailRepository.findByCourseIdAndDeleteFlg(courseId, 0);
 
         List<ReviewDTO> filtered = list.stream()
-                .filter(r -> r.getCommentStatus() == null || !"REJECTED".equals(r.getCommentStatus()))
+                .filter(r -> r.getCommentStatus() == null || !isRejectedStatus(r.getCommentStatus()))
                 .toList();
 
         double average = filtered.isEmpty()
@@ -90,7 +98,6 @@ public class CourseDetailService {
 
         return result;
     }
-
 
     @Transactional
     public ReviewDTO createReview(Long courseId, Long userId, ReviewDTO input) {
@@ -112,24 +119,21 @@ public class CourseDetailService {
             // 현재 "살아 있는" 리뷰인지 판별
             boolean isActive =
                     (existing.getDeleteFlg() == null || existing.getDeleteFlg() == 0)
-                            && !"REJECTED".equals(existing.getCommentStatus());
+                            && !isRejectedStatus(existing.getCommentStatus());
 
             if (isActive) {
-                // 👉 이미 등록된, 화면에 보이는 수강평이 있는 경우 → 막기
                 throw new IllegalStateException("이미 이 강의에 수강평이 등록되었습니다.");
             }
 
-            // 👉 여기로 온 경우 = 삭제되었거나(REJECTED) 숨겨진 리뷰가 있는 상태
-            //    → 같은 row 를 "다시 살리면서" 새로운 내용으로 덮어쓰기
+            // 삭제되었거나(REJECTED) 숨겨진 리뷰가 있는 상태 → 같은 row 재활성화
             existing.setRating(input.getRating());
             existing.setContent(input.getContent());
-            existing.setDeleteFlg(0);               // 다시 활성화
-            existing.setCommentStatus("VISIBLE");   // 다시 노출
+            existing.setDeleteFlg(0);
+            existing.setCommentStatus("VISIBLE");
 
-            return courseDetailRepository.save(existing); // UPDATE
+            return courseDetailRepository.save(existing);
         }
 
-        // 2. 아예 처음 작성하는 경우 → 새로 INSERT
         ReviewDTO review = ReviewDTO.builder()
                 .courseId(courseId)
                 .userId(userId)
@@ -169,10 +173,9 @@ public class CourseDetailService {
         }
 
         review.setDeleteFlg(1);
-        //review.setCommentStatus("REJECTED");
-
         courseDetailRepository.save(review);
     }
+
     /**
      * 해당 userId가 courseId 강의를 수강 중인지 여부
      */
@@ -198,20 +201,17 @@ public class CourseDetailService {
         // 3️⃣ 활성 리뷰 없으면 작성 가능
         return activeReviewCount == 0;
     }
+
     public Long getLastWatchedChapterId(Long userId, int courseId) {
         Long lastChapterId = courseDetailMapper.selectLastWatchedChapterId(userId, courseId);
         if (lastChapterId != null) {
             return lastChapterId;
         }
 
-        // 만약 시청 기록이 없다면 첫 번째 챕터 반환
         List<ChapterDTO> chapters = getChapters(courseId);
         if (!chapters.isEmpty()) {
             return chapters.get(0).getChapterId();
         }
-        return null; // 챕터가 아예 없는 경우
+        return null;
     }
-
-
-
 }

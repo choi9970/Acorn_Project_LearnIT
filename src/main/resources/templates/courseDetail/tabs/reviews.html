@@ -6,7 +6,11 @@
         <div class="review-wrap">
 
             <div class="review-header">
-                <h3 class="review-title">수강평</h3>
+                <div class="review-title-row">
+                    <h3 class="review-title">수강평</h3>
+                    <!-- ✅ 이미 작성한 유저 UX: 내 리뷰 위치로 이동 -->
+                    <button type="button" id="myReviewBtn" class="review-my-btn" style="display:none;">내 수강평 보기</button>
+                </div>
 
                 <div class="review-summary">
                     <div class="rating-badge">
@@ -20,6 +24,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ✅ 수강/작성 권한 안내 (JS에서 제어) -->
+            <div id="reviewGateNotice" class="review-gate-notice" style="display:none;"></div>
 
             <!-- 리뷰 등록 폼 -->
             <div id="reviewFormWrapper" style="display:none;">
